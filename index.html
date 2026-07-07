@@ -2,146 +2,148 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>無料QRコード作成｜広告なし・登録なし｜salp Tools</title>
-<meta name="description" content="無料で使えるQRコード作成ツールです。広告なし、登録なし、メールアドレス不要。URLを貼るだけで簡単にQRコードを作成し、PNG保存できます。">
-<meta name="keywords" content="QRコード作成,無料QRコード,QRコードメーカー,広告なし,登録なし,PNG保存">
+<title>無料 ロゴ入りQRコード作成 | salp Tools</title>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
+
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-  background:#f7f3ea;
-  color:#2b2118;
-  margin:0;
-  padding:24px;
-  text-align:center;
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+background:#f5f5f5;
+text-align:center;
+padding:25px;
 }
-h1{font-size:30px;margin:20px 0 8px;}
-.lead{color:#7b6138;font-weight:bold;margin-bottom:12px;}
-.note{font-size:14px;color:#6d5a40;margin-bottom:24px;}
+
 .box{
-  max-width:520px;
-  margin:auto;
-  background:#fffaf0;
-  border:1px solid #d7bd8a;
-  border-radius:18px;
-  padding:22px;
-  box-shadow:0 4px 16px rgba(0,0,0,.08);
+max-width:600px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 3px 15px rgba(0,0,0,.15);
 }
+
 input{
-  width:100%;
-  box-sizing:border-box;
-  padding:14px;
-  font-size:16px;
-  border:1px solid #c9b58a;
-  border-radius:10px;
-  margin-bottom:14px;
+width:100%;
+padding:12px;
+font-size:16px;
+margin:10px 0;
+box-sizing:border-box;
 }
+
 button{
-  background:#2b2118;
-  color:white;
-  border:none;
-  border-radius:10px;
-  padding:13px 18px;
-  font-size:16px;
-  margin:6px;
+
+padding:12px 20px;
+font-size:16px;
+margin:10px;
+cursor:pointer;
+
 }
+
 canvas{
-  margin-top:20px;
-  background:white;
-  padding:12px;
-  border-radius:12px;
-  max-width:100%;
-  height:auto;
-  box-sizing:border-box;
+
+max-width:100%;
+border:1px solid #ddd;
+margin-top:20px;
+
 }
-.info{
-  max-width:620px;
-  margin:28px auto;
-  text-align:left;
-  font-size:15px;
-  line-height:1.8;
-}
-.footer{
-  margin-top:28px;
-  font-size:13px;
-  color:#8a6a3f;
-}
+
 </style>
+
 </head>
 
 <body>
 
-<h1>無料QRコード作成</h1>
-<div class="lead">広告なし・登録なし・メール不要</div>
-<div class="note">URLを貼るだけ。PNG保存できます。</div>
-
 <div class="box">
-  <h2>QRコードメーカー</h2>
 
-  <input id="text" type="text" placeholder="URLをここに貼り付け">
+<h1>ロゴ入りQRコード作成</h1>
 
-  <button onclick="makeQR()">QRコード作成</button>
-  <button onclick="downloadQR()">PNG保存</button>
+<input id="url"
+placeholder="URLを入力">
 
-  <br>
-  <canvas id="qr"></canvas>
-</div>
+<input type="file"
+id="logo"
+accept="image/*">
 
-<div class="info">
-  <h2>このページについて</h2>
-  <p>
-    salp Tools のQRコード作成ツールは、本当に無料で使えます。
-    広告表示、会員登録、メールアドレス入力、サブスクリプション登録は不要です。
-  </p>
-  <p>
-    Spotify、YouTube、Instagram、ホームページなどのURLを貼り付けるだけで、
-    すぐにQRコードを作成できます。
-  </p>
-</div>
+<button onclick="makeQR()">
+QRコード作成
+</button>
 
-<div class="footer">
-  Made by salp.music 🐱🎵
+<button onclick="saveQR()">
+PNG保存
+</button>
+
+<br>
+
+<canvas id="canvas"></canvas>
+
 </div>
 
 <script>
-function makeQR(){
-  const text = document.getElementById("text").value.trim();
-  const canvas = document.getElementById("qr");
 
-  if(!text){
-    alert("URLや文字を入力してください");
-    return;
-  }
+async function makeQR(){
 
-  QRCode.toCanvas(canvas, text, {
-    width: 420,
-    margin: 2,
-    errorCorrectionLevel: "H"
-  }, function(error){
-    if(error){
-      alert("QRコード作成に失敗しました");
-      console.error(error);
-    }
-  });
+const url=document.getElementById("url").value;
+
+const canvas=document.getElementById("canvas");
+
+await QRCode.toCanvas(canvas,url,{
+
+width:700,
+
+margin:2,
+
+errorCorrectionLevel:"H"
+
+});
+
+const file=document.getElementById("logo").files[0];
+
+if(file){
+
+const ctx=canvas.getContext("2d");
+
+const img=new Image();
+
+img.onload=function(){
+
+const size=canvas.width*0.22;
+
+const x=(canvas.width-size)/2;
+
+const y=(canvas.height-size)/2;
+
+ctx.fillStyle="white";
+
+ctx.fillRect(x-8,y-8,size+16,size+16);
+
+ctx.drawImage(img,x,y,size,size);
+
 }
 
-function downloadQR(){
-  const canvas = document.getElementById("qr");
+img.src=URL.createObjectURL(file);
 
-  if(canvas.width === 0){
-    alert("先にQRコードを作成してください");
-    return;
-  }
-
-  const link = document.createElement("a");
-  link.download = "salp-qrcode.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
 }
+
+}
+
+function saveQR(){
+
+const canvas=document.getElementById("canvas");
+
+const a=document.createElement("a");
+
+a.download="qr.png";
+
+a.href=canvas.toDataURL();
+
+a.click();
+
+}
+
 </script>
 
 </body>
