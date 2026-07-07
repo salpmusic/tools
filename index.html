@@ -3,39 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>salp Tools - QR Code Maker</title>
+
+<title>無料QRコード作成｜広告なし・登録なし｜salp Tools</title>
+<meta name="description" content="無料で使えるQRコード作成ツールです。広告なし、登録なし、メールアドレス不要。URLを貼るだけで簡単にQRコードを作成し、PNG保存できます。">
+<meta name="keywords" content="QRコード作成,無料QRコード,QRコードメーカー,広告なし,登録なし,PNG保存">
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
 body{
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
   background:#f7f3ea;
   color:#2b2118;
-  text-align:center;
+  margin:0;
   padding:24px;
+  text-align:center;
 }
-
-h1{
-  font-size:32px;
-  margin-bottom:4px;
-}
-
-.subtitle{
-  color:#8a6a3f;
-  margin-bottom:30px;
-}
-
+h1{font-size:30px;margin:20px 0 8px;}
+.lead{color:#7b6138;font-weight:bold;margin-bottom:12px;}
+.note{font-size:14px;color:#6d5a40;margin-bottom:24px;}
 .box{
   max-width:520px;
   margin:auto;
   background:#fffaf0;
   border:1px solid #d7bd8a;
   border-radius:18px;
-  padding:24px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  padding:22px;
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
 }
-
 input{
   width:100%;
   box-sizing:border-box;
@@ -45,30 +40,33 @@ input{
   border-radius:10px;
   margin-bottom:14px;
 }
-
 button{
   background:#2b2118;
   color:white;
   border:none;
   border-radius:10px;
-  padding:14px 20px;
+  padding:13px 18px;
   font-size:16px;
   margin:6px;
 }
-
-button:hover{
-  opacity:0.85;
-}
-
 canvas{
-  margin-top:22px;
+  margin-top:20px;
   background:white;
   padding:12px;
   border-radius:12px;
+  max-width:100%;
+  height:auto;
+  box-sizing:border-box;
 }
-
+.info{
+  max-width:620px;
+  margin:28px auto;
+  text-align:left;
+  font-size:15px;
+  line-height:1.8;
+}
 .footer{
-  margin-top:30px;
+  margin-top:28px;
   font-size:13px;
   color:#8a6a3f;
 }
@@ -77,22 +75,32 @@ canvas{
 
 <body>
 
-<h1>salp Tools</h1>
-<div class="subtitle">Free QR Code Maker / 広告なし・登録なし</div>
+<h1>無料QRコード作成</h1>
+<div class="lead">広告なし・登録なし・メール不要</div>
+<div class="note">URLを貼るだけ。PNG保存できます。</div>
 
 <div class="box">
-  <h2>QRコード作成</h2>
+  <h2>QRコードメーカー</h2>
 
   <input id="text" type="text" placeholder="URLをここに貼り付け">
-
-  <br>
 
   <button onclick="makeQR()">QRコード作成</button>
   <button onclick="downloadQR()">PNG保存</button>
 
   <br>
-
   <canvas id="qr"></canvas>
+</div>
+
+<div class="info">
+  <h2>このページについて</h2>
+  <p>
+    salp Tools のQRコード作成ツールは、本当に無料で使えます。
+    広告表示、会員登録、メールアドレス入力、サブスクリプション登録は不要です。
+  </p>
+  <p>
+    Spotify、YouTube、Instagram、ホームページなどのURLを貼り付けるだけで、
+    すぐにQRコードを作成できます。
+  </p>
 </div>
 
 <div class="footer">
@@ -110,7 +118,7 @@ function makeQR(){
   }
 
   QRCode.toCanvas(canvas, text, {
-    width: 600,
+    width: 420,
     margin: 2,
     errorCorrectionLevel: "H"
   }, function(error){
@@ -138,4 +146,3 @@ function downloadQR(){
 
 </body>
 </html>
-
