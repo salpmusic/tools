@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML / JavaScript Runner｜salp Tools</title>
+<style>
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  background:#f7f3ea;
+  color:#2b2118;
+  padding:18px;
+  text-align:center;
+}
+textarea{
+  width:100%;
+  height:280px;
+  box-sizing:border-box;
+  font-family:monospace;
+  font-size:14px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #c9b58a;
+}
+button{
+  background:#2b2118;
+  color:white;
+  border:none;
+  border-radius:10px;
+  padding:12px 18px;
+  font-size:16px;
+  margin:8px;
+}
+iframe{
+  width:100%;
+  height:420px;
+  background:white;
+  border:1px solid #c9b58a;
+  border-radius:12px;
+  margin-top:15px;
+}
+.footer{
+  margin-top:20px;
+  font-size:13px;
+  color:#8a6a3f;
+}
+</style>
+</head>
+
+<body>
+
+<h1>HTML / JavaScript Runner</h1>
+<p>HTML・CSS・JavaScriptを貼り付けて実行できます。</p>
+
+<textarea id="code"><!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Test</title>
+</head>
+<body>
+<h1>Hello salp Tools</h1>
+<button onclick="alert('動いた！')">テスト</button>
+</body>
+</html></textarea>
+
+<br>
+
+<button onclick="runCode()">実行</button>
+<button onclick="clearCode()">クリア</button>
+<button onclick="downloadHTML()">HTML保存</button>
+
+<iframe id="preview"></iframe>
+
+<div class="footer">
+<a href="index.html">← salp Tools ホームへ戻る</a><br>
+Made by salp.music 🐱🎵
+</div>
+
+<script>
+function runCode(){
+  const code = document.getElementById("code").value;
+  const iframe = document.getElementById("preview");
+  iframe.srcdoc = code;
+}
+
+function clearCode(){
+  if(confirm("入力内容を消しますか？")){
+    document.getElementById("code").value = "";
+    document.getElementById("preview").srcdoc = "";
+  }
+}
+
+function downloadHTML(){
+  const code = document.getElementById("code").value;
+  const blob = new Blob([code], {type:"text/html"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sample.html";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+runCode();
+</script>
+
+</body>
+</html>
