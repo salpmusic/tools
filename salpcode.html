@@ -3,24 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>salpCode v0.3</title>
+<title>salpCode v0.4｜Spotify URL対応</title>
+
 <style>
-body{font-family:sans-serif;background:#f7f3ea;text-align:center;padding:24px}
-.box{max-width:680px;margin:auto;background:#fffaf0;padding:22px;border-radius:18px}
-input,button{font-size:16px;padding:12px;margin:8px}
-input[type=text]{width:90%;max-width:520px}
-canvas{background:white;border-radius:16px;margin-top:16px;max-width:100%}
-.result{word-break:break-all;margin-top:16px;font-weight:bold}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  background:#f7f3ea;
+  color:#2b2118;
+  text-align:center;
+  padding:24px;
+}
+.box{
+  max-width:720px;
+  margin:auto;
+  background:#fffaf0;
+  border:1px solid #d7bd8a;
+  border-radius:18px;
+  padding:22px;
+}
+input,button{
+  font-size:16px;
+  padding:12px;
+  margin:8px;
+}
+input[type=text]{
+  width:90%;
+  max-width:560px;
+  box-sizing:border-box;
+}
+canvas{
+  background:white;
+  border-radius:16px;
+  margin-top:16px;
+  max-width:100%;
+}
+.result{
+  word-break:break-all;
+  margin-top:16px;
+  font-weight:bold;
+}
+a{
+  color:#2b2118;
+}
 </style>
 </head>
+
 <body>
 
 <div class="box">
-<h1>salpCode v0.3 🐱</h1>
-<p>猫型URLコード 作成＆読み取り</p>
+<h1>salpCode v0.4 🐱</h1>
+<p>Spotify URL対応・猫型URLコード</p>
 
 <input id="url" type="text" placeholder="URLを入力">
 <br>
+
 <button onclick="makeSalpCode()">salpCode作成</button>
 <button onclick="saveImage()">PNG保存</button>
 
@@ -35,181 +71,17 @@ canvas{background:white;border-radius:16px;margin-top:16px;max-width:100%}
 <button onclick="readSalpCode()">画像から読み取り</button>
 
 <div id="result" class="result"></div>
+
+<p><a href="index.html">← salp Tools ホームへ戻る</a></p>
 </div>
 
 <script>
-const W=600,H=600;
-const startX=135,startY=135;
-const cols=18,cell=22;
-const maxBits=324;
+const W = 600;
+const H = 600;
 
-function bytesToBits(bytes){
-  let bits=[];
-  for(const b of bytes){
-    for(let i=7;i>=0;i--) bits.push((b>>i)&1);
-  }
-  return bits;
-}
+const startX = 90;
+const startY = 115;
 
-function numberTo16Bits(n){
-  let bits=[];
-  for(let i=15;i>=0;i--) bits.push((n>>i)&1);
-  return bits;
-}
-
-function bitsToNumber(bits){
-  let n=0;
-  for(const b of bits) n=(n<<1)|b;
-  return n;
-}
-
-function drawCatCell(ctx,x,y,size,filled){
-  ctx.save();
-  ctx.translate(x,y);
-  ctx.fillStyle=filled?"#111":"#fff";
-  ctx.strokeStyle="#111";
-  ctx.lineWidth=2;
-
-  ctx.beginPath();
-  ctx.arc(0,3,size*.32,0,Math.PI*2);
-  ctx.fill(); ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(-size*.22,-size*.18);
-  ctx.lineTo(-size*.08,-size*.48);
-  ctx.lineTo(size*.03,-size*.18);
-  ctx.closePath();
-  ctx.fill(); ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(size*.22,-size*.18);
-  ctx.lineTo(size*.08,-size*.48);
-  ctx.lineTo(-size*.03,-size*.18);
-  ctx.closePath();
-  ctx.fill(); ctx.stroke();
-
-  ctx.restore();
-}
-
-function drawEarMarker(ctx,x,y,size,label){
-  ctx.fillStyle="#111";
-  ctx.fillRect(x,y,size,size);
-  ctx.fillStyle="#fff";
-  ctx.fillRect(x+12,y+12,size-24,size-24);
-
-  ctx.fillStyle="#111";
-  ctx.beginPath();
-  ctx.moveTo(x+size*.25,y+12);
-  ctx.lineTo(x+size*.38,y-22);
-  ctx.lineTo(x+size*.50,y+12);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x+size*.50,y+12);
-  ctx.lineTo(x+size*.63,y-22);
-  ctx.lineTo(x+size*.75,y+12);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.font=`${size*.32}px serif`;
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.fillText("🐱",x+size/2,y+size/2);
-
-  ctx.font="14px sans-serif";
-  ctx.fillText(label,x+size/2,y+size+18);
-}
-
-function makeSalpCode(){
-  const url=document.getElementById("url").value.trim();
-  if(!url){alert("URLを入れてね");return;}
-
-  const bytes=new TextEncoder().encode(url);
-
-  if(bytes.length>38){
-    alert("今の試作版では38バイトくらいまでがおすすめです");
-    return;
-  }
-
-  const lengthBits=numberTo16Bits(bytes.length);
-  const dataBits=bytesToBits(bytes);
-  const bits=[...lengthBits,...dataBits];
-
-  const canvas=document.getElementById("canvas");
-  const ctx=canvas.getContext("2d");
-
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle="#fff";
-  ctx.fillRect(0,0,W,H);
-
-  drawEarMarker(ctx,30,55,80,"TOP");
-  drawEarMarker(ctx,490,55,80,"TOP");
-  drawEarMarker(ctx,30,465,80,"BOTTOM");
-
-  for(let i=0;i<bits.length && i<maxBits;i++){
-    const col=i%cols;
-    const row=Math.floor(i/cols);
-    drawCatCell(ctx,startX+col*cell,startY+row*cell,cell*.9,bits[i]===1);
-  }
-
-  ctx.fillStyle="#111";
-  ctx.font="28px serif";
-  ctx.textAlign="center";
-  ctx.fillText("salpCode",300,565);
-}
-
-function saveImage(){
-  const canvas=document.getElementById("canvas");
-  const a=document.createElement("a");
-  a.download="salpcode.png";
-  a.href=canvas.toDataURL("image/png");
-  a.click();
-}
-
-function sampleBit(ctx,x,y){
-  const p=ctx.getImageData(x,y,1,1).data;
-  const brightness=(p[0]+p[1]+p[2])/3;
-  return brightness<128?1:0;
-}
-
-function readSalpCode(){
-  const file=document.getElementById("readerFile").files[0];
-  if(!file){alert("画像を選んでね");return;}
-
-  const img=new Image();
-  img.onload=function(){
-    const temp=document.createElement("canvas");
-    temp.width=W;
-    temp.height=H;
-    const ctx=temp.getContext("2d");
-    ctx.drawImage(img,0,0,W,H);
-
-    let bits=[];
-    for(let i=0;i<maxBits;i++){
-      const col=i%cols;
-      const row=Math.floor(i/cols);
-      const x=startX+col*cell;
-      const y=startY+row*cell+3;
-      bits.push(sampleBit(ctx,x,y));
-    }
-
-    const length=bitsToNumber(bits.slice(0,16));
-    const dataBits=bits.slice(16,16+length*8);
-
-    let bytes=[];
-    for(let i=0;i<dataBits.length;i+=8){
-      bytes.push(bitsToNumber(dataBits.slice(i,i+8)));
-    }
-
-    const text=new TextDecoder().decode(new Uint8Array(bytes));
-    document.getElementById("result").innerHTML =
-      `読み取り結果：<br><a href="${text}" target="_blank">${text}</a>`;
-  };
-
-  img.src=URL.createObjectURL(file);
-}
-</script>
-
-</body>
-</html>
+const cols = 30;
+const rows = 30;
+const cell = 
