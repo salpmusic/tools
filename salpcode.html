@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>salpCode Prototype</title>
+<style>
+body{font-family:sans-serif;background:#f7f3ea;text-align:center;padding:24px}
+input{width:90%;max-width:520px;padding:12px;font-size:16px}
+button{padding:12px 18px;margin:10px;font-size:16px}
+canvas{background:white;border-radius:16px;margin-top:20px;max-width:100%}
+</style>
+</head>
+<body>
+
+<h1>salpCode v0.1 🐱</h1>
+<p>猫型URLコード生成プロトタイプ</p>
+
+<input id="url" placeholder="URLを入力">
+<br>
+<button onclick="makeSalpCode()">salpCode作成</button>
+<button onclick="saveImage()">PNG保存</button>
+
+<br>
+<canvas id="canvas" width="600" height="600"></canvas>
+
+<script>
+function textToBits(text){
+  const bytes = new TextEncoder().encode(text);
+  let bits = [];
+  for(const b of bytes){
+    for(let i=7;i>=0;i--){
+      bits.push((b >> i) & 1);
+    }
+  }
+  return bits;
+}
+
+function drawCat(ctx,x,y,size,filled){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.fillStyle = filled ? "#111" : "#fff";
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.arc(0,0,size*0.35,0,Math.PI*2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-size*0.22,-size*0.25);
+  ctx.lineTo(-size*0.05,-size*0.55);
+  ctx.lineTo(size*0.08,-size*0.25);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(size*0.22,-size*0.25);
+  ctx.lineTo(size*0.05,-size*0.55);
+  ctx.lineTo(-size*0.08,-size*0.25);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawMarker(ctx,x,y,size){
+  ctx.fillStyle="#111";
+  ctx.fillRect(x,y,size,size);
+  ctx.fillStyle="#fff";
+  ctx.fillRect(x+size*0.18,y+size*0.18,size*0.64,size*0.64);
+  ctx.fillStyle="#111";
+  ctx.font = `${size*0.55}px sans-serif`;
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText("🐱",x+size/2,y+size/2);
+}
+
+function makeSalpCode(){
+  const url=document.getElementById("url").value.trim();
+  if(!url){alert("URLを入れてね");return;}
+
+  const canvas=document.getElementById("canvas");
+  const ctx=canvas.getContext("2d");
+  ctx.clearRect(0,0,600,600);
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,600,600);
+
+  drawMarker(ctx,30,30,90);
+  drawMarker(ctx,480,30,90);
+  drawMarker(ctx,30,480,90);
+
+  ctx.fillStyle="#111";
+  ctx.font="24px serif";
+  ctx.textAlign="center";
+  ctx.fillText("salpCode",300,560);
+
+  const bits=textToBits(url);
+  const startX=140, startY=140;
+  const cols=16;
+  const cell=24;
+
+  for(let i=0;i<bits.length && i<256;i++){
+    const col=i%cols;
+    const row=Math.floor(i/cols);
+    drawCat(
+      ctx,
+      startX+col*cell,
+      startY+row*cell,
+      cell*0.9,
+      bits[i]===1
+    );
+  }
+}
+
+function saveImage(){
+  const canvas=document.getElementById("canvas");
+  const a=document.createElement("a");
+  a.download="salpcode.png";
+  a.href=canvas.toDataURL("image/png");
+  a.click();
+}
+</script>
+
+</body>
+</html>
