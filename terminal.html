@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>salp Terminal</title>
+<style>
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:#e8e8e8;
+  font-family:monospace;
+}
+#bar{
+  background:#222;
+  padding:10px;
+  position:sticky;
+  top:0;
+}
+button{
+  margin:3px;
+  padding:8px 10px;
+}
+#screen{
+  padding:14px;
+  white-space:pre-wrap;
+  min-height:70vh;
+  line-height:1.45;
+}
+#cmd{
+  width:100%;
+  box-sizing:border-box;
+  background:#000;
+  color:#00ff66;
+  border:0;
+  border-top:1px solid #333;
+  padding:14px;
+  font-family:monospace;
+  font-size:16px;
+}
+a{color:#9fd3ff}
+</style>
+</head>
+<body>
+
+<div id="bar">
+<button onclick="setMode('dos')">MS-DOS</button>
+<button onclick="setMode('linux')">Linux</button>
+<button onclick="setMode('unix')">UNIX</button>
+<button onclick="setMode('mac')">Mac</button>
+<button onclick="resetDisk()">Reset Disk</button>
+<button onclick="location.href='index.html'">Home</button>
+</div>
+
+<div id="screen"></div>
+<input id="cmd" autocomplete="off" autofocus placeholder="command">
+
+<script>
+let mode = localStorage.getItem("salpTerminalMode") || "dos";
+let cwd = localStorage.getItem("salpTerminalCwd") || "/";
+let history = [];
+let historyPos = 0;
+
+let fs = JSON.parse(localStorage.getItem("salpDisk") || "null") || {
+  "/":{
+    "README.TXT":
+`Welcome to salp Terminal!
+
+Commands:
+help
+dir / ls
+cd
+mkdir
+echo text > file
+type / cat
+del / rm
+copy / cp
+move / mv
+pwd
+cls / clear
+
+This is a virtual drive.
+Data is saved in your browser localStorage.`
+  }
+};
+
+const screen = document.getElementById("screen");
+const cmd = document.getElementById("cmd");
+
+function save(){
+  localStorage.setItem("salpDisk", JSON.stringify(fs));
+  localStorage.setItem("salpTerminalMode", mode);
+  localStorage.setItem("salpTerminalCwd", cwd);
+}
+
+function print(text=""){
+  screen.textContent += text + "\n";
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function setMode(m){
+  mode = m;
+  save();
+  print("");
+  print("Mode changed: " + m.toUpperCase());
+}
+
+function promptText(){
+  if(mode === "dos") return "C:" + cwd.replaceAll("/","\\") + "> ";
+  if(mode === "linux") return "salp@tools:" + cwd + " $ ";
+  if(mode === "unix") return "salp% " + cwd + " ";
+  if(mode === "mac") return "MacBook-Air:" + cwd + " salp$ ";
+  return "> ";
+}
+
+function normalizePath(path){
+  if(!path || path === ".") return cwd;
+
+  let base;
+
+  if(path.startsWith("/")){
+    base = [];
+  }else{
+    base = cwd.split("/").filter(Boolean);
+  }
+
+  for(const part of path.split("/")){
+    if(!part || part === ".") continue;
+    if(part === "..") base.pop();
+    else base.push(part);
+  }
+
+  return "/" + base.join("/");
+}
+
+function parentPath(path){
+  if(path === "/") return "/";
+  let p = path.split("/").filter(Boolean);
+  p.pop();
+  return "/" + p.join("/");
+}
+
+function baseName(path){
+  return path.split("/").filter(Boolean).pop() || "/";
+}
+
+function getDir(path=cwd){
+  return fs[path];
+}
+
+function exists(path){
+  return fs[path] !== undefined;
+}
+
+function isDir(path){
+  return exists(path) && typeof fs[path] === "object";
+}
+
+function getCurrentDir(){
+  return getDir(cwd);
+}
+
+function splitCommand(line){
+  const result = [];
+  let current = "";
+  let quote = false;
+
+  for(let i=0;i<line.length;i++){
+    const ch = line[i];
+    if(ch === '"'){
+      quote = !quote;
+      continue;
+    }
+    if(ch === " " && !quote){
+      if(current){
+        result.push(current);
+        current = "";
+      }
+    }else{
+      current += ch;
+    }
+  }
+  if(current) result.push(current);
+  return result;
+}
+
+function listDir(){
+  const d = getCurrentDir();
+  const keys = Object.keys(d);
+
+  if(keys.length === 0){
+    print("(empty)");
+    return;
+  }
+
+  for(const name of keys){
+    if(typeof d[name] === "object"){
+      if(mode === "dos") print("<DIR>      " + name);
+      else print("drwxr-xr-x  " + name);
+    }else{
+      if(mode === "dos") print("           " + name);
+      else print("-rw-r--r--  " + name);
+    }
+  }
+}
+
+function makeDir(name){
+  if(!name) return print("mkdir: missing name");
+
+  const path = normalizePath(name);
+  if(exists(path)) return print("Directory already exists");
+
+  fs[path] = {};
+
+  const parent = getDir(parentPath(path));
+  if(parent && typeof parent === "object"){
+    parent[baseName(path)] = fs[path];
+  }
+
+  save();
+  print("Directory created: " + name);
+}
+
+function removeItem(name){
+  if(!name) return print("remove: missing name");
+
+  const d = getCurrentDir();
+  if(d[name] === undefined) return print("File not found");
+
+  if(typeof d[name] === "object"){
+    const path = normalizePath(name);
+    delete fs[path];
+  }
+
+  delete d[name];
+  save();
+  print("Deleted: " + name);
+}
+
+function showFile(name){
+  if(!name) return print("type/cat: missing file");
+
+  const d = getCurrentDir();
+  if(d[name] === undefined || typeof d[name] === "object"){
+    return print("File not found");
+  }
+  print(d[name]);
+}
+
+function echoCommand(args){
+  const text = args.join(" ");
+  const match = text.match(/^(.*)\s>\s(.+)$/);
+
+  if(match){
+    const content = match[1];
+    const filename = match[2];
+    getCurrentDir()[filename] = content;
+    save();
+    print("Saved: " + filename);
+  }else{
+    print(text);
+  }
+}
+
+function copyItem(src,dst){
+  if(!src || !dst) return print("copy/cp: source and destination required");
+
+  const d = getCurrentDir();
+  if(d[src] === undefined) return print("Source not found");
+  if(typeof d[src] === "object") return print("Directory copy is not supported yet");
+
+  d[dst] = d[src];
+  save();
+  print("Copied: " + src + " -> " + dst);
+}
+
+function moveItem(src,dst){
+  if(!src || !dst) return print("move/mv: source and destination required");
+
+  const d = getCurrentDir();
+  if(d[src] === undefined) return print("Source not found");
+
+  d[dst] = d[src];
+  delete d[src];
+  save();
+  print("Moved: " + src + " -> " + dst);
+}
+
+function changeDir(path){
+  if(!path) return print(cwd);
+
+  const p = normalizePath(path);
+
+  if(isDir(p)){
+    cwd = p;
+    save();
+  }else{
+    print("Directory not found");
+  }
+}
+
+function help(){
+  print(
+`salp Terminal commands:
+
+MS-DOS style:
+  dir
+  cd folder
+  mkdir folder
+  type file
+  del file
+  copy file newfile
+  move file newfile
+  cls
+
+Linux / UNIX / Mac style:
+  ls
+  cd folder
+  mkdir folder
+  cat file
+  rm file
+  cp file newfile
+  mv file newfile
+  clear
+  pwd
+
+Common:
+  echo hello
+  echo hello > memo.txt
+  help
+
+Tips:
+  Use ↑ / ↓ for command history.
+  Files are saved inside browser localStorage.`
+  );
+}
+
+function run(line){
+  print(promptText() + line);
+
+  const parts = splitCommand(line.trim());
+  if(parts.length === 0) return;
+
+  const c = parts.shift().toLowerCase();
+
+  if(c === "help") help();
+
+  else if(c === "dir" || c === "ls") listDir();
+
+  else if(c === "cd") changeDir(parts[0]);
+
+  else if(c === "pwd") print(cwd);
+
+  else if(c === "mkdir") makeDir(parts[0]);
+
+  else if(c === "type" || c === "cat") showFile(parts[0]);
+
+  else if(c === "del" || c === "rm") removeItem(parts[0]);
+
+  else if(c === "copy" || c === "cp") copyItem(parts[0], parts[1]);
+
+  else if(c === "move" || c === "mv") moveItem(parts[0], parts[1]);
+
+  else if(c === "echo") echoCommand(parts);
+
+  else if(c === "cls" || c === "clear") screen.textContent = "";
+
+  else print("Unknown command: " + c);
+}
+
+cmd.addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    const line = cmd.value;
+    if(line.trim()){
+      history.push(line);
+      historyPos = history.length;
+    }
+    run(line);
+    cmd.value = "";
+  }
+
+  if(e.key === "ArrowUp"){
+    if(history.length && historyPos > 0){
+      historyPos--;
+      cmd.value = history[historyPos];
+      setTimeout(()=>cmd.setSelectionRange(cmd.value.length, cmd.value.length),0);
+    }
+    e.preventDefault();
+  }
+
+  if(e.key === "ArrowDown"){
+    if(historyPos < history.length - 1){
+      historyPos++;
+      cmd.value = history[historyPos];
+    }else{
+      historyPos = history.length;
+      cmd.value = "";
+    }
+    e.preventDefault();
+  }
+});
+
+function resetDisk(){
+  if(confirm("仮想ドライブを初期化しますか？")){
+    localStorage.removeItem("salpDisk");
+    localStorage.removeItem("salpTerminalCwd");
+    location.reload();
+  }
+}
+
+print("salp Terminal v1.0");
+print("Mode: " + mode.toUpperCase());
+print("type 'help'");
+print("");
+</script>
+
+</body>
+</html>
