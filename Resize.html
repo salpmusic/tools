@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>salp Batch Resize</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#f7f3ea;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}.app{max-width:900px;margin:auto;padding:18px 12px 32px}h1{text-align:center;margin:6px 0}.sub{text-align:center;color:#777;margin-bottom:16px}.panel{background:#fff;border:1px solid #ded8ce;border-radius:20px;padding:14px;box-shadow:0 8px 24px #00000012}.section{padding:12px 0;border-bottom:1px solid #eee8df}.section:last-child{border:0}.label{font-size:12px;font-weight:800;color:#777;margin-bottom:8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}button,select,input,.fileLabel{min-height:46px;border:1px solid #ddd6cc;border-radius:12px;background:#fff;padding:9px 12px;font:inherit;color:#222}button.primary,.fileLabel.primary{background:#222;color:#fff;border-color:#222;font-weight:800}.fileLabel{display:flex;align-items:center;justify-content:center;cursor:pointer}input[type=file]{display:none}input[type=range]{width:100%}.check{display:flex;align-items:center;gap:8px;font-weight:700}.check input{width:20px;height:20px}.hint,.status{font-size:12px;color:#777;line-height:1.5}.progress{height:10px;background:#eee7df;border-radius:999px;overflow:hidden;margin-top:10px}.bar{height:100%;width:0;background:linear-gradient(90deg,#75dce8,#ff8fbd)}.results{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}.card{background:#fff;border:1px solid #ded8ce;border-radius:18px;overflow:hidden;box-shadow:0 6px 18px #00000010}.thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:#eee}.body{padding:12px}.name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{font-size:12px;color:#777;line-height:1.6;margin-top:6px}.card button{width:100%;margin-top:10px}.empty{grid-column:1/-1;text-align:center;color:#777;padding:36px}.summary{display:flex;justify-content:space-between;gap:8px;margin-top:10px}.disabled{opacity:.4}@media(max-width:650px){.grid,.grid3,.results{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>📐 salp Batch Resize</h1>
+<div class="sub">複数画像を同じ設定でまとめてリサイズ</div>
+<div class="panel">
+  <div class="section"><div class="label">画像を選ぶ</div><label class="fileLabel primary">複数画像を選択<input id="files" type="file" accept="image/*" multiple></label><div class="hint" style="margin-top:8px">画像は端末内だけで処理されます。</div></div>
+  <div class="section"><div class="label">変更方法</div><div class="grid3"><select id="mode"><option value="long">長辺を指定</option><option value="width">横幅を指定</option><option value="percent">倍率（%）</option></select><input id="size" type="number" value="1200" min="1"><select id="preset"><option value="">プリセット</option><option>640</option><option>1080</option><option>1200</option><option>1920</option><option>2048</option></select></div></div>
+  <div class="section"><div class="label">出力</div><div class="grid"><select id="format"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option><option value="original">元形式</option></select><label class="check"><input id="noUpscale" type="checkbox" checked>小さい画像は拡大しない</label></div></div>
+  <div class="section" id="qualityWrap"><div class="label">画質 <span id="qv">88</span>%</div><input id="quality" type="range" min="20" max="100" value="88"></div>
+  <div class="section"><div class="grid"><button id="convert" class="primary" disabled>まとめて変換</button><button id="downloadAll" disabled>すべて保存</button></div><div class="summary status"><span id="count">0枚選択</span><span id="status">画像を選んでください</span></div><div class="progress"><div id="bar" class="bar"></div></div></div>
+</div>
+<div id="results" class="results"><div class="panel empty">変換した画像がここに並びます。</div></div>
+</div>
+<script>
+(()=>{"use strict";
+const $=id=>document.getElementById(id),filesEl=$("files"),mode=$("mode"),size=$("size"),preset=$("preset"),format=$("format"),quality=$("quality"),qv=$("qv"),qualityWrap=$("qualityWrap"),noUpscale=$("noUpscale"),convert=$("convert"),downloadAll=$("downloadAll"),count=$("count"),status=$("status"),bar=$("bar"),results=$("results");
+let files=[],items=[];const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+const bytes=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+const base=n=>n.replace(/\.[^.]+$/,'');
+filesEl.onchange=()=>{files=[...filesEl.files].filter(f=>f.type.startsWith('image/'));items.forEach(i=>URL.revokeObjectURL(i.url));items=[];count.textContent=files.length+"枚選択";status.textContent=files.length?"設定して変換してください":"画像を選んでください";convert.disabled=!files.length;downloadAll.disabled=true;results.innerHTML='<div class="panel empty">「まとめて変換」を押してください。</div>';bar.style.width='0%'};
+mode.onchange=()=>{preset.disabled=mode.value==='percent';if(mode.value==='percent'&&+size.value>500)size.value=50;else if(mode.value!=='percent'&&+size.value<=500)size.value=1200};preset.onchange=()=>{if(preset.value)size.value=preset.value};quality.oninput=()=>qv.textContent=quality.value;format.onchange=()=>qualityWrap.style.display=format.value==='image/png'?'none':'block';
+const load=file=>new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image;im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u});
+const mimeFor=f=>format.value==='original'&&['image/jpeg','image/png','image/webp'].includes(f.type)?f.type:(format.value==='original'?'image/jpeg':format.value);
+function target(w,h){let s=1,v=Math.max(1,+size.value||1);if(mode.value==='percent')s=v/100;else if(mode.value==='width')s=v/w;else s=v/Math.max(w,h);if(noUpscale.checked)s=Math.min(1,s);return{w:Math.max(1,Math.round(w*s)),h:Math.max(1,Math.round(h*s))}}
+const toBlob=(c,m,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),m,q));
+async function one(f){const im=await load(f),t=target(im.naturalWidth,im.naturalHeight),m=mimeFor(f),c=document.createElement('canvas');c.width=t.w;c.height=t.h;const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(m==='image/jpeg'){x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height)}x.drawImage(im,0,0,t.w,t.h);const b=await toBlob(c,m,+quality.value/100);return{name:base(f.name)+'-resized.'+(ext[m]||'jpg'),original:f.size,size:b.size,w:t.w,h:t.h,blob:b,url:URL.createObjectURL(b)}}
+function render(){results.innerHTML='';items.forEach((i,n)=>{const card=document.createElement('div');card.className='card';card.innerHTML=`<img class="thumb" src="${i.url}"><div class="body"><div class="name">${i.name}</div><div class="meta">${i.w} × ${i.h} px<br>${bytes(i.original)} → ${bytes(i.size)}</div><button class="primary">この画像を保存</button></div>`;card.querySelector('button').onclick=()=>save(n);results.appendChild(card)})}
+function save(n){const i=items[n],a=document.createElement('a');a.href=i.url;a.download=i.name;document.body.appendChild(a);a.click();a.remove()}
+convert.onclick=async()=>{if(!files.length)return;convert.disabled=true;downloadAll.disabled=true;status.textContent='変換中…';items.forEach(i=>URL.revokeObjectURL(i.url));items=[];results.innerHTML='<div class="panel empty">変換中…</div>';for(let n=0;n<files.length;n++){try{items.push(await one(files[n]))}catch(e){}bar.style.width=Math.round((n+1)/files.length*100)+'%'}render();status.textContent=items.length+'枚変換完了';convert.disabled=false;downloadAll.disabled=!items.length};
+downloadAll.onclick=async()=>{downloadAll.disabled=true;for(let n=0;n<items.length;n++){save(n);await new Promise(r=>setTimeout(r,500))}status.textContent='保存を開始しました';downloadAll.disabled=false};
+})();
+</script>
+</body></html>
