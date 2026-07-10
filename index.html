@@ -4,103 +4,353 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta name="theme-color" content="#f7f3ea">
 
 <title>salp Tools | Free Web Tools & AI Music</title>
 
 <meta name="description"
-content="広告なし・登録なし。本当に無料で使えるWebツール集。QRコード作成、HTML/JavaScript Runner、salp Terminal、salpCodeなど。">
+content="広告なし・登録なし。本当に無料で使えるWebツール集。QRコード作成、HTML・CSS・JavaScript Runner、salp Terminal、salp Pixel、salpCodeなど。">
 
 <style>
 
+:root{
+    --background:#f7f3ea;
+    --card:#ffffff;
+    --text:#222222;
+    --subtext:#686868;
+    --line:#e8e1d5;
+    --button:#222222;
+    --button-hover:#444444;
+    --accent:#ff7eb6;
+    --accent-blue:#67dce8;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
 body{
     margin:0;
-    background:#f7f3ea;
-    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-    color:#222;
+    background:var(--background);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Helvetica Neue",
+        "Hiragino Sans",
+        "Yu Gothic",
+        sans-serif;
+    color:var(--text);
+    line-height:1.7;
+}
+
+a{
+    color:inherit;
 }
 
 header{
     text-align:center;
-    padding:40px 20px;
+    padding:
+        calc(env(safe-area-inset-top) + 46px)
+        20px
+        34px;
+}
+
+.logo{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+}
+
+.logo-mark{
+    width:58px;
+    height:58px;
+    display:grid;
+    place-items:center;
+    border-radius:18px;
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent-blue)
+        );
+    font-size:31px;
+    box-shadow:
+        0 8px 24px rgba(0,0,0,.12);
 }
 
 h1{
     margin:0;
     font-size:42px;
+    line-height:1.15;
+    letter-spacing:-1.5px;
 }
 
 .subtitle{
-    margin-top:10px;
-    color:#777;
+    margin-top:14px;
+    color:var(--subtext);
     font-size:18px;
+    font-weight:600;
+}
+
+.intro{
+    max-width:620px;
+    margin:18px auto 0;
+    color:#777;
+    font-size:15px;
+}
+
+.features{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    margin-top:22px;
+}
+
+.feature{
+    padding:7px 12px;
+    background:rgba(255,255,255,.75);
+    border:1px solid var(--line);
+    border-radius:999px;
+    color:#555;
+    font-size:13px;
+    font-weight:700;
 }
 
 .container{
-
-    max-width:900px;
+    width:min(100%, 940px);
     margin:auto;
-    padding:20px;
+    padding:0 18px 30px;
+}
 
+.section-title{
+    margin:10px 0 18px;
+    font-size:15px;
+    color:#777;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.tool-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap:18px;
 }
 
 .card{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    min-height:270px;
+    padding:26px;
+    overflow:hidden;
+    background:var(--card);
+    border:1px solid rgba(0,0,0,.04);
+    border-radius:24px;
+    box-shadow:
+        0 8px 28px rgba(50,40,25,.08);
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
 
-    background:white;
+.card:hover{
+    transform:translateY(-3px);
+    box-shadow:
+        0 12px 34px rgba(50,40,25,.13);
+}
 
-    border-radius:18px;
+.card::after{
+    content:"";
+    position:absolute;
+    top:-55px;
+    right:-55px;
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    background:var(--card-accent, #eeeeee);
+    opacity:.18;
+}
 
-    padding:25px;
+.card-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+}
 
-    margin-bottom:20px;
-
-    box-shadow:0 5px 18px rgba(0,0,0,.08);
-
+.icon{
+    flex:0 0 auto;
+    width:54px;
+    height:54px;
+    display:grid;
+    place-items:center;
+    border-radius:16px;
+    background:var(--icon-background, #f2f2f2);
+    font-size:28px;
 }
 
 .card h2{
-
-    margin-top:0;
-
+    margin:0;
+    font-size:25px;
+    line-height:1.25;
+    letter-spacing:-.5px;
 }
 
 .card p{
+    margin:0;
+    color:var(--subtext);
+    font-size:16px;
+}
 
-    color:#555;
+.tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-top:17px;
+}
 
+.tag{
+    padding:5px 9px;
+    background:#f5f5f5;
+    border-radius:8px;
+    color:#666;
+    font-size:12px;
+    font-weight:700;
 }
 
 .button{
-
-    display:inline-block;
-
-    margin-top:15px;
-
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    align-self:flex-start;
+    min-height:48px;
+    margin-top:auto;
     padding:12px 22px;
-
-    background:#222;
-
-    color:white;
-
+    background:var(--button);
+    color:#ffffff;
     text-decoration:none;
-
-    border-radius:10px;
-
+    border-radius:13px;
+    font-size:16px;
+    font-weight:750;
+    transition:
+        transform .15s ease,
+        background .15s ease;
 }
 
 .button:hover{
+    background:var(--button-hover);
+}
 
-    background:#444;
+.button:active{
+    transform:scale(.97);
+}
 
+.music{
+    --card-accent:#ff8db9;
+    --icon-background:#fff0f6;
+}
+
+.qr{
+    --card-accent:#54d4df;
+    --icon-background:#ebfcfd;
+}
+
+.runner{
+    --card-accent:#7ca9ff;
+    --icon-background:#eef4ff;
+}
+
+.terminal{
+    --card-accent:#8b8b8b;
+    --icon-background:#f1f1f1;
+}
+
+.salpcode{
+    --card-accent:#ffb66e;
+    --icon-background:#fff3e7;
+}
+
+.pixel{
+    --card-accent:#d788ff;
+    --icon-background:#f8edff;
 }
 
 footer{
-
     text-align:center;
-
+    padding:
+        42px
+        20px
+        calc(env(safe-area-inset-bottom) + 46px);
     color:#777;
+}
 
-    padding:40px;
+.footer-main{
+    font-size:18px;
+    font-weight:700;
+}
+
+.footer-sub{
+    margin-top:12px;
+    font-size:14px;
+}
+
+@media(max-width:700px){
+
+    header{
+        padding-top:
+            calc(env(safe-area-inset-top) + 34px);
+    }
+
+    h1{
+        font-size:36px;
+    }
+
+    .logo-mark{
+        width:52px;
+        height:52px;
+        font-size:28px;
+    }
+
+    .tool-grid{
+        grid-template-columns:1fr;
+    }
+
+    .card{
+        min-height:245px;
+        padding:23px;
+    }
+
+}
+
+@media(max-width:400px){
+
+    h1{
+        font-size:32px;
+    }
+
+    .subtitle{
+        font-size:16px;
+    }
+
+    .container{
+        padding-left:12px;
+        padding-right:12px;
+    }
+
+    .card h2{
+        font-size:23px;
+    }
 
 }
 
@@ -112,195 +362,337 @@ footer{
 
 <header>
 
-<h1>🐱 salp Tools</h1>
+    <div class="logo">
 
-<div class="subtitle">
+        <div class="logo-mark">
+            🐱
+        </div>
 
-Free Web Tools & AI Music
+        <h1>salp Tools</h1>
 
-</div>
+    </div>
+
+    <div class="subtitle">
+        Create. Learn. Build.
+    </div>
+
+    <div class="intro">
+        ブラウザだけで使える、軽くて自由なWebツール集。
+        スマホからでも、作成・学習・開発を楽しめます。
+    </div>
+
+    <div class="features">
+
+        <span class="feature">
+            No Ads
+        </span>
+
+        <span class="feature">
+            No Registration
+        </span>
+
+        <span class="feature">
+            Free Forever
+        </span>
+
+        <span class="feature">
+            Mobile Friendly
+        </span>
+
+    </div>
 
 </header>
 
-<div class="container">
+<main class="container">
 
-<div class="card">
+    <div class="section-title">
+        Apps & Tools
+    </div>
 
-<h2>🎵 Music</h2>
+    <div class="tool-grid">
 
-<p>
+        <article class="card music">
 
-Spotify・Apple Music・YouTube・TikTokなど
+            <div class="card-top">
 
-salp.music の音楽はこちら。
+                <div class="icon">
+                    🎵
+                </div>
 
-</p>
+                <h2>
+                    salp Music
+                </h2>
 
-<a class="button"
+            </div>
 
-href="https://linktr.ee/salp"
+            <p>
+                Spotify・Apple Music・YouTube・TikTokなど、
+                salp.musicの音楽とSNSリンクをまとめています。
+            </p>
 
-target="_blank">
+            <div class="tags">
 
-Open Linktree
+                <span class="tag">
+                    Music
+                </span>
 
-</a>
+                <span class="tag">
+                    SNS
+                </span>
 
-</div>
+                <span class="tag">
+                    Linktree
+                </span>
 
-<div class="card">
+            </div>
 
-<h2>🔲 QR Code Maker</h2>
+            <a
+                class="button"
+                href="https://linktr.ee/salp"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Open Music
+            </a>
 
-<p>
+        </article>
 
-広告なし・登録なし。
+        <article class="card qr">
 
-URLを貼り付けるだけで
+            <div class="card-top">
 
-QRコードを作成できます。
+                <div class="icon">
+                    🔲
+                </div>
 
-</p>
+                <h2>
+                    QR Code Maker
+                </h2>
 
-<a class="button"
+            </div>
 
-href="qrcode.html">
+            <p>
+                URLやテキストを入力するだけで、
+                QRコードをすぐに作成できます。
+                色変更やPNG保存にも対応しています。
+            </p>
 
-Open QR Maker
+            <div class="tags">
 
-</a>
+                <span class="tag">
+                    QR
+                </span>
 
-</div>
+                <span class="tag">
+                    PNG
+                </span>
 
-<div class="card">
+                <span class="tag">
+                    Color
+                </span>
 
-<h2>💻 HTML / JavaScript Runner</h2>
+            </div>
 
-<p>
+            <a
+                class="button"
+                href="qrcode.html"
+            >
+                Open QR Maker
+            </a>
 
-HTML・CSS・JavaScriptを
+        </article>
 
-貼り付けてすぐ実行できます。
+        <article class="card runner">
 
-スマホだけで開発できます。
+            <div class="card-top">
 
-</p>
+                <div class="icon">
+                    💻
+                </div>
 
-<a class="button"
+                <h2>
+                    HTML Runner
+                </h2>
 
-href="html-runner.html">
+            </div>
 
-Open Runner
+            <p>
+                HTML・CSS・JavaScriptを貼り付けて、
+                ブラウザ上ですぐに実行できます。
+                スマホだけでも開発を試せます。
+            </p>
 
-</a>
+            <div class="tags">
 
-</div>
+                <span class="tag">
+                    HTML
+                </span>
 
-<div class="card">
+                <span class="tag">
+                    CSS
+                </span>
 
-    <div class="card">
+                <span class="tag">
+                    JavaScript
+                </span>
 
-<h2>💾 salp Terminal</h2>
+            </div>
 
-<p>
+            <a
+                class="button"
+                href="html-runner.html"
+            >
+                Open Runner
+            </a>
 
-MS-DOS・Linux・UNIX・Mac風の
-仮想ドライブ付きコマンドターミナルです。
+        </article>
 
-ブラウザ内にファイルを保存しながら
-コマンド操作を楽しめます。
+        <article class="card terminal">
 
-</p>
+            <div class="card-top">
 
-<a class="button"
-href="terminal.html">
+                <div class="icon">
+                    💾
+                </div>
 
-Open Terminal
+                <h2>
+                    salp Terminal
+                </h2>
 
-</a>
+            </div>
 
-</div>
+            <p>
+                MS-DOS・Linux・UNIX・Mac風の表示を切り替えられる、
+                仮想ドライブ付きブラウザターミナルです。
+            </p>
 
-<h2>💾 salp Terminal</h2>
+            <div class="tags">
 
-<p>
+                <span class="tag">
+                    DOS
+                </span>
 
-MS-DOS
+                <span class="tag">
+                    Linux
+                </span>
 
-Linux
+                <span class="tag">
+                    UNIX
+                </span>
 
-UNIX
+            </div>
 
-Mac
+            <a
+                class="button"
+                href="terminal.html"
+            >
+                Open Terminal
+            </a>
 
-切り替え可能な
+        </article>
 
-仮想ドライブ付きターミナル。
+        <article class="card salpcode">
 
-</p>
+            <div class="card-top">
 
-<a class="button"
+                <div class="icon">
+                    🐱
+                </div>
 
-href="terminal.html">
+                <h2>
+                    salpCode
+                </h2>
 
-Open Terminal
+            </div>
 
-</a>
+            <p>
+                猫耳マーカーを使った、
+                salp独自の新しい2次元コードを
+                研究・開発しています。
+            </p>
 
-</div>
+            <div class="tags">
 
-<div class="card">
+                <span class="tag">
+                    Experimental
+                </span>
 
-<h2>🐱 salpCode</h2>
+                <span class="tag">
+                    Code
+                </span>
 
-<p>
+                <span class="tag">
+                    Cat
+                </span>
 
-猫耳マーカー付き
+            </div>
 
-新しい2次元コードを
+            <a
+                class="button"
+                href="salpcode.html"
+            >
+                Open salpCode
+            </a>
 
-研究・開発中です。
+        </article>
 
-</p>
+        <article class="card pixel">
 
-<a class="button"
+            <div class="card-top">
 
-href="salpcode.html">
+                <div class="icon">
+                    🎨
+                </div>
 
-Open salpCode
+                <h2>
+                    salp Pixel
+                </h2>
 
+            </div>
 
+            <p>
+                指やマウスで描けるドット絵エディター。
+                塗りつぶし・スポイト・Undo・PNG保存・JSON保存に対応しています。
+            </p>
 
-</a>
+            <div class="tags">
 
-</div>
+                <span class="tag">
+                    Pixel Art
+                </span>
 
-    <div class="tool-card">
+                <span class="tag">
+                    PNG
+                </span>
 
-  <h2>🎨 salp Pixel</h2>
+                <span class="tag">
+                    Mobile
+                </span>
 
-  <p>
-    ブラウザで使えるドット絵エディター。<br>
-    PNG保存・JSON保存・スマホ対応。
-  </p>
+            </div>
 
-  <button onclick="location.href='Pixel.html'">
-    Open Pixel
-  </button>
+            <a
+                class="button"
+                href="Pixel.html"
+            >
+                Open Pixel
+            </a>
 
-</div>
-    
+        </article>
 
+    </div>
 
-</div>
+</main>
 
 <footer>
 
-Made with ❤️ by salp.music
+    <div class="footer-main">
+        Made with ❤️ by salp.music
+    </div>
 
-<br><br>
-
-No Ads ・ No Registration ・ Free Forever
+    <div class="footer-sub">
+        No Ads ・ No Registration ・ Free Forever
+    </div>
 
 </footer>
 
