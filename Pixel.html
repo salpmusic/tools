@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#15171c">
+<title>salp Pixel</title>
+<style>
+:root{
+  --bg:#111318;
+  --panel:#1b1e25;
+  --panel2:#242833;
+  --line:#373c49;
+  --text:#f6f7fb;
+  --muted:#a7adbb;
+  --accent:#ff6fae;
+  --accent2:#62dceb;
+  --danger:#ff6666;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overscroll-behavior:none}
+button,input,select{font:inherit}
+button{color:var(--text)}
+.app{max-width:900px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 10px) 10px calc(env(safe-area-inset-bottom) + 18px)}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;color:#111;font-family:monospace;box-shadow:0 5px 18px #0008}
+h1{font-size:20px;margin:0;letter-spacing:.4px}
+.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;box-shadow:0 8px 24px #0004}
+.topbar{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+.controls{display:flex;flex-wrap:wrap;gap:7px}
+button,.selectWrap{min-height:44px;border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer}
+button:active{transform:scale(.97)}
+button.active{background:var(--accent);color:#16171b;border-color:transparent}
+button.secondary.active{background:var(--accent2)}
+button.danger{color:#ffb0b0}
+button:disabled{opacity:.35}
+select{background:transparent;color:var(--text);border:0;outline:0;font-weight:700}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:10px}
+.canvasPanel{display:flex;align-items:center;justify-content:center;min-height:360px;overflow:hidden;background:
+linear-gradient(45deg,#20232b 25%,transparent 25%) 0 0/20px 20px,
+linear-gradient(45deg,transparent 75%,#20232b 75%) 0 0/20px 20px,
+linear-gradient(45deg,transparent 75%,#20232b 75%) 10px -10px/20px 20px,
+linear-gradient(45deg,#20232b 25%,#171a20 25%) 10px 10px/20px 20px}
+#pixelCanvas{display:block;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;background:transparent;box-shadow:0 8px 30px #0009;border-radius:2px;max-width:100%;max-height:72vh}
+.sidebar{display:flex;flex-direction:column;gap:10px}
+.sectionTitle{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em;margin-bottom:7px}
+.currentColor{display:flex;align-items:center;gap:9px}
+#colorPicker{width:54px;height:44px;border:0;background:none;padding:0}
+#hexInput{width:110px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:#111318;color:var(--text);padding:8px;font-family:monospace;text-transform:uppercase}
+.palette{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.swatch{aspect-ratio:1;border-radius:8px;border:2px solid #ffffff22;padding:0;min-height:0}
+.swatch.selected{outline:3px solid white;outline-offset:1px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.actions button{padding:8px 5px;font-size:13px}
+.status{margin-top:10px;display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px}
+.hint{font-size:12px;line-height:1.5;color:var(--muted)}
+.hidden{display:none!important}
+footer{text-align:center;color:#777f90;font-size:11px;margin-top:10px}
+@media(max-width:700px){
+  .workspace{grid-template-columns:1fr}
+  .sidebar{display:grid;grid-template-columns:1fr 1fr}
+  .sidebar .wide{grid-column:1/-1}
+  .canvasPanel{min-height:310px;padding:5px}
+  #pixelCanvas{max-height:58vh}
+}
+@media(max-width:430px){
+  .app{padding-left:7px;padding-right:7px}
+  .panel{border-radius:13px;padding:8px}
+  button,.selectWrap{min-height:42px;padding:7px 10px}
+  .sidebar{grid-template-columns:1fr}
+  .sidebar .wide{grid-column:auto}
+  .topbar{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">SP</div>
+      <div>
+        <h1>salp Pixel</h1>
+        <div class="sub">ブラウザで描けるドット絵エディター</div>
+      </div>
+    </div>
+    <button id="gridBtn" aria-label="グリッド表示切替"># グリッド</button>
+  </header>
+
+  <div class="panel topbar">
+    <div class="controls" id="tools">
+      <button data-tool="pen" class="active">✏️ ペン</button>
+      <button data-tool="eraser">⌫ 消す</button>
+      <button data-tool="fill">🪣 塗る</button>
+      <button data-tool="picker">💧 スポイト</button>
+    </div>
+    <div class="controls">
+      <button id="undoBtn">↶</button>
+      <button id="redoBtn">↷</button>
+      <label class="selectWrap">
+        <select id="sizeSelect" aria-label="キャンバスサイズ">
+          <option value="8">8 × 8</option>
+          <option value="16" selected>16 × 16</option>
+          <option value="24">24 × 24</option>
+          <option value="32">32 × 32</option>
+          <option value="48">48 × 48</option>
+          <option value="64">64 × 64</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <main class="workspace">
+    <section class="panel canvasPanel" id="canvasPanel">
+      <canvas id="pixelCanvas" width="512" height="512"></canvas>
+    </section>
+
+    <aside class="sidebar">
+      <section class="panel">
+        <div class="sectionTitle">カラー</div>
+        <div class="currentColor">
+          <input type="color" id="colorPicker" value="#ff6fae">
+          <input type="text" id="hexInput" value="#FF6FAE" maxlength="7" aria-label="HEXカラー">
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="sectionTitle">パレット</div>
+        <div class="palette" id="palette"></div>
+      </section>
+
+      <section class="panel wide">
+        <div class="sectionTitle">ファイル</div>
+        <div class="actions">
+          <button id="saveLocalBtn">保存</button>
+          <button id="loadLocalBtn">読込</button>
+          <button id="pngBtn">PNG</button>
+          <button id="jsonBtn">JSON</button>
+          <button id="importBtn">JSON読込</button>
+          <button id="clearBtn" class="danger">全消去</button>
+        </div>
+        <input type="file" id="fileInput" accept=".json,application/json" class="hidden">
+      </section>
+
+      <section class="panel wide">
+        <div class="sectionTitle">使い方</div>
+        <div class="hint">
+          指やマウスでなぞって描けます。PNGは透明背景のまま保存されます。
+          グリッドは保存画像には入りません。
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <div class="status">
+    <span id="statusText">16 × 16 / ペン</span>
+    <span id="coordText">x: – y: –</span>
+  </div>
+  <footer>salp Tools / Pixel Editor</footer>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('pixelCanvas');
+  const ctx = canvas.getContext('2d');
+  const panel = document.getElementById('canvasPanel');
+  const sizeSelect = document.getElementById('sizeSelect');
+  const tools = document.getElementById('tools');
+  const colorPicker = document.getElementById('colorPicker');
+  const hexInput = document.getElementById('hexInput');
+  const gridBtn = document.getElementById('gridBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const statusText = document.getElementById('statusText');
+  const coordText = document.getElementById('coordText');
+  const paletteEl = document.getElementById('palette');
+
+  const PALETTE = [
+    '#000000','#FFFFFF','#7D8597','#C9D1D9','#FF4D6D','#FF8FA3',
+    '#FF922B','#FFD43B','#A9E34B','#40C057','#20C997','#3BC9DB',
+    '#339AF0','#5C7CFA','#7950F2','#BE4BDB','#F06595','#8D5524',
+    '#C68642','#E0AC69','#F1C27D','#FFE0BD','#6B4F3A','#2B2D42'
+  ];
+
+  let gridSize = 16;
+  let pixels = Array(gridSize * gridSize).fill(null);
+  let tool = 'pen';
+  let currentColor = '#FF6FAE';
+  let showGrid = true;
+  let drawing = false;
+  let lastIndex = -1;
+  let undoStack = [];
+  let redoStack = [];
+  let beforeStroke = null;
+
+  function clonePixels(){ return pixels.slice(); }
+
+  function pushState(state){
+    undoStack.push(state);
+    if(undoStack.length > 80) undoStack.shift();
+    redoStack = [];
+    updateUndoRedo();
+  }
+
+  function updateUndoRedo(){
+    undoBtn.disabled = undoStack.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+  }
+
+  function resizeCanvasDisplay(){
+    const max = Math.min(panel.clientWidth - 12, window.innerHeight * (window.innerWidth < 700 ? .56 : .72), 680);
+    const size = Math.max(260, Math.floor(max));
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    render();
+  }
+
+  function render(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const cssSize = parseFloat(canvas.style.width) || 512;
+    canvas.width = Math.round(cssSize * dpr);
+    canvas.height = Math.round(cssSize * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cssSize,cssSize);
+    const cell = cssSize / gridSize;
+
+    for(let y=0;y<gridSize;y++){
+      for(let x=0;x<gridSize;x++){
+        const c = pixels[y*gridSize+x];
+        if(c){
+          ctx.fillStyle = c;
+          ctx.fillRect(x*cell, y*cell, Math.ceil(cell), Math.ceil(cell));
+        }
+      }
+    }
+
+    if(showGrid && cell >= 6){
+      ctx.strokeStyle = 'rgba(90,98,118,.42)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let i=0;i<=gridSize;i++){
+        const p = Math.round(i*cell)+.5;
+        ctx.moveTo(p,0); ctx.lineTo(p,cssSize);
+        ctx.moveTo(0,p); ctx.lineTo(cssSize,p);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function pointToCell(e){
+    const r = canvas.getBoundingClientRect();
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    const x = Math.floor((clientX-r.left)/r.width*gridSize);
+    const y = Math.floor((clientY-r.top)/r.height*gridSize);
+    if(x<0||y<0||x>=gridSize||y>=gridSize) return null;
+    return {x,y,index:y*gridSize+x};
+  }
+
+  function setPixel(index, color){
+    if(pixels[index] === color) return false;
+    pixels[index] = color;
+    return true;
+  }
+
+  function floodFill(startIndex, replacement){
+    const target = pixels[startIndex];
+    if(target === replacement) return;
+    const q=[startIndex];
+    const seen = new Uint8Array(pixels.length);
+    while(q.length){
+      const i=q.pop();
+      if(seen[i] || pixels[i] !== target) continue;
+      seen[i]=1;
+      pixels[i]=replacement;
+      const x=i%gridSize, y=Math.floor(i/gridSize);
+      if(x>0)q.push(i-1);
+      if(x<gridSize-1)q.push(i+1);
+      if(y>0)q.push(i-gridSize);
+      if(y<gridSize-1)q.push(i+gridSize);
+    }
+  }
+
+  function applyAt(cell, isStart=false){
+    if(!cell) return;
+    coordText.textContent=`x: ${cell.x} y: ${cell.y}`;
+    if(cell.index===lastIndex && !isStart) return;
+    lastIndex=cell.index;
+
+    if(tool==='picker'){
+      const picked=pixels[cell.index];
+      if(picked) setColor(picked);
+      drawing=false;
+      return;
+    }
+    if(tool==='fill'){
+      pushState(clonePixels());
+      floodFill(cell.index,currentColor);
+      render();
+      drawing=false;
+      return;
+    }
+    const color = tool==='eraser' ? null : currentColor;
+    if(setPixel(cell.index,color)) render();
+  }
+
+  canvas.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    canvas.setPointerCapture(e.pointerId);
+    drawing=true;
+    lastIndex=-1;
+    beforeStroke=clonePixels();
+    applyAt(pointToCell(e),true);
+  });
+  canvas.addEventListener('pointermove', e=>{
+    const cell=pointToCell(e);
+    if(cell) coordText.textContent=`x: ${cell.x} y: ${cell.y}`;
+    if(drawing && (tool==='pen'||tool==='eraser')) applyAt(cell);
+  });
+  function endStroke(){
+    if(drawing && beforeStroke && (tool==='pen'||tool==='eraser')){
+      let changed=false;
+      for(let i=0;i<pixels.length;i++){ if(pixels[i]!==beforeStroke[i]){changed=true;break;} }
+      if(changed) pushState(beforeStroke);
+    }
+    drawing=false; lastIndex=-1; beforeStroke=null;
+  }
+  canvas.addEventListener('pointerup',endStroke);
+  canvas.addEventListener('pointercancel',endStroke);
+  canvas.addEventListener('pointerleave',()=>{ if(!drawing) coordText.textContent='x: – y: –'; });
+
+  tools.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-tool]');
+    if(!btn)return;
+    tool=btn.dataset.tool;
+    [...tools.querySelectorAll('button')].forEach(b=>b.classList.toggle('active',b===btn));
+    updateStatus();
+  });
+
+  function setColor(c){
+    currentColor=c.toUpperCase();
+    colorPicker.value=currentColor;
+    hexInput.value=currentColor;
+    [...paletteEl.children].forEach(s=>s.classList.toggle('selected',s.dataset.color===currentColor));
+  }
+
+  colorPicker.addEventListener('input',()=>setColor(colorPicker.value));
+  hexInput.addEventListener('change',()=>{
+    let v=hexInput.value.trim();
+    if(!v.startsWith('#'))v='#'+v;
+    if(/^#[0-9A-Fa-f]{6}$/.test(v)) setColor(v);
+    else hexInput.value=currentColor;
+  });
+
+  PALETTE.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='swatch';
+    b.style.background=c;
+    b.dataset.color=c.toUpperCase();
+    b.title=c;
+    b.addEventListener('click',()=>setColor(c));
+    paletteEl.appendChild(b);
+  });
+  setColor(currentColor);
+
+  sizeSelect.addEventListener('change',()=>{
+    const n=Number(sizeSelect.value);
+    if(n===gridSize)return;
+    if(pixels.some(Boolean) && !confirm(`キャンバスを ${n}×${n} に変更します。現在の絵は消えます。`)){
+      sizeSelect.value=gridSize; return;
+    }
+    gridSize=n;
+    pixels=Array(n*n).fill(null);
+    undoStack=[]; redoStack=[];
+    updateUndoRedo(); updateStatus(); render();
+  });
+
+  gridBtn.addEventListener('click',()=>{
+    showGrid=!showGrid;
+    gridBtn.classList.toggle('active',showGrid);
+    render();
+  });
+  gridBtn.classList.add('active');
+
+  undoBtn.addEventListener('click',()=>{
+    if(!undoStack.length)return;
+    redoStack.push(clonePixels());
+    pixels=undoStack.pop();
+    updateUndoRedo(); render();
+  });
+  redoBtn.addEventListener('click',()=>{
+    if(!redoStack.length)return;
+    undoStack.push(clonePixels());
+    pixels=redoStack.pop();
+    updateUndoRedo(); render();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click',()=>{
+    if(!pixels.some(Boolean))return;
+    if(!confirm('キャンバスを全部消しますか？'))return;
+    pushState(clonePixels());
+    pixels.fill(null); render();
+  });
+
+  function projectData(){
+    return {app:'salp Pixel',version:1,size:gridSize,pixels,date:new Date().toISOString()};
+  }
+
+  document.getElementById('saveLocalBtn').addEventListener('click',()=>{
+    localStorage.setItem('salpPixelProject',JSON.stringify(projectData()));
+    flash('ブラウザに保存しました');
+  });
+
+  document.getElementById('loadLocalBtn').addEventListener('click',()=>{
+    const raw=localStorage.getItem('salpPixelProject');
+    if(!raw){alert('保存データがありません');return;}
+    try{
+      loadProject(JSON.parse(raw));
+      flash('保存データを読み込みました');
+    }catch{alert('保存データを読み込めませんでした');}
+  });
+
+  function loadProject(data){
+    if(!data || !Number.isInteger(data.size) || !Array.isArray(data.pixels) || data.pixels.length!==data.size*data.size)
+      throw new Error('invalid');
+    pushState(clonePixels());
+    gridSize=data.size;
+    pixels=data.pixels.map(v=>typeof v==='string'?v:null);
+    sizeSelect.value=String(gridSize);
+    undoStack=[]; redoStack=[];
+    updateUndoRedo(); updateStatus(); render();
+  }
+
+  document.getElementById('jsonBtn').addEventListener('click',()=>{
+    downloadBlob(new Blob([JSON.stringify(projectData(),null,2)],{type:'application/json'}),'salp-pixel.json');
+  });
+
+  const fileInput=document.getElementById('fileInput');
+  document.getElementById('importBtn').addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',async()=>{
+    const f=fileInput.files[0];
+    if(!f)return;
+    try{loadProject(JSON.parse(await f.text()));flash('JSONを読み込みました');}
+    catch{alert('正しいsalp Pixel JSONではありません');}
+    fileInput.value='';
+  });
+
+  document.getElementById('pngBtn').addEventListener('click',()=>{
+    const scale = Math.max(1,Math.floor(1024/gridSize));
+    const out=document.createElement('canvas');
+    out.width=gridSize*scale; out.height=gridSize*scale;
+    const o=out.getContext('2d');
+    o.imageSmoothingEnabled=false;
+    for(let y=0;y<gridSize;y++){
+      for(let x=0;x<gridSize;x++){
+        const c=pixels[y*gridSize+x];
+        if(c){o.fillStyle=c;o.fillRect(x*scale,y*scale,scale,scale);}
+      }
+    }
+    out.toBlob(blob=>downloadBlob(blob,`salp-pixel-${gridSize}x${gridSize}.png`),'image/png');
+  });
+
+  function downloadBlob(blob,name){
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+  }
+
+  function updateStatus(){
+    const names={pen:'ペン',eraser:'消しゴム',fill:'塗りつぶし',picker:'スポイト'};
+    statusText.textContent=`${gridSize} × ${gridSize} / ${names[tool]}`;
+  }
+
+  function flash(msg){
+    const old=statusText.textContent;
+    statusText.textContent=msg;
+    setTimeout(()=>statusText.textContent=old,1500);
+  }
+
+  window.addEventListener('resize',resizeCanvasDisplay);
+  updateUndoRedo();
+  updateStatus();
+  requestAnimationFrame(resizeCanvasDisplay);
+})();
+</script>
+</body>
+</html>
