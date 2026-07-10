@@ -287,6 +287,22 @@ h1{
 .color{--card-accent:#ff91c3;--icon-background:#fff0f7}
 .music{--card-accent:#ff8db9;--icon-background:#fff0f6}
 
+
+.new-badge{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:2;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#ff4f8b;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.06em;
+  box-shadow:0 4px 12px rgba(255,79,139,.28);
+}
+
 .about{
   padding:25px;
   background:rgba(255,255,255,.68);
@@ -355,9 +371,9 @@ footer{
   <div class="catchcopy">迷わず使える、小さな道具。</div>
 
   <p class="intro">
-    salp Toolsは、広告なし・登録なしで使える無料Webツール集です。
-    画像の一括リサイズ、QRコード作成、フォトフレーム、
-    ドット絵、開発ツール、シンプルゲームをブラウザだけで利用できます。
+    salpの音楽リンクと、広告なし・登録なしで使える無料Webツール集です。
+    Spotify・Apple Music・YouTubeなどの音楽活動に加えて、
+    画像加工、QRコード作成、開発ツール、シンプルゲームをブラウザだけで利用できます。
   </p>
 
   <div class="features" aria-label="salp Toolsの特徴">
@@ -371,6 +387,34 @@ footer{
 
 <main id="main-content" class="container">
 
+
+  <section class="section" aria-labelledby="music-heading">
+    <div class="section-header">
+      <h2 id="music-heading" class="section-title">🎵 salp Music</h2>
+      <p class="section-description">salpの音楽配信とSNSはこちら。</p>
+    </div>
+
+    <div class="tool-grid">
+      <article class="card music">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🎵</div>
+          <h3>salp Music Links</h3>
+        </div>
+        <p>
+          Spotify・Apple Music・YouTube・TikTok・Instagramなど、
+          salp.musicの音楽とSNSリンクをまとめています。
+        </p>
+        <div class="tags">
+          <span class="tag">Music</span>
+          <span class="tag">YouTube</span>
+          <span class="tag">Spotify</span>
+        </div>
+        <a class="button" href="https://linktr.ee/salp" target="_blank" rel="noopener noreferrer" aria-label="salp MusicのLinktreeを開く">Open Music</a>
+      </article>
+    </div>
+  </section>
+
+
   <section class="section" aria-labelledby="tools-heading">
     <div class="section-header">
       <h2 id="tools-heading" class="section-title">🧰 無料Webツール</h2>
@@ -380,6 +424,7 @@ footer{
     <div class="tool-grid">
 
       <article class="card resize">
+        <span class="new-badge">NEW</span>
         <div class="card-top">
           <div class="icon" aria-hidden="true">📐</div>
           <h3>salp Batch Resize</h3>
@@ -504,6 +549,7 @@ footer{
     </div>
   </section>
 
+
   <section class="section" aria-labelledby="games-heading">
     <div class="section-header">
       <h2 id="games-heading" class="section-title">🎮 無料ブラウザゲーム</h2>
@@ -530,31 +576,6 @@ footer{
     </div>
   </section>
 
-  <section class="section" aria-labelledby="music-heading">
-    <div class="section-header">
-      <h2 id="music-heading" class="section-title">🎵 salp Music</h2>
-      <p class="section-description">salpの音楽配信とSNSはこちら。</p>
-    </div>
-
-    <div class="tool-grid">
-      <article class="card music">
-        <div class="card-top">
-          <div class="icon" aria-hidden="true">🎵</div>
-          <h3>salp Music Links</h3>
-        </div>
-        <p>
-          Spotify・Apple Music・YouTube・TikTok・Instagramなど、
-          salp.musicの音楽とSNSリンクをまとめています。
-        </p>
-        <div class="tags">
-          <span class="tag">Music</span>
-          <span class="tag">YouTube</span>
-          <span class="tag">Spotify</span>
-        </div>
-        <a class="button" href="https://linktr.ee/salp" target="_blank" rel="noopener noreferrer" aria-label="salp MusicのLinktreeを開く">Open Music</a>
-      </article>
-    </div>
-  </section>
 
   <section class="section about" aria-labelledby="about-heading">
     <h2 id="about-heading">salp Toolsについて</h2>
@@ -576,7 +597,7 @@ footer{
     Classic free tools, reimagined for the browser.<br>
     昔の便利なフリーソフトを、ブラウザで。
   </div>
-  <div class="version">salp Tools Version 0.5.0</div>
+  <div class="version">salp Tools Version 0.6.0</div>
 </footer>
 
 </body>
