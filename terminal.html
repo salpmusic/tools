@@ -2,417 +2,121 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>salp Terminal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101318">
+<title>salp Terminal v2</title>
 <style>
-body{
-  margin:0;
-  background:#0b0b0b;
-  color:#e8e8e8;
-  font-family:monospace;
-}
-#bar{
-  background:#222;
-  padding:10px;
-  position:sticky;
-  top:0;
-}
-button{
-  margin:3px;
-  padding:8px 10px;
-}
-#screen{
-  padding:14px;
-  white-space:pre-wrap;
-  min-height:70vh;
-  line-height:1.45;
-}
-#cmd{
-  width:100%;
-  box-sizing:border-box;
-  background:#000;
-  color:#00ff66;
-  border:0;
-  border-top:1px solid #333;
-  padding:14px;
-  font-family:monospace;
-  font-size:16px;
-}
-a{color:#9fd3ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#0f1217;color:#e9eef5;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:980px;margin:auto;padding:14px 10px 24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#72f29a,#6fd8ff);color:#111;font-weight:900}
+h1{font-size:20px;margin:0}.sub{font-size:12px;color:#97a3b3;margin-top:2px}
+.controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+button,select{min-height:42px;border:1px solid #323a46;border-radius:10px;background:#202630;color:#e9eef5;padding:7px 10px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:10px}
+.terminal{background:#050708;border:1px solid #323a46;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.termHead{display:flex;justify-content:space-between;padding:9px 12px;background:#15191f;border-bottom:1px solid #252b34;color:#97a3b3;font-size:12px}
+#output{height:58vh;min-height:420px;overflow:auto;padding:14px;white-space:pre-wrap;word-break:break-word;line-height:1.55;font-size:14px;color:#72f29a}
+.inputRow{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #222831;background:#0b0e12}
+#prompt{color:#6fd8ff;font-weight:800}
+#commandInput{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:16px}
+.sidebar{display:flex;flex-direction:column;gap:10px}
+.panel{background:#171b22;border:1px solid #323a46;border-radius:16px;padding:12px}
+.panel h2{margin:0 0 10px;font-size:13px;color:#97a3b3}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:7px}.quick button{font-size:12px}
+.fs{font-size:12px;color:#c7d0dd;line-height:1.7;max-height:220px;overflow:auto;white-space:pre-wrap}
+.hint{font-size:12px;color:#97a3b3;line-height:1.55}
+.status{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:#97a3b3}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);z-index:10}
+.modal.show{display:flex}
+.modalCard{width:min(100%,760px);background:#171b22;border:1px solid #323a46;border-radius:18px;padding:14px}
+.modalTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+#editor{width:100%;min-height:55vh;background:#090c10;color:#fff;border:1px solid #323a46;border-radius:12px;padding:12px;outline:none}
+.modalActions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.primary{background:#72f29a;color:#111;border-color:transparent;font-weight:900}
+.runFrame{width:100%;height:70vh;border:0;background:white;border-radius:10px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}#output{height:50vh;min-height:360px}.sidebar{display:grid;grid-template-columns:1fr 1fr}.sidebar .wide{grid-column:1/-1}}
+@media(max-width:470px){header{align-items:flex-start}.controls{flex-direction:column}.sidebar{grid-template-columns:1fr}.sidebar .wide{grid-column:auto}}
 </style>
 </head>
 <body>
-
-<div id="bar">
-<button onclick="setMode('dos')">MS-DOS</button>
-<button onclick="setMode('linux')">Linux</button>
-<button onclick="setMode('unix')">UNIX</button>
-<button onclick="setMode('mac')">Mac</button>
-<button onclick="resetDisk()">Reset Disk</button>
-<button onclick="location.href='index.html'">Home</button>
+<div class="app">
+<header>
+<div class="brand"><div class="logo">ST</div><div><h1>salp Terminal v2</h1><div class="sub">ブラウザ内で動く仮想ターミナル</div></div></div>
+<div class="controls"><select id="modeSelect"><option value="linux">Linux</option><option value="dos">MS-DOS</option><option value="jp">日本語</option></select><button id="resetFsBtn">初期化</button></div>
+</header>
+<div class="layout">
+<section class="terminal">
+<div class="termHead"><span>● ● ●</span><span id="modeLabel">Linux Mode</span></div>
+<div id="output"></div>
+<div class="inputRow"><span id="prompt">$</span><input id="commandInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="help と入力"></div>
+</section>
+<aside class="sidebar">
+<section class="panel"><h2>クイックコマンド</h2><div class="quick"><button data-cmd="help">help</button><button data-cmd="ls">ls</button><button data-cmd="tree">tree</button><button data-cmd="pwd">pwd</button><button data-cmd="history">history</button><button data-cmd="clear">clear</button></div></section>
+<section class="panel"><h2>現在のファイル</h2><div id="fsView" class="fs"></div></section>
+<section class="panel wide"><h2>使い方</h2><div class="hint">mkdir Projects/demo<br>cd Projects/demo<br>touch index.html<br>edit index.html<br>run index.html</div></section>
+</aside>
+</div>
+<div class="status"><span id="pathStatus">/</span><span>localStorage保存</span></div>
 </div>
 
-<div id="screen"></div>
-<input id="cmd" autocomplete="off" autofocus placeholder="command">
+<div id="editorModal" class="modal"><div class="modalCard"><div class="modalTop"><strong id="editorTitle">Editor</strong><button id="closeEditorBtn">閉じる</button></div><textarea id="editor"></textarea><div class="modalActions"><button id="saveEditorBtn" class="primary">保存</button></div></div></div>
+<div id="runModal" class="modal"><div class="modalCard"><div class="modalTop"><strong id="runTitle">Run</strong><button id="closeRunBtn">閉じる</button></div><iframe id="runFrame" class="runFrame" sandbox="allow-scripts allow-forms allow-modals"></iframe></div></div>
 
 <script>
-let mode = localStorage.getItem("salpTerminalMode") || "dos";
-let cwd = localStorage.getItem("salpTerminalCwd") || "/";
-let history = [];
-let historyPos = 0;
-
-let fs = JSON.parse(localStorage.getItem("salpDisk") || "null") || {
-  "/":{
-    "README.TXT":
-`Welcome to salp Terminal!
-
-Commands:
-help
-dir / ls
-cd
-mkdir
-echo text > file
-type / cat
-del / rm
-copy / cp
-move / mv
-pwd
-cls / clear
-
-This is a virtual drive.
-Data is saved in your browser localStorage.`
-  }
-};
-
-const screen = document.getElementById("screen");
-const cmd = document.getElementById("cmd");
-
-function save(){
-  localStorage.setItem("salpDisk", JSON.stringify(fs));
-  localStorage.setItem("salpTerminalMode", mode);
-  localStorage.setItem("salpTerminalCwd", cwd);
-}
-
-function print(text=""){
-  screen.textContent += text + "\n";
-  window.scrollTo(0, document.body.scrollHeight);
-}
-
-function setMode(m){
-  mode = m;
-  save();
-  print("");
-  print("Mode changed: " + m.toUpperCase());
-}
-
-function promptText(){
-  if(mode === "dos") return "C:" + cwd.replaceAll("/","\\") + "> ";
-  if(mode === "linux") return "salp@tools:" + cwd + " $ ";
-  if(mode === "unix") return "salp% " + cwd + " ";
-  if(mode === "mac") return "MacBook-Air:" + cwd + " salp$ ";
-  return "> ";
-}
-
-function normalizePath(path){
-  if(!path || path === ".") return cwd;
-
-  let base;
-
-  if(path.startsWith("/")){
-    base = [];
-  }else{
-    base = cwd.split("/").filter(Boolean);
-  }
-
-  for(const part of path.split("/")){
-    if(!part || part === ".") continue;
-    if(part === "..") base.pop();
-    else base.push(part);
-  }
-
-  return "/" + base.join("/");
-}
-
-function parentPath(path){
-  if(path === "/") return "/";
-  let p = path.split("/").filter(Boolean);
-  p.pop();
-  return "/" + p.join("/");
-}
-
-function baseName(path){
-  return path.split("/").filter(Boolean).pop() || "/";
-}
-
-function getDir(path=cwd){
-  return fs[path];
-}
-
-function exists(path){
-  return fs[path] !== undefined;
-}
-
-function isDir(path){
-  return exists(path) && typeof fs[path] === "object";
-}
-
-function getCurrentDir(){
-  return getDir(cwd);
-}
-
-function splitCommand(line){
-  const result = [];
-  let current = "";
-  let quote = false;
-
-  for(let i=0;i<line.length;i++){
-    const ch = line[i];
-    if(ch === '"'){
-      quote = !quote;
-      continue;
-    }
-    if(ch === " " && !quote){
-      if(current){
-        result.push(current);
-        current = "";
-      }
-    }else{
-      current += ch;
-    }
-  }
-  if(current) result.push(current);
-  return result;
-}
-
-function listDir(){
-  const d = getCurrentDir();
-  const keys = Object.keys(d);
-
-  if(keys.length === 0){
-    print("(empty)");
-    return;
-  }
-
-  for(const name of keys){
-    if(typeof d[name] === "object"){
-      if(mode === "dos") print("<DIR>      " + name);
-      else print("drwxr-xr-x  " + name);
-    }else{
-      if(mode === "dos") print("           " + name);
-      else print("-rw-r--r--  " + name);
-    }
-  }
-}
-
-function makeDir(name){
-  if(!name) return print("mkdir: missing name");
-
-  const path = normalizePath(name);
-  if(exists(path)) return print("Directory already exists");
-
-  fs[path] = {};
-
-  const parent = getDir(parentPath(path));
-  if(parent && typeof parent === "object"){
-    parent[baseName(path)] = fs[path];
-  }
-
-  save();
-  print("Directory created: " + name);
-}
-
-function removeItem(name){
-  if(!name) return print("remove: missing name");
-
-  const d = getCurrentDir();
-  if(d[name] === undefined) return print("File not found");
-
-  if(typeof d[name] === "object"){
-    const path = normalizePath(name);
-    delete fs[path];
-  }
-
-  delete d[name];
-  save();
-  print("Deleted: " + name);
-}
-
-function showFile(name){
-  if(!name) return print("type/cat: missing file");
-
-  const d = getCurrentDir();
-  if(d[name] === undefined || typeof d[name] === "object"){
-    return print("File not found");
-  }
-  print(d[name]);
-}
-
-function echoCommand(args){
-  const text = args.join(" ");
-  const match = text.match(/^(.*)\s>\s(.+)$/);
-
-  if(match){
-    const content = match[1];
-    const filename = match[2];
-    getCurrentDir()[filename] = content;
-    save();
-    print("Saved: " + filename);
-  }else{
-    print(text);
-  }
-}
-
-function copyItem(src,dst){
-  if(!src || !dst) return print("copy/cp: source and destination required");
-
-  const d = getCurrentDir();
-  if(d[src] === undefined) return print("Source not found");
-  if(typeof d[src] === "object") return print("Directory copy is not supported yet");
-
-  d[dst] = d[src];
-  save();
-  print("Copied: " + src + " -> " + dst);
-}
-
-function moveItem(src,dst){
-  if(!src || !dst) return print("move/mv: source and destination required");
-
-  const d = getCurrentDir();
-  if(d[src] === undefined) return print("Source not found");
-
-  d[dst] = d[src];
-  delete d[src];
-  save();
-  print("Moved: " + src + " -> " + dst);
-}
-
-function changeDir(path){
-  if(!path) return print(cwd);
-
-  const p = normalizePath(path);
-
-  if(isDir(p)){
-    cwd = p;
-    save();
-  }else{
-    print("Directory not found");
-  }
-}
-
-function help(){
-  print(
-`salp Terminal commands:
-
-MS-DOS style:
-  dir
-  cd folder
-  mkdir folder
-  type file
-  del file
-  copy file newfile
-  move file newfile
-  cls
-
-Linux / UNIX / Mac style:
-  ls
-  cd folder
-  mkdir folder
-  cat file
-  rm file
-  cp file newfile
-  mv file newfile
-  clear
-  pwd
-
-Common:
-  echo hello
-  echo hello > memo.txt
-  help
-
-Tips:
-  Use ↑ / ↓ for command history.
-  Files are saved inside browser localStorage.`
-  );
-}
-
-function run(line){
-  print(promptText() + line);
-
-  const parts = splitCommand(line.trim());
-  if(parts.length === 0) return;
-
-  const c = parts.shift().toLowerCase();
-
-  if(c === "help") help();
-
-  else if(c === "dir" || c === "ls") listDir();
-
-  else if(c === "cd") changeDir(parts[0]);
-
-  else if(c === "pwd") print(cwd);
-
-  else if(c === "mkdir") makeDir(parts[0]);
-
-  else if(c === "type" || c === "cat") showFile(parts[0]);
-
-  else if(c === "del" || c === "rm") removeItem(parts[0]);
-
-  else if(c === "copy" || c === "cp") copyItem(parts[0], parts[1]);
-
-  else if(c === "move" || c === "mv") moveItem(parts[0], parts[1]);
-
-  else if(c === "echo") echoCommand(parts);
-
-  else if(c === "cls" || c === "clear") screen.textContent = "";
-
-  else print("Unknown command: " + c);
-}
-
-cmd.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    const line = cmd.value;
-    if(line.trim()){
-      history.push(line);
-      historyPos = history.length;
-    }
-    run(line);
-    cmd.value = "";
-  }
-
-  if(e.key === "ArrowUp"){
-    if(history.length && historyPos > 0){
-      historyPos--;
-      cmd.value = history[historyPos];
-      setTimeout(()=>cmd.setSelectionRange(cmd.value.length, cmd.value.length),0);
-    }
-    e.preventDefault();
-  }
-
-  if(e.key === "ArrowDown"){
-    if(historyPos < history.length - 1){
-      historyPos++;
-      cmd.value = history[historyPos];
-    }else{
-      historyPos = history.length;
-      cmd.value = "";
-    }
-    e.preventDefault();
-  }
-});
-
-function resetDisk(){
-  if(confirm("仮想ドライブを初期化しますか？")){
-    localStorage.removeItem("salpDisk");
-    localStorage.removeItem("salpTerminalCwd");
-    location.reload();
-  }
-}
-
-print("salp Terminal v1.0");
-print("Mode: " + mode.toUpperCase());
-print("type 'help'");
-print("");
+(() => {
+const S="salpTerminalFS_v2",H="salpTerminalHistory_v2",M="salpTerminalMode_v2";
+const output=document.getElementById("output"),input=document.getElementById("commandInput"),promptEl=document.getElementById("prompt"),modeSelect=document.getElementById("modeSelect"),modeLabel=document.getElementById("modeLabel"),fsView=document.getElementById("fsView"),pathStatus=document.getElementById("pathStatus");
+const editorModal=document.getElementById("editorModal"),editor=document.getElementById("editor"),editorTitle=document.getElementById("editorTitle"),runModal=document.getElementById("runModal"),runFrame=document.getElementById("runFrame"),runTitle=document.getElementById("runTitle");
+function defaultFS(){return {type:"dir",children:{Documents:{type:"dir",children:{}},Projects:{type:"dir",children:{"hello.html":{type:"file",content:"<!DOCTYPE html><html><body style='font-family:sans-serif;padding:30px'><h1>Hello salp Terminal!</h1><p>This file runs inside the browser.</p></body></html>"}}},Music:{type:"dir",children:{}},Pictures:{type:"dir",children:{}},Apps:{type:"dir",children:{}},System:{type:"dir",children:{"readme.txt":{type:"file",content:"salp Terminal v2\nType help to see commands."}}}}}}
+let fs;try{fs=JSON.parse(localStorage.getItem(S))||defaultFS()}catch{fs=defaultFS()}
+let cwd="/",history=JSON.parse(localStorage.getItem(H)||"[]"),hi=history.length,mode=localStorage.getItem(M)||"linux",editingPath=null;
+function save(){localStorage.setItem(S,JSON.stringify(fs));renderFS()}
+function norm(path){if(!path)return cwd;const full=path.startsWith("/")?path:(cwd==="/"?"/"+path:cwd+"/"+path),parts=[];full.split("/").forEach(p=>{if(!p||p===".")return;if(p==="..")parts.pop();else parts.push(p)});return "/"+parts.join("/")}
+function parts(path){const n=norm(path);return n==="/"?[]:n.slice(1).split("/")}
+function node(path){let n=fs;for(const p of parts(path)){if(!n||n.type!=="dir"||!n.children[p])return null;n=n.children[p]}return n}
+function parent(path){const a=parts(path),name=a.pop(),pp="/"+a.join("/");return {parent:node(pp||"/"),name}}
+function print(t="",c=""){const d=document.createElement("div");d.textContent=t;if(c)d.style.color=c;output.appendChild(d);output.scrollTop=output.scrollHeight}
+function prompt(){if(mode==="dos")return (cwd==="/"? "C:\\":"C:\\"+cwd.slice(1).replace(/\//g,"\\"))+">";if(mode==="jp")return "端末:"+cwd+">";return "salp@"+cwd+"$"}
+function update(){promptEl.textContent=prompt();pathStatus.textContent=cwd;modeLabel.textContent=mode==="dos"?"MS-DOS Mode":mode==="jp"?"日本語 Mode":"Linux Mode"}
+function tree(n,prefix=""){let out="";Object.entries(n.children||{}).forEach(([k,v],i,a)=>{const last=i===a.length-1;out+=prefix+(last?"└─ ":"├─ ")+k+(v.type==="dir"?"/":"")+"\n";if(v.type==="dir")out+=tree(v,prefix+(last?"   ":"│  "))});return out}
+function renderFS(){fsView.textContent="/\n"+tree(fs)}
+const aliases={dir:"ls","一覧":"ls","移動":"cd","作成":"mkdir","削除":"rm","開く":"cat","履歴":"history","木":"tree","消去":"clear","コピー":"copy"};
+function run(raw){const line=raw.trim();if(!line)return;print(prompt()+" "+line,"#6fd8ff");history.push(line);if(history.length>100)history.shift();localStorage.setItem(H,JSON.stringify(history));hi=history.length;const a=line.match(/(?:[^\s"]+|"[^"]*")+/g)||[];let cmd=(a.shift()||"").toLowerCase();cmd=aliases[cmd]||cmd;const args=a.map(x=>x.replace(/^"|"$/g,""));try{exec(cmd,args)}catch(e){print("Error: "+e.message,"#ff8f8f")}}
+function exec(cmd,args){
+if(cmd==="help"){print("help\nls / dir / 一覧\ncd <path>\nmkdir <path>\ntouch <file>\nwrite <file> <text>\nedit <file>\ncat <file>\nrm <path>\ncopy <from> <to>\nmove <from> <to>\ntree\npwd\nhistory\nclear\nrun <file.html>\nmode linux|dos|jp\nversion");return}
+if(cmd==="ls"){const n=node(args[0]||cwd);if(!n)throw Error("path not found");if(n.type==="file"){print(args[0]);return}print(Object.entries(n.children).map(([k,v])=>k+(v.type==="dir"?"/":"")).join("  ")||"(empty)");return}
+if(cmd==="cd"){const p=norm(args[0]||"/"),n=node(p);if(!n||n.type!=="dir")throw Error("directory not found");cwd=p;update();return}
+if(cmd==="pwd"){print(cwd);return}
+if(cmd==="mkdir"){if(!args[0])throw Error("usage: mkdir <path>");const q=parent(args[0]);if(!q.parent||q.parent.type!=="dir")throw Error("parent not found");if(q.parent.children[q.name])throw Error("already exists");q.parent.children[q.name]={type:"dir",children:{}};save();return}
+if(cmd==="touch"){if(!args[0])throw Error("usage: touch <file>");const q=parent(args[0]);if(!q.parent)throw Error("parent not found");if(!q.parent.children[q.name])q.parent.children[q.name]={type:"file",content:""};save();return}
+if(cmd==="write"){if(!args[0])throw Error("usage: write <file> <text>");const q=parent(args[0]);if(!q.parent)throw Error("parent not found");q.parent.children[q.name]={type:"file",content:args.slice(1).join(" ")};save();return}
+if(cmd==="cat"||cmd==="open"){const n=node(args[0]);if(!n||n.type!=="file")throw Error("file not found");print(n.content);return}
+if(cmd==="edit"){if(!args[0])throw Error("usage: edit <file>");openEditor(norm(args[0]));return}
+if(cmd==="rm"){const p=norm(args[0]);if(p==="/")throw Error("cannot delete root");const q=parent(p);if(!q.parent||!q.parent.children[q.name])throw Error("not found");delete q.parent.children[q.name];if(cwd===p||cwd.startsWith(p+"/"))cwd="/";save();update();return}
+if(cmd==="copy"){if(args.length<2)throw Error("usage: copy <from> <to>");const s=node(args[0]);if(!s)throw Error("source not found");const q=parent(args[1]);if(!q.parent)throw Error("target parent not found");q.parent.children[q.name]=JSON.parse(JSON.stringify(s));save();return}
+if(cmd==="move"){if(args.length<2)throw Error("usage: move <from> <to>");const sp=norm(args[0]),s=node(sp);if(!s)throw Error("source not found");const t=parent(args[1]);if(!t.parent)throw Error("target parent not found");t.parent.children[t.name]=s;const q=parent(sp);delete q.parent.children[q.name];save();return}
+if(cmd==="tree"){const n=node(args[0]||cwd);if(!n)throw Error("path not found");print((args[0]||cwd)+"\n"+tree(n));return}
+if(cmd==="history"){history.forEach((x,i)=>print((i+1)+"  "+x));return}
+if(cmd==="clear"){output.innerHTML="";return}
+if(cmd==="run"){const p=norm(args[0]),n=node(p);if(!n||n.type!=="file")throw Error("file not found");runTitle.textContent="Run: "+p;runFrame.srcdoc=n.content;runModal.classList.add("show");return}
+if(cmd==="mode"){if(!["linux","dos","jp"].includes(args[0]))throw Error("mode linux|dos|jp");mode=args[0];modeSelect.value=mode;localStorage.setItem(M,mode);update();return}
+if(cmd==="version"){print("salp Terminal v2.0.0");return}
+print("command not found: "+cmd,"#ff8f8f")}
+function openEditor(path){let n=node(path);if(n&&n.type==="dir")throw Error("cannot edit directory");if(!n){const q=parent(path);if(!q.parent)throw Error("parent not found");q.parent.children[q.name]={type:"file",content:""};save()}editingPath=path;editorTitle.textContent="Edit: "+path;editor.value=node(path).content||"";editorModal.classList.add("show")}
+document.getElementById("saveEditorBtn").onclick=()=>{const n=node(editingPath);if(n){n.content=editor.value;save();print("saved: "+editingPath,"#72f29a")}editorModal.classList.remove("show")}
+document.getElementById("closeEditorBtn").onclick=()=>editorModal.classList.remove("show");
+document.getElementById("closeRunBtn").onclick=()=>{runModal.classList.remove("show");runFrame.srcdoc=""}
+modeSelect.value=mode;modeSelect.onchange=()=>{mode=modeSelect.value;localStorage.setItem(M,mode);update()}
+document.getElementById("resetFsBtn").onclick=()=>{if(confirm("仮想ファイルシステムを初期化しますか？")){fs=defaultFS();cwd="/";save();update();print("filesystem reset.","#ffca67")}}
+document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>{run(b.dataset.cmd);input.focus()})
+input.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=input.value;input.value="";run(v)}else if(e.key==="ArrowUp"){e.preventDefault();if(hi>0)hi--;input.value=history[hi]||""}else if(e.key==="ArrowDown"){e.preventDefault();if(hi<history.length)hi++;input.value=history[hi]||""}})
+print("salp Terminal v2");print("Type help to see commands.");print("");update();renderFS();input.focus();
+})();
 </script>
-
 </body>
 </html>
