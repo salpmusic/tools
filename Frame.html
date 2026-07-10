@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f5f1e8">
+<title>salp Frame</title>
+<style>
+:root{
+  --bg:#f5f1e8;
+  --panel:#ffffff;
+  --text:#222;
+  --muted:#777;
+  --line:#ddd7cc;
+  --accent:#e88aa7;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{
+  max-width:980px;
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 24px);
+}
+header{text-align:center;padding:18px 10px 14px}
+h1{margin:0;font-size:32px;letter-spacing:-1px}
+.subtitle{margin-top:7px;color:var(--muted);font-size:14px}
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 310px;
+  gap:14px;
+}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+.previewPanel{
+  min-height:520px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+#previewCanvas{
+  display:block;
+  max-width:100%;
+  max-height:76vh;
+  box-shadow:0 12px 34px rgba(0,0,0,.18);
+  touch-action:none;
+}
+.controls{
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.section{
+  padding-bottom:12px;
+  border-bottom:1px solid #eee8df;
+}
+.section:last-child{border-bottom:none;padding-bottom:0}
+.label{
+  margin-bottom:8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.styleGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+button,.fileLabel,select,input[type="text"]{
+  min-height:44px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+}
+button.primary,.fileLabel.primary{
+  background:#222;
+  color:white;
+  border-color:#222;
+  font-weight:800;
+}
+button.active{
+  background:var(--accent);
+  color:#111;
+  border-color:transparent;
+  font-weight:800;
+}
+button:active,.fileLabel:active{transform:scale(.98)}
+.fileLabel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+input[type="file"]{display:none}
+input[type="range"]{width:100%}
+input[type="color"]{
+  width:54px;
+  height:44px;
+  border:0;
+  background:none;
+  padding:0;
+}
+input[type="text"],select{width:100%}
+.value{
+  min-width:48px;
+  color:var(--muted);
+  font-size:12px;
+  text-align:right;
+}
+.hint{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.55;
+}
+.status{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+}
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .previewPanel{min-height:360px;padding:8px}
+  #previewCanvas{max-height:58vh}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <h1>🖼️ salp Frame</h1>
+  <div class="subtitle">写真にフレームを付けるだけ。広告なし・登録なし。</div>
+</header>
+
+<div class="layout">
+
+  <section class="panel previewPanel">
+    <canvas id="previewCanvas" width="1080" height="1080"></canvas>
+  </section>
+
+  <aside class="panel controls">
+
+    <div class="section">
+      <div class="label">写真</div>
+      <div class="grid2">
+        <label class="fileLabel primary">
+          写真を選ぶ
+          <input id="photoInput" type="file" accept="image/*">
+        </label>
+        <button id="resetBtn">リセット</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">画像サイズ</div>
+      <select id="ratioSelect">
+        <option value="1:1">正方形 1:1</option>
+        <option value="4:5">縦 4:5</option>
+        <option value="9:16">縦 9:16</option>
+        <option value="3:2">横 3:2</option>
+        <option value="16:9">横 16:9</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="label">フレーム</div>
+      <div class="styleGrid" id="frameStyles">
+        <button data-style="simple" class="active">シンプル</button>
+        <button data-style="polaroid">ポラロイド</button>
+        <button data-style="double">二重枠</button>
+        <button data-style="film">フィルム</button>
+        <button data-style="soft">やわらか</button>
+        <button data-style="none">枠なし</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">枠の色</div>
+      <div class="row">
+        <input type="color" id="frameColor" value="#ffffff">
+        <button class="preset" data-color="#ffffff">白</button>
+        <button class="preset" data-color="#000000">黒</button>
+        <button class="preset" data-color="#f3ead8">生成</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">枠の太さ</div>
+      <div class="row">
+        <input type="range" id="borderRange" min="0" max="180" value="70">
+        <span class="value" id="borderValue">70</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">写真の調整</div>
+
+      <div class="hint">拡大・縮小</div>
+      <div class="row">
+        <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1">
+        <span class="value" id="zoomValue">1.00</span>
+      </div>
+
+      <div class="hint">左右</div>
+      <div class="row">
+        <input type="range" id="xRange" min="-100" max="100" value="0">
+        <span class="value" id="xValue">0</span>
+      </div>
+
+      <div class="hint">上下</div>
+      <div class="row">
+        <input type="range" id="yRange" min="-100" max="100" value="0">
+        <span class="value" id="yValue">0</span>
+      </div>
+
+      <div class="hint">回転</div>
+      <div class="row">
+        <input type="range" id="rotateRange" min="-180" max="180" value="0">
+        <span class="value" id="rotateValue">0°</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">角丸と影</div>
+
+      <div class="hint">角丸</div>
+      <div class="row">
+        <input type="range" id="radiusRange" min="0" max="120" value="0">
+        <span class="value" id="radiusValue">0</span>
+      </div>
+
+      <div class="hint">影</div>
+      <div class="row">
+        <input type="range" id="shadowRange" min="0" max="60" value="18">
+        <span class="value" id="shadowValue">18</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">キャプション</div>
+      <input type="text" id="captionInput" placeholder="文字を入れる（任意）">
+    </div>
+
+    <div class="section">
+      <button id="downloadBtn" class="primary" style="width:100%">
+        PNGで保存
+      </button>
+    </div>
+
+    <div class="hint">
+      写真は端末内だけで処理され、外部へ送信されません。
+    </div>
+
+  </aside>
+</div>
+
+<div class="status" id="status">写真を選んでください</div>
+
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("previewCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const photoInput = document.getElementById("photoInput");
+  const ratioSelect = document.getElementById("ratioSelect");
+  const frameColor = document.getElementById("frameColor");
+  const borderRange = document.getElementById("borderRange");
+  const zoomRange = document.getElementById("zoomRange");
+  const xRange = document.getElementById("xRange");
+  const yRange = document.getElementById("yRange");
+  const rotateRange = document.getElementById("rotateRange");
+  const radiusRange = document.getElementById("radiusRange");
+  const shadowRange = document.getElementById("shadowRange");
+  const captionInput = document.getElementById("captionInput");
+  const status = document.getElementById("status");
+
+  let image = null;
+  let frameStyle = "simple";
+
+  const values = {
+    border: document.getElementById("borderValue"),
+    zoom: document.getElementById("zoomValue"),
+    x: document.getElementById("xValue"),
+    y: document.getElementById("yValue"),
+    rotate: document.getElementById("rotateValue"),
+    radius: document.getElementById("radiusValue"),
+    shadow: document.getElementById("shadowValue")
+  };
+
+  function getCanvasSize() {
+    const [a, b] = ratioSelect.value.split(":").map(Number);
+    const max = 1080;
+
+    if (a >= b) {
+      return [max, Math.round(max * b / a)];
+    }
+
+    return [Math.round(max * a / b), max];
+  }
+
+  function roundedRectPath(context, x, y, width, height, radius) {
+    radius = Math.max(0, Math.min(radius, width / 2, height / 2));
+
+    context.beginPath();
+    context.moveTo(x + radius, y);
+    context.arcTo(x + width, y, x + width, y + height, radius);
+    context.arcTo(x + width, y + height, x, y + height, radius);
+    context.arcTo(x, y + height, x, y, radius);
+    context.arcTo(x, y, x + width, y, radius);
+    context.closePath();
+  }
+
+  function drawPlaceholder() {
+    ctx.fillStyle = "#ece8df";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#999";
+    ctx.font = "bold 42px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("写真を選んでください", canvas.width / 2, canvas.height / 2);
+  }
+
+  function updateValues() {
+    values.border.textContent = borderRange.value;
+    values.zoom.textContent = Number(zoomRange.value).toFixed(2);
+    values.x.textContent = xRange.value;
+    values.y.textContent = yRange.value;
+    values.rotate.textContent = rotateRange.value + "°";
+    values.radius.textContent = radiusRange.value;
+    values.shadow.textContent = shadowRange.value;
+  }
+
+  function render() {
+    const [width, height] = getCanvasSize();
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    if (!image) {
+      drawPlaceholder();
+      return;
+    }
+
+    let border = frameStyle === "none" ? 0 : Number(borderRange.value);
+
+    let top = border;
+    let right = border;
+    let bottom = border;
+    let left = border;
+
+    if (frameStyle === "polaroid") {
+      bottom = border * 2.2;
+    }
+
+    const innerX = left;
+    const innerY = top;
+    const innerWidth = width - left - right;
+    const innerHeight = height - top - bottom;
+    const radius = Number(radiusRange.value);
+    const shadow = Number(shadowRange.value);
+
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,.28)";
+    ctx.shadowBlur = shadow;
+    ctx.shadowOffsetY = shadow / 3;
+    ctx.fillStyle = frameColor.value;
+
+    roundedRectPath(ctx, 0, 0, width, height, radius);
+    ctx.fill();
+    ctx.restore();
+
+    if (frameStyle === "soft") {
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, frameColor.value);
+      gradient.addColorStop(1, "#ffffff");
+
+      ctx.save();
+      ctx.fillStyle = gradient;
+      roundedRectPath(ctx, 0, 0, width, height, radius);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+
+    roundedRectPath(
+      ctx,
+      innerX,
+      innerY,
+      innerWidth,
+      innerHeight,
+      Math.max(0, radius - border / 3)
+    );
+
+    ctx.clip();
+
+    const coverScale = Math.max(
+      innerWidth / image.width,
+      innerHeight / image.height
+    );
+
+    const scale = coverScale * Number(zoomRange.value);
+    const imageWidth = image.width * scale;
+    const imageHeight = image.height * scale;
+
+    const centerX =
+      innerX +
+      innerWidth / 2 +
+      Number(xRange.value) / 100 * innerWidth / 2;
+
+    const centerY =
+      innerY +
+      innerHeight / 2 +
+      Number(yRange.value) / 100 * innerHeight / 2;
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate(Number(rotateRange.value) * Math.PI / 180);
+
+    ctx.drawImage(
+      image,
+      -imageWidth / 2,
+      -imageHeight / 2,
+      imageWidth,
+      imageHeight
+    );
+
+    ctx.restore();
+
+    if (frameStyle === "double") {
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = Math.max(3, border * 0.08);
+
+      roundedRectPath(
+        ctx,
+        innerX - border * 0.35,
+        innerY - border * 0.35,
+        innerWidth + border * 0.7,
+        innerHeight + border * 0.7,
+        Math.max(0, radius - border / 4)
+      );
+
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    if (frameStyle === "film") {
+      ctx.save();
+      ctx.fillStyle = "#111";
+
+      const holeWidth = Math.max(12, border * 0.18);
+      const holeHeight = Math.max(20, border * 0.32);
+      const gap = holeWidth * 0.8;
+
+      for (
+        let x = border * 0.3;
+        x < width - border * 0.3;
+        x += holeWidth + gap
+      ) {
+        ctx.fillRect(x, border * 0.2, holeWidth, holeHeight);
+        ctx.fillRect(
+          x,
+          height - border * 0.2 - holeHeight,
+          holeWidth,
+          holeHeight
+        );
+      }
+
+      ctx.restore();
+    }
+
+    const caption = captionInput.value.trim();
+
+    if (caption) {
+      ctx.save();
+      ctx.fillStyle = frameStyle === "film" ? "#fff" : "#222";
+      ctx.font =
+        Math.max(26, Math.round(width * 0.035)) +
+        "px -apple-system, sans-serif";
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const captionY =
+        frameStyle === "polaroid"
+          ? height - bottom * 0.45
+          : height - Math.max(24, border * 0.4);
+
+      ctx.fillText(caption, width / 2, captionY);
+      ctx.restore();
+    }
+  }
+
+  photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+
+    if (!file) return;
+
+    const objectUrl = URL.createObjectURL(file);
+    const loadedImage = new Image();
+
+    loadedImage.onload = () => {
+      image = loadedImage;
+      status.textContent = file.name + " を読み込みました";
+      render();
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    loadedImage.onerror = () => {
+      status.textContent = "画像を読み込めませんでした";
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    loadedImage.src = objectUrl;
+  });
+
+  document.getElementById("frameStyles").addEventListener("click", event => {
+    const button = event.target.closest("[data-style]");
+
+    if (!button) return;
+
+    frameStyle = button.dataset.style;
+
+    document.querySelectorAll("[data-style]").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+
+    if (frameStyle === "film") {
+      frameColor.value = "#111111";
+    }
+
+    if (frameStyle === "polaroid") {
+      frameColor.value = "#ffffff";
+    }
+
+    render();
+  });
+
+  document.querySelectorAll(".preset").forEach(button => {
+    button.addEventListener("click", () => {
+      frameColor.value = button.dataset.color;
+      render();
+    });
+  });
+
+  [
+    ratioSelect,
+    frameColor,
+    borderRange,
+    zoomRange,
+    xRange,
+    yRange,
+    rotateRange,
+    radiusRange,
+    shadowRange,
+    captionInput
+  ].forEach(control => {
+    control.addEventListener("input", () => {
+      updateValues();
+      render();
+    });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    ratioSelect.value = "1:1";
+    frameStyle = "simple";
+    frameColor.value = "#ffffff";
+    borderRange.value = 70;
+    zoomRange.value = 1;
+    xRange.value = 0;
+    yRange.value = 0;
+    rotateRange.value = 0;
+    radiusRange.value = 0;
+    shadowRange.value = 18;
+    captionInput.value = "";
+
+    document.querySelectorAll("[data-style]").forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.dataset.style === "simple"
+      );
+    });
+
+    updateValues();
+    render();
+  });
+
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    if (!image) {
+      alert("先に写真を選んでください");
+      return;
+    }
+
+    canvas.toBlob(blob => {
+      if (!blob) {
+        alert("画像を保存できませんでした");
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "salp-frame.png";
+
+      document.body.appendChild(link);
+      link.click();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(link.href);
+        link.remove();
+      }, 1000);
+    }, "image/png");
+  });
+
+  updateValues();
+  render();
+})();
+</script>
+
+</body>
+</html>
