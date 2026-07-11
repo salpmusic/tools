@@ -5,7 +5,7 @@
       "id": "md01",
       "title": "ミニチュアダックス・ブラックタン",
       "category": "dog",
-      "image": "images/md01.jpg",
+      "image": "images/md01.JPG",
       "puzzle": "puzzles/md01.json",
       "difficulty": "Normal",
       "size": "64x64",
