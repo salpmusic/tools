@@ -1,10 +1,5 @@
 {
   "version": "1.0",
-  "puzzles": []
-}
-
-{
-  "version": "1.0",
   "puzzles": [
     {
       "id": "md01",
