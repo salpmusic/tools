@@ -63,7 +63,7 @@
   });
 
   function allPuzzles(){
-    return [...builtIn,...remotePuzzles,...myPuzzles];
+    return [...remotePuzzles,...builtIn,...myPuzzles];
   }
 
   function updateStats(){
@@ -100,9 +100,26 @@
       const card=document.createElement("article");
       card.className="card";
 
-      const thumb=document.createElement("canvas");
-      thumb.className="thumb";
-      Library.drawPuzzleThumb(thumb,item.puzzle);
+      let thumb;
+
+      if(item.image){
+        thumb=document.createElement("img");
+        thumb.className="thumb";
+        thumb.alt=item.title;
+        thumb.loading="lazy";
+        thumb.src=`${item.image}${item.image.includes("?")?"&":"?"}v=5.1.0`;
+
+        thumb.addEventListener("error",()=>{
+          const fallback=document.createElement("canvas");
+          fallback.className="thumb";
+          Library.drawPuzzleThumb(fallback,item.puzzle);
+          thumb.replaceWith(fallback);
+        });
+      }else{
+        thumb=document.createElement("canvas");
+        thumb.className="thumb";
+        Library.drawPuzzleThumb(thumb,item.puzzle);
+      }
 
       const body=document.createElement("div");
       body.className="cardBody";
@@ -184,22 +201,43 @@
   $("searchInput").addEventListener("input",renderLibrary);
   $("categoryFilter").addEventListener("change",renderLibrary);
 
-  $("refreshRemoteBtn").addEventListener("click",async()=>{
+  async function refreshRemoteLibrary(showAlert=false){
     const button=$("refreshRemoteBtn");
-    button.disabled=true;
-    button.textContent="更新中…";
+
+    if(button){
+      button.disabled=true;
+      button.textContent="更新中…";
+    }
 
     try{
       remotePuzzles=await Library.loadRemoteIndex();
       renderLibrary();
       updateStats();
-      alert(`${remotePuzzles.length}問を読み込みました`);
-    }catch{
-      alert("オンライン問題はまだありません。library/index.jsonを追加すると読み込めます。");
+
+      if(showAlert){
+        alert(`${remotePuzzles.length}問を読み込みました`);
+      }
+      return true;
+    }catch(error){
+      console.warn("問題ライブラリ読込エラー:",error);
+
+      if(showAlert){
+        alert(
+          "問題ライブラリを読み込めませんでした。\n"+
+          "library/index.json と puzzles 内のファイル名を確認してください。"
+        );
+      }
+      return false;
     }finally{
-      button.disabled=false;
-      button.textContent="オンライン問題を更新";
+      if(button){
+        button.disabled=false;
+        button.textContent="オンライン問題を更新";
+      }
     }
+  }
+
+  $("refreshRemoteBtn").addEventListener("click",()=>{
+    refreshRemoteLibrary(true);
   });
 
   $("imageInput").addEventListener("change",()=>{
@@ -390,4 +428,7 @@
 
   updateStats();
   renderLibrary();
+
+  // 起動時に library/index.json を自動読込
+  refreshRemoteLibrary(false);
 })();
