@@ -7,49 +7,7 @@
       "category": "dog",
       "image": "images/md01.JPG",
       "puzzle": "puzzles/md01.json",
-      "difficulty": "Normal",
-      "size": "64x64",
-      "colors": 16
+      "difficulty": "Normal"
     }
   ]
 }
-これならあとで
-{
-  "id": "cat01",
-  "title": "三毛猫",
-  "category": "cat",
-  "image": "images/cat01.jpg",
-  "puzzle": "puzzles/cat01.json",
-  "difficulty": "Easy",
-  "size": "32x32",
-  "colors": 8
-}
-や
-{
-  "id": "cake01",
-  "title": "いちごショートケーキ",
-  "category": "sweets",
-  "image": "images/cake01.jpg",
-  "puzzle": "puzzles/cake01.json",
-  "difficulty": "Hard",
-  "size": "96x96",
-  "colors": 24
-}
-を追加していくだけでライブラリがどんどん増えていく。
-将来的にはさらに便利に
-将来はこんな項目も入れるとゲームらしくなる。
-{
-  "id": "md01",
-  "title": "ミニチュアダックス・ブラックタン",
-  "category": "dog",
-  "image": "images/md01.jpg",
-  "puzzle": "puzzles/md01.json",
-  "difficulty": "Normal",
-  "size": "64x64",
-  "colors": 16,
-  "author": "salp",
-  "favorite": false,
-  "version": 1,
-  "created": "2026-07-11"
-}
-この形式なら、あとで検索や並べ替え、難易度順表示なども簡単に追加できるよ。これは今後の拡張性も高い構成だと思う。
