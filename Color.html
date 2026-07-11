@@ -3,440 +3,869 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>salp Color</title>
+<meta name="theme-color" content="#f7f3ea">
+<title>salp Color v4.0</title>
 <style>
+:root{
+  --bg:#f7f3ea;
+  --panel:#fff;
+  --text:#222;
+  --muted:#777;
+  --line:#ded8ce;
+  --button:#222;
+  --accent:#ff8fbd;
+  --accent2:#72dce8;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{
+html,body{
   margin:0;
-  background:#f7f3ea;
-  color:#222;
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif;
 }
+button,input,select{font:inherit}
+button{cursor:pointer}
 .app{
-  max-width:720px;
+  width:min(100%,980px);
   margin:auto;
-  padding:16px 12px 28px;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 28px);
 }
-h1{text-align:center;margin:6px 0 2px}
-.sub{text-align:center;color:#777;margin-bottom:14px}
+header{text-align:center;padding:14px 8px 16px}
+h1{margin:0;font-size:32px;letter-spacing:-1px}
+.sub{margin-top:6px;color:var(--muted);font-size:14px}
 .panel{
-  background:#fff;
+  background:var(--panel);
+  border:1px solid var(--line);
   border-radius:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+.creator{
   padding:14px;
-  box-shadow:0 7px 22px rgba(0,0,0,.08);
+  margin-bottom:14px;
 }
-.top{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:8px;
-  margin-bottom:12px;
+.label{
+  margin:0 0 8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
 }
-button,select{
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.section{
+  padding:12px 0;
+  border-bottom:1px solid #eee9e2;
+}
+.section:first-child{padding-top:0}
+.section:last-child{border-bottom:0;padding-bottom:0}
+button,select,.fileLabel{
   min-height:46px;
-  border:1px solid #ddd6cc;
+  padding:9px 12px;
+  border:1px solid var(--line);
   border-radius:12px;
   background:#fff;
-  color:#222;
-  font:inherit;
-  padding:9px 12px;
-  touch-action:manipulation;
+  color:var(--text);
 }
-button.primary{
-  background:#222;
+button.primary,.fileLabel.primary{
+  background:var(--button);
   color:#fff;
-  border-color:#222;
-  font-weight:800;
+  border-color:var(--button);
+  font-weight:900;
 }
-.info{
+button.accent{
+  border:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#111;
+  font-weight:900;
+}
+button:disabled{opacity:.4;cursor:not-allowed}
+.fileLabel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+input[type="file"]{display:none}
+.previewRow{
+  display:grid;
+  grid-template-columns:180px 1fr;
+  gap:12px;
+  align-items:start;
+}
+#sourcePreview{
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  border-radius:14px;
+  background:#ece7df;
+  border:1px solid var(--line);
+}
+.hint{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+.game{
+  padding:14px;
+}
+.gameTop{
   display:flex;
   justify-content:space-between;
+  align-items:center;
   gap:10px;
-  color:#777;
-  font-size:13px;
+  margin-bottom:10px;
 }
 .progress{
   height:10px;
-  margin:9px 0 14px;
-  background:#eee7dd;
+  background:#ece7df;
   border-radius:999px;
   overflow:hidden;
+  margin-bottom:12px;
 }
-#bar{
-  height:100%;
+#progressBar{
   width:0;
-  background:linear-gradient(90deg,#ff8fbd,#74dce8);
-  transition:width .18s ease;
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
 }
 .selected{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
   padding:10px;
   margin-bottom:12px;
   border-radius:12px;
   background:#f3efe8;
-  text-align:center;
-  font-weight:800;
+  font-weight:900;
+}
+.selectedSwatch{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:3px solid #222;
+}
+.boardWrap{
+  overflow:auto;
+  border-radius:14px;
+  background:#d0c8bd;
+  padding:3px;
+  max-height:65vh;
+  touch-action:pan-x pan-y;
 }
 .board{
-  width:min(92vw,560px);
-  aspect-ratio:1;
-  margin:auto;
   display:grid;
-  gap:2px;
-  background:#c9c2b8;
-  padding:2px;
-  border-radius:8px;
-  overflow:hidden;
-  touch-action:manipulation;
+  gap:1px;
+  min-width:520px;
+  aspect-ratio:1;
+  background:#c9c1b6;
+  transform-origin:top left;
 }
 .cell{
-  min-width:0;
-  min-height:0;
   border:0;
   border-radius:0;
   padding:0;
+  min-width:0;
+  min-height:0;
   display:grid;
   place-items:center;
   background:#faf8f4;
-  color:#777;
+  color:#666;
   font-weight:900;
-  font-size:clamp(11px,2.8vw,20px);
-  touch-action:manipulation;
-}
-.cell.blank{
-  background:#e9e4dc;
-  color:transparent;
+  font-size:clamp(8px,1.7vw,15px);
 }
 .cell.done{color:transparent}
 .cell.wrong{animation:shake .18s linear 2}
 @keyframes shake{
   0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-4px)}
-  75%{transform:translateX(4px)}
+  25%{transform:translateX(-3px)}
+  75%{transform:translateX(3px)}
 }
 .palette{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:8px;
-  margin-top:14px;
+  margin-top:12px;
 }
-.color{
-  min-height:60px;
-  border:4px solid transparent;
+.colorBtn{
+  min-height:72px;
+  background:#fff;
+  border:3px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   font-weight:900;
 }
-.color.active{
+.colorBtn.active{
   border-color:#222;
   transform:translateY(-2px);
 }
+.swatch{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:3px solid rgba(0,0,0,.35);
+}
 .actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(3,1fr);
   gap:8px;
   margin-top:12px;
 }
 .message{
-  min-height:28px;
+  min-height:26px;
   padding-top:10px;
   text-align:center;
-  font-weight:800;
+  font-weight:900;
+}
+.zoomRow{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
 }
 .overlay{
   position:fixed;
   inset:0;
   display:none;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+  place-items:center;
   background:rgba(0,0,0,.65);
-  z-index:10;
+  padding:20px;
+  z-index:20;
 }
-.overlay.show{display:flex}
+.overlay.show{display:grid}
 .dialog{
-  width:min(100%,340px);
-  padding:25px;
-  border-radius:22px;
+  width:min(100%,360px);
   background:#fff;
+  border-radius:22px;
+  padding:24px;
   text-align:center;
 }
-@media(max-width:520px){
+@media(max-width:700px){
+  .grid3{grid-template-columns:1fr}
+  .previewRow{grid-template-columns:1fr}
+  #sourcePreview{max-width:220px;margin:auto}
   .palette{grid-template-columns:repeat(2,1fr)}
+  .actions{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>🎨 salp Color</h1>
-  <div class="sub">番号どおりに色を塗るゲーム</div>
 
-  <div class="panel">
-    <div class="top">
-      <select id="puzzle">
-        <option value="cat">ねこ</option>
-        <option value="cake">ケーキ</option>
-        <option value="flower">お花</option>
-      </select>
-      <button id="start" class="primary">遊ぶ</button>
+<header>
+  <h1>🎨 salp Color v4.0</h1>
+  <div class="sub">好きな画像から、番号ぬりえを自動生成</div>
+</header>
+
+<section class="panel creator">
+
+  <div class="section">
+    <div class="label">画像を読み込む</div>
+    <div class="grid2">
+      <label class="fileLabel primary">
+        写真・イラストを選ぶ
+        <input id="imageInput" type="file" accept="image/*">
+      </label>
+
+      <label class="fileLabel">
+        問題JSONを読み込む
+        <input id="jsonInput" type="file" accept=".json,application/json">
+      </label>
     </div>
-
-    <div class="info">
-      <span id="remain">残り 0 マス</span>
-      <span id="percent">0%</span>
-    </div>
-    <div class="progress"><div id="bar"></div></div>
-
-    <div id="selected" class="selected">1番の色を選択中</div>
-    <div id="board" class="board"></div>
-    <div id="palette" class="palette"></div>
-
-    <div class="actions">
-      <button id="hint">💡 ヒント</button>
-      <button id="reset">↺ リセット</button>
-    </div>
-
-    <div id="message" class="message">下の色を選んでください</div>
   </div>
+
+  <div class="section previewRow">
+    <img id="sourcePreview" alt="読み込んだ画像のプレビュー">
+
+    <div>
+      <div class="label">変換設定</div>
+
+      <div class="grid3">
+        <select id="gridSize">
+          <option value="16">16 × 16</option>
+          <option value="24" selected>24 × 24</option>
+          <option value="32">32 × 32</option>
+        </select>
+
+        <select id="colorCount">
+          <option value="4">4色</option>
+          <option value="6" selected>6色</option>
+          <option value="8">8色</option>
+          <option value="12">12色</option>
+        </select>
+
+        <button id="generateBtn" class="accent" disabled>
+          ぬりえを作る
+        </button>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        画像を小さなマスへ変換し、似た色を自動でまとめて番号を付けます。
+        写真より、輪郭がはっきりしたイラストやドット絵の方が見やすくなります。
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="grid2">
+      <button id="saveJsonBtn" disabled>問題JSONを保存</button>
+      <button id="savePngBtn" disabled>完成画像をPNG保存</button>
+    </div>
+  </div>
+
+</section>
+
+<section class="panel game">
+
+  <div class="gameTop">
+    <span id="remainingText">まだ問題がありません</span>
+    <span id="percentText">0%</span>
+  </div>
+
+  <div class="progress">
+    <div id="progressBar"></div>
+  </div>
+
+  <div class="selected">
+    <div id="selectedSwatch" class="selectedSwatch"></div>
+    <span id="selectedText">色を選んでください</span>
+  </div>
+
+  <div class="zoomRow">
+    <button id="zoomOutBtn">− 縮小</button>
+    <button id="zoomResetBtn">100%</button>
+    <button id="zoomInBtn">＋ 拡大</button>
+  </div>
+
+  <div class="boardWrap">
+    <div id="board" class="board"></div>
+  </div>
+
+  <div id="palette" class="palette"></div>
+
+  <div class="actions">
+    <button id="hintBtn" disabled>💡 ヒント</button>
+    <button id="fillColorBtn" disabled>🎯 選択色を全部</button>
+    <button id="resetBtn" disabled>↺ リセット</button>
+  </div>
+
+  <div id="message" class="message">画像を読み込んでください</div>
+
+</section>
+
 </div>
 
-<div id="overlay" class="overlay">
+<div id="completeOverlay" class="overlay">
   <div class="dialog">
     <div style="font-size:64px">🎉</div>
     <h2>完成！</h2>
-    <p>全部きれいに塗れました。</p>
-    <button id="close" class="primary" style="width:100%">閉じる</button>
+    <p>自分だけのぬりえが完成しました。</p>
+    <button id="closeCompleteBtn" class="primary" style="width:100%">閉じる</button>
   </div>
 </div>
 
 <script>
-(function(){
+(() => {
   "use strict";
 
-  var puzzles = {
-    cat:{
-      size:8,
-      colors:{1:"#f3a76f",2:"#fff0d8",3:"#6f4b3a",4:"#ef799f"},
-      data:[
-        0,1,1,0,0,1,1,0,
-        1,1,1,1,1,1,1,1,
-        1,3,1,1,1,1,3,1,
-        1,1,2,1,1,2,1,1,
-        1,1,1,4,4,1,1,1,
-        0,1,1,1,1,1,1,0,
-        0,0,1,1,1,1,0,0,
-        0,0,1,0,0,1,0,0
-      ]
-    },
-    cake:{
-      size:8,
-      colors:{1:"#f5bfd2",2:"#fff0d8",3:"#b87545",4:"#e54c64"},
-      data:[
-        0,0,4,4,4,4,0,0,
-        0,0,0,3,3,0,0,0,
-        0,1,1,1,1,1,1,0,
-        1,1,1,1,1,1,1,1,
-        2,2,2,2,2,2,2,2,
-        3,3,3,3,3,3,3,3,
-        2,2,2,2,2,2,2,2,
-        0,0,0,0,0,0,0,0
-      ]
-    },
-    flower:{
-      size:8,
-      colors:{1:"#ff8db4",2:"#ffd44d",3:"#62bd73",4:"#7fd8ed"},
-      data:[
-        0,1,1,0,0,1,1,0,
-        1,1,2,2,2,2,1,1,
-        1,2,2,2,2,2,2,1,
-        0,1,2,2,2,2,1,0,
-        0,0,3,3,3,3,0,0,
-        0,3,3,4,4,3,3,0,
-        3,3,4,4,4,4,3,3,
-        0,3,3,3,3,3,3,0
-      ]
-    }
-  };
+  const SAVE_KEY = "salpColorV4_autosave";
 
-  var board = document.getElementById("board");
-  var palette = document.getElementById("palette");
-  var puzzleSelect = document.getElementById("puzzle");
-  var remain = document.getElementById("remain");
-  var percent = document.getElementById("percent");
-  var bar = document.getElementById("bar");
-  var selectedText = document.getElementById("selected");
-  var message = document.getElementById("message");
-  var overlay = document.getElementById("overlay");
+  const imageInput = document.getElementById("imageInput");
+  const jsonInput = document.getElementById("jsonInput");
+  const sourcePreview = document.getElementById("sourcePreview");
+  const gridSizeSelect = document.getElementById("gridSize");
+  const colorCountSelect = document.getElementById("colorCount");
+  const generateBtn = document.getElementById("generateBtn");
+  const saveJsonBtn = document.getElementById("saveJsonBtn");
+  const savePngBtn = document.getElementById("savePngBtn");
 
-  var puzzle = null;
-  var done = [];
-  var selected = 1;
+  const board = document.getElementById("board");
+  const palette = document.getElementById("palette");
+  const remainingText = document.getElementById("remainingText");
+  const percentText = document.getElementById("percentText");
+  const progressBar = document.getElementById("progressBar");
+  const selectedSwatch = document.getElementById("selectedSwatch");
+  const selectedText = document.getElementById("selectedText");
+  const message = document.getElementById("message");
 
-  function addPress(element, handler){
-    element.addEventListener("pointerdown", function(event){
-      event.preventDefault();
-      handler(event);
-    });
+  const hintBtn = document.getElementById("hintBtn");
+  const fillColorBtn = document.getElementById("fillColorBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  const zoomOutBtn = document.getElementById("zoomOutBtn");
+  const zoomResetBtn = document.getElementById("zoomResetBtn");
+  const zoomInBtn = document.getElementById("zoomInBtn");
+
+  const completeOverlay = document.getElementById("completeOverlay");
+  const closeCompleteBtn = document.getElementById("closeCompleteBtn");
+
+  let sourceImage = null;
+  let puzzle = null;
+  let filled = [];
+  let selectedColor = 1;
+  let zoom = 1;
+
+  function rgbToHex(r,g,b){
+    return "#" + [r,g,b]
+      .map(v => Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0"))
+      .join("");
   }
 
-  function startGame(){
-    puzzle = puzzles[puzzleSelect.value];
-    done = puzzle.data.map(function(value){ return value === 0; });
-    selected = 1;
-    message.textContent = "1番の色を選びました";
-    overlay.classList.remove("show");
+  function hexToRgb(hex){
+    const value = hex.replace("#","");
+    return {
+      r:parseInt(value.slice(0,2),16),
+      g:parseInt(value.slice(2,4),16),
+      b:parseInt(value.slice(4,6),16)
+    };
+  }
+
+  function distance(a,b){
+    return (
+      (a.r-b.r)*(a.r-b.r) +
+      (a.g-b.g)*(a.g-b.g) +
+      (a.b-b.b)*(a.b-b.b)
+    );
+  }
+
+  function kMeans(pixels,k,iterations=10){
+    const step = Math.max(1, Math.floor(pixels.length / k));
+    let centers = Array.from({length:k},(_,i)=>{
+      const p = pixels[Math.min(i*step,pixels.length-1)];
+      return {r:p.r,g:p.g,b:p.b};
+    });
+
+    let assignments = new Array(pixels.length).fill(0);
+
+    for(let iter=0;iter<iterations;iter++){
+      const sums = Array.from({length:k},()=>({r:0,g:0,b:0,n:0}));
+
+      pixels.forEach((p,index)=>{
+        let best = 0;
+        let bestDist = Infinity;
+
+        centers.forEach((c,i)=>{
+          const d = distance(p,c);
+          if(d < bestDist){
+            bestDist = d;
+            best = i;
+          }
+        });
+
+        assignments[index] = best;
+        sums[best].r += p.r;
+        sums[best].g += p.g;
+        sums[best].b += p.b;
+        sums[best].n++;
+      });
+
+      centers = centers.map((c,i)=>{
+        const s = sums[i];
+        if(!s.n) return c;
+        return {
+          r:s.r/s.n,
+          g:s.g/s.n,
+          b:s.b/s.n
+        };
+      });
+    }
+
+    return {centers,assignments};
+  }
+
+  imageInput.addEventListener("change",()=>{
+    const file = imageInput.files[0];
+    if(!file) return;
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = ()=>{
+      sourceImage = img;
+      sourcePreview.src = url;
+      generateBtn.disabled = false;
+      message.textContent = "設定を選んで「ぬりえを作る」を押してください";
+    };
+
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      alert("画像を読み込めませんでした");
+    };
+
+    img.src = url;
+  });
+
+  generateBtn.addEventListener("click",()=>{
+    if(!sourceImage) return;
+
+    const size = Number(gridSizeSelect.value);
+    const colorCount = Number(colorCountSelect.value);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext("2d",{willReadFrequently:true});
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    const scale = Math.max(size/sourceImage.width,size/sourceImage.height);
+    const w = sourceImage.width*scale;
+    const h = sourceImage.height*scale;
+
+    ctx.drawImage(
+      sourceImage,
+      (size-w)/2,
+      (size-h)/2,
+      w,
+      h
+    );
+
+    const imageData = ctx.getImageData(0,0,size,size);
+    const pixels = [];
+
+    for(let i=0;i<imageData.data.length;i+=4){
+      pixels.push({
+        r:imageData.data[i],
+        g:imageData.data[i+1],
+        b:imageData.data[i+2]
+      });
+    }
+
+    const result = kMeans(pixels,colorCount);
+    const colors = {};
+
+    result.centers.forEach((c,i)=>{
+      colors[i+1] = rgbToHex(c.r,c.g,c.b);
+    });
+
+    puzzle = {
+      version:4,
+      size,
+      colors,
+      data:result.assignments.map(v=>v+1)
+    };
+
+    filled = new Array(puzzle.data.length).fill(false);
+    selectedColor = 1;
+    zoom = 1;
+
+    saveProgress();
     render();
+    enableGame(true);
+
+    message.textContent = "ぬりえができました！";
+  });
+
+  function enableGame(enabled){
+    hintBtn.disabled = !enabled;
+    fillColorBtn.disabled = !enabled;
+    resetBtn.disabled = !enabled;
+    saveJsonBtn.disabled = !enabled;
+    savePngBtn.disabled = !enabled;
   }
 
   function render(){
-    renderBoard();
-    renderPalette();
-    updateStatus();
-  }
+    if(!puzzle){
+      board.innerHTML = "";
+      palette.innerHTML = "";
+      return;
+    }
 
-  function renderBoard(){
     board.innerHTML = "";
-    board.style.gridTemplateColumns = "repeat(" + puzzle.size + ",1fr)";
+    board.style.gridTemplateColumns = `repeat(${puzzle.size},1fr)`;
+    board.style.transform = `scale(${zoom})`;
 
-    puzzle.data.forEach(function(value,index){
-      var cell = document.createElement("button");
+    puzzle.data.forEach((value,index)=>{
+      const cell = document.createElement("button");
       cell.type = "button";
       cell.className = "cell";
 
-      if(value === 0){
-        cell.classList.add("blank");
-      }else if(done[index]){
+      if(filled[index]){
         cell.classList.add("done");
-        cell.style.background = puzzle.colors[value];
+        cell.style.backgroundColor = puzzle.colors[value];
       }else{
         cell.textContent = value;
       }
 
-      addPress(cell,function(){
-        paint(index,cell);
-      });
-
+      cell.addEventListener("click",()=>paintCell(index,cell));
       board.appendChild(cell);
     });
+
+    renderPalette();
+    updateSelected();
+    updateProgress();
   }
 
   function renderPalette(){
     palette.innerHTML = "";
 
-    Object.keys(puzzle.colors).forEach(function(key){
-      var number = Number(key);
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "color";
-      button.style.background = puzzle.colors[number];
+    Object.entries(puzzle.colors).forEach(([number,color])=>{
+      const n = Number(number);
+      const button = document.createElement("button");
+      button.className = "colorBtn";
 
-      if(number === selected){
+      if(n === selectedColor){
         button.classList.add("active");
       }
 
-      var left = 0;
-      puzzle.data.forEach(function(value,index){
-        if(value === number && !done[index]) left++;
-      });
+      const swatch = document.createElement("span");
+      swatch.className = "swatch";
+      swatch.style.backgroundColor = color;
 
-      button.textContent = number + "　" + (left === 0 ? "完了" : left + "マス");
+      const left = puzzle.data.reduce((count,value,index)=>{
+        return count + (value === n && !filled[index] ? 1 : 0);
+      },0);
 
-      addPress(button,function(){
-        selected = number;
-        selectedText.textContent = number + "番の色を選択中";
-        message.textContent = number + "番を選びました";
+      const label = document.createElement("span");
+      label.textContent = `${n}番 ${left===0?"完了":left+"マス"}`;
+
+      button.append(swatch,label);
+
+      button.addEventListener("click",()=>{
+        selectedColor = n;
         renderPalette();
+        updateSelected();
+        message.textContent = `${n}番を選びました`;
       });
 
       palette.appendChild(button);
     });
-
-    selectedText.textContent = selected + "番の色を選択中";
   }
 
-  function paint(index,cell){
-    var correct = puzzle.data[index];
+  function updateSelected(){
+    if(!puzzle) return;
+    selectedSwatch.style.backgroundColor = puzzle.colors[selectedColor];
+    selectedText.textContent = `${selectedColor}番の色を選択中`;
+  }
 
-    if(correct === 0 || done[index]) return;
+  function paintCell(index,cell){
+    const correct = puzzle.data[index];
 
-    if(correct !== selected){
+    if(filled[index]) return;
+
+    if(correct !== selectedColor){
       cell.classList.remove("wrong");
       void cell.offsetWidth;
       cell.classList.add("wrong");
-      message.textContent = "ここは " + correct + "番です";
+      message.textContent = `ここは ${correct}番です`;
       return;
     }
 
-    done[index] = true;
-    message.textContent = "正解！";
+    filled[index] = true;
+    saveProgress();
     render();
+    message.textContent = "正解！";
     checkComplete();
   }
 
-  function updateStatus(){
-    var total = 0;
-    var completed = 0;
+  function updateProgress(){
+    const total = puzzle.data.length;
+    const done = filled.filter(Boolean).length;
+    const left = total-done;
+    const percent = Math.round(done/total*100);
 
-    puzzle.data.forEach(function(value,index){
-      if(value !== 0){
-        total++;
-        if(done[index]) completed++;
-      }
-    });
-
-    var left = total - completed;
-    var value = total ? Math.round(completed / total * 100) : 100;
-
-    remain.textContent = "残り " + left + " マス";
-    percent.textContent = value + "%";
-    bar.style.width = value + "%";
+    remainingText.textContent = `残り ${left} マス`;
+    percentText.textContent = `${percent}%`;
+    progressBar.style.width = `${percent}%`;
   }
 
   function checkComplete(){
-    var completeNow = puzzle.data.every(function(value,index){
-      return value === 0 || done[index];
-    });
-
-    if(completeNow){
-      setTimeout(function(){
-        overlay.classList.add("show");
-      },200);
+    if(filled.every(Boolean)){
+      setTimeout(()=>completeOverlay.classList.add("show"),200);
     }
   }
 
-  addPress(document.getElementById("start"), startGame);
-
-  addPress(document.getElementById("reset"), function(){
-    startGame();
-  });
-
-  addPress(document.getElementById("hint"), function(){
-    var index = -1;
-
-    for(var i=0;i<puzzle.data.length;i++){
-      if(puzzle.data[i] === selected && !done[i]){
-        index = i;
-        break;
-      }
-    }
+  hintBtn.addEventListener("click",()=>{
+    const index = puzzle.data.findIndex((value,i)=>{
+      return value === selectedColor && !filled[i];
+    });
 
     if(index < 0){
-      message.textContent = selected + "番は全部塗れています";
+      message.textContent = `${selectedColor}番は全部塗れています`;
       return;
     }
 
-    var cell = board.children[index];
+    const cell = board.children[index];
     cell.style.outline = "4px solid #ffd44d";
     cell.style.outlineOffset = "-4px";
+    cell.scrollIntoView({behavior:"smooth",block:"center",inline:"center"});
     message.textContent = "黄色い枠を塗ってみよう";
 
-    setTimeout(function(){
+    setTimeout(()=>{
       cell.style.outline = "";
       cell.style.outlineOffset = "";
-    },1500);
+    },1600);
   });
 
-  addPress(document.getElementById("close"), function(){
-    overlay.classList.remove("show");
+  fillColorBtn.addEventListener("click",()=>{
+    let count = 0;
+
+    puzzle.data.forEach((value,index)=>{
+      if(value === selectedColor && !filled[index]){
+        filled[index] = true;
+        count++;
+      }
+    });
+
+    saveProgress();
+    render();
+    message.textContent = count
+      ? `${selectedColor}番を ${count}マス塗りました`
+      : `${selectedColor}番は完成しています`;
+
+    checkComplete();
   });
 
-  startGame();
+  resetBtn.addEventListener("click",()=>{
+    if(!confirm("最初からやり直しますか？")) return;
+    filled = new Array(puzzle.data.length).fill(false);
+    selectedColor = 1;
+    saveProgress();
+    render();
+    message.textContent = "最初からやり直しました";
+  });
+
+  zoomInBtn.addEventListener("click",()=>{
+    zoom = Math.min(2.5,zoom+0.25);
+    board.style.transform = `scale(${zoom})`;
+    zoomResetBtn.textContent = `${Math.round(zoom*100)}%`;
+  });
+
+  zoomOutBtn.addEventListener("click",()=>{
+    zoom = Math.max(0.5,zoom-0.25);
+    board.style.transform = `scale(${zoom})`;
+    zoomResetBtn.textContent = `${Math.round(zoom*100)}%`;
+  });
+
+  zoomResetBtn.addEventListener("click",()=>{
+    zoom = 1;
+    board.style.transform = "scale(1)";
+    zoomResetBtn.textContent = "100%";
+  });
+
+  closeCompleteBtn.addEventListener("click",()=>{
+    completeOverlay.classList.remove("show");
+  });
+
+  saveJsonBtn.addEventListener("click",()=>{
+    if(!puzzle) return;
+
+    const data = {
+      app:"salp Color",
+      version:4,
+      puzzle,
+      filled
+    };
+
+    downloadBlob(
+      "salp-color-puzzle.json",
+      new Blob([JSON.stringify(data,null,2)],{type:"application/json"})
+    );
+  });
+
+  jsonInput.addEventListener("change",async()=>{
+    const file = jsonInput.files[0];
+    if(!file) return;
+
+    try{
+      const data = JSON.parse(await file.text());
+      const loadedPuzzle = data.puzzle || data;
+
+      if(!loadedPuzzle.size || !loadedPuzzle.colors || !loadedPuzzle.data){
+        throw new Error("対応していないデータです");
+      }
+
+      puzzle = loadedPuzzle;
+      filled = Array.isArray(data.filled)
+        ? data.filled
+        : new Array(puzzle.data.length).fill(false);
+
+      selectedColor = Number(Object.keys(puzzle.colors)[0]);
+      zoom = 1;
+
+      enableGame(true);
+      saveProgress();
+      render();
+
+      message.textContent = "問題を読み込みました";
+    }catch(error){
+      alert("読み込めませんでした: " + error.message);
+    }
+
+    jsonInput.value = "";
+  });
+
+  savePngBtn.addEventListener("click",()=>{
+    if(!puzzle) return;
+
+    const cellSize = 32;
+    const canvas = document.createElement("canvas");
+    canvas.width = puzzle.size*cellSize;
+    canvas.height = puzzle.size*cellSize;
+
+    const ctx = canvas.getContext("2d");
+
+    puzzle.data.forEach((value,index)=>{
+      const x = (index%puzzle.size)*cellSize;
+      const y = Math.floor(index/puzzle.size)*cellSize;
+      ctx.fillStyle = puzzle.colors[value];
+      ctx.fillRect(x,y,cellSize,cellSize);
+    });
+
+    canvas.toBlob(blob=>{
+      if(blob) downloadBlob("salp-color-complete.png",blob);
+    },"image/png");
+  });
+
+  function downloadBlob(filename,blob){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(()=>{
+      URL.revokeObjectURL(url);
+      link.remove();
+    },1000);
+  }
+
+  function saveProgress(){
+    if(!puzzle) return;
+
+    try{
+      localStorage.setItem(
+        SAVE_KEY,
+        JSON.stringify({puzzle,filled,selectedColor})
+      );
+    }catch{}
+  }
+
+  function loadProgress(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(!raw) return;
+
+      const data = JSON.parse(raw);
+      if(!data.puzzle) return;
+
+      puzzle = data.puzzle;
+      filled = data.filled || new Array(puzzle.data.length).fill(false);
+      selectedColor = data.selectedColor || 1;
+
+      enableGame(true);
+      render();
+      message.textContent = "前回の続きから再開しました";
+    }catch{}
+  }
+
+  loadProgress();
 })();
 </script>
 </body>
