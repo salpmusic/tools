@@ -1,1 +1,1520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
+<title>salp Color v5.0 α｜画像から作れる番号ぬりえゲーム</title>
+<meta name="description" content="画像から最大128×128・64色の番号ぬりえを作成できる無料ブラウザゲーム。問題ライブラリ、自作問題、お気に入り、進捗保存に対応。">
+
+<style>
+:root{
+  --bg:#f7f3ea;
+  --panel:#fff;
+  --text:#222;
+  --muted:#777;
+  --line:#ded8ce;
+  --button:#222;
+  --pink:#ff8fbd;
+  --blue:#72dce8;
+  --green:#7fe39d;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+.app{
+  width:min(100%,1080px);
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 28px);
+}
+
+header{
+  text-align:center;
+  padding:14px 8px 18px;
+}
+h1{
+  margin:0;
+  font-size:34px;
+  letter-spacing:-1px;
+}
+.sub{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+
+.topnav{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding:10px;
+  margin-bottom:14px;
+}
+
+button,select,input[type="text"],.fileLabel{
+  min-height:46px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+}
+button.primary,.fileLabel.primary{
+  background:var(--button);
+  color:#fff;
+  border-color:var(--button);
+  font-weight:900;
+}
+button.accent{
+  border:0;
+  background:linear-gradient(135deg,var(--pink),var(--blue));
+  color:#111;
+  font-weight:900;
+}
+button.success{
+  background:var(--green);
+  border-color:transparent;
+  color:#111;
+  font-weight:900;
+}
+button:disabled{opacity:.4;cursor:not-allowed}
+
+.screen{display:none}
+.screen.active{display:block}
+
+.homeHero{
+  padding:24px;
+  margin-bottom:14px;
+  text-align:center;
+}
+.homeHero h2{margin:8px 0}
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#fff0f7;
+  color:#a94d76;
+  font-size:11px;
+  font-weight:900;
+}
+.homeStats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:16px;
+}
+.stat{
+  padding:14px;
+  background:#f7f3ea;
+  border-radius:14px;
+}
+.stat strong{
+  display:block;
+  font-size:24px;
+}
+
+.libraryPanel,.creatorPanel,.gamePanel{padding:14px}
+.toolbar{
+  display:grid;
+  grid-template-columns:1fr 180px;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.libraryGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.card{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 5px 16px rgba(0,0,0,.05);
+}
+.thumb{
+  width:100%;
+  aspect-ratio:1;
+  display:block;
+  image-rendering:pixelated;
+  background:#ece7df;
+}
+.cardBody{padding:12px}
+.cardTitle{
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.cardMeta{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.cardActions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:7px;
+  margin-top:10px;
+}
+.fav{font-size:20px;padding:6px 10px}
+.empty{
+  grid-column:1/-1;
+  padding:38px 20px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.section{
+  padding:12px 0;
+  border-bottom:1px solid #eee9e2;
+}
+.section:first-child{padding-top:0}
+.section:last-child{border-bottom:0;padding-bottom:0}
+.label{
+  margin:0 0 8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+
+.fileLabel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+input[type="file"]{display:none}
+
+.previewRow{
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:12px;
+}
+#sourcePreview{
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  border-radius:14px;
+  background:#ece7df;
+  border:1px solid var(--line);
+}
+.hint{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+.gameTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+.progress{
+  height:10px;
+  background:#ece7df;
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+#progressBar{
+  width:0;
+  height:100%;
+  background:linear-gradient(90deg,var(--pink),var(--blue));
+}
+.selected{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px;
+  margin-bottom:12px;
+  border-radius:12px;
+  background:#f3efe8;
+  font-weight:900;
+}
+.selectedSwatch{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:3px solid #222;
+}
+.zoomRow{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.canvasWrap{
+  overflow:auto;
+  max-height:68vh;
+  border-radius:14px;
+  background:#cfc7bc;
+  padding:4px;
+  touch-action:pan-x pan-y;
+}
+#gameCanvas{
+  display:block;
+  background:#faf8f4;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+  transform-origin:top left;
+}
+.palette{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:7px;
+  margin-top:12px;
+  max-height:250px;
+  overflow:auto;
+  padding:2px;
+}
+.colorBtn{
+  min-height:62px;
+  background:#fff;
+  border:3px solid var(--line);
+  padding:5px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  font-weight:900;
+  font-size:11px;
+}
+.colorBtn.active{
+  border-color:#222;
+  transform:translateY(-2px);
+}
+.swatch{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  border:2px solid rgba(0,0,0,.35);
+}
+.actions{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.message{
+  min-height:26px;
+  padding-top:10px;
+  text-align:center;
+  font-weight:900;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  background:rgba(0,0,0,.65);
+  padding:20px;
+  z-index:20;
+}
+.overlay.show{display:grid}
+.dialog{
+  width:min(100%,380px);
+  background:#fff;
+  border-radius:22px;
+  padding:24px;
+  text-align:center;
+}
+
+.backHome{
+  display:inline-block;
+  margin-top:16px;
+  color:#777;
+  font-size:13px;
+}
+
+@media(max-width:800px){
+  .libraryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .topnav{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:1fr}
+  .previewRow{grid-template-columns:1fr}
+  #sourcePreview{max-width:220px;margin:auto}
+  .palette{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .actions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:460px){
+  .libraryGrid{grid-template-columns:1fr}
+  .homeStats{grid-template-columns:1fr}
+  .toolbar{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <h1>🎨 salp Color v5.0 α</h1>
+  <div class="sub">問題ライブラリ・自作問題・画像生成・進捗保存</div>
+  <a class="backHome" href="../index.html">← salp Toolsへ戻る</a>
+</header>
+
+<nav class="panel topnav">
+  <button data-screen="home" class="primary">ホーム</button>
+  <button data-screen="library">問題ライブラリ</button>
+  <button data-screen="creator">画像から作る</button>
+  <button data-screen="game">プレイ画面</button>
+</nav>
+
+<section id="home" class="screen active">
+  <div class="panel homeHero">
+    <span class="badge">v5.0 Alpha</span>
+    <h2>世界に一つだけの塗り絵を、数秒で。</h2>
+    <p>問題を選ぶか、自分の画像から番号ぬりえを作れます。</p>
+
+    <div class="homeStats">
+      <div class="stat">
+        <strong id="statPuzzles">0</strong>
+        <span>問題</span>
+      </div>
+      <div class="stat">
+        <strong id="statCompleted">0</strong>
+        <span>完成</span>
+      </div>
+      <div class="stat">
+        <strong id="statFavorites">0</strong>
+        <span>お気に入り</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel libraryPanel">
+    <div class="grid2">
+      <button data-screen="library" class="accent">📚 問題を選ぶ</button>
+      <button data-screen="creator" class="primary">📷 画像から作る</button>
+    </div>
+  </div>
+</section>
+
+<section id="library" class="screen">
+  <div class="panel libraryPanel">
+    <div class="toolbar">
+      <input id="searchInput" type="text" placeholder="問題を検索">
+      <select id="categoryFilter">
+        <option value="all">すべて</option>
+        <option value="built-in">おすすめ</option>
+        <option value="my">自分の問題</option>
+        <option value="favorite">お気に入り</option>
+        <option value="dog">犬</option>
+        <option value="cat">猫</option>
+        <option value="sweets">スイーツ</option>
+        <option value="flower">花</option>
+        <option value="salp">salp Originals</option>
+      </select>
+    </div>
+
+    <div id="libraryGrid" class="libraryGrid"></div>
+  </div>
+</section>
+
+<section id="creator" class="screen">
+  <div class="panel creatorPanel">
+
+    <div class="section">
+      <div class="label">画像・問題を開く</div>
+      <div class="grid2">
+        <label class="fileLabel primary">
+          写真・イラストを選ぶ
+          <input id="imageInput" type="file" accept="image/*">
+        </label>
+
+        <label class="fileLabel">
+          保存した問題を開く
+          <input id="jsonInput" type="file" accept=".json,application/json">
+        </label>
+      </div>
+    </div>
+
+    <div class="section previewRow">
+      <img id="sourcePreview" alt="画像プレビュー">
+
+      <div>
+        <div class="label">作品情報</div>
+
+        <div class="grid2">
+          <input id="titleInput" type="text" placeholder="作品名">
+
+          <select id="creatorCategory">
+            <option value="my">自分の作品</option>
+            <option value="dog">犬</option>
+            <option value="cat">猫</option>
+            <option value="sweets">スイーツ</option>
+            <option value="flower">花</option>
+            <option value="salp">salp Originals</option>
+          </select>
+        </div>
+
+        <div class="label" style="margin-top:12px">変換設定</div>
+
+        <div class="grid3">
+          <select id="gridSize">
+            <option value="16">16 × 16</option>
+            <option value="24">24 × 24</option>
+            <option value="32" selected>32 × 32</option>
+            <option value="64">64 × 64</option>
+            <option value="96">96 × 96</option>
+            <option value="128">128 × 128</option>
+          </select>
+
+          <select id="colorCount">
+            <option value="4">4色</option>
+            <option value="6">6色</option>
+            <option value="8" selected>8色</option>
+            <option value="12">12色</option>
+            <option value="16">16色</option>
+            <option value="24">24色</option>
+            <option value="32">32色</option>
+            <option value="48">48色</option>
+            <option value="64">64色</option>
+          </select>
+
+          <button id="generateBtn" class="accent" disabled>
+            ぬりえを作る
+          </button>
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          生成後に「自分の問題へ保存」を押すと、
+          このブラウザ内のライブラリへ保存されます。
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="grid3">
+        <button id="saveToLibraryBtn" disabled>自分の問題へ保存</button>
+        <button id="saveJsonBtn" disabled>問題ファイルを保存</button>
+        <button id="deleteMyPuzzlesBtn">自分の問題を全削除</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="panel gamePanel">
+
+    <div class="gameTop">
+      <strong id="gameTitle">問題を選んでください</strong>
+      <span id="percentText">0%</span>
+    </div>
+
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+
+    <div class="selected">
+      <div id="selectedSwatch" class="selectedSwatch"></div>
+      <span id="selectedText">色を選んでください</span>
+    </div>
+
+    <div class="zoomRow">
+      <button id="zoomOutBtn">− 縮小</button>
+      <button id="zoomResetBtn">100%</button>
+      <button id="zoomInBtn">＋ 拡大</button>
+      <button id="numbersBtn">番号表示 ON</button>
+    </div>
+
+    <div class="canvasWrap" id="canvasWrap">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="palette" class="palette"></div>
+
+    <div class="actions">
+      <button id="hintBtn" disabled>💡 ヒント</button>
+      <button id="fillColorBtn" disabled>🎯 選択色を全部</button>
+      <button id="resetBtn" disabled>↺ リセット</button>
+      <button id="savePngBtn" disabled>PNG保存</button>
+    </div>
+
+    <div id="message" class="message">
+      ライブラリから問題を選んでください
+    </div>
+
+  </div>
+</section>
+
+</div>
+
+<div id="completeOverlay" class="overlay">
+  <div class="dialog">
+    <div style="font-size:64px">🎉</div>
+    <h2>完成！</h2>
+    <p>問題を完成しました。</p>
+    <button id="closeCompleteBtn" class="primary" style="width:100%">
+      閉じる
+    </button>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const KEYS = {
+    my:"salpColorV5_myPuzzles",
+    favorites:"salpColorV5_favorites",
+    progress:"salpColorV5_progress",
+    completed:"salpColorV5_completed"
+  };
+
+  const $ = id => document.getElementById(id);
+  const canvas = $("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let sourceImage = null;
+  let current = null;
+  let filled = [];
+  let selectedColor = 1;
+  let zoom = 1;
+  let showNumbers = true;
+  let hintIndex = -1;
+
+  let builtIn = createBuiltIns();
+  let myPuzzles = load(KEYS.my, []);
+  let favorites = load(KEYS.favorites, []);
+  let completed = load(KEYS.completed, []);
+  let progressMap = load(KEYS.progress, {});
+
+  function load(key,fallback){
+    try{
+      const raw=localStorage.getItem(key);
+      return raw?JSON.parse(raw):fallback;
+    }catch{
+      return fallback;
+    }
+  }
+
+  function save(key,value){
+    localStorage.setItem(key,JSON.stringify(value));
+  }
+
+  function createBuiltIns(){
+    return [
+      makePattern(
+        "builtin-dog",
+        "ミニチュアダックス・ブラックタン",
+        "dog",
+        24,
+        ["#171411","#8b5a35","#d4a174","#f4e6d4"],
+        (x,y,s)=>{
+          const body=((x-12)*(x-12))/62+((y-13)*(y-13))/28<1;
+          const head=(x-7)*(x-7)+(y-8)*(y-8)<20;
+          const ear=(x-3)*(x-3)+(y-9)*(y-9)<11;
+          const legs=(y>17&&((x>7&&x<10)||(x>14&&x<17)));
+          if(ear)return 1;
+          if(head){
+            if(x<7&&y>8)return 2;
+            if(x>8&&y>9)return 3;
+            return 1;
+          }
+          if(body){
+            if(y>14&&x>10)return 2;
+            return 1;
+          }
+          if(legs)return 1;
+          return 4;
+        }
+      ),
+
+      makePattern(
+        "builtin-cat",
+        "三毛猫",
+        "cat",
+        24,
+        ["#f2a46f","#fff0dc","#5e4034","#ef86a5"],
+        (x,y,s)=>{
+          const cx=s/2,cy=s/2;
+          if((x-5)*(x-5)+(y-5)*(y-5)<12)return 1;
+          if((x-(s-6))*(x-(s-6))+(y-5)*(y-5)<12)return 1;
+          const d=(x-cx)*(x-cx)+(y-cy)*(y-cy);
+          if(d<90){
+            if(y>13&&Math.abs(x-cx)<2)return 4;
+            if(y<11&&(x<9||x>14))return 3;
+            return 2;
+          }
+          return 1;
+        }
+      ),
+
+      makePattern(
+        "builtin-cake",
+        "いちごケーキ",
+        "sweets",
+        24,
+        ["#f7bfd2","#fff2df","#b67546","#e84d68"],
+        (x,y,s)=>{
+          if(y<4&&x>8&&x<15)return 4;
+          if(y>=5&&y<10&&x>4&&x<19)return 1;
+          if(y>=10&&y<14&&x>3&&x<20)return 2;
+          if(y>=14&&y<18&&x>3&&x<20)return 3;
+          if(y>=18&&y<22&&x>3&&x<20)return 2;
+          return 1;
+        }
+      )
+    ];
+  }
+
+  function makePattern(id,title,category,size,colorList,fn){
+    const colors={};
+    colorList.forEach((c,i)=>colors[i+1]=c);
+
+    const data=[];
+    for(let y=0;y<size;y++){
+      for(let x=0;x<size;x++){
+        data.push(fn(x,y,size));
+      }
+    }
+
+    return {
+      id,
+      title,
+      category,
+      source:"built-in",
+      puzzle:{version:5,size,colors,data}
+    };
+  }
+
+  function switchScreen(id){
+    document.querySelectorAll(".screen").forEach(screen=>{
+      screen.classList.toggle("active",screen.id===id);
+    });
+
+    document.querySelectorAll("[data-screen]").forEach(button=>{
+      button.classList.toggle("primary",button.dataset.screen===id);
+    });
+
+    if(id==="library")renderLibrary();
+    if(id==="home")updateStats();
+  }
+
+  document.querySelectorAll("[data-screen]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      switchScreen(button.dataset.screen);
+    });
+  });
+
+  function allPuzzles(){
+    return [...builtIn,...myPuzzles];
+  }
+
+  function updateStats(){
+    $("statPuzzles").textContent=allPuzzles().length;
+    $("statCompleted").textContent=completed.length;
+    $("statFavorites").textContent=favorites.length;
+  }
+
+  function renderLibrary(){
+    const query=$("searchInput").value.trim().toLowerCase();
+    const filter=$("categoryFilter").value;
+
+    const list=allPuzzles().filter(item=>{
+      const matchQuery=!query||item.title.toLowerCase().includes(query);
+      let matchFilter=true;
+
+      if(filter==="built-in")matchFilter=item.source==="built-in";
+      else if(filter==="my")matchFilter=item.source==="my";
+      else if(filter==="favorite")matchFilter=favorites.includes(item.id);
+      else if(filter!=="all")matchFilter=item.category===filter;
+
+      return matchQuery&&matchFilter;
+    });
+
+    const grid=$("libraryGrid");
+    grid.innerHTML="";
+
+    if(!list.length){
+      grid.innerHTML='<div class="empty">該当する問題がありません。</div>';
+      return;
+    }
+
+    list.forEach(item=>{
+      const card=document.createElement("article");
+      card.className="card";
+
+      const thumb=document.createElement("canvas");
+      thumb.className="thumb";
+      drawPuzzleThumb(thumb,item.puzzle);
+
+      const body=document.createElement("div");
+      body.className="cardBody";
+
+      const title=document.createElement("div");
+      title.className="cardTitle";
+      title.textContent=item.title;
+
+      const meta=document.createElement("div");
+      meta.className="cardMeta";
+      meta.textContent=
+        `${item.puzzle.size}×${item.puzzle.size}・${Object.keys(item.puzzle.colors).length}色`;
+
+      const actions=document.createElement("div");
+      actions.className="cardActions";
+
+      const play=document.createElement("button");
+      play.className="primary";
+      play.textContent="遊ぶ";
+      play.addEventListener("click",()=>startPuzzle(item));
+
+      const fav=document.createElement("button");
+      fav.className="fav";
+      fav.textContent=favorites.includes(item.id)?"❤️":"♡";
+      fav.addEventListener("click",()=>{
+        if(favorites.includes(item.id)){
+          favorites=favorites.filter(id=>id!==item.id);
+        }else{
+          favorites.push(item.id);
+        }
+
+        save(KEYS.favorites,favorites);
+        renderLibrary();
+        updateStats();
+      });
+
+      actions.append(play,fav);
+      body.append(title,meta,actions);
+      card.append(thumb,body);
+      grid.appendChild(card);
+    });
+  }
+
+  function drawPuzzleThumb(target,puzzle){
+    target.width=256;
+    target.height=256;
+
+    const tctx=target.getContext("2d");
+    const cell=256/puzzle.size;
+
+    puzzle.data.forEach((value,index)=>{
+      const x=(index%puzzle.size)*cell;
+      const y=Math.floor(index/puzzle.size)*cell;
+
+      tctx.fillStyle=puzzle.colors[value];
+      tctx.fillRect(x,y,Math.ceil(cell),Math.ceil(cell));
+    });
+  }
+
+  $("searchInput").addEventListener("input",renderLibrary);
+  $("categoryFilter").addEventListener("change",renderLibrary);
+
+  $("imageInput").addEventListener("change",()=>{
+    const file=$("imageInput").files[0];
+    if(!file)return;
+
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+
+    img.onload=()=>{
+      sourceImage=img;
+      $("sourcePreview").src=url;
+      $("generateBtn").disabled=false;
+
+      if(!$("titleInput").value){
+        $("titleInput").value=file.name.replace(/\.[^.]+$/,"");
+      }
+    };
+
+    img.onerror=()=>{
+      alert("画像を読み込めませんでした");
+      URL.revokeObjectURL(url);
+    };
+
+    img.src=url;
+  });
+
+  $("generateBtn").addEventListener("click",async()=>{
+    if(!sourceImage)return;
+
+    $("generateBtn").disabled=true;
+    $("generateBtn").textContent="生成中…";
+
+    await new Promise(resolve=>setTimeout(resolve,40));
+
+    try{
+      const size=Number($("gridSize").value);
+      const colorCount=Number($("colorCount").value);
+
+      const work=document.createElement("canvas");
+      work.width=size;
+      work.height=size;
+
+      const wctx=work.getContext("2d",{willReadFrequently:true});
+
+      const scale=Math.max(
+        size/sourceImage.width,
+        size/sourceImage.height
+      );
+
+      const drawWidth=sourceImage.width*scale;
+      const drawHeight=sourceImage.height*scale;
+
+      wctx.drawImage(
+        sourceImage,
+        (size-drawWidth)/2,
+        (size-drawHeight)/2,
+        drawWidth,
+        drawHeight
+      );
+
+      const raw=wctx.getImageData(0,0,size,size).data;
+      const pixels=[];
+
+      for(let i=0;i<raw.length;i+=4){
+        pixels.push({
+          r:raw[i],
+          g:raw[i+1],
+          b:raw[i+2]
+        });
+      }
+
+      const sample=[];
+      const step=Math.max(1,Math.floor(pixels.length/4096));
+
+      for(let i=0;i<pixels.length;i+=step){
+        sample.push(pixels[i]);
+      }
+
+      const centers=buildPalette(sample,colorCount,8);
+      const assignments=assignPixels(pixels,centers);
+      const colors={};
+
+      centers.forEach((center,index)=>{
+        colors[index+1]=rgbToHex(center.r,center.g,center.b);
+      });
+
+      const title=$("titleInput").value.trim()||"無題の作品";
+
+      current={
+        id:"temp-"+Date.now(),
+        title,
+        category:$("creatorCategory").value,
+        source:"temp",
+        puzzle:{
+          version:5,
+          size,
+          colors,
+          data:assignments
+        }
+      };
+
+      filled=new Array(assignments.length).fill(false);
+      selectedColor=1;
+      zoom=1;
+
+      enableGame(true);
+      renderGame();
+      switchScreen("game");
+
+      $("message").textContent="ぬりえができました！";
+      $("saveToLibraryBtn").disabled=false;
+      $("saveJsonBtn").disabled=false;
+
+    }catch(error){
+      alert("生成に失敗しました: "+error.message);
+    }finally{
+      $("generateBtn").disabled=false;
+      $("generateBtn").textContent="ぬりえを作る";
+    }
+  });
+
+  function rgbToHex(r,g,b){
+    return "#"+[r,g,b]
+      .map(value=>
+        Math.round(Math.max(0,Math.min(255,value)))
+          .toString(16)
+          .padStart(2,"0")
+      )
+      .join("");
+  }
+
+  function colorDistance(a,b){
+    const dr=a.r-b.r;
+    const dg=a.g-b.g;
+    const db=a.b-b.b;
+    return dr*dr+dg*dg+db*db;
+  }
+
+  function buildPalette(sample,k,iterations){
+    const centers=[];
+    const stride=Math.max(1,Math.floor(sample.length/k));
+
+    for(let i=0;i<k;i++){
+      const pixel=sample[Math.min(i*stride,sample.length-1)];
+      centers.push({...pixel});
+    }
+
+    for(let iteration=0;iteration<iterations;iteration++){
+      const sums=Array.from(
+        {length:k},
+        ()=>({r:0,g:0,b:0,n:0})
+      );
+
+      for(const pixel of sample){
+        let best=0;
+        let bestDistance=Infinity;
+
+        centers.forEach((center,index)=>{
+          const distance=colorDistance(pixel,center);
+
+          if(distance<bestDistance){
+            bestDistance=distance;
+            best=index;
+          }
+        });
+
+        const sum=sums[best];
+        sum.r+=pixel.r;
+        sum.g+=pixel.g;
+        sum.b+=pixel.b;
+        sum.n++;
+      }
+
+      centers.forEach((center,index)=>{
+        const sum=sums[index];
+
+        if(sum.n){
+          centers[index]={
+            r:sum.r/sum.n,
+            g:sum.g/sum.n,
+            b:sum.b/sum.n
+          };
+        }
+      });
+    }
+
+    return centers;
+  }
+
+  function assignPixels(pixels,centers){
+    const result=new Uint8Array(pixels.length);
+
+    pixels.forEach((pixel,index)=>{
+      let best=0;
+      let bestDistance=Infinity;
+
+      centers.forEach((center,centerIndex)=>{
+        const distance=colorDistance(pixel,center);
+
+        if(distance<bestDistance){
+          bestDistance=distance;
+          best=centerIndex;
+        }
+      });
+
+      result[index]=best+1;
+    });
+
+    return Array.from(result);
+  }
+
+  $("saveToLibraryBtn").addEventListener("click",()=>{
+    if(!current)return;
+
+    const item={
+      ...current,
+      id:"my-"+Date.now(),
+      source:"my",
+      title:$("titleInput").value.trim()||current.title,
+      category:$("creatorCategory").value
+    };
+
+    myPuzzles.unshift(item);
+    save(KEYS.my,myPuzzles);
+
+    current=item;
+    $("saveToLibraryBtn").disabled=true;
+
+    updateStats();
+    alert("自分の問題へ保存しました");
+  });
+
+  $("deleteMyPuzzlesBtn").addEventListener("click",()=>{
+    if(!confirm("自分の問題をすべて削除しますか？"))return;
+
+    myPuzzles=[];
+    save(KEYS.my,myPuzzles);
+
+    renderLibrary();
+    updateStats();
+  });
+
+  $("saveJsonBtn").addEventListener("click",()=>{
+    if(!current)return;
+
+    downloadBlob(
+      (current.title||"salp-color")+".json",
+      new Blob(
+        [JSON.stringify(current,null,2)],
+        {type:"application/json"}
+      )
+    );
+  });
+
+  $("jsonInput").addEventListener("change",async()=>{
+    const file=$("jsonInput").files[0];
+    if(!file)return;
+
+    try{
+      const data=JSON.parse(await file.text());
+
+      const item=data.puzzle
+        ? data
+        : {
+            id:"import-"+Date.now(),
+            title:file.name.replace(/\.json$/i,""),
+            category:"my",
+            source:"temp",
+            puzzle:data
+          };
+
+      current=item;
+      filled=progressMap[item.id]||
+        new Array(item.puzzle.data.length).fill(false);
+
+      selectedColor=Number(
+        Object.keys(item.puzzle.colors)[0]
+      );
+
+      enableGame(true);
+      renderGame();
+      switchScreen("game");
+
+    }catch(error){
+      alert("読み込めませんでした: "+error.message);
+    }
+
+    $("jsonInput").value="";
+  });
+
+  function startPuzzle(item){
+    current=item;
+
+    filled=progressMap[item.id]||
+      new Array(item.puzzle.data.length).fill(false);
+
+    selectedColor=Number(
+      Object.keys(item.puzzle.colors)[0]
+    );
+
+    zoom=1;
+
+    enableGame(true);
+    renderGame();
+    switchScreen("game");
+  }
+
+  function enableGame(enabled){
+    [
+      "hintBtn",
+      "fillColorBtn",
+      "resetBtn",
+      "savePngBtn"
+    ].forEach(id=>{
+      $(id).disabled=!enabled;
+    });
+  }
+
+  function renderGame(){
+    if(!current)return;
+
+    $("gameTitle").textContent=current.title;
+
+    renderCanvas();
+    renderPalette();
+    updateSelected();
+    updateProgress();
+    applyZoom();
+  }
+
+  function renderCanvas(){
+    const puzzle=current.puzzle;
+    const size=puzzle.size;
+
+    const cellSize=
+      size<=32?24:
+      size<=64?12:
+      size<=96?8:
+      6;
+
+    canvas.width=size*cellSize;
+    canvas.height=size*cellSize;
+
+    canvas.style.width=canvas.width+"px";
+    canvas.style.height=canvas.height+"px";
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+
+    ctx.font=
+      `700 ${Math.max(5,Math.floor(cellSize*.55))}px -apple-system,sans-serif`;
+
+    for(let index=0;index<puzzle.data.length;index++){
+      const value=puzzle.data[index];
+      const x=(index%size)*cellSize;
+      const y=Math.floor(index/size)*cellSize;
+
+      ctx.fillStyle=filled[index]
+        ? puzzle.colors[value]
+        : "#faf8f4";
+
+      ctx.fillRect(x,y,cellSize,cellSize);
+
+      if(!filled[index]&&showNumbers&&cellSize>=8){
+        ctx.fillStyle="#666";
+        ctx.fillText(
+          String(value),
+          x+cellSize/2,
+          y+cellSize/2
+        );
+      }
+
+      if(hintIndex===index){
+        ctx.strokeStyle="#ffd33d";
+        ctx.lineWidth=Math.max(2,cellSize*.15);
+        ctx.strokeRect(
+          x+1,
+          y+1,
+          cellSize-2,
+          cellSize-2
+        );
+      }
+
+      if(cellSize>=8){
+        ctx.strokeStyle="rgba(0,0,0,.13)";
+        ctx.lineWidth=1;
+        ctx.strokeRect(x,y,cellSize,cellSize);
+      }
+    }
+  }
+
+  canvas.addEventListener("pointerdown",event=>{
+    if(!current)return;
+
+    const rect=canvas.getBoundingClientRect();
+
+    const realX=(event.clientX-rect.left)/zoom;
+    const realY=(event.clientY-rect.top)/zoom;
+
+    const cellSize=canvas.width/current.puzzle.size;
+
+    const column=Math.floor(realX/cellSize);
+    const row=Math.floor(realY/cellSize);
+
+    if(
+      column<0||
+      row<0||
+      column>=current.puzzle.size||
+      row>=current.puzzle.size
+    ){
+      return;
+    }
+
+    paintCell(row*current.puzzle.size+column);
+  });
+
+  function paintCell(index){
+    if(filled[index])return;
+
+    const correct=current.puzzle.data[index];
+
+    if(correct!==selectedColor){
+      $("message").textContent=`ここは ${correct}番です`;
+      hintIndex=index;
+      renderCanvas();
+
+      setTimeout(()=>{
+        hintIndex=-1;
+        renderCanvas();
+      },700);
+
+      return;
+    }
+
+    filled[index]=true;
+
+    saveProgress();
+    renderCanvas();
+    renderPalette();
+    updateProgress();
+
+    $("message").textContent="正解！";
+
+    checkComplete();
+  }
+
+  function renderPalette(){
+    const puzzle=current.puzzle;
+    const container=$("palette");
+
+    container.innerHTML="";
+
+    Object.entries(puzzle.colors).forEach(([number,color])=>{
+      const numericNumber=Number(number);
+
+      const button=document.createElement("button");
+      button.className="colorBtn";
+
+      if(numericNumber===selectedColor){
+        button.classList.add("active");
+      }
+
+      const swatch=document.createElement("span");
+      swatch.className="swatch";
+      swatch.style.backgroundColor=color;
+
+      let remaining=0;
+
+      for(let index=0;index<puzzle.data.length;index++){
+        if(
+          puzzle.data[index]===numericNumber&&
+          !filled[index]
+        ){
+          remaining++;
+        }
+      }
+
+      const label=document.createElement("span");
+      label.textContent=
+        `${numericNumber}番 ${remaining===0?"完了":remaining}`;
+
+      button.append(swatch,label);
+
+      button.addEventListener("click",()=>{
+        selectedColor=numericNumber;
+        renderPalette();
+        updateSelected();
+      });
+
+      container.appendChild(button);
+    });
+  }
+
+  function updateSelected(){
+    $("selectedSwatch").style.backgroundColor=
+      current.puzzle.colors[selectedColor];
+
+    $("selectedText").textContent=
+      `${selectedColor}番の色を選択中`;
+  }
+
+  function updateProgress(){
+    const total=current.puzzle.data.length;
+    let done=0;
+
+    for(const value of filled){
+      if(value)done++;
+    }
+
+    const percent=Math.round(done/total*100);
+
+    $("percentText").textContent=`${percent}%`;
+    $("progressBar").style.width=`${percent}%`;
+  }
+
+  function saveProgress(){
+    if(!current)return;
+
+    progressMap[current.id]=filled;
+    save(KEYS.progress,progressMap);
+  }
+
+  function checkComplete(){
+    if(!filled.every(Boolean))return;
+
+    if(!completed.includes(current.id)){
+      completed.push(current.id);
+      save(KEYS.completed,completed);
+      updateStats();
+    }
+
+    setTimeout(()=>{
+      $("completeOverlay").classList.add("show");
+    },200);
+  }
+
+  $("hintBtn").addEventListener("click",()=>{
+    const index=current.puzzle.data.findIndex(
+      (value,index)=>
+        value===selectedColor&&!filled[index]
+    );
+
+    if(index<0){
+      $("message").textContent=
+        `${selectedColor}番は全部塗れています`;
+      return;
+    }
+
+    hintIndex=index;
+    renderCanvas();
+
+    $("message").textContent=
+      "黄色い枠を塗ってみよう";
+
+    setTimeout(()=>{
+      hintIndex=-1;
+      renderCanvas();
+    },1800);
+  });
+
+  $("fillColorBtn").addEventListener("click",()=>{
+    let count=0;
+
+    current.puzzle.data.forEach((value,index)=>{
+      if(
+        value===selectedColor&&
+        !filled[index]
+      ){
+        filled[index]=true;
+        count++;
+      }
+    });
+
+    saveProgress();
+    renderGame();
+
+    $("message").textContent=
+      `${count}マス塗りました`;
+
+    checkComplete();
+  });
+
+  $("resetBtn").addEventListener("click",()=>{
+    if(!confirm("最初からやり直しますか？"))return;
+
+    filled=
+      new Array(current.puzzle.data.length).fill(false);
+
+    saveProgress();
+    renderGame();
+  });
+
+  $("zoomInBtn").addEventListener("click",()=>{
+    zoom=Math.min(3,zoom+.25);
+    applyZoom();
+  });
+
+  $("zoomOutBtn").addEventListener("click",()=>{
+    zoom=Math.max(.5,zoom-.25);
+    applyZoom();
+  });
+
+  $("zoomResetBtn").addEventListener("click",()=>{
+    zoom=1;
+    applyZoom();
+  });
+
+  function applyZoom(){
+    canvas.style.transform=`scale(${zoom})`;
+
+    $("canvasWrap").style.minHeight=
+      Math.min(canvas.height*zoom,600)+"px";
+
+    $("zoomResetBtn").textContent=
+      `${Math.round(zoom*100)}%`;
+  }
+
+  $("numbersBtn").addEventListener("click",()=>{
+    showNumbers=!showNumbers;
+
+    $("numbersBtn").textContent=
+      `番号表示 ${showNumbers?"ON":"OFF"}`;
+
+    renderCanvas();
+  });
+
+  $("savePngBtn").addEventListener("click",()=>{
+    if(!current)return;
+
+    const out=document.createElement("canvas");
+    const cellSize=8;
+
+    out.width=current.puzzle.size*cellSize;
+    out.height=current.puzzle.size*cellSize;
+
+    const outputContext=out.getContext("2d");
+
+    current.puzzle.data.forEach((value,index)=>{
+      outputContext.fillStyle=
+        current.puzzle.colors[value];
+
+      outputContext.fillRect(
+        (index%current.puzzle.size)*cellSize,
+        Math.floor(index/current.puzzle.size)*cellSize,
+        cellSize,
+        cellSize
+      );
+    });
+
+    out.toBlob(blob=>{
+      if(blob){
+        downloadBlob(
+          (current.title||"salp-color")+".png",
+          blob
+        );
+      }
+    },"image/png");
+  });
+
+  function downloadBlob(filename,blob){
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+
+    link.href=url;
+    link.download=filename;
+
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(()=>{
+      URL.revokeObjectURL(url);
+      link.remove();
+    },1000);
+  }
+
+  $("closeCompleteBtn").addEventListener("click",()=>{
+    $("completeOverlay").classList.remove("show");
+  });
+
+  updateStats();
+  renderLibrary();
+})();
+</script>
+</body>
+</html>
