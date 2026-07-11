@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1217">
+  <title>salp Terminal v3</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">ST</div>
+        <div>
+          <h1>salp Terminal v3</h1>
+          <div class="sub">Terminal + Files + Apps</div>
+        </div>
+      </div>
 
+      <div class="top-controls">
+        <select id="modeSelect" aria-label="ターミナルモード">
+          <option value="linux">Linux</option>
+          <option value="dos">MS-DOS</option>
+          <option value="jp">日本語</option>
+        </select>
+        <button id="openFilesBtn">Files</button>
+        <button id="resetBtn">初期化</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="terminal-shell">
+        <div class="terminal-head">
+          <div class="dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span id="modeLabel">Linux Mode</span>
+        </div>
+
+        <div id="output" class="output" aria-live="polite"></div>
+
+        <div class="input-row">
+          <span id="prompt" class="prompt">$</span>
+          <input
+            id="commandInput"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="help と入力"
+            aria-label="コマンド入力"
+          >
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel">
+          <h2>クイックコマンド</h2>
+          <div class="quick-grid">
+            <button data-cmd="help">help</button>
+            <button data-cmd="ls">ls</button>
+            <button data-cmd="tree">tree</button>
+            <button data-cmd="pwd">pwd</button>
+            <button data-cmd="apps">apps</button>
+            <button data-cmd="files">files</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Apps</h2>
+          <div id="appGrid" class="app-grid"></div>
+        </section>
+
+        <section class="panel">
+          <h2>仮想ファイル</h2>
+          <pre id="fsView" class="fs-view"></pre>
+        </section>
+
+        <section class="panel">
+          <h2>例</h2>
+          <div class="hint">
+            mkdir Projects/demo<br>
+            cd Projects/demo<br>
+            edit index.html<br>
+            run index.html<br><br>
+            open pixel<br>
+            install color<br>
+            files
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <div class="status">
+      <span id="pathStatus">/</span>
+      <span>localStorage保存</span>
+    </div>
+  </div>
+
+  <input id="uploadInput" class="hidden" type="file" multiple>
+  <input id="importInput" class="hidden" type="file" accept=".json,application/json">
+
+  <div id="editorModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-top">
+        <strong id="editorTitle">Editor</strong>
+        <button data-close="editorModal">閉じる</button>
+      </div>
+      <textarea id="editor"></textarea>
+      <div class="modal-actions">
+        <button id="saveEditorBtn" class="primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="runModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-top">
+        <strong id="runTitle">Run</strong>
+        <button data-close="runModal">閉じる</button>
+      </div>
+      <iframe
+        id="runFrame"
+        class="run-frame"
+        sandbox="allow-scripts allow-forms allow-modals"
+        title="HTMLプレビュー"
+      ></iframe>
+    </div>
+  </div>
+
+  <div id="filesModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-top">
+        <strong>salp File Manager</strong>
+        <button data-close="filesModal">閉じる</button>
+      </div>
+
+      <div class="file-toolbar">
+        <button id="upBtn">⬆ 上へ</button>
+        <button id="newFolderBtn">＋ フォルダ</button>
+        <button id="newFileBtn">＋ ファイル</button>
+        <button id="uploadBtn">Upload</button>
+      </div>
+
+      <div id="filesPath" class="files-path">/</div>
+      <div id="fileGrid" class="file-grid"></div>
+
+      <div class="file-actions">
+        <button id="openSelectedBtn">開く</button>
+        <button id="editSelectedBtn">編集</button>
+        <button id="downloadSelectedBtn">保存</button>
+        <button id="renameSelectedBtn">名前変更</button>
+        <button id="deleteSelectedBtn" class="danger">削除</button>
+        <button id="clearSelectedBtn">選択解除</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="terminal.js"></script>
+</body>
+</html>
