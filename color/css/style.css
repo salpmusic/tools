@@ -1,0 +1,230 @@
+:root{
+  --bg:#f7f3ea;
+  --panel:#fff;
+  --text:#222;
+  --muted:#777;
+  --line:#ded8ce;
+  --button:#222;
+  --pink:#ff8fbd;
+  --blue:#72dce8;
+  --green:#7fe39d;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.app{
+  width:min(100%,1080px);
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 28px);
+}
+header{text-align:center;padding:14px 8px 18px}
+h1{margin:0;font-size:34px;letter-spacing:-1px}
+.sub{margin-top:6px;color:var(--muted);font-size:14px}
+.backHome{display:inline-block;margin-top:16px;color:#777;font-size:13px}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+.topnav{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding:10px;
+  margin-bottom:14px;
+}
+button,select,input[type="text"],.fileLabel{
+  min-height:46px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+}
+button.primary,.fileLabel.primary{
+  background:var(--button);
+  color:#fff;
+  border-color:var(--button);
+  font-weight:900;
+}
+button.accent{
+  border:0;
+  background:linear-gradient(135deg,var(--pink),var(--blue));
+  color:#111;
+  font-weight:900;
+}
+button:disabled{opacity:.4;cursor:not-allowed}
+.screen{display:none}
+.screen.active{display:block}
+.homeHero{padding:24px;margin-bottom:14px;text-align:center}
+.homeHero h2{margin:8px 0}
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#fff0f7;
+  color:#a94d76;
+  font-size:11px;
+  font-weight:900;
+}
+.homeStats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:16px;
+}
+.stat{padding:14px;background:#f7f3ea;border-radius:14px}
+.stat strong{display:block;font-size:24px}
+.libraryPanel,.creatorPanel,.gamePanel{padding:14px}
+.toolbar{
+  display:grid;
+  grid-template-columns:1fr 180px auto;
+  gap:8px;
+  margin-bottom:12px;
+}
+.libraryGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.card{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 5px 16px rgba(0,0,0,.05);
+}
+.thumb{
+  width:100%;
+  aspect-ratio:1;
+  display:block;
+  image-rendering:pixelated;
+  background:#ece7df;
+}
+.cardBody{padding:12px}
+.cardTitle{
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.cardMeta{font-size:12px;color:var(--muted);margin-top:4px}
+.cardActions{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px}
+.fav{font-size:20px;padding:6px 10px}
+.empty{grid-column:1/-1;padding:38px 20px;text-align:center;color:var(--muted)}
+.section{padding:12px 0;border-bottom:1px solid #eee9e2}
+.section:first-child{padding-top:0}
+.section:last-child{border-bottom:0;padding-bottom:0}
+.label{margin:0 0 8px;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.08em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.fileLabel{display:flex;align-items:center;justify-content:center;cursor:pointer}
+input[type="file"]{display:none}
+.previewRow{display:grid;grid-template-columns:190px 1fr;gap:12px}
+#sourcePreview{
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  border-radius:14px;
+  background:#ece7df;
+  border:1px solid var(--line);
+}
+.hint{color:var(--muted);font-size:12px;line-height:1.6}
+.gapTop{margin-top:12px}
+.gameTop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.progress{height:10px;background:#ece7df;border-radius:999px;overflow:hidden;margin-bottom:12px}
+#progressBar{width:0;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue))}
+.selected{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px;
+  margin-bottom:12px;
+  border-radius:12px;
+  background:#f3efe8;
+  font-weight:900;
+}
+.selectedSwatch{width:34px;height:34px;border-radius:50%;border:3px solid #222}
+.zoomRow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.canvasWrap{
+  overflow:auto;
+  max-height:68vh;
+  border-radius:14px;
+  background:#cfc7bc;
+  padding:4px;
+  touch-action:pan-x pan-y;
+}
+#gameCanvas{
+  display:block;
+  background:#faf8f4;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+  transform-origin:top left;
+}
+.palette{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:7px;
+  margin-top:12px;
+  max-height:250px;
+  overflow:auto;
+  padding:2px;
+}
+.colorBtn{
+  min-height:62px;
+  background:#fff;
+  border:3px solid var(--line);
+  padding:5px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  font-weight:900;
+  font-size:11px;
+}
+.colorBtn.active{border-color:#222;transform:translateY(-2px)}
+.swatch{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,.35)}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.message{min-height:26px;padding-top:10px;text-align:center;font-weight:900}
+.overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  background:rgba(0,0,0,.65);
+  padding:20px;
+  z-index:20;
+}
+.overlay.show{display:grid}
+.dialog{width:min(100%,380px);background:#fff;border-radius:22px;padding:24px;text-align:center}
+.celebrate{font-size:64px}
+.full{width:100%}
+@media(max-width:800px){
+  .libraryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toolbar{grid-template-columns:1fr 1fr}
+  .toolbar button{grid-column:1/-1}
+}
+@media(max-width:700px){
+  .topnav{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:1fr}
+  .previewRow{grid-template-columns:1fr}
+  #sourcePreview{max-width:220px;margin:auto}
+  .palette{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .actions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:460px){
+  .libraryGrid{grid-template-columns:1fr}
+  .homeStats{grid-template-columns:1fr}
+  .toolbar{grid-template-columns:1fr}
+}
