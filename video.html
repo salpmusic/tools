@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v1.0</title>
+<title>salp Simple Video v1.1</title>
 
 <style>
 :root{
@@ -186,6 +186,114 @@ hr{
   border:0;
   border-top:1px solid #eee8de;
 }
+
+.timelinePanel{
+  margin-top:16px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#f7f3ed;
+}
+.timelineTitle{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+  font-size:13px;
+  font-weight:900;
+}
+.timeline{
+  position:relative;
+  height:64px;
+  overflow:hidden;
+  border-radius:12px;
+  background:#d8d1c7;
+  touch-action:none;
+}
+.timelineTrack{
+  position:absolute;
+  inset:12px 0;
+  background:linear-gradient(90deg,#83dbe7,#ff9ac2);
+}
+.timelineShade{
+  position:absolute;
+  top:0;
+  bottom:0;
+  background:rgba(0,0,0,.45);
+  pointer-events:none;
+}
+.timelineHandle{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:18px;
+  margin-left:-9px;
+  border:0;
+  border-radius:7px;
+  background:#fff;
+  box-shadow:0 1px 7px rgba(0,0,0,.35);
+  touch-action:none;
+  z-index:4;
+}
+.timelineHandle::after{
+  content:"";
+  position:absolute;
+  top:20px;
+  left:7px;
+  width:4px;
+  height:24px;
+  border-radius:3px;
+  background:#333;
+}
+.playhead{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:3px;
+  margin-left:-1px;
+  background:#ff2e62;
+  z-index:5;
+  pointer-events:none;
+}
+.segmentLayer{
+  position:absolute;
+  inset:12px 0;
+  z-index:2;
+}
+.segment{
+  position:absolute;
+  top:0;
+  bottom:0;
+  border-right:1px solid rgba(255,255,255,.8);
+  background:transparent;
+  cursor:pointer;
+}
+.segment.deleted{
+  background:repeating-linear-gradient(
+    135deg,
+    rgba(30,30,30,.78) 0,
+    rgba(30,30,30,.78) 8px,
+    rgba(80,80,80,.78) 8px,
+    rgba(80,80,80,.78) 16px
+  );
+}
+.segment.selected{
+  outline:3px solid #fff;
+  outline-offset:-3px;
+}
+.timelineActions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.timelineInfo{
+  margin-top:8px;
+  color:#666;
+  font-size:12px;
+  line-height:1.5;
+}
+
 @media(max-width:760px){
   .previewArea{grid-template-columns:1fr}
   .stage{min-height:360px}
@@ -204,8 +312,8 @@ hr{
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v1.0</h1>
-  <div class="sub">切る・音を重ねる・音量を整える。それだけ。</div>
+  <h1>🎬 salp Simple Video v1.1</h1>
+  <div class="sub">切る・分ける・消す・音を整える。それだけ。</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -282,7 +390,7 @@ hr{
 
   <label class="fileLabel">
     音声・音楽を選ぶ
-    <input id="audioInput" type="file" accept="audio/*,video/*">
+    <input id="audioInput" type="file" accept="audio/*,.wav,.wave,.mp3,.m4a,.aac,.flac,.ogg,.opus,video/*">
   </label>
 
   <div id="audioInfo" class="fileInfo">音声は未選択です</div>
@@ -339,6 +447,33 @@ hr{
     </div>
   </div>
 
+  <div class="timelinePanel">
+    <div class="timelineTitle">
+      <span>✂️ タイムライン</span>
+      <span id="trimLabel">0.0秒〜0.0秒</span>
+    </div>
+
+    <div id="timeline" class="timeline">
+      <div class="timelineTrack"></div>
+      <div id="leftShade" class="timelineShade"></div>
+      <div id="rightShade" class="timelineShade"></div>
+      <div id="segmentLayer" class="segmentLayer"></div>
+      <button id="startHandle" class="timelineHandle" aria-label="開始位置"></button>
+      <button id="endHandle" class="timelineHandle" aria-label="終了位置"></button>
+      <div id="playhead" class="playhead"></div>
+    </div>
+
+    <div class="timelineActions">
+      <button id="splitBtn" disabled>現在位置で分割</button>
+      <button id="deleteSegmentBtn" disabled>選択区間を削除</button>
+      <button id="restoreAllBtn" disabled>すべて復元</button>
+    </div>
+
+    <div id="timelineInfo" class="timelineInfo">
+      左右の白いハンドルで切り出し範囲を決めます。区間をタップして選び、削除できます。
+    </div>
+  </div>
+
   <p class="note">
     書き出しは再生時間とほぼ同じ時間がかかります。動画形式はブラウザが対応する形式を自動選択します。
     iPhoneではSafariの仕様により、端末やOSによって保存形式・動作が異なる場合があります。
@@ -378,6 +513,15 @@ let audioGain=null;
 let destination=null;
 let previewStartTime=0;
 let outputDuration=0;
+let trimStart=0;
+let trimEnd=0;
+let splitPoints=[];
+let deletedSegments=new Set();
+let selectedSegment=-1;
+let draggingHandle=null;
+let sourceDuration=0;
+let logicalElapsed=0;
+let currentSegmentIndex=0;
 
 function fmt(seconds){
   return Number.isFinite(seconds)?seconds.toFixed(1):"0.0";
@@ -437,24 +581,63 @@ function drawFrame(){
 
 function calculateDuration(){
   if(visualType==="video"&&Number.isFinite(video.duration)){
-    const start=Math.max(0,Number($("visualStart").value)||0);
-    const requestedEnd=Number($("visualEnd").value)||video.duration;
-    const end=Math.min(video.duration,Math.max(start,requestedEnd));
-    outputDuration=Math.max(0,end-start);
-  }else if(visualType==="image"){
-    outputDuration=Math.max(.5,Number($("stillDuration").value)||10);
+    sourceDuration=video.duration;
 
-    if(audio.src&&Number.isFinite(audio.duration)){
-      const audioStart=Math.max(0,Number($("audioStart").value)||0);
-      const available=Math.max(0,audio.duration-audioStart);
-      outputDuration=Math.min(outputDuration,available||outputDuration);
+    if(trimEnd<=0||trimEnd>sourceDuration){
+      trimEnd=sourceDuration;
     }
+
+    trimStart=Math.max(0,Math.min(trimStart,trimEnd));
+    trimEnd=Math.max(trimStart,Math.min(trimEnd,sourceDuration));
+
+    $("visualStart").value=trimStart.toFixed(1);
+    $("visualEnd").value=trimEnd.toFixed(1);
+  }else if(visualType==="image"){
+    sourceDuration=Math.max(.5,Number($("stillDuration").value)||10);
+    trimStart=0;
+    trimEnd=sourceDuration;
   }else{
-    outputDuration=0;
+    sourceDuration=0;
+    trimStart=0;
+    trimEnd=0;
   }
 
+  outputDuration=getKeptDuration();
   $("timeMain").textContent="0.0 / "+fmt(outputDuration);
+  updateTimeline();
   updateButtons();
+}
+
+function getBoundaries(){
+  return [
+    trimStart,
+    ...splitPoints.filter(point=>point>trimStart&&point<trimEnd).sort((a,b)=>a-b),
+    trimEnd
+  ];
+}
+
+function getSegments(){
+  const boundaries=getBoundaries();
+  const segments=[];
+
+  for(let i=0;i<boundaries.length-1;i++){
+    segments.push({
+      index:i,
+      start:boundaries[i],
+      end:boundaries[i+1],
+      deleted:deletedSegments.has(i)
+    });
+  }
+
+  return segments;
+}
+
+function getKeptSegments(){
+  return getSegments().filter(segment=>!segment.deleted&&segment.end>segment.start);
+}
+
+function getKeptDuration(){
+  return getKeptSegments().reduce((sum,segment)=>sum+(segment.end-segment.start),0);
 }
 
 function updateButtons(){
@@ -475,8 +658,11 @@ videoInput.addEventListener("change",()=>{
   $("visualInfo").textContent=file.name;
 
   video.onloadedmetadata=()=>{
-    $("visualStart").value="0";
-    $("visualEnd").value=video.duration.toFixed(1);
+    trimStart=0;
+    trimEnd=video.duration;
+    splitPoints=[];
+    deletedSegments.clear();
+    selectedSegment=-1;
     calculateDuration();
     video.currentTime=0;
   };
@@ -493,6 +679,9 @@ imageInput.addEventListener("change",()=>{
   img.onload=()=>{
     visualType="image";
     image=img;
+    splitPoints=[];
+    deletedSegments.clear();
+    selectedSegment=-1;
     video.removeAttribute("src");
     $("visualInfo").textContent=file.name;
     calculateDuration();
@@ -510,7 +699,17 @@ audioInput.addEventListener("change",()=>{
   audio.onloadedmetadata=calculateDuration;
 });
 
-["visualStart","visualEnd","audioStart","stillDuration"].forEach(id=>{
+$("visualStart").addEventListener("change",()=>{
+  trimStart=Math.max(0,Number($("visualStart").value)||0);
+  calculateDuration();
+});
+
+$("visualEnd").addEventListener("change",()=>{
+  trimEnd=Math.max(trimStart,Number($("visualEnd").value)||sourceDuration);
+  calculateDuration();
+});
+
+["audioStart","stillDuration"].forEach(id=>{
   $(id).addEventListener("change",calculateDuration);
 });
 
@@ -557,18 +756,27 @@ async function startPlayback(isExport){
   if(previewing)return;
 
   calculateDuration();
-  if(outputDuration<=0)return;
+  const kept=getKeptSegments();
+
+  if(!kept.length||outputDuration<=0){
+    status("残っている区間がありません");
+    return;
+  }
 
   previewing=true;
   exporting=isExport;
   chunks=[];
+  logicalElapsed=0;
+  currentSegmentIndex=0;
   updateButtons();
 
   setupAudio();
   await audioContext.resume();
 
+  const firstSegment=kept[0];
+
   if(visualType==="video"){
-    video.currentTime=Math.max(0,Number($("visualStart").value)||0);
+    video.currentTime=firstSegment.start;
   }
 
   if(audio.src){
@@ -633,7 +841,7 @@ async function startPlayback(isExport){
     };
 
     recorder.start(1000);
-    status("書き出し中…\nこの画面を閉じずにお待ちください");
+    status("書き出し中…\\nこの画面を閉じずにお待ちください");
   }else{
     status("プレビュー中");
   }
@@ -641,8 +849,9 @@ async function startPlayback(isExport){
   previewStartTime=performance.now();
 
   if(visualType==="video"){
-    video.play().catch(console.warn);
+    await video.play().catch(console.warn);
   }
+
   if(audio.src){
     audio.play().catch(console.warn);
   }
@@ -653,18 +862,57 @@ async function startPlayback(isExport){
 function tick(){
   if(!previewing)return;
 
+  const kept=getKeptSegments();
+  const segment=kept[currentSegmentIndex];
+
+  if(!segment){
+    stop(true);
+    return;
+  }
+
   drawFrame();
 
-  const elapsed=(performance.now()-previewStartTime)/1000;
-  const progress=Math.min(1,elapsed/outputDuration);
+  if(visualType==="video"){
+    if(video.currentTime>=segment.end-0.025){
+      logicalElapsed+=segment.end-segment.start;
+      currentSegmentIndex++;
+
+      const next=kept[currentSegmentIndex];
+
+      if(!next){
+        stop(true);
+        return;
+      }
+
+      video.currentTime=next.start;
+      video.play().catch(console.warn);
+    }
+  }else{
+    const realElapsed=(performance.now()-previewStartTime)/1000;
+
+    if(realElapsed>=outputDuration){
+      stop(true);
+      return;
+    }
+
+    logicalElapsed=realElapsed;
+  }
+
+  const segmentElapsed=visualType==="video"
+    ?Math.max(0,video.currentTime-segment.start)
+    :0;
+
+  const elapsed=Math.min(outputDuration,logicalElapsed+segmentElapsed);
+  const progress=outputDuration?Math.min(1,elapsed/outputDuration):0;
 
   $("timeMain").textContent=fmt(elapsed)+" / "+fmt(outputDuration);
   $("progressBar").style.width=(progress*100)+"%";
 
-  if(elapsed>=outputDuration){
-    stop(true);
-    return;
-  }
+  const sourcePosition=visualType==="video"
+    ?video.currentTime
+    :trimStart+elapsed;
+
+  updatePlayhead(sourcePosition);
 
   animationId=requestAnimationFrame(tick);
 }
@@ -699,6 +947,204 @@ function stop(finished=false){
   drawFrame();
 }
 
+
+function timeToPercent(time){
+  if(!sourceDuration)return 0;
+  return Math.max(0,Math.min(100,time/sourceDuration*100));
+}
+
+function percentToTime(percent){
+  return Math.max(0,Math.min(sourceDuration,percent/100*sourceDuration));
+}
+
+function updatePlayhead(time){
+  $("playhead").style.left=timeToPercent(time)+"%";
+}
+
+function updateTimeline(){
+  const startPercent=timeToPercent(trimStart);
+  const endPercent=timeToPercent(trimEnd);
+
+  $("startHandle").style.left=startPercent+"%";
+  $("endHandle").style.left=endPercent+"%";
+
+  $("leftShade").style.left="0";
+  $("leftShade").style.width=startPercent+"%";
+
+  $("rightShade").style.left=endPercent+"%";
+  $("rightShade").style.width=(100-endPercent)+"%";
+
+  $("trimLabel").textContent=fmt(trimStart)+"秒〜"+fmt(trimEnd)+"秒";
+
+  const layer=$("segmentLayer");
+  layer.innerHTML="";
+
+  getSegments().forEach(segment=>{
+    const element=document.createElement("div");
+    element.className="segment";
+    if(segment.deleted)element.classList.add("deleted");
+    if(segment.index===selectedSegment)element.classList.add("selected");
+
+    element.style.left=timeToPercent(segment.start)+"%";
+    element.style.width=(timeToPercent(segment.end)-timeToPercent(segment.start))+"%";
+    element.title=fmt(segment.start)+"〜"+fmt(segment.end)+"秒";
+
+    element.addEventListener("click",event=>{
+      event.stopPropagation();
+      selectedSegment=segment.index;
+      updateTimelineButtons();
+      updateTimeline();
+    });
+
+    layer.appendChild(element);
+  });
+
+  updateTimelineButtons();
+  outputDuration=getKeptDuration();
+  $("timeMain").textContent="0.0 / "+fmt(outputDuration);
+}
+
+function updateTimelineButtons(){
+  const segments=getSegments();
+  const selected=segments.find(segment=>segment.index===selectedSegment);
+
+  $("splitBtn").disabled=!visualType||sourceDuration<=0;
+  $("deleteSegmentBtn").disabled=!selected;
+  $("restoreAllBtn").disabled=deletedSegments.size===0;
+
+  if(selected){
+    $("deleteSegmentBtn").textContent=selected.deleted
+      ?"選択区間を復元"
+      :"選択区間を削除";
+
+    $("timelineInfo").textContent=
+      "選択中: "+fmt(selected.start)+"〜"+fmt(selected.end)+"秒"+
+      (selected.deleted?"（削除）":"");
+  }else{
+    $("deleteSegmentBtn").textContent="選択区間を削除";
+    $("timelineInfo").textContent=
+      "左右の白いハンドルで切り出し範囲を決めます。区間をタップして選び、削除できます。";
+  }
+}
+
+function getCurrentSourceTime(){
+  if(visualType==="video"&&Number.isFinite(video.currentTime)){
+    return Math.max(trimStart,Math.min(trimEnd,video.currentTime));
+  }
+
+  if(sourceDuration){
+    const rect=$("timeline").getBoundingClientRect();
+    const left=parseFloat($("playhead").style.left)||0;
+    return percentToTime(left);
+  }
+
+  return trimStart;
+}
+
+function addSplitAt(time){
+  if(time<=trimStart+0.05||time>=trimEnd-0.05)return;
+
+  const near=splitPoints.some(point=>Math.abs(point-time)<0.05);
+  if(near)return;
+
+  splitPoints.push(time);
+  splitPoints.sort((a,b)=>a-b);
+
+  deletedSegments.clear();
+  selectedSegment=-1;
+  updateTimeline();
+}
+
+function handleTimelinePointer(event){
+  if(!sourceDuration)return;
+
+  const rect=$("timeline").getBoundingClientRect();
+  const percent=(event.clientX-rect.left)/rect.width*100;
+  const time=percentToTime(percent);
+
+  if(draggingHandle==="start"){
+    trimStart=Math.min(time,trimEnd-0.1);
+  }else if(draggingHandle==="end"){
+    trimEnd=Math.max(time,trimStart+0.1);
+  }
+
+  splitPoints=splitPoints.filter(point=>point>trimStart&&point<trimEnd);
+  deletedSegments.clear();
+  selectedSegment=-1;
+
+  $("visualStart").value=trimStart.toFixed(1);
+  $("visualEnd").value=trimEnd.toFixed(1);
+
+  updateTimeline();
+  updateButtons();
+}
+
+["startHandle","endHandle"].forEach(id=>{
+  const element=$(id);
+
+  element.addEventListener("pointerdown",event=>{
+    event.preventDefault();
+    draggingHandle=id==="startHandle"?"start":"end";
+    element.setPointerCapture(event.pointerId);
+  });
+
+  element.addEventListener("pointermove",event=>{
+    if(!draggingHandle)return;
+    handleTimelinePointer(event);
+  });
+
+  element.addEventListener("pointerup",event=>{
+    draggingHandle=null;
+    element.releasePointerCapture(event.pointerId);
+    calculateDuration();
+  });
+
+  element.addEventListener("pointercancel",()=>{
+    draggingHandle=null;
+  });
+});
+
+$("timeline").addEventListener("click",event=>{
+  if(event.target.classList.contains("segment"))return;
+  if(!sourceDuration)return;
+
+  const rect=$("timeline").getBoundingClientRect();
+  const percent=(event.clientX-rect.left)/rect.width*100;
+  const time=percentToTime(percent);
+
+  if(visualType==="video"){
+    video.currentTime=Math.max(trimStart,Math.min(trimEnd,time));
+    video.addEventListener("seeked",drawFrame,{once:true});
+  }
+
+  updatePlayhead(time);
+});
+
+$("splitBtn").addEventListener("click",()=>{
+  addSplitAt(getCurrentSourceTime());
+});
+
+$("deleteSegmentBtn").addEventListener("click",()=>{
+  if(selectedSegment<0)return;
+
+  if(deletedSegments.has(selectedSegment)){
+    deletedSegments.delete(selectedSegment);
+  }else{
+    deletedSegments.add(selectedSegment);
+  }
+
+  outputDuration=getKeptDuration();
+  updateTimeline();
+  updateButtons();
+});
+
+$("restoreAllBtn").addEventListener("click",()=>{
+  deletedSegments.clear();
+  selectedSegment=-1;
+  outputDuration=getKeptDuration();
+  updateTimeline();
+  updateButtons();
+});
 function status(text){
   $("status").textContent=text;
 }
@@ -713,6 +1159,7 @@ window.addEventListener("beforeunload",()=>{
 
 drawFrame();
 calculateDuration();
+updateTimeline();
 })();
 </script>
 </body>
