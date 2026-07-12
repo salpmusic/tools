@@ -7,14 +7,14 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>salp Color v5.1</title>
+<title>salp Color v5.2</title>
 <meta name="description" content="問題ライブラリ、自作問題、画像から最大128×128・64色の番号ぬりえを作成できる無料ブラウザゲーム。">
-<link rel="stylesheet" href="css/style.css?v=5.1.0">
+<link rel="stylesheet" href="css/style.css?v=5.2.0">
 </head>
 <body>
 <div class="app">
 <header>
-  <h1>🎨 salp Color v5.1</h1>
+  <h1>🎨 salp Color v5.2</h1>
   <div class="sub">問題ライブラリ・自作問題・画像生成・進捗保存</div>
   <a class="backHome" href="../index.html">← salp Toolsへ戻る</a>
 </header>
@@ -28,7 +28,7 @@
 
 <section id="home" class="screen active">
   <div class="panel homeHero">
-    <span class="badge">v5.1</span>
+    <span class="badge">v5.2</span>
     <h2>世界に一つだけの塗り絵を、数秒で。</h2>
     <p>問題を選ぶか、自分の画像から番号ぬりえを作れます。</p>
     <div class="homeStats">
@@ -48,9 +48,48 @@
 
 <section id="library" class="screen">
   <div class="panel libraryPanel">
+
+    <div id="todaySection" class="librarySection">
+      <div class="libraryHeading">
+        <div>
+          <h2>✨ Today's Pick</h2>
+          <p>今日のおすすめ問題</p>
+        </div>
+      </div>
+      <div id="todayPick" class="featuredGrid"></div>
+    </div>
+
+    <div id="recentSection" class="librarySection hidden">
+      <div class="libraryHeading">
+        <div>
+          <h2>🕘 Recently Played</h2>
+          <p>最近遊んだ問題</p>
+        </div>
+      </div>
+      <div id="recentGrid" class="compactGrid"></div>
+    </div>
+
+    <div class="libraryHeading allHeading">
+      <div>
+        <h2>📚 Puzzle Library</h2>
+        <p id="libraryCount">0問</p>
+      </div>
+    </div>
+
+    <div class="categoryChips" id="categoryChips">
+      <button data-category="all" class="active">すべて</button>
+      <button data-category="favorite">❤️ お気に入り</button>
+      <button data-category="dog">🐶 犬</button>
+      <button data-category="cat">🐱 猫</button>
+      <button data-category="sweets">🍰 スイーツ</button>
+      <button data-category="flower">🌸 花</button>
+      <button data-category="salp">🎨 salp</button>
+      <button data-category="my">📷 自分の問題</button>
+    </div>
+
     <div class="toolbar">
       <input id="searchInput" type="text" placeholder="問題を検索">
-      <select id="categoryFilter">
+      <select id="categoryFilter" aria-label="カテゴリー">
         <option value="all">すべて</option>
         <option value="built-in">おすすめ</option>
         <option value="my">自分の問題</option>
@@ -63,6 +102,7 @@
       </select>
       <button id="refreshRemoteBtn">オンライン問題を更新</button>
     </div>
+
     <div id="libraryGrid" class="libraryGrid"></div>
   </div>
 </section>
@@ -189,10 +229,10 @@
   </div>
 </div>
 
-<script src="js/storage.js?v=5.1.0"></script>
-<script src="js/library.js?v=5.1.0"></script>
-<script src="js/image.js?v=5.1.0"></script>
-<script src="js/game.js?v=5.1.0"></script>
-<script src="js/app.js?v=5.1.0"></script>
+<script src="js/storage.js?v=5.2.0"></script>
+<script src="js/library.js?v=5.2.0"></script>
+<script src="js/image.js?v=5.2.0"></script>
+<script src="js/game.js?v=5.2.0"></script>
+<script src="js/app.js?v=5.2.0"></script>
 </body>
 </html>
