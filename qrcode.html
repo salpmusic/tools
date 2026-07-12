@@ -5,59 +5,280 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp QR Code Maker v2.0</title>
+<title>salp QR Code Maker v2.1</title>
 <style>
-:root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#dfd8cc}
+:root{
+  --bg:#f7f3ea;
+  --panel:#fff;
+  --text:#222;
+  --muted:#777;
+  --line:#dfd8cc;
+  --accent1:#67dce8;
+  --accent2:#ff8fbd;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif}
-.app{width:min(100%,760px);margin:auto;padding:calc(env(safe-area-inset-top) + 16px) 14px calc(env(safe-area-inset-bottom) + 30px)}
-header{text-align:center;padding:12px 8px 20px}h1{margin:0;font-size:34px}.sub{margin-top:7px;color:var(--muted);font-size:14px}.back{display:inline-block;margin-top:12px;color:#777;font-size:13px}
-.panel{margin-bottom:14px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.07)}
-label{display:block;margin:0 0 7px;color:#666;font-size:12px;font-weight:900}
-textarea,select,input[type=color]{width:100%;min-height:48px;padding:11px;border:1px solid var(--line);border-radius:13px;background:#fff;font:inherit}
-textarea{min-height:110px;resize:vertical}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-button{min-height:50px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:#fff;font:inherit;font-weight:900}.primary{background:#222;color:#fff;border-color:#222}.accent{border:0;background:linear-gradient(135deg,#67dce8,#ff8fbd)}button:disabled{opacity:.4}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif;
+}
+.app{
+  width:min(100%,760px);
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 16px) 14px calc(env(safe-area-inset-bottom) + 30px);
+}
+header{text-align:center;padding:12px 8px 20px}
+h1{margin:0;font-size:34px}
+.sub{margin-top:7px;color:var(--muted);font-size:14px}
+.back{display:inline-block;margin-top:12px;color:#777;font-size:13px}
+.panel{
+  margin-bottom:14px;
+  padding:16px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:22px;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+label{
+  display:block;
+  margin:0 0 7px;
+  color:#666;
+  font-size:12px;
+  font-weight:900;
+}
+textarea,select,input[type=color],input[type=range]{
+  width:100%;
+  min-height:48px;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  font:inherit;
+}
+textarea{min-height:110px;resize:vertical}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+button,.fileLabel{
+  min-height:50px;
+  padding:12px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:var(--text);
+  font:inherit;
+  font-weight:900;
+}
+button{cursor:pointer}
+.primary{background:#222;color:#fff;border-color:#222}
+.accent{border:0;background:linear-gradient(135deg,var(--accent1),var(--accent2))}
+button:disabled{opacity:.4}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.preview{text-align:center}.stage{min-height:300px;display:flex;align-items:center;justify-content:center;padding:18px;background:#f1ede6;border-radius:18px;overflow:hidden}
-#qrcode{width:min(100%,420px);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
-#qrcode img,#qrcode canvas{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:100%!important;aspect-ratio:1/1!important;object-fit:contain!important}
-.status{min-height:24px;margin-top:10px;color:#666;font-size:13px;font-weight:800}
-@media(max-width:620px){.grid{grid-template-columns:1fr}.stage{min-height:250px}}@media(max-width:420px){.grid2,.actions{grid-template-columns:1fr}h1{font-size:30px}}
+.fileLabel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+input[type=file]{display:none}
+.logoRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+}
+.logoInfo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+#logoPreview{
+  width:52px;
+  height:52px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  object-fit:contain;
+  background:#f2eee7;
+}
+.logoName{
+  overflow:hidden;
+  color:#666;
+  font-size:12px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.optionRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+}
+.optionRow input[type=checkbox]{
+  width:20px;
+  height:20px;
+}
+.rangeValue{
+  min-width:48px;
+  text-align:right;
+  font-weight:900;
+}
+.preview{text-align:center}
+.stage{
+  min-height:300px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:#f1ede6;
+  border-radius:18px;
+  overflow:hidden;
+}
+#qrcode{
+  width:min(100%,420px);
+  aspect-ratio:1/1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+}
+#qrcode img,#qrcode canvas{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  aspect-ratio:1/1!important;
+  object-fit:contain!important;
+}
+.status{
+  min-height:24px;
+  margin-top:10px;
+  color:#666;
+  font-size:13px;
+  font-weight:800;
+}
+.note{
+  margin-top:10px;
+  color:#888;
+  font-size:12px;
+  line-height:1.6;
+}
+@media(max-width:620px){
+  .grid{grid-template-columns:1fr}
+  .stage{min-height:250px}
+}
+@media(max-width:420px){
+  .grid2,.actions{grid-template-columns:1fr}
+  h1{font-size:30px}
+}
 </style>
 </head>
+
 <body>
 <div class="app">
 <header>
-<h1>🔲 salp QR Code Maker v2.0</h1>
-<div class="sub">表示もPNGも正方形</div>
-<a class="back" href="index.html">← salp Toolsへ戻る</a>
+  <h1>🔲 salp QR Code Maker v2.1</h1>
+  <div class="sub">正方形表示＋中央画像対応</div>
+  <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
 <section class="panel">
-<label for="text">URL・テキスト</label>
-<textarea id="text">https://salpmusic.github.io/tools/</textarea>
+  <label for="text">URL・テキスト</label>
+  <textarea id="text">https://salpmusic.github.io/tools/</textarea>
 
-<div class="grid">
-<div><label for="size">出力サイズ</label><select id="size"><option>256</option><option selected>512</option><option>768</option><option>1024</option></select></div>
-<div><label for="level">誤り訂正</label><select id="level"><option>L</option><option selected>M</option><option>Q</option><option>H</option></select></div>
-<div><label for="margin">余白</label><select id="margin"><option value="8">小</option><option value="16" selected>標準</option><option value="24">大</option></select></div>
-</div>
+  <div class="grid">
+    <div>
+      <label for="size">出力サイズ</label>
+      <select id="size">
+        <option>256</option>
+        <option selected>512</option>
+        <option>768</option>
+        <option>1024</option>
+      </select>
+    </div>
 
-<div class="grid2">
-<div><label for="dark">QRの色</label><input id="dark" type="color" value="#111111"></div>
-<div><label for="light">背景色</label><input id="light" type="color" value="#ffffff"></div>
-</div>
+    <div>
+      <label for="level">誤り訂正</label>
+      <select id="level">
+        <option>L</option>
+        <option>M</option>
+        <option>Q</option>
+        <option selected>H</option>
+      </select>
+    </div>
 
-<div class="actions">
-<button id="create" class="accent">QRコードを作る</button>
-<button id="download" class="primary" disabled>PNGを保存</button>
-</div>
+    <div>
+      <label for="margin">余白</label>
+      <select id="margin">
+        <option value="8">小</option>
+        <option value="16" selected>標準</option>
+        <option value="24">大</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label for="dark">QRの色</label>
+      <input id="dark" type="color" value="#111111">
+    </div>
+    <div>
+      <label for="light">背景色</label>
+      <input id="light" type="color" value="#ffffff">
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <label>中央に入れる画像</label>
+
+  <div class="logoRow">
+    <label class="fileLabel accent">
+      画像を選ぶ
+      <input id="logoInput" type="file" accept="image/*">
+    </label>
+
+    <button id="removeLogo" disabled>画像を外す</button>
+  </div>
+
+  <div id="logoInfo" class="logoInfo" style="margin-top:12px;display:none">
+    <img id="logoPreview" alt="中央画像プレビュー">
+    <div id="logoName" class="logoName"></div>
+  </div>
+
+  <div style="margin-top:14px">
+    <label for="logoSize">画像サイズ</label>
+    <div class="optionRow">
+      <input id="logoSize" type="range" min="10" max="30" value="20">
+      <span id="logoSizeValue" class="rangeValue">20%</span>
+    </div>
+  </div>
+
+  <label class="optionRow">
+    <input id="logoBackground" type="checkbox" checked>
+    <span>画像の後ろに白い背景枠を付ける</span>
+  </label>
+
+  <p class="note">
+    中央画像を入れる場合は、誤り訂正レベル「H」をおすすめします。
+    画像を大きくしすぎると読み取りにくくなることがあります。
+  </p>
+</section>
+
+<section class="panel">
+  <div class="actions">
+    <button id="create" class="accent">QRコードを作る</button>
+    <button id="download" class="primary" disabled>PNGを保存</button>
+  </div>
 </section>
 
 <section class="panel preview">
-<h2>プレビュー</h2>
-<div class="stage"><div id="qrcode">QRコードがここに表示されます</div></div>
-<div id="status" class="status"></div>
+  <h2>プレビュー</h2>
+  <div class="stage">
+    <div id="qrcode">QRコードがここに表示されます</div>
+  </div>
+  <div id="status" class="status"></div>
 </section>
 </div>
 
@@ -65,58 +286,228 @@ button{min-height:50px;padding:12px 16px;border:1px solid var(--line);border-rad
 <script>
 (()=>{
 "use strict";
+
 const $=id=>document.getElementById(id);
-const text=$("text"),size=$("size"),level=$("level"),margin=$("margin"),dark=$("dark"),light=$("light"),box=$("qrcode"),status=$("status"),download=$("download");
+
+const text=$("text");
+const size=$("size");
+const level=$("level");
+const margin=$("margin");
+const dark=$("dark");
+const light=$("light");
+const logoInput=$("logoInput");
+const logoPreview=$("logoPreview");
+const logoInfo=$("logoInfo");
+const logoName=$("logoName");
+const logoSize=$("logoSize");
+const logoSizeValue=$("logoSizeValue");
+const logoBackground=$("logoBackground");
+const removeLogo=$("removeLogo");
+const box=$("qrcode");
+const status=$("status");
+const download=$("download");
+
 let exportCanvas=null;
-const levels={L:QRCode.CorrectLevel.L,M:QRCode.CorrectLevel.M,Q:QRCode.CorrectLevel.Q,H:QRCode.CorrectLevel.H};
+let logoImage=null;
+
+const levels={
+  L:QRCode.CorrectLevel.L,
+  M:QRCode.CorrectLevel.M,
+  Q:QRCode.CorrectLevel.Q,
+  H:QRCode.CorrectLevel.H
+};
+
+function roundedRect(ctx,x,y,w,h,r){
+  const radius=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+radius,y);
+  ctx.arcTo(x+w,y,x+w,y+h,radius);
+  ctx.arcTo(x+w,y+h,x,y+h,radius);
+  ctx.arcTo(x,y+h,x,y,radius);
+  ctx.arcTo(x,y,x+w,y,radius);
+  ctx.closePath();
+}
+
+function drawLogo(ctx,output){
+  if(!logoImage)return;
+
+  const ratio=Number(logoSize.value)/100;
+  const maxSide=Math.round(output*ratio);
+
+  const imageRatio=logoImage.naturalWidth/logoImage.naturalHeight;
+  let drawW=maxSide;
+  let drawH=maxSide;
+
+  if(imageRatio>1){
+    drawH=maxSide/imageRatio;
+  }else{
+    drawW=maxSide*imageRatio;
+  }
+
+  const x=(output-drawW)/2;
+  const y=(output-drawH)/2;
+
+  if(logoBackground.checked){
+    const pad=Math.max(6,Math.round(output*0.015));
+    const bgX=x-pad;
+    const bgY=y-pad;
+    const bgW=drawW+pad*2;
+    const bgH=drawH+pad*2;
+
+    ctx.save();
+    ctx.fillStyle="#ffffff";
+    roundedRect(ctx,bgX,bgY,bgW,bgH,Math.round(output*0.025));
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.drawImage(logoImage,x,y,drawW,drawH);
+}
 
 function make(){
   const value=text.value.trim();
-  if(!value){alert("URLまたはテキストを入力してください");return}
+
+  if(!value){
+    alert("URLまたはテキストを入力してください");
+    return;
+  }
+
   box.innerHTML="";
   download.disabled=true;
   exportCanvas=null;
-  const output=Number(size.value),pad=Number(margin.value),inner=output-pad*2;
+
+  const output=Number(size.value);
+  const pad=Number(margin.value);
+  const inner=output-pad*2;
   const temp=document.createElement("div");
+
   try{
-    new QRCode(temp,{text:value,width:inner,height:inner,colorDark:dark.value,colorLight:light.value,correctLevel:levels[level.value]});
+    new QRCode(temp,{
+      text:value,
+      width:inner,
+      height:inner,
+      colorDark:dark.value,
+      colorLight:light.value,
+      correctLevel:levels[level.value]
+    });
+
     requestAnimationFrame(()=>{
       const source=temp.querySelector("canvas")||temp.querySelector("img");
-      if(!source){status.textContent="生成できませんでした";return}
+
+      if(!source){
+        status.textContent="生成できませんでした";
+        return;
+      }
+
       const canvas=document.createElement("canvas");
-      canvas.width=output;canvas.height=output;
+      canvas.width=output;
+      canvas.height=output;
+
       const ctx=canvas.getContext("2d");
       ctx.imageSmoothingEnabled=false;
       ctx.fillStyle=light.value;
       ctx.fillRect(0,0,output,output);
+
       const draw=()=>{
         ctx.drawImage(source,pad,pad,inner,inner);
+        drawLogo(ctx,output);
+
         exportCanvas=canvas;
+
         const image=new Image();
         image.alt="生成したQRコード";
         image.src=canvas.toDataURL("image/png");
+
         box.innerHTML="";
         box.appendChild(image);
+
         download.disabled=false;
-        status.textContent=output+" × "+output+"px のQRコードを作成しました";
+        status.textContent=
+          output+" × "+output+"px のQRコードを作成しました";
       };
-      if(source.tagName==="IMG"&&!source.complete)source.onload=draw;else draw();
+
+      if(source.tagName==="IMG"&&!source.complete){
+        source.onload=draw;
+      }else{
+        draw();
+      }
     });
-  }catch(e){
-    status.textContent="文字数が多すぎるか、生成できない内容です";
+
+  }catch(error){
+    console.error(error);
+    status.textContent=
+      "文字数が多すぎるか、生成できない内容です";
   }
 }
 
+logoInput.addEventListener("change",()=>{
+  const file=logoInput.files[0];
+  if(!file)return;
+
+  const url=URL.createObjectURL(file);
+  const image=new Image();
+
+  image.onload=()=>{
+    logoImage=image;
+    logoPreview.src=url;
+    logoName.textContent=file.name;
+    logoInfo.style.display="flex";
+    removeLogo.disabled=false;
+    level.value="H";
+    make();
+  };
+
+  image.onerror=()=>{
+    URL.revokeObjectURL(url);
+    alert("画像を読み込めませんでした");
+  };
+
+  image.src=url;
+});
+
+removeLogo.addEventListener("click",()=>{
+  logoImage=null;
+  logoInput.value="";
+  logoPreview.removeAttribute("src");
+  logoName.textContent="";
+  logoInfo.style.display="none";
+  removeLogo.disabled=true;
+  make();
+});
+
+logoSize.addEventListener("input",()=>{
+  logoSizeValue.textContent=logoSize.value+"%";
+  if(logoImage)make();
+});
+
+logoBackground.addEventListener("change",()=>{
+  if(logoImage)make();
+});
+
 $("create").addEventListener("click",make);
+
 download.addEventListener("click",()=>{
   if(!exportCanvas)return;
+
   exportCanvas.toBlob(blob=>{
     if(!blob)return;
-    const url=URL.createObjectURL(blob),a=document.createElement("a");
-    a.href=url;a.download="salp-qrcode.png";document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);
+
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+
+    link.href=url;
+    link.download="salp-qrcode.png";
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(()=>{
+      URL.revokeObjectURL(url);
+      link.remove();
+    },1000);
+
   },"image/png");
 });
+
 make();
 })();
 </script>
