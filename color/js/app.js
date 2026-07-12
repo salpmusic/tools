@@ -15,6 +15,8 @@
   let completed=Storage.load(Storage.KEYS.completed,[]);
   let progressMap=Storage.load(Storage.KEYS.progress,{});
   let current=null;
+  const RECENT_KEY="salpColorV52_recent";
+  let recentPlayed=Storage.load(RECENT_KEY,[]);
 
   Game.init($("gameCanvas"),{
     onRenderPalette:renderPalette,
@@ -72,6 +74,197 @@
     $("statFavorites").textContent=favorites.length;
   }
 
+  function categoryInfo(category){
+    const map={
+      dog:{icon:"🐶",label:"犬"},
+      cat:{icon:"🐱",label:"猫"},
+      sweets:{icon:"🍰",label:"スイーツ"},
+      flower:{icon:"🌸",label:"花"},
+      salp:{icon:"🎨",label:"salp"},
+      my:{icon:"📷",label:"自分の問題"}
+    };
+    return map[category]||{icon:"🧩",label:"その他"};
+  }
+
+  function difficultyStars(value){
+    const normalized=String(value||"Normal").toLowerCase();
+    const count=
+      normalized==="easy"?1:
+      normalized==="hard"?3:
+      normalized==="expert"?4:
+      2;
+    return "★".repeat(count)+"☆".repeat(4-count);
+  }
+
+  function isNewItem(item){
+    if(!item.created)return false;
+    const created=new Date(item.created+"T00:00:00");
+    if(Number.isNaN(created.getTime()))return false;
+    return (Date.now()-created.getTime())/(1000*60*60*24)<=7;
+  }
+
+  function makeThumb(item,className="thumb"){
+    let thumb;
+
+    if(item.image){
+      thumb=document.createElement("img");
+      thumb.className=className;
+      thumb.alt=item.title;
+      thumb.loading="lazy";
+      thumb.src=`${item.image}${item.image.includes("?")?"&":"?"}v=5.2.0`;
+
+      thumb.addEventListener("error",()=>{
+        const fallback=document.createElement("canvas");
+        fallback.className=className;
+        Library.drawPuzzleThumb(fallback,item.puzzle);
+        thumb.replaceWith(fallback);
+      });
+    }else{
+      thumb=document.createElement("canvas");
+      thumb.className=className;
+      Library.drawPuzzleThumb(thumb,item.puzzle);
+    }
+
+    return thumb;
+  }
+
+  function makePuzzleCard(item){
+    const card=document.createElement("article");
+    card.className="card";
+
+    const imageFrame=document.createElement("div");
+    imageFrame.className="imageFrame";
+    imageFrame.appendChild(makeThumb(item));
+
+    if(isNewItem(item)){
+      const badge=document.createElement("span");
+      badge.className="cardBadge";
+      badge.textContent="NEW";
+      imageFrame.appendChild(badge);
+    }
+
+    const body=document.createElement("div");
+    body.className="cardBody";
+
+    const title=document.createElement("div");
+    title.className="cardTitle";
+    title.textContent=item.title;
+
+    const info=categoryInfo(item.category);
+    const category=document.createElement("span");
+    category.className="categoryLabel";
+    category.textContent=`${info.icon} ${info.label}`;
+
+    const difficulty=document.createElement("div");
+    difficulty.className="difficulty";
+    difficulty.textContent=`${difficultyStars(item.difficulty)} ${item.difficulty||"Normal"}`;
+
+    const meta=document.createElement("div");
+    meta.className="cardMeta";
+    meta.textContent=`${item.puzzle.size}×${item.puzzle.size}・${Object.keys(item.puzzle.colors).length}色`;
+
+    const actions=document.createElement("div");
+    actions.className="cardActions";
+
+    const play=document.createElement("button");
+    play.className="primary";
+    play.textContent="▶ 遊ぶ";
+    play.addEventListener("click",()=>startPuzzle(item));
+
+    const fav=document.createElement("button");
+    fav.className="fav";
+    fav.textContent=favorites.includes(item.id)?"❤️":"♡";
+    fav.addEventListener("click",()=>{
+      if(favorites.includes(item.id)){
+        favorites=favorites.filter(id=>id!==item.id);
+      }else{
+        favorites.push(item.id);
+      }
+      Storage.save(Storage.KEYS.favorites,favorites);
+      renderLibrary();
+      updateStats();
+    });
+
+    actions.append(play,fav);
+    body.append(title,category,difficulty,meta,actions);
+    card.append(imageFrame,body);
+    return card;
+  }
+
+  function renderFeatured(items){
+    const holder=$("todayPick");
+    holder.innerHTML="";
+
+    if(!items.length){
+      $("todaySection").classList.add("hidden");
+      return;
+    }
+
+    $("todaySection").classList.remove("hidden");
+    const item=items[new Date().getDate()%items.length];
+
+    const card=document.createElement("article");
+    card.className="featuredCard";
+    card.appendChild(makeThumb(item));
+
+    const body=document.createElement("div");
+    body.className="featuredBody";
+
+    const info=categoryInfo(item.category);
+    const title=document.createElement("h3");
+    title.textContent=item.title;
+
+    const text=document.createElement("p");
+    text.textContent=`${info.icon} ${info.label}・${item.puzzle.size}×${item.puzzle.size}・${Object.keys(item.puzzle.colors).length}色`;
+
+    const difficulty=document.createElement("div");
+    difficulty.className="difficulty";
+    difficulty.textContent=`${difficultyStars(item.difficulty)} ${item.difficulty||"Normal"}`;
+
+    const actions=document.createElement("div");
+    actions.className="cardActions";
+
+    const play=document.createElement("button");
+    play.className="primary";
+    play.textContent="▶ 今日の問題を遊ぶ";
+    play.addEventListener("click",()=>startPuzzle(item));
+
+    actions.appendChild(play);
+    body.append(title,text,difficulty,actions);
+    card.appendChild(body);
+    holder.appendChild(card);
+  }
+
+  function renderRecent(){
+    const holder=$("recentGrid");
+    holder.innerHTML="";
+
+    const recentItems=recentPlayed
+      .map(id=>allPuzzles().find(item=>item.id===id))
+      .filter(Boolean)
+      .slice(0,4);
+
+    $("recentSection").classList.toggle("hidden",recentItems.length===0);
+
+    recentItems.forEach(item=>{
+      const card=document.createElement("article");
+      card.className="compactCard";
+      card.appendChild(makeThumb(item));
+
+      const body=document.createElement("div");
+      body.className="compactBody";
+
+      const title=document.createElement("div");
+      title.className="compactTitle";
+      title.textContent=item.title;
+
+      body.appendChild(title);
+      card.appendChild(body);
+      card.addEventListener("click",()=>startPuzzle(item));
+      holder.appendChild(card);
+    });
+  }
+
   function renderLibrary(){
     const query=$("searchInput").value.trim().toLowerCase();
     const filter=$("categoryFilter").value;
@@ -80,16 +273,26 @@
       const matchQuery=!query||item.title.toLowerCase().includes(query);
       let matchFilter=true;
 
-      if(filter==="built-in")matchFilter=item.source==="built-in";
-      else if(filter==="my")matchFilter=item.source==="my";
-      else if(filter==="favorite")matchFilter=favorites.includes(item.id);
-      else if(filter!=="all")matchFilter=item.category===filter;
+      if(filter==="built-in"){
+        matchFilter=item.source==="built-in"||item.source==="remote";
+      }else if(filter==="my"){
+        matchFilter=item.source==="my";
+      }else if(filter==="favorite"){
+        matchFilter=favorites.includes(item.id);
+      }else if(filter!=="all"){
+        matchFilter=item.category===filter;
+      }
 
       return matchQuery&&matchFilter;
     });
 
+    $("libraryCount").textContent=`${list.length}問`;
+
     const grid=$("libraryGrid");
     grid.innerHTML="";
+
+    renderFeatured(allPuzzles().filter(item=>item.source!=="my"));
+    renderRecent();
 
     if(!list.length){
       grid.innerHTML='<div class="empty">該当する問題がありません。</div>';
@@ -97,67 +300,7 @@
     }
 
     list.forEach(item=>{
-      const card=document.createElement("article");
-      card.className="card";
-
-      let thumb;
-
-      if(item.image){
-        thumb=document.createElement("img");
-        thumb.className="thumb";
-        thumb.alt=item.title;
-        thumb.loading="lazy";
-        thumb.src=`${item.image}${item.image.includes("?")?"&":"?"}v=5.1.0`;
-
-        thumb.addEventListener("error",()=>{
-          const fallback=document.createElement("canvas");
-          fallback.className="thumb";
-          Library.drawPuzzleThumb(fallback,item.puzzle);
-          thumb.replaceWith(fallback);
-        });
-      }else{
-        thumb=document.createElement("canvas");
-        thumb.className="thumb";
-        Library.drawPuzzleThumb(thumb,item.puzzle);
-      }
-
-      const body=document.createElement("div");
-      body.className="cardBody";
-
-      const title=document.createElement("div");
-      title.className="cardTitle";
-      title.textContent=item.title;
-
-      const meta=document.createElement("div");
-      meta.className="cardMeta";
-      meta.textContent=`${item.puzzle.size}×${item.puzzle.size}・${Object.keys(item.puzzle.colors).length}色`;
-
-      const actions=document.createElement("div");
-      actions.className="cardActions";
-
-      const play=document.createElement("button");
-      play.className="primary";
-      play.textContent="遊ぶ";
-      play.addEventListener("click",()=>startPuzzle(item));
-
-      const fav=document.createElement("button");
-      fav.className="fav";
-      fav.textContent=favorites.includes(item.id)?"❤️":"♡";
-      fav.addEventListener("click",()=>{
-        if(favorites.includes(item.id)){
-          favorites=favorites.filter(id=>id!==item.id);
-        }else{
-          favorites.push(item.id);
-        }
-        Storage.save(Storage.KEYS.favorites,favorites);
-        renderLibrary();
-        updateStats();
-      });
-
-      actions.append(play,fav);
-      body.append(title,meta,actions);
-      card.append(thumb,body);
-      grid.appendChild(card);
+      grid.appendChild(makePuzzleCard(item));
     });
   }
 
@@ -191,6 +334,14 @@
 
   function startPuzzle(item){
     current=item;
+
+    recentPlayed=[
+      item.id,
+      ...recentPlayed.filter(id=>id!==item.id)
+    ].slice(0,12);
+
+    Storage.save(RECENT_KEY,recentPlayed);
+
     $("gameTitle").textContent=item.title;
     Game.start(item,progressMap[item.id]);
     enableGame(true);
@@ -199,7 +350,27 @@
   }
 
   $("searchInput").addEventListener("input",renderLibrary);
-  $("categoryFilter").addEventListener("change",renderLibrary);
+  $("categoryFilter").addEventListener("change",()=>{
+    document.querySelectorAll("[data-category]").forEach(button=>{
+      button.classList.toggle(
+        "active",
+        button.dataset.category===$("categoryFilter").value
+      );
+    });
+    renderLibrary();
+  });
+
+  document.querySelectorAll("[data-category]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      $("categoryFilter").value=button.dataset.category;
+
+      document.querySelectorAll("[data-category]").forEach(item=>{
+        item.classList.toggle("active",item===button);
+      });
+
+      renderLibrary();
+    });
+  });
 
   async function refreshRemoteLibrary(showAlert=false){
     const button=$("refreshRemoteBtn");
