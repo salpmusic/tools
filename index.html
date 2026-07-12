@@ -8,8 +8,8 @@
 
 <title>salp Tools｜広告なし・登録なしの無料Webツール＆ゲーム</title>
 
-<meta name="description" content="salp Toolsは、広告なし・登録なし・インストール不要で使える無料Webツール集です。画像一括リサイズ、QRコード作成、フォトフレーム、ドット絵、HTML Runner、salp Terminal、番号ぬりえゲームなどを公開しています。">
-<meta name="keywords" content="salp Tools,無料Webツール,広告なし,登録なし,画像一括リサイズ,画像サイズ変更,QRコード作成,ドット絵エディター,フォトフレーム,HTML Runner,ブラウザターミナル,無料ブラウザゲーム">
+<meta name="description" content="salp Toolsは、広告なし・登録なし・インストール不要で使える無料Webツール集です。画像一括リサイズ、QRコード作成、シンプル動画編集、フォトフレーム、ドット絵、HTML Runner、salp Terminal、番号ぬりえゲームなどを公開しています。">
+<meta name="keywords" content="salp Tools,無料Webツール,広告なし,登録なし,画像一括リサイズ,画像サイズ変更,QRコード作成,無料動画編集,静止画と音楽,動画切り出し,ドット絵エディター,フォトフレーム,HTML Runner,ブラウザターミナル,無料ブラウザゲーム">
 <meta name="author" content="salp.music">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -281,6 +281,7 @@ h1{
 
 .music{--card-accent:#ff8db9;--icon-bg:#fff0f6}
 .resize{--card-accent:#5dd6e8;--icon-bg:#eafcfe}
+.video{--card-accent:#ff6f91;--icon-bg:#fff0f4}
 .qr{--card-accent:#54d4df;--icon-bg:#ebfcfd}
 .frame{--card-accent:#d9b77d;--icon-bg:#fbf3e5}
 .pixel{--card-accent:#d788ff;--icon-bg:#f8edff}
@@ -430,6 +431,27 @@ footer{
         <a class="button app-link" data-path="Resize.html" href="Resize.html">Open Resize</a>
       </article>
 
+      <article class="card video">
+        <span class="badge">NEW</span>
+        <div class="card-top">
+          <div class="icon">🎬</div>
+          <h3>salp Simple Video</h3>
+        </div>
+        <p>
+          静止画と音声から動画を作成。動画の切り出し、別音声の追加、
+          元音声と追加音声の個別音量調整ができる軽量編集ツールです。
+        </p>
+        <div class="tags">
+          <span class="tag">Video</span>
+          <span class="tag">Audio Mix</span>
+          <span class="tag">Trim</span>
+          <span class="tag">No Watermark</span>
+        </div>
+        <a class="button app-link" data-path="video.html" href="video.html">
+          Open Video Editor
+        </a>
+      </article>
+
       <article class="card qr">
         <div class="card-top">
           <div class="icon">🔲</div>
@@ -564,12 +586,12 @@ footer{
     昔の便利なフリーソフトを、ブラウザで。
   </div>
 
-  <div class="version">salp Tools Version 0.9.0</div>
+  <div class="version">salp Tools Version 1.0.0</div>
 </footer>
 
 <script>
 (() => {
-  const APP_VERSION = "0.9.0";
+  const APP_VERSION = "1.0.0";
 
   document.querySelectorAll(".app-link").forEach(link => {
     const path = link.dataset.path;
