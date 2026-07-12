@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v1.1</title>
+<title>salp Simple Video v1.2</title>
 
 <style>
 :root{
@@ -294,6 +294,19 @@ hr{
   line-height:1.5;
 }
 
+
+.resultOverlay{position:fixed;inset:0;display:none;place-items:center;z-index:50;padding:18px;background:rgba(0,0,0,.72)}
+.resultOverlay.show{display:grid}
+.resultDialog{width:min(100%,560px);max-height:92vh;overflow:auto;padding:18px;border-radius:22px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.resultDialog h2{margin:0 0 6px;text-align:center}
+.resultLead{margin:0 0 14px;color:#666;text-align:center;font-size:13px}
+#resultVideo{width:100%;max-height:56vh;display:block;background:#000;border-radius:16px}
+.resultActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.resultActions .wide{grid-column:1/-1}
+.resultHint{margin:12px 0 0;color:#777;font-size:12px;line-height:1.65}
+.saveLink{display:flex;align-items:center;justify-content:center;min-height:50px;padding:12px 15px;border:1px solid var(--line);border-radius:14px;background:#222;color:#fff;text-decoration:none;font-weight:900}
+@media(max-width:500px){.resultActions{grid-template-columns:1fr}.resultActions .wide{grid-column:auto}}
+
 @media(max-width:760px){
   .previewArea{grid-template-columns:1fr}
   .stage{min-height:360px}
@@ -312,8 +325,8 @@ hr{
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v1.1</h1>
-  <div class="sub">切る・分ける・消す・音を整える。それだけ。</div>
+  <h1>🎬 salp Simple Video v1.2</h1>
+  <div class="sub">切る・分ける・消す・音を整える・iPhoneで保存。</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -475,10 +488,29 @@ hr{
   </div>
 
   <p class="note">
-    書き出しは再生時間とほぼ同じ時間がかかります。動画形式はブラウザが対応する形式を自動選択します。
-    iPhoneではSafariの仕様により、端末やOSによって保存形式・動作が異なる場合があります。
+    書き出しは再生時間とほぼ同じ時間がかかります。完成後に保存画面が開きます。
+    iPhoneでは「共有・保存」から「ビデオを保存」または「ファイルに保存」を選んでください。
   </p>
 </section>
+</div>
+
+
+<div id="resultOverlay" class="resultOverlay" aria-hidden="true">
+  <div class="resultDialog">
+    <h2>✅ 動画が完成しました</h2>
+    <p class="resultLead">下の動画を確認してから保存してください。</p>
+    <video id="resultVideo" controls playsinline></video>
+    <div class="resultActions">
+      <button id="shareResultBtn" class="accent">📤 共有・保存</button>
+      <a id="downloadResultLink" class="saveLink" href="#" download>📁 ファイルに保存</a>
+      <button id="openResultBtn">▶ 新しい画面で開く</button>
+      <button id="closeResultBtn">編集画面へ戻る</button>
+    </div>
+    <p id="resultHint" class="resultHint">
+      iPhoneでは「共有・保存」を押し、共有メニューから
+      「ビデオを保存」または「ファイルに保存」を選んでください。
+    </p>
+  </div>
 </div>
 
 <video id="video" playsinline preload="metadata" style="display:none"></video>
@@ -522,6 +554,9 @@ let draggingHandle=null;
 let sourceDuration=0;
 let logicalElapsed=0;
 let currentSegmentIndex=0;
+let resultBlob=null;
+let resultUrl="";
+let resultFile=null;
 
 function fmt(seconds){
   return Number.isFinite(seconds)?seconds.toFixed(1):"0.0";
@@ -823,21 +858,19 @@ async function startPlayback(isExport){
     recorder.onstop=()=>{
       const type=recorder.mimeType||"video/webm";
       const ext=type.includes("mp4")?"mp4":"webm";
-      const blob=new Blob(chunks,{type});
-      const url=URL.createObjectURL(blob);
-      const link=document.createElement("a");
+      resultBlob=new Blob(chunks,{type});
 
-      link.href=url;
-      link.download="salp-simple-video."+ext;
-      document.body.appendChild(link);
-      link.click();
+      if(resultUrl)URL.revokeObjectURL(resultUrl);
+      resultUrl=URL.createObjectURL(resultBlob);
 
-      setTimeout(()=>{
-        URL.revokeObjectURL(url);
-        link.remove();
-      },1500);
+      try{
+        resultFile=new File([resultBlob],"salp-simple-video."+ext,{type});
+      }catch{
+        resultFile=null;
+      }
 
-      status("書き出しが完了しました");
+      showResult(resultUrl,ext);
+      status("動画が完成しました。保存画面を開きました。");
     };
 
     recorder.start(1000);
@@ -1145,6 +1178,76 @@ $("restoreAllBtn").addEventListener("click",()=>{
   updateTimeline();
   updateButtons();
 });
+
+function showResult(url,ext){
+  const overlay=$("resultOverlay");
+  const resultVideo=$("resultVideo");
+  const downloadLink=$("downloadResultLink");
+  const shareButton=$("shareResultBtn");
+  const hint=$("resultHint");
+
+  resultVideo.src=url;
+  resultVideo.load();
+
+  downloadLink.href=url;
+  downloadLink.download="salp-simple-video."+ext;
+
+  const canShareFile=
+    !!resultFile &&
+    !!navigator.share &&
+    !!navigator.canShare &&
+    navigator.canShare({files:[resultFile]});
+
+  shareButton.disabled=!canShareFile;
+
+  hint.textContent=canShareFile
+    ?"iPhoneでは「共有・保存」を押し、共有メニューから「ビデオを保存」または「ファイルに保存」を選んでください。"
+    :"このブラウザではファイル共有に対応していません。「ファイルに保存」または「新しい画面で開く」を使ってください。";
+
+  overlay.classList.add("show");
+  overlay.setAttribute("aria-hidden","false");
+}
+
+function closeResult(){
+  $("resultVideo").pause();
+  $("resultOverlay").classList.remove("show");
+  $("resultOverlay").setAttribute("aria-hidden","true");
+}
+
+$("shareResultBtn").addEventListener("click",async()=>{
+  if(!resultFile||!navigator.share)return;
+
+  try{
+    await navigator.share({
+      files:[resultFile],
+      title:"salp Simple Video",
+      text:"salp Simple Videoで作成した動画"
+    });
+  }catch(error){
+    if(error&&error.name!=="AbortError"){
+      alert("共有できませんでした。「ファイルに保存」または「新しい画面で開く」を使ってください。");
+    }
+  }
+});
+
+$("openResultBtn").addEventListener("click",()=>{
+  if(!resultUrl)return;
+  const opened=window.open(resultUrl,"_blank");
+  if(!opened){
+    alert("新しい画面を開けませんでした。「ファイルに保存」を長押ししてください。");
+  }
+});
+
+$("closeResultBtn").addEventListener("click",closeResult);
+
+$("resultOverlay").addEventListener("click",event=>{
+  if(event.target===$("resultOverlay"))closeResult();
+});
+
+$("downloadResultLink").addEventListener("click",()=>{
+  status("保存を開始しました。ファイルアプリの「ダウンロード」を確認してください。");
+});
+
 function status(text){
   $("status").textContent=text;
 }
@@ -1155,6 +1258,7 @@ $("stopBtn").addEventListener("click",()=>stop(false));
 
 window.addEventListener("beforeunload",()=>{
   stop(false);
+  if(resultUrl)URL.revokeObjectURL(resultUrl);
 });
 
 drawFrame();
