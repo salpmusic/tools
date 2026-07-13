@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v1.3</title>
+<title>salp Simple Video v2.0</title>
 
 <style>
 :root{
@@ -295,6 +295,38 @@ hr{
 }
 
 
+
+.engineBox{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f4f0e9;
+}
+.engineRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.engineState{
+  color:#666;
+  font-size:12px;
+  font-weight:800;
+}
+.engineProgress{
+  height:8px;
+  margin-top:9px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#ddd6cd;
+}
+#engineProgressBar{
+  width:0;
+  height:100%;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+}
+
 .resultOverlay{position:fixed;inset:0;display:none;place-items:center;z-index:50;padding:18px;background:rgba(0,0,0,.72)}
 .resultOverlay.show{display:grid}
 .resultDialog{width:min(100%,560px);max-height:92vh;overflow:auto;padding:18px;border-radius:22px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.35)}
@@ -325,8 +357,8 @@ hr{
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v1.3</h1>
-  <div class="sub">編集済み動画を確実に作って、確認して保存。</div>
+  <h1>🎬 salp Simple Video v2.0</h1>
+  <div class="sub">ブラウザ内FFmpegで、編集済みMP4を本当に作る。</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -457,6 +489,16 @@ hr{
       <button id="exportBtn" class="primary wide" disabled>動画を書き出す</button>
 
       <div id="status" class="status wide">素材を選んでください</div>
+
+      <div class="engineBox wide">
+        <div class="engineRow">
+          <span id="engineState" class="engineState">FFmpegエンジン：未読込</span>
+          <button id="loadEngineBtn">エンジンを読み込む</button>
+        </div>
+        <div class="engineProgress">
+          <div id="engineProgressBar"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -488,8 +530,8 @@ hr{
   </div>
 
   <p class="note">
-    書き出しは再生時間とほぼ同じ時間がかかります。完成後に保存画面が開きます。
-    iPhoneでは「共有・保存」から「ビデオを保存」または「ファイルに保存」を選んでください。
+    初回はFFmpegエンジン約31MBを読み込みます。変換中は画面を閉じないでください。
+iPhoneでは短い動画・720pから試すのがおすすめです。完成後に共有またはファイル保存できます。
   </p>
 </section>
 </div>
@@ -560,6 +602,13 @@ let resultUrl="";
 let resultFile=null;
 let chosenMimeType="";
 let chosenExtension="mp4";
+let visualFile=null;
+let audioFile=null;
+let ffmpeg=null;
+let fetchFileFn=null;
+let toBlobURLFn=null;
+let engineLoaded=false;
+let engineLoading=false;
 
 function fmt(seconds){
   return Number.isFinite(seconds)?seconds.toFixed(1):"0.0";
@@ -689,6 +738,7 @@ videoInput.addEventListener("change",()=>{
   const file=videoInput.files[0];
   if(!file)return;
 
+  visualFile=file;
   stop();
   visualType="video";
   image=null;
@@ -712,6 +762,7 @@ imageInput.addEventListener("change",()=>{
   const file=imageInput.files[0];
   if(!file)return;
 
+  visualFile=file;
   stop();
   const img=new Image();
   img.onload=()=>{
@@ -732,6 +783,7 @@ audioInput.addEventListener("change",()=>{
   const file=audioInput.files[0];
   if(!file)return;
 
+  audioFile=file;
   audio.src=URL.createObjectURL(file);
   $("audioInfo").textContent=file.name;
   audio.onloadedmetadata=calculateDuration;
@@ -790,7 +842,410 @@ function setupAudio(){
   }
 }
 
+
+async function loadFFmpegEngine(){
+  if(engineLoaded)return true;
+  if(engineLoading)return false;
+
+  engineLoading=true;
+  $("loadEngineBtn").disabled=true;
+  $("engineState").textContent="FFmpegエンジンを読み込み中…";
+  $("engineProgressBar").style.width="8%";
+
+  try{
+    const ffmpegModule=await import(
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/+esm"
+    );
+    const utilModule=await import(
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm"
+    );
+
+    const {FFmpeg}=ffmpegModule;
+    fetchFileFn=utilModule.fetchFile;
+    toBlobURLFn=utilModule.toBlobURL;
+
+    ffmpeg=new FFmpeg();
+
+    ffmpeg.on("log",({message})=>{
+      console.log("[ffmpeg]",message);
+      if(exporting){
+        const shortMessage=message.length>100
+          ?message.slice(0,100)+"…"
+          :message;
+        $("engineState").textContent=shortMessage;
+      }
+    });
+
+    ffmpeg.on("progress",({progress})=>{
+      const percent=Math.max(0,Math.min(100,Math.round(progress*100)));
+      $("engineProgressBar").style.width=percent+"%";
+    });
+
+    const baseURL=
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+
+    $("engineProgressBar").style.width="20%";
+
+    await ffmpeg.load({
+      coreURL:await toBlobURLFn(
+        `${baseURL}/ffmpeg-core.js`,
+        "text/javascript"
+      ),
+      wasmURL:await toBlobURLFn(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm"
+      )
+    });
+
+    engineLoaded=true;
+    $("engineState").textContent="FFmpegエンジン：準備完了";
+    $("engineProgressBar").style.width="100%";
+    $("loadEngineBtn").textContent="読込済み";
+    return true;
+
+  }catch(error){
+    console.error(error);
+    $("engineState").textContent="エンジンの読込に失敗しました";
+    $("engineProgressBar").style.width="0%";
+    $("loadEngineBtn").disabled=false;
+    alert(
+      "FFmpegエンジンを読み込めませんでした。\n"+
+      "通信状態を確認して、もう一度試してください。"
+    );
+    return false;
+
+  }finally{
+    engineLoading=false;
+  }
+}
+
+$("loadEngineBtn").addEventListener("click",loadFFmpegEngine);
+
+function fileExtension(file,fallback){
+  const match=file&&file.name.match(/\.([a-zA-Z0-9]+)$/);
+  return match?match[1].toLowerCase():fallback;
+}
+
+function ffmpegColor(hex){
+  return "0x"+String(hex||"#000000").replace("#","");
+}
+
+function videoFilter(){
+  const [width,height]=$("format").value.split("x").map(Number);
+  const mode=$("fit").value;
+  const bg=ffmpegColor($("background").value);
+
+  if(mode==="cover"){
+    return (
+      `scale=${width}:${height}:force_original_aspect_ratio=increase,`+
+      `crop=${width}:${height},setsar=1`
+    );
+  }
+
+  return (
+    `scale=${width}:${height}:force_original_aspect_ratio=decrease,`+
+    `pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=${bg},setsar=1`
+  );
+}
+
+async function safeDelete(name){
+  try{
+    await ffmpeg.deleteFile(name);
+  }catch{}
+}
+
+async function runFFmpeg(args,description){
+  $("engineState").textContent=description;
+  $("engineProgressBar").style.width="0%";
+
+  const code=await ffmpeg.exec(args);
+
+  if(code!==0){
+    throw new Error(description+"に失敗しました（code "+code+"）");
+  }
+}
+
+async function createVideoSegment(
+  inputName,
+  segment,
+  outputName,
+  includeOriginalAudio
+){
+  const duration=Math.max(.05,segment.end-segment.start);
+  const commonVideo=[
+    "-ss",segment.start.toFixed(3),
+    "-t",duration.toFixed(3),
+    "-i",inputName,
+    "-vf",videoFilter(),
+    "-map","0:v:0",
+    "-c:v","libx264",
+    "-preset","ultrafast",
+    "-crf","24",
+    "-pix_fmt","yuv420p",
+    "-r","30"
+  ];
+
+  if(includeOriginalAudio){
+    const volume=$("muteVisual").checked
+      ?"0"
+      :(Number($("visualVolume").value)/100).toFixed(3);
+
+    const code=await ffmpeg.exec([
+      ...commonVideo,
+      "-map","0:a:0",
+      "-af",`volume=${volume}`,
+      "-c:a","aac",
+      "-b:a","160k",
+      "-ar","44100",
+      "-ac","2",
+      "-movflags","+faststart",
+      outputName
+    ]);
+
+    if(code===0)return;
+    console.warn("元動画の音声を使えないため無音で再試行します");
+  }
+
+  await runFFmpeg([
+    "-ss",segment.start.toFixed(3),
+    "-t",duration.toFixed(3),
+    "-i",inputName,
+    "-f","lavfi",
+    "-t",duration.toFixed(3),
+    "-i","anullsrc=channel_layout=stereo:sample_rate=44100",
+    "-vf",videoFilter(),
+    "-map","0:v:0",
+    "-map","1:a:0",
+    "-c:v","libx264",
+    "-preset","ultrafast",
+    "-crf","24",
+    "-pix_fmt","yuv420p",
+    "-r","30",
+    "-c:a","aac",
+    "-b:a","160k",
+    "-shortest",
+    "-movflags","+faststart",
+    outputName
+  ],"無音区間を作成中");
+}
+
+async function exportWithFFmpeg(){
+  if(exporting)return;
+  if(!visualFile){
+    alert("動画または静止画を選んでください");
+    return;
+  }
+
+  const loaded=await loadFFmpegEngine();
+  if(!loaded)return;
+
+  calculateDuration();
+  const kept=getKeptSegments();
+
+  if(!kept.length||outputDuration<=0){
+    alert("残っている区間がありません");
+    return;
+  }
+
+  exporting=true;
+  updateButtons();
+  $("exportBtn").disabled=true;
+  $("loadEngineBtn").disabled=true;
+  status("編集済みMP4を作成中…\n画面を閉じずにお待ちください");
+
+  const inputExt=fileExtension(
+    visualFile,
+    visualType==="image"?"jpg":"mp4"
+  );
+  const inputName="visual-input."+inputExt;
+  const audioExt=audioFile?fileExtension(audioFile,"wav"):"";
+  const audioName=audioFile?"audio-input."+audioExt:"";
+  const generated=[];
+
+  try{
+    await safeDelete(inputName);
+    await ffmpeg.writeFile(inputName,await fetchFileFn(visualFile));
+
+    if(audioFile){
+      await safeDelete(audioName);
+      await ffmpeg.writeFile(audioName,await fetchFileFn(audioFile));
+    }
+
+    let baseName="base-output.mp4";
+    await safeDelete(baseName);
+
+    if(visualType==="image"){
+      const duration=outputDuration.toFixed(3);
+
+      await runFFmpeg([
+        "-loop","1",
+        "-i",inputName,
+        "-f","lavfi",
+        "-t",duration,
+        "-i","anullsrc=channel_layout=stereo:sample_rate=44100",
+        "-t",duration,
+        "-vf",videoFilter(),
+        "-map","0:v:0",
+        "-map","1:a:0",
+        "-c:v","libx264",
+        "-preset","ultrafast",
+        "-crf","24",
+        "-pix_fmt","yuv420p",
+        "-r","30",
+        "-c:a","aac",
+        "-b:a","160k",
+        "-shortest",
+        "-movflags","+faststart",
+        baseName
+      ],"静止画動画を作成中");
+
+    }else{
+      const segmentNames=[];
+
+      for(let i=0;i<kept.length;i++){
+        const segmentName=`segment-${i}.mp4`;
+        await safeDelete(segmentName);
+
+        $("engineState").textContent=
+          `区間 ${i+1}/${kept.length} を処理中`;
+
+        await createVideoSegment(
+          inputName,
+          kept[i],
+          segmentName,
+          !$("muteVisual").checked
+        );
+
+        segmentNames.push(segmentName);
+        generated.push(segmentName);
+      }
+
+      if(segmentNames.length===1){
+        const data=await ffmpeg.readFile(segmentNames[0]);
+        await ffmpeg.writeFile(baseName,data);
+      }else{
+        const listText=segmentNames
+          .map(name=>`file '${name}'`)
+          .join("\n");
+
+        await ffmpeg.writeFile(
+          "segments.txt",
+          new TextEncoder().encode(listText)
+        );
+        generated.push("segments.txt");
+
+        await runFFmpeg([
+          "-f","concat",
+          "-safe","0",
+          "-i","segments.txt",
+          "-c","copy",
+          "-movflags","+faststart",
+          baseName
+        ],"残した区間を結合中");
+      }
+    }
+
+    let finalName=baseName;
+
+    if(audioFile&&!$("muteAudio").checked){
+      finalName="salp-final.mp4";
+      await safeDelete(finalName);
+
+      const originalVolume=$("muteVisual").checked
+        ?"0"
+        :(Number($("visualVolume").value)/100).toFixed(3);
+
+      const extraVolume=
+        (Number($("audioVolume").value)/100).toFixed(3);
+
+      const audioStart=
+        Math.max(0,Number($("audioStart").value)||0).toFixed(3);
+
+      await runFFmpeg([
+        "-i",baseName,
+        "-ss",audioStart,
+        "-i",audioName,
+        "-filter_complex",
+        `[0:a]volume=${originalVolume}[a0];`+
+        `[1:a]volume=${extraVolume}[a1];`+
+        `[a0][a1]amix=inputs=2:duration=first:dropout_transition=2[a]`,
+        "-map","0:v:0",
+        "-map","[a]",
+        "-c:v","copy",
+        "-c:a","aac",
+        "-b:a","192k",
+        "-ar","44100",
+        "-ac","2",
+        "-movflags","+faststart",
+        finalName
+      ],"追加音声を合成中");
+    }
+
+    const data=await ffmpeg.readFile(finalName);
+    const bytes=data instanceof Uint8Array
+      ?data
+      :new Uint8Array(data);
+
+    resultBlob=new Blob([bytes.buffer],{type:"video/mp4"});
+
+    if(!resultBlob.size){
+      throw new Error("完成ファイルが空です");
+    }
+
+    if(resultUrl)URL.revokeObjectURL(resultUrl);
+    resultUrl=URL.createObjectURL(resultBlob);
+
+    const filename="salp-simple-video-"+Date.now()+".mp4";
+    resultFile=new File(
+      [resultBlob],
+      filename,
+      {type:"video/mp4",lastModified:Date.now()}
+    );
+
+    showResult(
+      resultUrl,
+      "mp4",
+      "video/mp4",
+      resultBlob.size,
+      filename
+    );
+
+    $("engineState").textContent="MP4作成完了";
+    $("engineProgressBar").style.width="100%";
+    status("編集済みMP4が完成しました。");
+
+  }catch(error){
+    console.error(error);
+    $("engineState").textContent="変換に失敗しました";
+    status("MP4の作成に失敗しました。");
+    alert(
+      "動画の変換に失敗しました。\n"+
+      "まず短い動画・720pで試してください。\n\n"+
+      String(error.message||error)
+    );
+
+  }finally{
+    exporting=false;
+    updateButtons();
+    $("loadEngineBtn").disabled=engineLoaded;
+
+    for(const name of [
+      ...generated,
+      inputName,
+      audioName,
+      "base-output.mp4",
+      "salp-final.mp4"
+    ]){
+      if(name)await safeDelete(name);
+    }
+  }
+}
+
 async function startPlayback(isExport){
+  if(isExport){
+    await exportWithFFmpeg();
+    return;
+  }
   if(previewing)return;
 
   calculateDuration();
@@ -1297,7 +1752,7 @@ function status(text){
 }
 
 $("previewBtn").addEventListener("click",()=>startPlayback(false));
-$("exportBtn").addEventListener("click",()=>startPlayback(true));
+$("exportBtn").addEventListener("click",exportWithFFmpeg);
 $("stopBtn").addEventListener("click",()=>stop(false));
 
 window.addEventListener("beforeunload",()=>{
