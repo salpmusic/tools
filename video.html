@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v1.2</title>
+<title>salp Simple Video v1.3</title>
 
 <style>
 :root{
@@ -325,8 +325,8 @@ hr{
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v1.2</h1>
-  <div class="sub">切る・分ける・消す・音を整える・iPhoneで保存。</div>
+  <h1>🎬 salp Simple Video v1.3</h1>
+  <div class="sub">編集済み動画を確実に作って、確認して保存。</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -499,6 +499,7 @@ hr{
   <div class="resultDialog">
     <h2>✅ 動画が完成しました</h2>
     <p class="resultLead">下の動画を確認してから保存してください。</p>
+    <div id="resultMeta" class="timeBox" style="margin-bottom:12px">ファイルを準備しています…</div>
     <video id="resultVideo" controls playsinline></video>
     <div class="resultActions">
       <button id="shareResultBtn" class="accent">📤 共有・保存</button>
@@ -557,6 +558,8 @@ let currentSegmentIndex=0;
 let resultBlob=null;
 let resultUrl="";
 let resultFile=null;
+let chosenMimeType="";
+let chosenExtension="mp4";
 
 function fmt(seconds){
   return Number.isFinite(seconds)?seconds.toFixed(1):"0.0";
@@ -828,20 +831,31 @@ async function startPlayback(isExport){
 
   if(isExport){
     const candidates=[
-      "video/mp4;codecs=h264,aac",
+      'video/mp4;codecs="avc1.42E01E,mp4a.40.2"',
+      "video/mp4",
       "video/webm;codecs=vp9,opus",
       "video/webm;codecs=vp8,opus",
       "video/webm"
     ];
 
     const mimeType=candidates.find(type=>
-      window.MediaRecorder&&MediaRecorder.isTypeSupported(type)
+      window.MediaRecorder &&
+      MediaRecorder.isTypeSupported(type)
     )||"";
+
+    chosenMimeType=mimeType||"video/webm";
+    chosenExtension=chosenMimeType.includes("mp4")?"mp4":"webm";
 
     try{
       recorder=new MediaRecorder(
         stream,
-        mimeType?{mimeType,videoBitsPerSecond:6000000}:undefined
+        mimeType
+          ?{
+              mimeType,
+              videoBitsPerSecond:5000000,
+              audioBitsPerSecond:192000
+            }
+          :undefined
       );
     }catch(error){
       status("このブラウザでは動画書き出しに対応していません");
@@ -855,22 +869,38 @@ async function startPlayback(isExport){
       if(event.data&&event.data.size)chunks.push(event.data);
     };
 
-    recorder.onstop=()=>{
-      const type=recorder.mimeType||"video/webm";
-      const ext=type.includes("mp4")?"mp4":"webm";
+    recorder.onstop=async()=>{
+      await new Promise(resolve=>setTimeout(resolve,150));
+
+      const type=recorder.mimeType||chosenMimeType||"video/webm";
+      const extension=type.includes("mp4")?"mp4":chosenExtension;
+
       resultBlob=new Blob(chunks,{type});
+
+      if(!resultBlob.size){
+        status("書き出しに失敗しました。動画ファイルが空です。");
+        alert("動画ファイルを作成できませんでした。短い動画か720pで試してください。");
+        return;
+      }
 
       if(resultUrl)URL.revokeObjectURL(resultUrl);
       resultUrl=URL.createObjectURL(resultBlob);
 
+      const filename="salp-simple-video-"+Date.now()+"."+extension;
+
       try{
-        resultFile=new File([resultBlob],"salp-simple-video."+ext,{type});
+        resultFile=new File([resultBlob],filename,{type,lastModified:Date.now()});
       }catch{
         resultFile=null;
       }
 
-      showResult(resultUrl,ext);
-      status("動画が完成しました。保存画面を開きました。");
+      showResult(resultUrl,extension,type,resultBlob.size,filename);
+      status("編集済み動画ファイルが完成しました。");
+    };
+
+    recorder.onerror=event=>{
+      console.error("MediaRecorder error:",event.error||event);
+      status("書き出し中にエラーが発生しました。");
     };
 
     recorder.start(1000);
@@ -965,7 +995,17 @@ function stop(finished=false){
   exporting=false;
 
   if(recorder&&recorder.state!=="inactive"){
-    recorder.stop();
+    try{
+      recorder.requestData();
+    }catch(error){
+      console.warn("requestData:",error);
+    }
+
+    setTimeout(()=>{
+      if(recorder&&recorder.state!=="inactive"){
+        recorder.stop();
+      }
+    },120);
   }
 
   recorder=null;
@@ -1179,7 +1219,7 @@ $("restoreAllBtn").addEventListener("click",()=>{
   updateButtons();
 });
 
-function showResult(url,ext){
+function showResult(url,ext,type,sizeBytes,filename){
   const overlay=$("resultOverlay");
   const resultVideo=$("resultVideo");
   const downloadLink=$("downloadResultLink");
@@ -1190,7 +1230,11 @@ function showResult(url,ext){
   resultVideo.load();
 
   downloadLink.href=url;
-  downloadLink.download="salp-simple-video."+ext;
+  downloadLink.download=filename;
+
+  const megabytes=(sizeBytes/1024/1024).toFixed(2);
+  $("resultMeta").textContent=
+    `形式: ${type} ｜ 容量: ${megabytes} MB ｜ ${filename}`;
 
   const canShareFile=
     !!resultFile &&
