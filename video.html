@@ -5,1765 +5,230 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v2.0</title>
-
+<title>salp Simple Video v3.0</title>
 <style>
-:root{
-  --bg:#f7f3ea;
-  --panel:#fff;
-  --text:#222;
-  --muted:#777;
-  --line:#ddd6ca;
-  --accent1:#70dce9;
-  --accent2:#ff8fbd;
-  --danger:#d84c61;
-}
+:root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{
-  margin:0;
-  min-height:100%;
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif;
-}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.app{
-  width:min(100%,980px);
-  margin:auto;
-  padding:calc(env(safe-area-inset-top) + 14px) 12px calc(env(safe-area-inset-bottom) + 30px);
-}
-header{text-align:center;padding:12px 8px 20px}
-h1{margin:0;font-size:34px;letter-spacing:-1px}
-.sub{margin-top:7px;color:var(--muted);font-size:14px}
-.back{display:inline-block;margin-top:13px;color:#777;font-size:13px}
-.panel{
-  margin-bottom:14px;
-  padding:16px;
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:22px;
-  box-shadow:0 8px 24px rgba(0,0,0,.07);
-}
-.sectionTitle{margin:0 0 12px;font-size:18px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.field{min-width:0}
-label{
-  display:block;
-  margin:0 0 7px;
-  color:#666;
-  font-size:12px;
-  font-weight:900;
-}
-select,input[type=number],input[type=range]{
-  width:100%;
-  min-height:46px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:13px;
-  background:#fff;
-}
-.fileLabel,button{
-  min-height:50px;
-  padding:12px 15px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#fff;
-  color:var(--text);
-  font-weight:900;
-}
-.fileLabel{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-input[type=file]{display:none}
-.primary{background:#222;color:#fff;border-color:#222}
-.accent{
-  border:0;
-  background:linear-gradient(135deg,var(--accent1),var(--accent2));
-  color:#111;
-}
-.danger{color:var(--danger)}
-button:disabled{opacity:.4;cursor:not-allowed}
-.fileInfo{
-  min-height:24px;
-  margin-top:8px;
-  color:#777;
-  font-size:12px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.rangeRow{
-  display:grid;
-  grid-template-columns:1fr 62px;
-  gap:10px;
-  align-items:center;
-}
-.value{
-  text-align:right;
-  font-size:13px;
-  font-weight:900;
-}
-.checkRow{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  margin-top:10px;
-}
-.checkRow input{width:20px;height:20px}
-.previewArea{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 270px;
-  gap:14px;
-}
-.stage{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:460px;
-  overflow:auto;
-  padding:12px;
-  border-radius:18px;
-  background:#171717;
-}
-#canvas{
-  display:block;
-  max-width:100%;
-  max-height:70vh;
-  background:#000;
-  box-shadow:0 5px 20px rgba(0,0,0,.35);
-}
-.transport{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.timeBox{
-  padding:13px;
-  border-radius:14px;
-  background:#f4f0e9;
-  text-align:center;
-}
-.timeMain{font-size:23px;font-weight:900}
-.timeSub{color:#777;font-size:12px}
-.progress{
-  height:10px;
-  overflow:hidden;
-  border-radius:999px;
-  background:#e6e0d7;
-}
-#progressBar{
-  width:0;
-  height:100%;
-  background:linear-gradient(90deg,var(--accent1),var(--accent2));
-}
-.actions{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-.status{
-  min-height:26px;
-  margin-top:10px;
-  color:#666;
-  text-align:center;
-  font-size:13px;
-  font-weight:800;
-  white-space:pre-line;
-}
-.note{
-  margin:10px 0 0;
-  color:#888;
-  font-size:12px;
-  line-height:1.65;
-}
-hr{
-  margin:16px 0;
-  border:0;
-  border-top:1px solid #eee8de;
-}
-
-.timelinePanel{
-  margin-top:16px;
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#f7f3ed;
-}
-.timelineTitle{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-  font-size:13px;
-  font-weight:900;
-}
-.timeline{
-  position:relative;
-  height:64px;
-  overflow:hidden;
-  border-radius:12px;
-  background:#d8d1c7;
-  touch-action:none;
-}
-.timelineTrack{
-  position:absolute;
-  inset:12px 0;
-  background:linear-gradient(90deg,#83dbe7,#ff9ac2);
-}
-.timelineShade{
-  position:absolute;
-  top:0;
-  bottom:0;
-  background:rgba(0,0,0,.45);
-  pointer-events:none;
-}
-.timelineHandle{
-  position:absolute;
-  top:0;
-  bottom:0;
-  width:18px;
-  margin-left:-9px;
-  border:0;
-  border-radius:7px;
-  background:#fff;
-  box-shadow:0 1px 7px rgba(0,0,0,.35);
-  touch-action:none;
-  z-index:4;
-}
-.timelineHandle::after{
-  content:"";
-  position:absolute;
-  top:20px;
-  left:7px;
-  width:4px;
-  height:24px;
-  border-radius:3px;
-  background:#333;
-}
-.playhead{
-  position:absolute;
-  top:0;
-  bottom:0;
-  width:3px;
-  margin-left:-1px;
-  background:#ff2e62;
-  z-index:5;
-  pointer-events:none;
-}
-.segmentLayer{
-  position:absolute;
-  inset:12px 0;
-  z-index:2;
-}
-.segment{
-  position:absolute;
-  top:0;
-  bottom:0;
-  border-right:1px solid rgba(255,255,255,.8);
-  background:transparent;
-  cursor:pointer;
-}
-.segment.deleted{
-  background:repeating-linear-gradient(
-    135deg,
-    rgba(30,30,30,.78) 0,
-    rgba(30,30,30,.78) 8px,
-    rgba(80,80,80,.78) 8px,
-    rgba(80,80,80,.78) 16px
-  );
-}
-.segment.selected{
-  outline:3px solid #fff;
-  outline-offset:-3px;
-}
-.timelineActions{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-top:10px;
-}
-.timelineInfo{
-  margin-top:8px;
-  color:#666;
-  font-size:12px;
-  line-height:1.5;
-}
-
-
-
-.engineBox{
-  margin-top:12px;
-  padding:12px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#f4f0e9;
-}
-.engineRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-.engineState{
-  color:#666;
-  font-size:12px;
-  font-weight:800;
-}
-.engineProgress{
-  height:8px;
-  margin-top:9px;
-  overflow:hidden;
-  border-radius:999px;
-  background:#ddd6cd;
-}
-#engineProgressBar{
-  width:0;
-  height:100%;
-  background:linear-gradient(90deg,var(--accent1),var(--accent2));
-}
-
-.resultOverlay{position:fixed;inset:0;display:none;place-items:center;z-index:50;padding:18px;background:rgba(0,0,0,.72)}
-.resultOverlay.show{display:grid}
-.resultDialog{width:min(100%,560px);max-height:92vh;overflow:auto;padding:18px;border-radius:22px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.resultDialog h2{margin:0 0 6px;text-align:center}
-.resultLead{margin:0 0 14px;color:#666;text-align:center;font-size:13px}
-#resultVideo{width:100%;max-height:56vh;display:block;background:#000;border-radius:16px}
-.resultActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.resultActions .wide{grid-column:1/-1}
-.resultHint{margin:12px 0 0;color:#777;font-size:12px;line-height:1.65}
-.saveLink{display:flex;align-items:center;justify-content:center;min-height:50px;padding:12px 15px;border:1px solid var(--line);border-radius:14px;background:#222;color:#fff;text-decoration:none;font-weight:900}
-@media(max-width:500px){.resultActions{grid-template-columns:1fr}.resultActions .wide{grid-column:auto}}
-
-@media(max-width:760px){
-  .previewArea{grid-template-columns:1fr}
-  .stage{min-height:360px}
-  .transport{display:grid;grid-template-columns:1fr 1fr}
-  .transport .wide{grid-column:1/-1}
-}
-@media(max-width:560px){
-  .grid2,.grid3,.actions{grid-template-columns:1fr}
-  .transport{grid-template-columns:1fr}
-  .transport .wide{grid-column:auto}
-  h1{font-size:29px}
-}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{width:min(100%,820px);margin:auto;padding:calc(env(safe-area-inset-top) + 14px) 12px calc(env(safe-area-inset-bottom) + 30px)}
+header{text-align:center;padding:12px 8px 20px}h1{margin:0;font-size:34px;letter-spacing:-1px}
+.sub{margin-top:7px;color:var(--muted);font-size:14px}.back{display:inline-block;margin-top:13px;color:#777;font-size:13px}
+.panel{margin-bottom:14px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.07)}
+h2{margin:0 0 12px;font-size:19px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+label{display:block;margin:0 0 7px;color:#666;font-size:12px;font-weight:900}
+select,input[type=number],input[type=range],input[type=color]{width:100%;min-height:46px;padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}
+.fileLabel,button,.saveLink{min-height:50px;padding:12px 15px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--text);font-weight:900}
+.fileLabel{display:flex;align-items:center;justify-content:center;cursor:pointer}input[type=file]{display:none}
+.primary{background:#222;color:#fff;border-color:#222}.accent{border:0;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#111}
+button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage{display:flex;align-items:center;justify-content:center;min-height:420px;padding:12px;border-radius:18px;background:#111;overflow:auto}
+#previewCanvas{display:block;max-width:100%;max-height:68vh;background:#000}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.status{min-height:28px;margin-top:12px;color:#666;text-align:center;font-size:13px;font-weight:900;white-space:pre-line}
+.progress{height:10px;margin-top:10px;overflow:hidden;border-radius:999px;background:#e4ddd3}#progressBar{width:0;height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent2))}
+.note{margin:10px 0 0;color:#888;font-size:12px;line-height:1.65}.hidden{display:none!important}.result{display:none}.result.show{display:block}
+#resultVideo{width:100%;max-height:58vh;background:#000;border-radius:16px}.resultMeta{margin:10px 0;padding:10px;border-radius:12px;background:#f4f0e9;color:#666;font-size:12px;word-break:break-all}
+.saveLink{display:flex;align-items:center;justify-content:center;text-decoration:none}
+.modeTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.modeTabs button.active{background:#222;color:#fff;border-color:#222}
+.rangeRow{display:grid;grid-template-columns:1fr 62px;gap:10px;align-items:center}.value{text-align:right;font-weight:900;font-size:13px}
+@media(max-width:620px){.grid2,.grid3,.actions{grid-template-columns:1fr}h1{font-size:29px}.stage{min-height:320px}}
 </style>
 </head>
-
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v2.0</h1>
-  <div class="sub">ブラウザ内FFmpegで、編集済みMP4を本当に作る。</div>
+  <h1>🎬 salp Simple Video v3.0</h1>
+  <div class="sub">Mediabunny版・軽量MP4書き出しテスト</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
 <section class="panel">
-  <h2 class="sectionTitle">1. 映像または静止画</h2>
-
-  <div class="grid2">
-    <label class="fileLabel accent">
-      動画を選ぶ
-      <input id="videoInput" type="file" accept="video/*">
-    </label>
-
-    <label class="fileLabel">
-      静止画を選ぶ
-      <input id="imageInput" type="file" accept="image/*">
-    </label>
+  <div class="modeTabs">
+    <button id="imageModeBtn" class="active">静止画＋音声</button>
+    <button id="videoModeBtn">動画を切り出す</button>
   </div>
 
-  <div id="visualInfo" class="fileInfo">まだ選択されていません</div>
+  <div id="imageMode">
+    <h2>静止画＋音声からMP4</h2>
+    <div class="grid2">
+      <label class="fileLabel accent">静止画を選ぶ<input id="imageInput" type="file" accept="image/*"></label>
+      <label class="fileLabel">音声を選ぶ<input id="audioInput" type="file" accept="audio/*,.wav,.wave,.mp3,.m4a,.aac,.flac,.ogg,.opus"></label>
+    </div>
+    <div id="imageInfo" class="fileInfo">静止画は未選択です</div>
+    <div id="audioInfo" class="fileInfo">音声は未選択です</div>
+    <div class="grid3" style="margin-top:12px">
+      <div><label for="stillDuration">動画の長さ</label><input id="stillDuration" type="number" min="1" max="600" step="0.1" value="10"></div>
+      <div><label for="audioStart">音声開始位置</label><input id="audioStart" type="number" min="0" step="0.1" value="0"></div>
+      <div>
+        <label for="audioVolume">音声音量</label>
+        <div class="rangeRow"><input id="audioVolume" type="range" min="0" max="200" value="100"><span id="audioVolumeValue" class="value">100%</span></div>
+      </div>
+    </div>
+  </div>
 
+  <div id="videoMode" class="hidden">
+    <h2>動画の開始・終了を切り出す</h2>
+    <label class="fileLabel accent">動画を選ぶ<input id="videoInput" type="file" accept="video/*"></label>
+    <div id="videoInfo" class="fileInfo">動画は未選択です</div>
+    <div class="grid2" style="margin-top:12px">
+      <div><label for="trimStart">開始（秒）</label><input id="trimStart" type="number" min="0" step="0.1" value="0"></div>
+      <div><label for="trimEnd">終了（秒）</label><input id="trimEnd" type="number" min="0" step="0.1" value="0"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:9px;margin-top:12px;font-size:14px">
+      <input id="discardAudio" type="checkbox" style="width:20px;height:20px">元動画の音を消す
+    </label>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>出力設定</h2>
   <div class="grid3">
-    <div class="field">
-      <label for="format">画面サイズ</label>
-      <select id="format">
-        <option value="1080x1920">縦長 9:16</option>
-        <option value="1920x1080">横長 16:9</option>
-        <option value="1080x1080">正方形 1:1</option>
-        <option value="1280x720">横長 軽量 720p</option>
-        <option value="720x1280" selected>縦長 軽量 720p</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="fit">表示方法</label>
-      <select id="fit">
-        <option value="contain" selected>全体を表示</option>
-        <option value="cover">画面いっぱい</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="background">余白の色</label>
-      <input id="background" type="color" value="#000000" style="width:100%;height:46px;border:1px solid var(--line);border-radius:13px">
-    </div>
+    <div><label for="format">画面サイズ</label><select id="format"><option value="720x1280" selected>縦長 720p</option><option value="1280x720">横長 720p</option><option value="1080x1080">正方形</option><option value="1080x1920">縦長 1080p</option><option value="1920x1080">横長 1080p</option></select></div>
+    <div><label for="fit">表示方法</label><select id="fit"><option value="contain" selected>全体を表示</option><option value="cover">画面いっぱい</option><option value="fill">引き伸ばす</option></select></div>
+    <div><label for="background">余白色</label><input id="background" type="color" value="#000000"></div>
   </div>
-
-  <div class="grid2" style="margin-top:12px">
-    <div class="field">
-      <label for="visualStart">動画の開始（秒）</label>
-      <input id="visualStart" type="number" min="0" step="0.1" value="0">
-    </div>
-    <div class="field">
-      <label for="visualEnd">動画の終了（秒）</label>
-      <input id="visualEnd" type="number" min="0" step="0.1" value="0">
-    </div>
-  </div>
-
-  <div style="margin-top:12px">
-    <label for="visualVolume">元動画の音量</label>
-    <div class="rangeRow">
-      <input id="visualVolume" type="range" min="0" max="200" value="100">
-      <span id="visualVolumeValue" class="value">100%</span>
-    </div>
-  </div>
-
-  <label class="checkRow">
-    <input id="muteVisual" type="checkbox">
-    <span>元動画の音を切る</span>
-  </label>
 </section>
 
 <section class="panel">
-  <h2 class="sectionTitle">2. 追加する音声</h2>
-
-  <label class="fileLabel">
-    音声・音楽を選ぶ
-    <input id="audioInput" type="file" accept="audio/*,.wav,.wave,.mp3,.m4a,.aac,.flac,.ogg,.opus,video/*">
-  </label>
-
-  <div id="audioInfo" class="fileInfo">音声は未選択です</div>
-
-  <div class="grid2">
-    <div class="field">
-      <label for="audioStart">音声の開始位置（秒）</label>
-      <input id="audioStart" type="number" min="0" step="0.1" value="0">
-    </div>
-
-    <div class="field">
-      <label for="stillDuration">静止画動画の長さ（秒）</label>
-      <input id="stillDuration" type="number" min="0.5" step="0.1" value="10">
-    </div>
-  </div>
-
-  <div style="margin-top:12px">
-    <label for="audioVolume">追加音声の音量</label>
-    <div class="rangeRow">
-      <input id="audioVolume" type="range" min="0" max="200" value="100">
-      <span id="audioVolumeValue" class="value">100%</span>
-    </div>
-  </div>
-
-  <label class="checkRow">
-    <input id="muteAudio" type="checkbox">
-    <span>追加音声を切る</span>
-  </label>
+  <h2>プレビュー</h2>
+  <div class="stage"><canvas id="previewCanvas" width="720" height="1280"></canvas></div>
+  <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div id="status" class="status">素材を選んでください</div>
+  <p class="note">v3.0は保存方式の確認を最優先にした版です。分割削除・別音声ミックスは、iPhoneでMP4保存が成功したあとに戻します。</p>
 </section>
 
-<section class="panel">
-  <h2 class="sectionTitle">3. プレビューと保存</h2>
-
-  <div class="previewArea">
-    <div class="stage">
-      <canvas id="canvas" width="720" height="1280"></canvas>
-    </div>
-
-    <div class="transport">
-      <div class="timeBox wide">
-        <div id="timeMain" class="timeMain">0.0 / 0.0</div>
-        <div class="timeSub">現在位置 / 出力時間</div>
-      </div>
-
-      <div class="progress wide">
-        <div id="progressBar"></div>
-      </div>
-
-      <button id="previewBtn" class="accent" disabled>▶ プレビュー</button>
-      <button id="stopBtn" disabled>■ 停止</button>
-      <button id="exportBtn" class="primary wide" disabled>動画を書き出す</button>
-
-      <div id="status" class="status wide">素材を選んでください</div>
-
-      <div class="engineBox wide">
-        <div class="engineRow">
-          <span id="engineState" class="engineState">FFmpegエンジン：未読込</span>
-          <button id="loadEngineBtn">エンジンを読み込む</button>
-        </div>
-        <div class="engineProgress">
-          <div id="engineProgressBar"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="timelinePanel">
-    <div class="timelineTitle">
-      <span>✂️ タイムライン</span>
-      <span id="trimLabel">0.0秒〜0.0秒</span>
-    </div>
-
-    <div id="timeline" class="timeline">
-      <div class="timelineTrack"></div>
-      <div id="leftShade" class="timelineShade"></div>
-      <div id="rightShade" class="timelineShade"></div>
-      <div id="segmentLayer" class="segmentLayer"></div>
-      <button id="startHandle" class="timelineHandle" aria-label="開始位置"></button>
-      <button id="endHandle" class="timelineHandle" aria-label="終了位置"></button>
-      <div id="playhead" class="playhead"></div>
-    </div>
-
-    <div class="timelineActions">
-      <button id="splitBtn" disabled>現在位置で分割</button>
-      <button id="deleteSegmentBtn" disabled>選択区間を削除</button>
-      <button id="restoreAllBtn" disabled>すべて復元</button>
-    </div>
-
-    <div id="timelineInfo" class="timelineInfo">
-      左右の白いハンドルで切り出し範囲を決めます。区間をタップして選び、削除できます。
-    </div>
-  </div>
-
-  <p class="note">
-    初回はFFmpegエンジン約31MBを読み込みます。変換中は画面を閉じないでください。
-iPhoneでは短い動画・720pから試すのがおすすめです。完成後に共有またはファイル保存できます。
-  </p>
+<section id="resultPanel" class="panel result">
+  <h2>✅ MP4が完成しました</h2>
+  <video id="resultVideo" controls playsinline></video>
+  <div id="resultMeta" class="resultMeta"></div>
+  <div class="actions"><button id="shareBtn" class="accent">📤 共有・保存</button><a id="downloadLink" class="saveLink primary" href="#" download>📁 ファイルに保存</a></div>
 </section>
 </div>
 
+<video id="sourceVideo" playsinline muted preload="metadata" style="display:none"></video>
 
-<div id="resultOverlay" class="resultOverlay" aria-hidden="true">
-  <div class="resultDialog">
-    <h2>✅ 動画が完成しました</h2>
-    <p class="resultLead">下の動画を確認してから保存してください。</p>
-    <div id="resultMeta" class="timeBox" style="margin-bottom:12px">ファイルを準備しています…</div>
-    <video id="resultVideo" controls playsinline></video>
-    <div class="resultActions">
-      <button id="shareResultBtn" class="accent">📤 共有・保存</button>
-      <a id="downloadResultLink" class="saveLink" href="#" download>📁 ファイルに保存</a>
-      <button id="openResultBtn">▶ 新しい画面で開く</button>
-      <button id="closeResultBtn">編集画面へ戻る</button>
-    </div>
-    <p id="resultHint" class="resultHint">
-      iPhoneでは「共有・保存」を押し、共有メニューから
-      「ビデオを保存」または「ファイルに保存」を選んでください。
-    </p>
-  </div>
-</div>
-
-<video id="video" playsinline preload="metadata" style="display:none"></video>
-<audio id="audio" preload="metadata" style="display:none"></audio>
-
-<script>
-(()=>{
-"use strict";
-
+<script type="module">
 const $=id=>document.getElementById(id);
+let mode="image",imageFile=null,audioFile=null,videoFile=null,imageBitmap=null,videoUrl="",resultUrl="",resultFile=null,mediabunnyModule=null;
+const canvas=$("previewCanvas"),ctx=canvas.getContext("2d"),sourceVideo=$("sourceVideo");
 
-const videoInput=$("videoInput");
-const imageInput=$("imageInput");
-const audioInput=$("audioInput");
-const video=$("video");
-const audio=$("audio");
-const canvas=$("canvas");
-const ctx=canvas.getContext("2d");
-
-let visualType=null;
-let image=null;
-let previewing=false;
-let exporting=false;
-let animationId=null;
-let recorder=null;
-let chunks=[];
-let audioContext=null;
-let videoSource=null;
-let audioSource=null;
-let videoGain=null;
-let audioGain=null;
-let destination=null;
-let previewStartTime=0;
-let outputDuration=0;
-let trimStart=0;
-let trimEnd=0;
-let splitPoints=[];
-let deletedSegments=new Set();
-let selectedSegment=-1;
-let draggingHandle=null;
-let sourceDuration=0;
-let logicalElapsed=0;
-let currentSegmentIndex=0;
-let resultBlob=null;
-let resultUrl="";
-let resultFile=null;
-let chosenMimeType="";
-let chosenExtension="mp4";
-let visualFile=null;
-let audioFile=null;
-let ffmpeg=null;
-let fetchFileFn=null;
-let toBlobURLFn=null;
-let engineLoaded=false;
-let engineLoading=false;
-
-function fmt(seconds){
-  return Number.isFinite(seconds)?seconds.toFixed(1):"0.0";
+function setMode(next){
+  mode=next;
+  $("imageMode").classList.toggle("hidden",mode!=="image");
+  $("videoMode").classList.toggle("hidden",mode!=="video");
+  $("imageModeBtn").classList.toggle("active",mode==="image");
+  $("videoModeBtn").classList.toggle("active",mode==="video");
+  drawPreview();
 }
-
-function updateRangeLabels(){
-  $("visualVolumeValue").textContent=$("visualVolume").value+"%";
-  $("audioVolumeValue").textContent=$("audioVolume").value+"%";
-}
-$("visualVolume").addEventListener("input",updateRangeLabels);
-$("audioVolume").addEventListener("input",updateRangeLabels);
-updateRangeLabels();
+$("imageModeBtn").onclick=()=>setMode("image");
+$("videoModeBtn").onclick=()=>setMode("video");
 
 function setCanvasSize(){
   const [w,h]=$("format").value.split("x").map(Number);
-  canvas.width=w;
-  canvas.height=h;
-  drawFrame();
+  canvas.width=w;canvas.height=h;drawPreview();
 }
-$("format").addEventListener("change",setCanvasSize);
-$("fit").addEventListener("change",drawFrame);
-$("background").addEventListener("input",drawFrame);
-setCanvasSize();
+$("format").onchange=setCanvasSize;$("fit").onchange=drawPreview;$("background").oninput=drawPreview;setCanvasSize();
 
-function drawObject(source,sourceW,sourceH){
-  const cw=canvas.width;
-  const ch=canvas.height;
-  const mode=$("fit").value;
-  const scale=mode==="cover"
-    ?Math.max(cw/sourceW,ch/sourceH)
-    :Math.min(cw/sourceW,ch/sourceH);
-
-  const w=sourceW*scale;
-  const h=sourceH*scale;
-  const x=(cw-w)/2;
-  const y=(ch-h)/2;
-
-  ctx.drawImage(source,x,y,w,h);
+function drawFitted(source,sw,sh){
+  const cw=canvas.width,ch=canvas.height,fit=$("fit").value;
+  ctx.fillStyle=$("background").value;ctx.fillRect(0,0,cw,ch);
+  let dw=cw,dh=ch;
+  if(fit!=="fill"){const scale=fit==="cover"?Math.max(cw/sw,ch/sh):Math.min(cw/sw,ch/sh);dw=sw*scale;dh=sh*scale}
+  ctx.drawImage(source,(cw-dw)/2,(ch-dh)/2,dw,dh);
+}
+function drawPreview(){
+  ctx.fillStyle=$("background").value;ctx.fillRect(0,0,canvas.width,canvas.height);
+  if(mode==="image"&&imageBitmap)drawFitted(imageBitmap,imageBitmap.width,imageBitmap.height);
+  else if(mode==="video"&&sourceVideo.readyState>=2)drawFitted(sourceVideo,sourceVideo.videoWidth,sourceVideo.videoHeight);
+  else{ctx.fillStyle="#777";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font=Math.max(22,canvas.width/24)+"px sans-serif";ctx.fillText("素材を選択してください",canvas.width/2,canvas.height/2)}
 }
 
-function drawFrame(){
-  ctx.fillStyle=$("background").value;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+$("imageInput").onchange=async e=>{imageFile=e.target.files[0]||null;if(!imageFile)return;if(imageBitmap)imageBitmap.close();imageBitmap=await createImageBitmap(imageFile);$("imageInfo").textContent=imageFile.name;drawPreview()};
+$("audioInput").onchange=e=>{audioFile=e.target.files[0]||null;$("audioInfo").textContent=audioFile?audioFile.name:"音声は未選択です"};
+$("videoInput").onchange=e=>{videoFile=e.target.files[0]||null;if(!videoFile)return;if(videoUrl)URL.revokeObjectURL(videoUrl);videoUrl=URL.createObjectURL(videoFile);sourceVideo.src=videoUrl;$("videoInfo").textContent=videoFile.name;sourceVideo.onloadedmetadata=()=>{$("trimStart").value="0";$("trimEnd").value=sourceVideo.duration.toFixed(1);sourceVideo.currentTime=0};sourceVideo.onloadeddata=drawPreview};
+$("audioVolume").oninput=()=>{$("audioVolumeValue").textContent=$("audioVolume").value+"%"};
 
-  if(visualType==="image"&&image){
-    drawObject(image,image.naturalWidth,image.naturalHeight);
-  }else if(visualType==="video"&&video.readyState>=2){
-    drawObject(video,video.videoWidth,video.videoHeight);
-  }else{
-    ctx.fillStyle="#777";
-    ctx.textAlign="center";
-    ctx.textBaseline="middle";
-    ctx.font=Math.max(22,canvas.width/22)+"px sans-serif";
-    ctx.fillText("動画または静止画を選択",canvas.width/2,canvas.height/2);
-  }
+$("previewBtn").onclick=async()=>{
+  if(mode==="video"&&videoFile){
+    sourceVideo.muted=$("discardAudio").checked;
+    sourceVideo.currentTime=Math.max(0,Number($("trimStart").value)||0);
+    await sourceVideo.play();
+    const loop=()=>{if(sourceVideo.paused)return;drawPreview();const end=Number($("trimEnd").value)||sourceVideo.duration;if(sourceVideo.currentTime>=end){sourceVideo.pause();return}requestAnimationFrame(loop)};loop();
+  }else drawPreview();
+};
+
+async function loadMediabunny(){
+  if(mediabunnyModule)return mediabunnyModule;
+  $("status").textContent="軽量変換エンジンを読み込み中…";$("progressBar").style.width="10%";
+  mediabunnyModule=await import("https://cdn.jsdelivr.net/npm/mediabunny@1.50.8/+esm");
+  $("progressBar").style.width="20%";
+  return mediabunnyModule;
 }
 
-function calculateDuration(){
-  if(visualType==="video"&&Number.isFinite(video.duration)){
-    sourceDuration=video.duration;
-
-    if(trimEnd<=0||trimEnd>sourceDuration){
-      trimEnd=sourceDuration;
-    }
-
-    trimStart=Math.max(0,Math.min(trimStart,trimEnd));
-    trimEnd=Math.max(trimStart,Math.min(trimEnd,sourceDuration));
-
-    $("visualStart").value=trimStart.toFixed(1);
-    $("visualEnd").value=trimEnd.toFixed(1);
-  }else if(visualType==="image"){
-    sourceDuration=Math.max(.5,Number($("stillDuration").value)||10);
-    trimStart=0;
-    trimEnd=sourceDuration;
-  }else{
-    sourceDuration=0;
-    trimStart=0;
-    trimEnd=0;
-  }
-
-  outputDuration=getKeptDuration();
-  $("timeMain").textContent="0.0 / "+fmt(outputDuration);
-  updateTimeline();
-  updateButtons();
+function cropAudioBuffer(buffer,start,duration,volume){
+  const sampleRate=buffer.sampleRate,startFrame=Math.max(0,Math.floor(start*sampleRate)),maxFrames=Math.max(0,buffer.length-startFrame),frames=Math.min(maxFrames,Math.floor(duration*sampleRate));
+  const context=new AudioContext(),output=context.createBuffer(buffer.numberOfChannels,frames,sampleRate);
+  for(let channel=0;channel<buffer.numberOfChannels;channel++){const src=buffer.getChannelData(channel),dst=output.getChannelData(channel);for(let i=0;i<frames;i++)dst[i]=src[startFrame+i]*volume}
+  context.close();return output;
 }
 
-function getBoundaries(){
-  return [
-    trimStart,
-    ...splitPoints.filter(point=>point>trimStart&&point<trimEnd).sort((a,b)=>a-b),
-    trimEnd
-  ];
+async function exportImageVideo(M){
+  if(!imageFile||!audioFile)throw new Error("静止画と音声を両方選んでください");
+  const {Output,Mp4OutputFormat,BufferTarget,CanvasSource,AudioBufferSource}=M;
+  const duration=Math.max(1,Number($("stillDuration").value)||10),audioStart=Math.max(0,Number($("audioStart").value)||0),volume=Number($("audioVolume").value)/100;
+  const audioContext=new AudioContext(),decoded=await audioContext.decodeAudioData(await audioFile.arrayBuffer()),cropped=cropAudioBuffer(decoded,audioStart,duration,volume);
+  const target=new BufferTarget(),output=new Output({format:new Mp4OutputFormat({fastStart:"in-memory"}),target});
+  const videoSource=new CanvasSource(canvas,{codec:"avc",bitrate:3000000});
+  const audioSource=new AudioBufferSource({codec:"aac",bitrate:192000});
+  output.addVideoTrack(videoSource,{frameRate:30});output.addAudioTrack(audioSource);await output.start();
+  drawPreview();await videoSource.add(0,duration,{keyFrame:true});$("progressBar").style.width="65%";
+  await audioSource.add(cropped);$("progressBar").style.width="85%";
+  await output.finalize();await audioContext.close();
+  return new Uint8Array(target.buffer);
 }
 
-function getSegments(){
-  const boundaries=getBoundaries();
-  const segments=[];
-
-  for(let i=0;i<boundaries.length-1;i++){
-    segments.push({
-      index:i,
-      start:boundaries[i],
-      end:boundaries[i+1],
-      deleted:deletedSegments.has(i)
-    });
-  }
-
-  return segments;
+async function exportTrimmedVideo(M){
+  if(!videoFile)throw new Error("動画を選んでください");
+  const {Input,Output,BlobSource,ALL_FORMATS,Mp4OutputFormat,BufferTarget,Conversion}=M;
+  const start=Math.max(0,Number($("trimStart").value)||0),end=Math.max(start+0.1,Number($("trimEnd").value)||sourceVideo.duration),[width,height]=$("format").value.split("x").map(Number);
+  const input=new Input({source:new BlobSource(videoFile),formats:ALL_FORMATS});
+  const target=new BufferTarget(),output=new Output({format:new Mp4OutputFormat({fastStart:"in-memory"}),target});
+  const conversion=await Conversion.init({
+    input,output,trim:{start,end},tracks:"primary",
+    video:{width,height,fit:$("fit").value,codec:"avc",bitrate:3000000,frameRate:30,forceTranscode:true,hardwareAcceleration:"prefer-hardware"},
+    audio:$("discardAudio").checked?{discard:true}:{codec:"aac",bitrate:192000,forceTranscode:true}
+  });
+  if(!conversion.isValid){const reasons=conversion.discardedTracks.map(item=>item.reason).join(", ");throw new Error("変換できません: "+reasons)}
+  conversion.onProgress=progress=>{$("progressBar").style.width=(20+progress*75)+"%";$("status").textContent="MP4変換中… "+Math.round(progress*100)+"%"};
+  await conversion.execute();return new Uint8Array(target.buffer);
 }
 
-function getKeptSegments(){
-  return getSegments().filter(segment=>!segment.deleted&&segment.end>segment.start);
-}
-
-function getKeptDuration(){
-  return getKeptSegments().reduce((sum,segment)=>sum+(segment.end-segment.start),0);
-}
-
-function updateButtons(){
-  const ready=!!visualType&&outputDuration>0&&!exporting;
-  $("previewBtn").disabled=!ready||previewing;
-  $("exportBtn").disabled=!ready||previewing;
-  $("stopBtn").disabled=!previewing;
-}
-
-videoInput.addEventListener("change",()=>{
-  const file=videoInput.files[0];
-  if(!file)return;
-
-  visualFile=file;
-  stop();
-  visualType="video";
-  image=null;
-  video.src=URL.createObjectURL(file);
-  $("visualInfo").textContent=file.name;
-
-  video.onloadedmetadata=()=>{
-    trimStart=0;
-    trimEnd=video.duration;
-    splitPoints=[];
-    deletedSegments.clear();
-    selectedSegment=-1;
-    calculateDuration();
-    video.currentTime=0;
-  };
-
-  video.onloadeddata=drawFrame;
-});
-
-imageInput.addEventListener("change",()=>{
-  const file=imageInput.files[0];
-  if(!file)return;
-
-  visualFile=file;
-  stop();
-  const img=new Image();
-  img.onload=()=>{
-    visualType="image";
-    image=img;
-    splitPoints=[];
-    deletedSegments.clear();
-    selectedSegment=-1;
-    video.removeAttribute("src");
-    $("visualInfo").textContent=file.name;
-    calculateDuration();
-    drawFrame();
-  };
-  img.src=URL.createObjectURL(file);
-});
-
-audioInput.addEventListener("change",()=>{
-  const file=audioInput.files[0];
-  if(!file)return;
-
-  audioFile=file;
-  audio.src=URL.createObjectURL(file);
-  $("audioInfo").textContent=file.name;
-  audio.onloadedmetadata=calculateDuration;
-});
-
-$("visualStart").addEventListener("change",()=>{
-  trimStart=Math.max(0,Number($("visualStart").value)||0);
-  calculateDuration();
-});
-
-$("visualEnd").addEventListener("change",()=>{
-  trimEnd=Math.max(trimStart,Number($("visualEnd").value)||sourceDuration);
-  calculateDuration();
-});
-
-["audioStart","stillDuration"].forEach(id=>{
-  $(id).addEventListener("change",calculateDuration);
-});
-
-function setupAudio(){
-  if(!audioContext){
-    audioContext=new (window.AudioContext||window.webkitAudioContext)();
-    destination=audioContext.createMediaStreamDestination();
-
-    try{
-      videoSource=audioContext.createMediaElementSource(video);
-      videoGain=audioContext.createGain();
-      videoSource.connect(videoGain);
-      videoGain.connect(destination);
-      videoGain.connect(audioContext.destination);
-    }catch(error){
-      console.warn("Video audio source:",error);
-    }
-
-    try{
-      audioSource=audioContext.createMediaElementSource(audio);
-      audioGain=audioContext.createGain();
-      audioSource.connect(audioGain);
-      audioGain.connect(destination);
-      audioGain.connect(audioContext.destination);
-    }catch(error){
-      console.warn("External audio source:",error);
-    }
-  }
-
-  if(videoGain){
-    videoGain.gain.value=$("muteVisual").checked
-      ?0
-      :Number($("visualVolume").value)/100;
-  }
-
-  if(audioGain){
-    audioGain.gain.value=$("muteAudio").checked
-      ?0
-      :Number($("audioVolume").value)/100;
-  }
-}
-
-
-async function loadFFmpegEngine(){
-  if(engineLoaded)return true;
-  if(engineLoading)return false;
-
-  engineLoading=true;
-  $("loadEngineBtn").disabled=true;
-  $("engineState").textContent="FFmpegエンジンを読み込み中…";
-  $("engineProgressBar").style.width="8%";
-
+$("exportBtn").onclick=async()=>{
+  $("exportBtn").disabled=true;$("progressBar").style.width="0%";$("status").textContent="準備中…";
   try{
-    const ffmpegModule=await import(
-      "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/+esm"
-    );
-    const utilModule=await import(
-      "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm"
-    );
+    if(!("VideoEncoder" in window))throw new Error("このブラウザはWebCodecsの映像エンコードに対応していません");
+    const M=await loadMediabunny(),bytes=mode==="image"?await exportImageVideo(M):await exportTrimmedVideo(M);
+    if(!bytes.byteLength)throw new Error("完成ファイルが空です");
+    const blob=new Blob([bytes],{type:"video/mp4"});if(resultUrl)URL.revokeObjectURL(resultUrl);resultUrl=URL.createObjectURL(blob);
+    const filename="salp-simple-video-"+Date.now()+".mp4";resultFile=new File([blob],filename,{type:"video/mp4"});
+    $("resultVideo").src=resultUrl;$("downloadLink").href=resultUrl;$("downloadLink").download=filename;$("resultMeta").textContent=filename+" ｜ "+(blob.size/1024/1024).toFixed(2)+" MB";
+    $("resultPanel").classList.add("show");$("resultPanel").scrollIntoView({behavior:"smooth"});$("progressBar").style.width="100%";$("status").textContent="編集済みMP4が完成しました";
+  }catch(error){console.error(error);$("status").textContent="書き出しに失敗しました";alert(String(error.message||error))}
+  finally{$("exportBtn").disabled=false}
+};
 
-    const {FFmpeg}=ffmpegModule;
-    fetchFileFn=utilModule.fetchFile;
-    toBlobURLFn=utilModule.toBlobURL;
-
-    ffmpeg=new FFmpeg();
-
-    ffmpeg.on("log",({message})=>{
-      console.log("[ffmpeg]",message);
-      if(exporting){
-        const shortMessage=message.length>100
-          ?message.slice(0,100)+"…"
-          :message;
-        $("engineState").textContent=shortMessage;
-      }
-    });
-
-    ffmpeg.on("progress",({progress})=>{
-      const percent=Math.max(0,Math.min(100,Math.round(progress*100)));
-      $("engineProgressBar").style.width=percent+"%";
-    });
-
-    const baseURL=
-      "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
-
-    $("engineProgressBar").style.width="20%";
-
-    await ffmpeg.load({
-      coreURL:await toBlobURLFn(
-        `${baseURL}/ffmpeg-core.js`,
-        "text/javascript"
-      ),
-      wasmURL:await toBlobURLFn(
-        `${baseURL}/ffmpeg-core.wasm`,
-        "application/wasm"
-      )
-    });
-
-    engineLoaded=true;
-    $("engineState").textContent="FFmpegエンジン：準備完了";
-    $("engineProgressBar").style.width="100%";
-    $("loadEngineBtn").textContent="読込済み";
-    return true;
-
-  }catch(error){
-    console.error(error);
-    $("engineState").textContent="エンジンの読込に失敗しました";
-    $("engineProgressBar").style.width="0%";
-    $("loadEngineBtn").disabled=false;
-    alert(
-      "FFmpegエンジンを読み込めませんでした。\n"+
-      "通信状態を確認して、もう一度試してください。"
-    );
-    return false;
-
-  }finally{
-    engineLoading=false;
-  }
-}
-
-$("loadEngineBtn").addEventListener("click",loadFFmpegEngine);
-
-function fileExtension(file,fallback){
-  const match=file&&file.name.match(/\.([a-zA-Z0-9]+)$/);
-  return match?match[1].toLowerCase():fallback;
-}
-
-function ffmpegColor(hex){
-  return "0x"+String(hex||"#000000").replace("#","");
-}
-
-function videoFilter(){
-  const [width,height]=$("format").value.split("x").map(Number);
-  const mode=$("fit").value;
-  const bg=ffmpegColor($("background").value);
-
-  if(mode==="cover"){
-    return (
-      `scale=${width}:${height}:force_original_aspect_ratio=increase,`+
-      `crop=${width}:${height},setsar=1`
-    );
-  }
-
-  return (
-    `scale=${width}:${height}:force_original_aspect_ratio=decrease,`+
-    `pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=${bg},setsar=1`
-  );
-}
-
-async function safeDelete(name){
+$("shareBtn").onclick=async()=>{
+  if(!resultFile)return;
   try{
-    await ffmpeg.deleteFile(name);
-  }catch{}
-}
-
-async function runFFmpeg(args,description){
-  $("engineState").textContent=description;
-  $("engineProgressBar").style.width="0%";
-
-  const code=await ffmpeg.exec(args);
-
-  if(code!==0){
-    throw new Error(description+"に失敗しました（code "+code+"）");
-  }
-}
-
-async function createVideoSegment(
-  inputName,
-  segment,
-  outputName,
-  includeOriginalAudio
-){
-  const duration=Math.max(.05,segment.end-segment.start);
-  const commonVideo=[
-    "-ss",segment.start.toFixed(3),
-    "-t",duration.toFixed(3),
-    "-i",inputName,
-    "-vf",videoFilter(),
-    "-map","0:v:0",
-    "-c:v","libx264",
-    "-preset","ultrafast",
-    "-crf","24",
-    "-pix_fmt","yuv420p",
-    "-r","30"
-  ];
-
-  if(includeOriginalAudio){
-    const volume=$("muteVisual").checked
-      ?"0"
-      :(Number($("visualVolume").value)/100).toFixed(3);
-
-    const code=await ffmpeg.exec([
-      ...commonVideo,
-      "-map","0:a:0",
-      "-af",`volume=${volume}`,
-      "-c:a","aac",
-      "-b:a","160k",
-      "-ar","44100",
-      "-ac","2",
-      "-movflags","+faststart",
-      outputName
-    ]);
-
-    if(code===0)return;
-    console.warn("元動画の音声を使えないため無音で再試行します");
-  }
-
-  await runFFmpeg([
-    "-ss",segment.start.toFixed(3),
-    "-t",duration.toFixed(3),
-    "-i",inputName,
-    "-f","lavfi",
-    "-t",duration.toFixed(3),
-    "-i","anullsrc=channel_layout=stereo:sample_rate=44100",
-    "-vf",videoFilter(),
-    "-map","0:v:0",
-    "-map","1:a:0",
-    "-c:v","libx264",
-    "-preset","ultrafast",
-    "-crf","24",
-    "-pix_fmt","yuv420p",
-    "-r","30",
-    "-c:a","aac",
-    "-b:a","160k",
-    "-shortest",
-    "-movflags","+faststart",
-    outputName
-  ],"無音区間を作成中");
-}
-
-async function exportWithFFmpeg(){
-  if(exporting)return;
-  if(!visualFile){
-    alert("動画または静止画を選んでください");
-    return;
-  }
-
-  const loaded=await loadFFmpegEngine();
-  if(!loaded)return;
-
-  calculateDuration();
-  const kept=getKeptSegments();
-
-  if(!kept.length||outputDuration<=0){
-    alert("残っている区間がありません");
-    return;
-  }
-
-  exporting=true;
-  updateButtons();
-  $("exportBtn").disabled=true;
-  $("loadEngineBtn").disabled=true;
-  status("編集済みMP4を作成中…\n画面を閉じずにお待ちください");
-
-  const inputExt=fileExtension(
-    visualFile,
-    visualType==="image"?"jpg":"mp4"
-  );
-  const inputName="visual-input."+inputExt;
-  const audioExt=audioFile?fileExtension(audioFile,"wav"):"";
-  const audioName=audioFile?"audio-input."+audioExt:"";
-  const generated=[];
-
-  try{
-    await safeDelete(inputName);
-    await ffmpeg.writeFile(inputName,await fetchFileFn(visualFile));
-
-    if(audioFile){
-      await safeDelete(audioName);
-      await ffmpeg.writeFile(audioName,await fetchFileFn(audioFile));
-    }
-
-    let baseName="base-output.mp4";
-    await safeDelete(baseName);
-
-    if(visualType==="image"){
-      const duration=outputDuration.toFixed(3);
-
-      await runFFmpeg([
-        "-loop","1",
-        "-i",inputName,
-        "-f","lavfi",
-        "-t",duration,
-        "-i","anullsrc=channel_layout=stereo:sample_rate=44100",
-        "-t",duration,
-        "-vf",videoFilter(),
-        "-map","0:v:0",
-        "-map","1:a:0",
-        "-c:v","libx264",
-        "-preset","ultrafast",
-        "-crf","24",
-        "-pix_fmt","yuv420p",
-        "-r","30",
-        "-c:a","aac",
-        "-b:a","160k",
-        "-shortest",
-        "-movflags","+faststart",
-        baseName
-      ],"静止画動画を作成中");
-
-    }else{
-      const segmentNames=[];
-
-      for(let i=0;i<kept.length;i++){
-        const segmentName=`segment-${i}.mp4`;
-        await safeDelete(segmentName);
-
-        $("engineState").textContent=
-          `区間 ${i+1}/${kept.length} を処理中`;
-
-        await createVideoSegment(
-          inputName,
-          kept[i],
-          segmentName,
-          !$("muteVisual").checked
-        );
-
-        segmentNames.push(segmentName);
-        generated.push(segmentName);
-      }
-
-      if(segmentNames.length===1){
-        const data=await ffmpeg.readFile(segmentNames[0]);
-        await ffmpeg.writeFile(baseName,data);
-      }else{
-        const listText=segmentNames
-          .map(name=>`file '${name}'`)
-          .join("\n");
-
-        await ffmpeg.writeFile(
-          "segments.txt",
-          new TextEncoder().encode(listText)
-        );
-        generated.push("segments.txt");
-
-        await runFFmpeg([
-          "-f","concat",
-          "-safe","0",
-          "-i","segments.txt",
-          "-c","copy",
-          "-movflags","+faststart",
-          baseName
-        ],"残した区間を結合中");
-      }
-    }
-
-    let finalName=baseName;
-
-    if(audioFile&&!$("muteAudio").checked){
-      finalName="salp-final.mp4";
-      await safeDelete(finalName);
-
-      const originalVolume=$("muteVisual").checked
-        ?"0"
-        :(Number($("visualVolume").value)/100).toFixed(3);
-
-      const extraVolume=
-        (Number($("audioVolume").value)/100).toFixed(3);
-
-      const audioStart=
-        Math.max(0,Number($("audioStart").value)||0).toFixed(3);
-
-      await runFFmpeg([
-        "-i",baseName,
-        "-ss",audioStart,
-        "-i",audioName,
-        "-filter_complex",
-        `[0:a]volume=${originalVolume}[a0];`+
-        `[1:a]volume=${extraVolume}[a1];`+
-        `[a0][a1]amix=inputs=2:duration=first:dropout_transition=2[a]`,
-        "-map","0:v:0",
-        "-map","[a]",
-        "-c:v","copy",
-        "-c:a","aac",
-        "-b:a","192k",
-        "-ar","44100",
-        "-ac","2",
-        "-movflags","+faststart",
-        finalName
-      ],"追加音声を合成中");
-    }
-
-    const data=await ffmpeg.readFile(finalName);
-    const bytes=data instanceof Uint8Array
-      ?data
-      :new Uint8Array(data);
-
-    resultBlob=new Blob([bytes.buffer],{type:"video/mp4"});
-
-    if(!resultBlob.size){
-      throw new Error("完成ファイルが空です");
-    }
-
-    if(resultUrl)URL.revokeObjectURL(resultUrl);
-    resultUrl=URL.createObjectURL(resultBlob);
-
-    const filename="salp-simple-video-"+Date.now()+".mp4";
-    resultFile=new File(
-      [resultBlob],
-      filename,
-      {type:"video/mp4",lastModified:Date.now()}
-    );
-
-    showResult(
-      resultUrl,
-      "mp4",
-      "video/mp4",
-      resultBlob.size,
-      filename
-    );
-
-    $("engineState").textContent="MP4作成完了";
-    $("engineProgressBar").style.width="100%";
-    status("編集済みMP4が完成しました。");
-
-  }catch(error){
-    console.error(error);
-    $("engineState").textContent="変換に失敗しました";
-    status("MP4の作成に失敗しました。");
-    alert(
-      "動画の変換に失敗しました。\n"+
-      "まず短い動画・720pで試してください。\n\n"+
-      String(error.message||error)
-    );
-
-  }finally{
-    exporting=false;
-    updateButtons();
-    $("loadEngineBtn").disabled=engineLoaded;
-
-    for(const name of [
-      ...generated,
-      inputName,
-      audioName,
-      "base-output.mp4",
-      "salp-final.mp4"
-    ]){
-      if(name)await safeDelete(name);
-    }
-  }
-}
-
-async function startPlayback(isExport){
-  if(isExport){
-    await exportWithFFmpeg();
-    return;
-  }
-  if(previewing)return;
-
-  calculateDuration();
-  const kept=getKeptSegments();
-
-  if(!kept.length||outputDuration<=0){
-    status("残っている区間がありません");
-    return;
-  }
-
-  previewing=true;
-  exporting=isExport;
-  chunks=[];
-  logicalElapsed=0;
-  currentSegmentIndex=0;
-  updateButtons();
-
-  setupAudio();
-  await audioContext.resume();
-
-  const firstSegment=kept[0];
-
-  if(visualType==="video"){
-    video.currentTime=firstSegment.start;
-  }
-
-  if(audio.src){
-    audio.currentTime=Math.max(0,Number($("audioStart").value)||0);
-  }
-
-  const stream=canvas.captureStream(30);
-
-  if(isExport&&destination){
-    destination.stream.getAudioTracks().forEach(track=>{
-      stream.addTrack(track);
-    });
-  }
-
-  if(isExport){
-    const candidates=[
-      'video/mp4;codecs="avc1.42E01E,mp4a.40.2"',
-      "video/mp4",
-      "video/webm;codecs=vp9,opus",
-      "video/webm;codecs=vp8,opus",
-      "video/webm"
-    ];
-
-    const mimeType=candidates.find(type=>
-      window.MediaRecorder &&
-      MediaRecorder.isTypeSupported(type)
-    )||"";
-
-    chosenMimeType=mimeType||"video/webm";
-    chosenExtension=chosenMimeType.includes("mp4")?"mp4":"webm";
-
-    try{
-      recorder=new MediaRecorder(
-        stream,
-        mimeType
-          ?{
-              mimeType,
-              videoBitsPerSecond:5000000,
-              audioBitsPerSecond:192000
-            }
-          :undefined
-      );
-    }catch(error){
-      status("このブラウザでは動画書き出しに対応していません");
-      previewing=false;
-      exporting=false;
-      updateButtons();
-      return;
-    }
-
-    recorder.ondataavailable=event=>{
-      if(event.data&&event.data.size)chunks.push(event.data);
-    };
-
-    recorder.onstop=async()=>{
-      await new Promise(resolve=>setTimeout(resolve,150));
-
-      const type=recorder.mimeType||chosenMimeType||"video/webm";
-      const extension=type.includes("mp4")?"mp4":chosenExtension;
-
-      resultBlob=new Blob(chunks,{type});
-
-      if(!resultBlob.size){
-        status("書き出しに失敗しました。動画ファイルが空です。");
-        alert("動画ファイルを作成できませんでした。短い動画か720pで試してください。");
-        return;
-      }
-
-      if(resultUrl)URL.revokeObjectURL(resultUrl);
-      resultUrl=URL.createObjectURL(resultBlob);
-
-      const filename="salp-simple-video-"+Date.now()+"."+extension;
-
-      try{
-        resultFile=new File([resultBlob],filename,{type,lastModified:Date.now()});
-      }catch{
-        resultFile=null;
-      }
-
-      showResult(resultUrl,extension,type,resultBlob.size,filename);
-      status("編集済み動画ファイルが完成しました。");
-    };
-
-    recorder.onerror=event=>{
-      console.error("MediaRecorder error:",event.error||event);
-      status("書き出し中にエラーが発生しました。");
-    };
-
-    recorder.start(1000);
-    status("書き出し中…\\nこの画面を閉じずにお待ちください");
-  }else{
-    status("プレビュー中");
-  }
-
-  previewStartTime=performance.now();
-
-  if(visualType==="video"){
-    await video.play().catch(console.warn);
-  }
-
-  if(audio.src){
-    audio.play().catch(console.warn);
-  }
-
-  tick();
-}
-
-function tick(){
-  if(!previewing)return;
-
-  const kept=getKeptSegments();
-  const segment=kept[currentSegmentIndex];
-
-  if(!segment){
-    stop(true);
-    return;
-  }
-
-  drawFrame();
-
-  if(visualType==="video"){
-    if(video.currentTime>=segment.end-0.025){
-      logicalElapsed+=segment.end-segment.start;
-      currentSegmentIndex++;
-
-      const next=kept[currentSegmentIndex];
-
-      if(!next){
-        stop(true);
-        return;
-      }
-
-      video.currentTime=next.start;
-      video.play().catch(console.warn);
-    }
-  }else{
-    const realElapsed=(performance.now()-previewStartTime)/1000;
-
-    if(realElapsed>=outputDuration){
-      stop(true);
-      return;
-    }
-
-    logicalElapsed=realElapsed;
-  }
-
-  const segmentElapsed=visualType==="video"
-    ?Math.max(0,video.currentTime-segment.start)
-    :0;
-
-  const elapsed=Math.min(outputDuration,logicalElapsed+segmentElapsed);
-  const progress=outputDuration?Math.min(1,elapsed/outputDuration):0;
-
-  $("timeMain").textContent=fmt(elapsed)+" / "+fmt(outputDuration);
-  $("progressBar").style.width=(progress*100)+"%";
-
-  const sourcePosition=visualType==="video"
-    ?video.currentTime
-    :trimStart+elapsed;
-
-  updatePlayhead(sourcePosition);
-
-  animationId=requestAnimationFrame(tick);
-}
-
-function stop(finished=false){
-  if(animationId){
-    cancelAnimationFrame(animationId);
-    animationId=null;
-  }
-
-  video.pause();
-  audio.pause();
-
-  const wasExporting=exporting;
-
-  previewing=false;
-  exporting=false;
-
-  if(recorder&&recorder.state!=="inactive"){
-    try{
-      recorder.requestData();
-    }catch(error){
-      console.warn("requestData:",error);
-    }
-
-    setTimeout(()=>{
-      if(recorder&&recorder.state!=="inactive"){
-        recorder.stop();
-      }
-    },120);
-  }
-
-  recorder=null;
-  updateButtons();
-
-  if(!finished){
-    status("停止しました");
-  }else if(!wasExporting){
-    status("プレビューが終了しました");
-  }
-
-  drawFrame();
-}
-
-
-function timeToPercent(time){
-  if(!sourceDuration)return 0;
-  return Math.max(0,Math.min(100,time/sourceDuration*100));
-}
-
-function percentToTime(percent){
-  return Math.max(0,Math.min(sourceDuration,percent/100*sourceDuration));
-}
-
-function updatePlayhead(time){
-  $("playhead").style.left=timeToPercent(time)+"%";
-}
-
-function updateTimeline(){
-  const startPercent=timeToPercent(trimStart);
-  const endPercent=timeToPercent(trimEnd);
-
-  $("startHandle").style.left=startPercent+"%";
-  $("endHandle").style.left=endPercent+"%";
-
-  $("leftShade").style.left="0";
-  $("leftShade").style.width=startPercent+"%";
-
-  $("rightShade").style.left=endPercent+"%";
-  $("rightShade").style.width=(100-endPercent)+"%";
-
-  $("trimLabel").textContent=fmt(trimStart)+"秒〜"+fmt(trimEnd)+"秒";
-
-  const layer=$("segmentLayer");
-  layer.innerHTML="";
-
-  getSegments().forEach(segment=>{
-    const element=document.createElement("div");
-    element.className="segment";
-    if(segment.deleted)element.classList.add("deleted");
-    if(segment.index===selectedSegment)element.classList.add("selected");
-
-    element.style.left=timeToPercent(segment.start)+"%";
-    element.style.width=(timeToPercent(segment.end)-timeToPercent(segment.start))+"%";
-    element.title=fmt(segment.start)+"〜"+fmt(segment.end)+"秒";
-
-    element.addEventListener("click",event=>{
-      event.stopPropagation();
-      selectedSegment=segment.index;
-      updateTimelineButtons();
-      updateTimeline();
-    });
-
-    layer.appendChild(element);
-  });
-
-  updateTimelineButtons();
-  outputDuration=getKeptDuration();
-  $("timeMain").textContent="0.0 / "+fmt(outputDuration);
-}
-
-function updateTimelineButtons(){
-  const segments=getSegments();
-  const selected=segments.find(segment=>segment.index===selectedSegment);
-
-  $("splitBtn").disabled=!visualType||sourceDuration<=0;
-  $("deleteSegmentBtn").disabled=!selected;
-  $("restoreAllBtn").disabled=deletedSegments.size===0;
-
-  if(selected){
-    $("deleteSegmentBtn").textContent=selected.deleted
-      ?"選択区間を復元"
-      :"選択区間を削除";
-
-    $("timelineInfo").textContent=
-      "選択中: "+fmt(selected.start)+"〜"+fmt(selected.end)+"秒"+
-      (selected.deleted?"（削除）":"");
-  }else{
-    $("deleteSegmentBtn").textContent="選択区間を削除";
-    $("timelineInfo").textContent=
-      "左右の白いハンドルで切り出し範囲を決めます。区間をタップして選び、削除できます。";
-  }
-}
-
-function getCurrentSourceTime(){
-  if(visualType==="video"&&Number.isFinite(video.currentTime)){
-    return Math.max(trimStart,Math.min(trimEnd,video.currentTime));
-  }
-
-  if(sourceDuration){
-    const rect=$("timeline").getBoundingClientRect();
-    const left=parseFloat($("playhead").style.left)||0;
-    return percentToTime(left);
-  }
-
-  return trimStart;
-}
-
-function addSplitAt(time){
-  if(time<=trimStart+0.05||time>=trimEnd-0.05)return;
-
-  const near=splitPoints.some(point=>Math.abs(point-time)<0.05);
-  if(near)return;
-
-  splitPoints.push(time);
-  splitPoints.sort((a,b)=>a-b);
-
-  deletedSegments.clear();
-  selectedSegment=-1;
-  updateTimeline();
-}
-
-function handleTimelinePointer(event){
-  if(!sourceDuration)return;
-
-  const rect=$("timeline").getBoundingClientRect();
-  const percent=(event.clientX-rect.left)/rect.width*100;
-  const time=percentToTime(percent);
-
-  if(draggingHandle==="start"){
-    trimStart=Math.min(time,trimEnd-0.1);
-  }else if(draggingHandle==="end"){
-    trimEnd=Math.max(time,trimStart+0.1);
-  }
-
-  splitPoints=splitPoints.filter(point=>point>trimStart&&point<trimEnd);
-  deletedSegments.clear();
-  selectedSegment=-1;
-
-  $("visualStart").value=trimStart.toFixed(1);
-  $("visualEnd").value=trimEnd.toFixed(1);
-
-  updateTimeline();
-  updateButtons();
-}
-
-["startHandle","endHandle"].forEach(id=>{
-  const element=$(id);
-
-  element.addEventListener("pointerdown",event=>{
-    event.preventDefault();
-    draggingHandle=id==="startHandle"?"start":"end";
-    element.setPointerCapture(event.pointerId);
-  });
-
-  element.addEventListener("pointermove",event=>{
-    if(!draggingHandle)return;
-    handleTimelinePointer(event);
-  });
-
-  element.addEventListener("pointerup",event=>{
-    draggingHandle=null;
-    element.releasePointerCapture(event.pointerId);
-    calculateDuration();
-  });
-
-  element.addEventListener("pointercancel",()=>{
-    draggingHandle=null;
-  });
-});
-
-$("timeline").addEventListener("click",event=>{
-  if(event.target.classList.contains("segment"))return;
-  if(!sourceDuration)return;
-
-  const rect=$("timeline").getBoundingClientRect();
-  const percent=(event.clientX-rect.left)/rect.width*100;
-  const time=percentToTime(percent);
-
-  if(visualType==="video"){
-    video.currentTime=Math.max(trimStart,Math.min(trimEnd,time));
-    video.addEventListener("seeked",drawFrame,{once:true});
-  }
-
-  updatePlayhead(time);
-});
-
-$("splitBtn").addEventListener("click",()=>{
-  addSplitAt(getCurrentSourceTime());
-});
-
-$("deleteSegmentBtn").addEventListener("click",()=>{
-  if(selectedSegment<0)return;
-
-  if(deletedSegments.has(selectedSegment)){
-    deletedSegments.delete(selectedSegment);
-  }else{
-    deletedSegments.add(selectedSegment);
-  }
-
-  outputDuration=getKeptDuration();
-  updateTimeline();
-  updateButtons();
-});
-
-$("restoreAllBtn").addEventListener("click",()=>{
-  deletedSegments.clear();
-  selectedSegment=-1;
-  outputDuration=getKeptDuration();
-  updateTimeline();
-  updateButtons();
-});
-
-function showResult(url,ext,type,sizeBytes,filename){
-  const overlay=$("resultOverlay");
-  const resultVideo=$("resultVideo");
-  const downloadLink=$("downloadResultLink");
-  const shareButton=$("shareResultBtn");
-  const hint=$("resultHint");
-
-  resultVideo.src=url;
-  resultVideo.load();
-
-  downloadLink.href=url;
-  downloadLink.download=filename;
-
-  const megabytes=(sizeBytes/1024/1024).toFixed(2);
-  $("resultMeta").textContent=
-    `形式: ${type} ｜ 容量: ${megabytes} MB ｜ ${filename}`;
-
-  const canShareFile=
-    !!resultFile &&
-    !!navigator.share &&
-    !!navigator.canShare &&
-    navigator.canShare({files:[resultFile]});
-
-  shareButton.disabled=!canShareFile;
-
-  hint.textContent=canShareFile
-    ?"iPhoneでは「共有・保存」を押し、共有メニューから「ビデオを保存」または「ファイルに保存」を選んでください。"
-    :"このブラウザではファイル共有に対応していません。「ファイルに保存」または「新しい画面で開く」を使ってください。";
-
-  overlay.classList.add("show");
-  overlay.setAttribute("aria-hidden","false");
-}
-
-function closeResult(){
-  $("resultVideo").pause();
-  $("resultOverlay").classList.remove("show");
-  $("resultOverlay").setAttribute("aria-hidden","true");
-}
-
-$("shareResultBtn").addEventListener("click",async()=>{
-  if(!resultFile||!navigator.share)return;
-
-  try{
-    await navigator.share({
-      files:[resultFile],
-      title:"salp Simple Video",
-      text:"salp Simple Videoで作成した動画"
-    });
-  }catch(error){
-    if(error&&error.name!=="AbortError"){
-      alert("共有できませんでした。「ファイルに保存」または「新しい画面で開く」を使ってください。");
-    }
-  }
-});
-
-$("openResultBtn").addEventListener("click",()=>{
-  if(!resultUrl)return;
-  const opened=window.open(resultUrl,"_blank");
-  if(!opened){
-    alert("新しい画面を開けませんでした。「ファイルに保存」を長押ししてください。");
-  }
-});
-
-$("closeResultBtn").addEventListener("click",closeResult);
-
-$("resultOverlay").addEventListener("click",event=>{
-  if(event.target===$("resultOverlay"))closeResult();
-});
-
-$("downloadResultLink").addEventListener("click",()=>{
-  status("保存を開始しました。ファイルアプリの「ダウンロード」を確認してください。");
-});
-
-function status(text){
-  $("status").textContent=text;
-}
-
-$("previewBtn").addEventListener("click",()=>startPlayback(false));
-$("exportBtn").addEventListener("click",exportWithFFmpeg);
-$("stopBtn").addEventListener("click",()=>stop(false));
-
-window.addEventListener("beforeunload",()=>{
-  stop(false);
-  if(resultUrl)URL.revokeObjectURL(resultUrl);
-});
-
-drawFrame();
-calculateDuration();
-updateTimeline();
-})();
+    if(navigator.canShare?.({files:[resultFile]}))await navigator.share({files:[resultFile],title:"salp Simple Video"});
+    else alert("このブラウザでは共有できません。「ファイルに保存」を使ってください。");
+  }catch(error){if(error.name!=="AbortError")alert("共有できませんでした")}
+};
+
+window.addEventListener("beforeunload",()=>{if(videoUrl)URL.revokeObjectURL(videoUrl);if(resultUrl)URL.revokeObjectURL(resultUrl);if(imageBitmap)imageBitmap.close()});
+drawPreview();
 </script>
 </body>
 </html>
