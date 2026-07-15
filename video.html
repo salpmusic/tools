@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.0</title>
+<title>salp Simple Video v3.1</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -38,8 +38,8 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.0</h1>
-  <div class="sub">Mediabunny版・軽量MP4書き出しテスト</div>
+  <h1>🎬 salp Simple Video v3.1</h1>
+  <div class="sub">追加音声・元音声の個別ボリューム調整対応</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -68,16 +68,60 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   </div>
 
   <div id="videoMode" class="hidden">
-    <h2>動画の開始・終了を切り出す</h2>
-    <label class="fileLabel accent">動画を選ぶ<input id="videoInput" type="file" accept="video/*"></label>
-    <div id="videoInfo" class="fileInfo">動画は未選択です</div>
-    <div class="grid2" style="margin-top:12px">
-      <div><label for="trimStart">開始（秒）</label><input id="trimStart" type="number" min="0" step="0.1" value="0"></div>
-      <div><label for="trimEnd">終了（秒）</label><input id="trimEnd" type="number" min="0" step="0.1" value="0"></div>
-    </div>
-    <label style="display:flex;align-items:center;gap:9px;margin-top:12px;font-size:14px">
-      <input id="discardAudio" type="checkbox" style="width:20px;height:20px">元動画の音を消す
+    <h2>動画＋追加音声</h2>
+
+    <label class="fileLabel accent">
+      動画を選ぶ
+      <input id="videoInput" type="file" accept="video/*">
     </label>
+    <div id="videoInfo" class="fileInfo">動画は未選択です</div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div>
+        <label for="trimStart">動画の開始（秒）</label>
+        <input id="trimStart" type="number" min="0" step="0.1" value="0">
+      </div>
+      <div>
+        <label for="trimEnd">動画の終了（秒）</label>
+        <input id="trimEnd" type="number" min="0" step="0.1" value="0">
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <label for="originalVolume">元動画の音量</label>
+      <div class="rangeRow">
+        <input id="originalVolume" type="range" min="0" max="200" value="100">
+        <span id="originalVolumeValue" class="value">100%</span>
+      </div>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:9px;margin-top:10px;font-size:14px">
+      <input id="discardAudio" type="checkbox" style="width:20px;height:20px">
+      元動画の音を完全に消す
+    </label>
+
+    <hr style="margin:18px 0;border:0;border-top:1px solid #eee8de">
+
+    <label class="fileLabel">
+      追加する音声・音楽を選ぶ
+      <input id="videoAudioInput" type="file"
+        accept="audio/*,.wav,.wave,.mp3,.m4a,.aac,.flac,.ogg,.opus">
+    </label>
+    <div id="videoAudioInfo" class="fileInfo">追加音声は未選択です</div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div>
+        <label for="videoAudioStart">追加音声の開始位置（秒）</label>
+        <input id="videoAudioStart" type="number" min="0" step="0.1" value="0">
+      </div>
+      <div>
+        <label for="videoAudioVolume">追加音声の音量</label>
+        <div class="rangeRow">
+          <input id="videoAudioVolume" type="range" min="0" max="200" value="100">
+          <span id="videoAudioVolumeValue" class="value">100%</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -96,7 +140,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.0は保存方式の確認を最優先にした版です。分割削除・別音声ミックスは、iPhoneでMP4保存が成功したあとに戻します。</p>
+  <p class="note">v3.1では、動画の元音声と追加音声を別々に調整してMP4へ合成できます。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -111,7 +155,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 
 <script type="module">
 const $=id=>document.getElementById(id);
-let mode="image",imageFile=null,audioFile=null,videoFile=null,imageBitmap=null,videoUrl="",resultUrl="",resultFile=null,mediabunnyModule=null;
+let mode="image",imageFile=null,audioFile=null,videoFile=null,videoAudioFile=null,imageBitmap=null,videoUrl="",resultUrl="",resultFile=null,mediabunnyModule=null;
 const canvas=$("previewCanvas"),ctx=canvas.getContext("2d"),sourceVideo=$("sourceVideo");
 
 function setMode(next){
@@ -148,7 +192,23 @@ function drawPreview(){
 $("imageInput").onchange=async e=>{imageFile=e.target.files[0]||null;if(!imageFile)return;if(imageBitmap)imageBitmap.close();imageBitmap=await createImageBitmap(imageFile);$("imageInfo").textContent=imageFile.name;drawPreview()};
 $("audioInput").onchange=e=>{audioFile=e.target.files[0]||null;$("audioInfo").textContent=audioFile?audioFile.name:"音声は未選択です"};
 $("videoInput").onchange=e=>{videoFile=e.target.files[0]||null;if(!videoFile)return;if(videoUrl)URL.revokeObjectURL(videoUrl);videoUrl=URL.createObjectURL(videoFile);sourceVideo.src=videoUrl;$("videoInfo").textContent=videoFile.name;sourceVideo.onloadedmetadata=()=>{$("trimStart").value="0";$("trimEnd").value=sourceVideo.duration.toFixed(1);sourceVideo.currentTime=0};sourceVideo.onloadeddata=drawPreview};
-$("audioVolume").oninput=()=>{$("audioVolumeValue").textContent=$("audioVolume").value+"%"};
+$("audioVolume").oninput=()=>{
+  $("audioVolumeValue").textContent=$("audioVolume").value+"%";
+};
+
+$("originalVolume").oninput=()=>{
+  $("originalVolumeValue").textContent=$("originalVolume").value+"%";
+};
+
+$("videoAudioVolume").oninput=()=>{
+  $("videoAudioVolumeValue").textContent=$("videoAudioVolume").value+"%";
+};
+
+$("videoAudioInput").onchange=e=>{
+  videoAudioFile=e.target.files[0]||null;
+  $("videoAudioInfo").textContent=
+    videoAudioFile?videoAudioFile.name:"追加音声は未選択です";
+};
 
 $("previewBtn").onclick=async()=>{
   if(mode==="video"&&videoFile){
@@ -174,6 +234,209 @@ function cropAudioBuffer(buffer,start,duration,volume){
   context.close();return output;
 }
 
+
+async function decodeAudioFile(file){
+  if(!file)return null;
+
+  const context=new AudioContext();
+
+  try{
+    return await context.decodeAudioData(
+      await file.arrayBuffer()
+    );
+  }finally{
+    await context.close();
+  }
+}
+
+function createSilentAudioBuffer(duration,sampleRate=44100,channels=2){
+  const context=new AudioContext({sampleRate});
+  const buffer=context.createBuffer(
+    channels,
+    Math.max(1,Math.ceil(duration*sampleRate)),
+    sampleRate
+  );
+  context.close();
+  return buffer;
+}
+
+function sampleAt(buffer,channel,time){
+  if(!buffer||time<0||time>=buffer.duration)return 0;
+
+  const sourceChannel=Math.min(
+    channel,
+    buffer.numberOfChannels-1
+  );
+
+  const data=buffer.getChannelData(sourceChannel);
+  const position=time*buffer.sampleRate;
+  const index=Math.floor(position);
+  const fraction=position-index;
+
+  const a=data[index]||0;
+  const b=data[Math.min(index+1,data.length-1)]||a;
+
+  return a+(b-a)*fraction;
+}
+
+function mixAudioBuffers({
+  duration,
+  originalBuffer=null,
+  originalStart=0,
+  originalVolume=1,
+  extraBuffer=null,
+  extraStart=0,
+  extraVolume=1
+}){
+  const sampleRate=Math.max(
+    originalBuffer?.sampleRate||0,
+    extraBuffer?.sampleRate||0,
+    44100
+  );
+
+  const channels=Math.max(
+    originalBuffer?.numberOfChannels||0,
+    extraBuffer?.numberOfChannels||0,
+    2
+  );
+
+  const context=new AudioContext({sampleRate});
+  const output=context.createBuffer(
+    channels,
+    Math.max(1,Math.ceil(duration*sampleRate)),
+    sampleRate
+  );
+
+  for(let channel=0;channel<channels;channel++){
+    const destination=output.getChannelData(channel);
+
+    for(let frame=0;frame<destination.length;frame++){
+      const outputTime=frame/sampleRate;
+
+      const originalValue=sampleAt(
+        originalBuffer,
+        channel,
+        originalStart+outputTime
+      )*originalVolume;
+
+      const extraValue=sampleAt(
+        extraBuffer,
+        channel,
+        outputTime-extraStart
+      )*extraVolume;
+
+      destination[frame]=Math.max(
+        -1,
+        Math.min(1,originalValue+extraValue)
+      );
+    }
+  }
+
+  context.close();
+  return output;
+}
+
+async function renderVideoFrames({
+  M,
+  videoFile,
+  output,
+  videoSource,
+  start,
+  end,
+  width,
+  height,
+  fit
+}){
+  const {
+    Input,BlobSource,ALL_FORMATS,VideoSampleSink
+  }=M;
+
+  const input=new Input({
+    source:new BlobSource(videoFile,{useStreamReader:false}),
+    formats:ALL_FORMATS
+  });
+
+  const videoTrack=await input.getPrimaryVideoTrack();
+
+  if(!videoTrack){
+    throw new Error("動画トラックが見つかりません");
+  }
+
+  const sink=new VideoSampleSink(videoTrack,{
+    hardwareAcceleration:"prefer-hardware"
+  });
+
+  const work=document.createElement("canvas");
+  work.width=width;
+  work.height=height;
+  const workContext=work.getContext("2d");
+
+  const bg=$("background").value;
+  let frameCount=0;
+
+  for await(
+    const sample of sink.samples(start,end)
+  ){
+    const frame=sample.toVideoFrame();
+
+    workContext.fillStyle=bg;
+    workContext.fillRect(0,0,width,height);
+
+    const sourceWidth=frame.displayWidth||frame.codedWidth;
+    const sourceHeight=frame.displayHeight||frame.codedHeight;
+
+    let drawWidth=width;
+    let drawHeight=height;
+
+    if(fit!=="fill"){
+      const scale=fit==="cover"
+        ?Math.max(width/sourceWidth,height/sourceHeight)
+        :Math.min(width/sourceWidth,height/sourceHeight);
+
+      drawWidth=sourceWidth*scale;
+      drawHeight=sourceHeight*scale;
+    }
+
+    workContext.drawImage(
+      frame,
+      (width-drawWidth)/2,
+      (height-drawHeight)/2,
+      drawWidth,
+      drawHeight
+    );
+
+    const timestamp=Math.max(0,sample.timestamp-start);
+    const duration=Math.max(
+      1/60,
+      sample.duration||1/30
+    );
+
+    await videoSource.add(
+      timestamp,
+      duration,
+      {keyFrame:frameCount%60===0}
+    );
+
+    frame.close();
+    sample.close();
+    frameCount++;
+
+    if(frameCount%15===0){
+      const progress=Math.min(
+        1,
+        timestamp/Math.max(.001,end-start)
+      );
+      $("progressBar").style.width=
+        (20+progress*55)+"%";
+
+      $("status").textContent=
+        "映像を変換中… "+
+        Math.round(progress*100)+"%";
+    }
+  }
+
+  videoSource.close();
+}
 async function exportImageVideo(M){
   if(!imageFile||!audioFile)throw new Error("静止画と音声を両方選んでください");
   const {Output,Mp4OutputFormat,BufferTarget,CanvasSource,AudioBufferSource}=M;
@@ -190,19 +453,226 @@ async function exportImageVideo(M){
 }
 
 async function exportTrimmedVideo(M){
-  if(!videoFile)throw new Error("動画を選んでください");
-  const {Input,Output,BlobSource,ALL_FORMATS,Mp4OutputFormat,BufferTarget,Conversion}=M;
-  const start=Math.max(0,Number($("trimStart").value)||0),end=Math.max(start+0.1,Number($("trimEnd").value)||sourceVideo.duration),[width,height]=$("format").value.split("x").map(Number);
-  const input=new Input({source:new BlobSource(videoFile),formats:ALL_FORMATS});
-  const target=new BufferTarget(),output=new Output({format:new Mp4OutputFormat({fastStart:"in-memory"}),target});
-  const conversion=await Conversion.init({
-    input,output,trim:{start,end},tracks:"primary",
-    video:{width,height,fit:$("fit").value,codec:"avc",bitrate:3000000,frameRate:30,forceTranscode:true,hardwareAcceleration:"prefer-hardware"},
-    audio:$("discardAudio").checked?{discard:true}:{codec:"aac",bitrate:192000,forceTranscode:true}
+  if(!videoFile){
+    throw new Error("動画を選んでください");
+  }
+
+  const {
+    Output,Mp4OutputFormat,BufferTarget,
+    CanvasSource,AudioBufferSource
+  }=M;
+
+  const start=Math.max(
+    0,
+    Number($("trimStart").value)||0
+  );
+
+  const end=Math.max(
+    start+0.1,
+    Number($("trimEnd").value)||
+    sourceVideo.duration
+  );
+
+  const duration=end-start;
+  const [width,height]=$("format")
+    .value
+    .split("x")
+    .map(Number);
+
+  const originalVolume=$("discardAudio").checked
+    ?0
+    :Number($("originalVolume").value)/100;
+
+  const extraVolume=
+    Number($("videoAudioVolume").value)/100;
+
+  const extraStart=Math.max(
+    0,
+    Number($("videoAudioStart").value)||0
+  );
+
+  $("status").textContent="音声を準備中…";
+  $("progressBar").style.width="22%";
+
+  let originalBuffer=null;
+
+  if(originalVolume>0){
+    try{
+      originalBuffer=await decodeAudioFile(videoFile);
+    }catch(error){
+      console.warn("元動画の音声を読めませんでした",error);
+    }
+  }
+
+  let extraBuffer=null;
+
+  if(videoAudioFile&&extraVolume>0){
+    extraBuffer=await decodeAudioFile(videoAudioFile);
+  }
+
+  const mixedBuffer=mixAudioBuffers({
+    duration,
+    originalBuffer,
+    originalStart:start,
+    originalVolume,
+    extraBuffer,
+    extraStart,
+    extraVolume
   });
-  if(!conversion.isValid){const reasons=conversion.discardedTracks.map(item=>item.reason).join(", ");throw new Error("変換できません: "+reasons)}
-  conversion.onProgress=progress=>{$("progressBar").style.width=(20+progress*75)+"%";$("status").textContent="MP4変換中… "+Math.round(progress*100)+"%"};
-  await conversion.execute();return new Uint8Array(target.buffer);
+
+  const target=new BufferTarget();
+
+  const output=new Output({
+    format:new Mp4OutputFormat({
+      fastStart:"in-memory"
+    }),
+    target
+  });
+
+  const renderCanvas=document.createElement("canvas");
+  renderCanvas.width=width;
+  renderCanvas.height=height;
+
+  const videoSource=new CanvasSource(
+    renderCanvas,
+    {
+      codec:"avc",
+      bitrate:3_000_000,
+      hardwareAcceleration:"prefer-hardware"
+    }
+  );
+
+  const audioSource=new AudioBufferSource({
+    codec:"aac",
+    bitrate:192_000
+  });
+
+  output.addVideoTrack(
+    videoSource,
+    {frameRate:30}
+  );
+  output.addAudioTrack(audioSource);
+
+  await output.start();
+
+  // CanvasSourceは固定Canvasを参照するため、
+  // renderVideoFrames内で同じCanvasへ描画する。
+  const originalCanvas=canvas;
+  const originalContext=ctx;
+
+  const input=new M.Input({
+    source:new M.BlobSource(
+      videoFile,
+      {useStreamReader:false}
+    ),
+    formats:M.ALL_FORMATS
+  });
+
+  const videoTrack=
+    await input.getPrimaryVideoTrack();
+
+  if(!videoTrack){
+    throw new Error("動画トラックが見つかりません");
+  }
+
+  const sink=new M.VideoSampleSink(
+    videoTrack,
+    {hardwareAcceleration:"prefer-hardware"}
+  );
+
+  const renderContext=
+    renderCanvas.getContext("2d");
+
+  let frameCount=0;
+
+  for await(
+    const sample of sink.samples(start,end)
+  ){
+    const frame=sample.toVideoFrame();
+
+    renderContext.fillStyle=$("background").value;
+    renderContext.fillRect(0,0,width,height);
+
+    const sourceWidth=
+      frame.displayWidth||frame.codedWidth;
+
+    const sourceHeight=
+      frame.displayHeight||frame.codedHeight;
+
+    let drawWidth=width;
+    let drawHeight=height;
+
+    if($("fit").value!=="fill"){
+      const scale=$("fit").value==="cover"
+        ?Math.max(
+            width/sourceWidth,
+            height/sourceHeight
+          )
+        :Math.min(
+            width/sourceWidth,
+            height/sourceHeight
+          );
+
+      drawWidth=sourceWidth*scale;
+      drawHeight=sourceHeight*scale;
+    }
+
+    renderContext.drawImage(
+      frame,
+      (width-drawWidth)/2,
+      (height-drawHeight)/2,
+      drawWidth,
+      drawHeight
+    );
+
+    const timestamp=Math.max(
+      0,
+      sample.timestamp-start
+    );
+
+    const frameDuration=Math.max(
+      1/60,
+      sample.duration||1/30
+    );
+
+    await videoSource.add(
+      timestamp,
+      frameDuration,
+      {keyFrame:frameCount%60===0}
+    );
+
+    frame.close();
+    sample.close();
+    frameCount++;
+
+    if(frameCount%15===0){
+      const progress=Math.min(
+        1,
+        timestamp/Math.max(.001,duration)
+      );
+
+      $("progressBar").style.width=
+        (25+progress*55)+"%";
+
+      $("status").textContent=
+        "映像を変換中… "+
+        Math.round(progress*100)+"%";
+    }
+  }
+
+  videoSource.close();
+
+  $("status").textContent="音声をMP4へ追加中…";
+  $("progressBar").style.width="84%";
+
+  await audioSource.add(mixedBuffer);
+  audioSource.close();
+
+  await output.finalize();
+
+  $("progressBar").style.width="95%";
+
+  return new Uint8Array(target.buffer);
 }
 
 $("exportBtn").onclick=async()=>{
