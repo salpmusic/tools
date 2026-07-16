@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.1</title>
+<title>salp Simple Video v3.2</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -32,14 +32,107 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 .saveLink{display:flex;align-items:center;justify-content:center;text-decoration:none}
 .modeTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.modeTabs button.active{background:#222;color:#fff;border-color:#222}
 .rangeRow{display:grid;grid-template-columns:1fr 62px;gap:10px;align-items:center}.value{text-align:right;font-weight:900;font-size:13px}
+
+.audioTimelineBox{
+  margin-top:14px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#f4f0e9;
+}
+.audioTimelineHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:9px;
+  color:#666;
+  font-size:12px;
+  font-weight:900;
+}
+.audioTimeline{
+  position:relative;
+  height:72px;
+  overflow:hidden;
+  border-radius:13px;
+  background:#d8d1c7;
+  touch-action:none;
+}
+.videoTrackBar{
+  position:absolute;
+  left:0;
+  right:0;
+  top:10px;
+  height:20px;
+  border-radius:8px;
+  background:linear-gradient(90deg,#6fd8ff,#77ecb1);
+}
+.videoTrackBar::before{
+  content:"VIDEO";
+  position:absolute;
+  left:8px;
+  top:2px;
+  color:#102018;
+  font-size:10px;
+  font-weight:900;
+}
+.audioClipBar{
+  position:absolute;
+  top:40px;
+  height:22px;
+  min-width:18px;
+  border:2px solid #fff;
+  border-radius:8px;
+  background:linear-gradient(90deg,#ff8fbd,#ffb26c);
+  box-shadow:0 3px 10px rgba(0,0,0,.22);
+  touch-action:none;
+}
+.audioClipBar::before{
+  content:"AUDIO";
+  position:absolute;
+  left:7px;
+  top:1px;
+  color:#40202c;
+  font-size:10px;
+  font-weight:900;
+}
+.audioClipHandle{
+  position:absolute;
+  left:-8px;
+  top:-5px;
+  width:16px;
+  height:32px;
+  border-radius:7px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.32);
+}
+.audioTimelineMarks{
+  display:flex;
+  justify-content:space-between;
+  margin-top:6px;
+  color:#888;
+  font-size:10px;
+}
+.audioPositionButtons{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin-top:10px;
+}
+.audioPositionButtons button{
+  min-height:38px;
+  padding:7px;
+  font-size:12px;
+}
+
 @media(max-width:620px){.grid2,.grid3,.actions{grid-template-columns:1fr}h1{font-size:29px}.stage{min-height:320px}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.1</h1>
-  <div class="sub">追加音声・元音声の個別ボリューム調整対応</div>
+  <h1>🎬 salp Simple Video v3.2</h1>
+  <div class="sub">追加音声をタイムライン上で移動・個別音量調整</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -122,6 +215,32 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
         </div>
       </div>
     </div>
+
+    <div class="audioTimelineBox">
+      <div class="audioTimelineHead">
+        <span>🎵 追加音声の位置</span>
+        <span id="audioPositionLabel">0.0秒から開始</span>
+      </div>
+
+      <div id="audioTimeline" class="audioTimeline">
+        <div class="videoTrackBar"></div>
+        <div id="audioClipBar" class="audioClipBar">
+          <div class="audioClipHandle"></div>
+        </div>
+      </div>
+
+      <div class="audioTimelineMarks">
+        <span>0秒</span>
+        <span id="audioTimelineEnd">0秒</span>
+      </div>
+
+      <div class="audioPositionButtons">
+        <button data-audio-shift="-5">−5秒</button>
+        <button data-audio-shift="-1">−1秒</button>
+        <button data-audio-shift="1">＋1秒</button>
+        <button data-audio-shift="5">＋5秒</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -140,7 +259,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.1では、動画の元音声と追加音声を別々に調整してMP4へ合成できます。</p>
+  <p class="note">v3.2では、追加音声をタイムライン上で左右に動かし、開始位置と音量を調整できます。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -155,7 +274,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 
 <script type="module">
 const $=id=>document.getElementById(id);
-let mode="image",imageFile=null,audioFile=null,videoFile=null,videoAudioFile=null,imageBitmap=null,videoUrl="",resultUrl="",resultFile=null,mediabunnyModule=null;
+let mode="image",imageFile=null,audioFile=null,videoFile=null,videoAudioFile=null,imageBitmap=null,videoUrl="",resultUrl="",resultFile=null,mediabunnyModule=null,videoAudioDuration=0,audioDragging=false;
 const canvas=$("previewCanvas"),ctx=canvas.getContext("2d"),sourceVideo=$("sourceVideo");
 
 function setMode(next){
@@ -204,10 +323,36 @@ $("videoAudioVolume").oninput=()=>{
   $("videoAudioVolumeValue").textContent=$("videoAudioVolume").value+"%";
 };
 
-$("videoAudioInput").onchange=e=>{
+$("videoAudioInput").onchange=async e=>{
   videoAudioFile=e.target.files[0]||null;
   $("videoAudioInfo").textContent=
     videoAudioFile?videoAudioFile.name:"追加音声は未選択です";
+
+  videoAudioDuration=0;
+
+  if(videoAudioFile){
+    try{
+      const tempAudio=document.createElement("audio");
+      const tempUrl=URL.createObjectURL(videoAudioFile);
+
+      await new Promise((resolve,reject)=>{
+        tempAudio.preload="metadata";
+        tempAudio.onloadedmetadata=resolve;
+        tempAudio.onerror=reject;
+        tempAudio.src=tempUrl;
+      });
+
+      videoAudioDuration=Number.isFinite(tempAudio.duration)
+        ?tempAudio.duration
+        :0;
+
+      URL.revokeObjectURL(tempUrl);
+    }catch(error){
+      console.warn("追加音声の長さを取得できませんでした",error);
+    }
+  }
+
+  updateAudioTimeline();
 };
 
 $("previewBtn").onclick=async()=>{
@@ -235,6 +380,122 @@ function cropAudioBuffer(buffer,start,duration,volume){
 }
 
 
+
+function currentVideoDuration(){
+  const start=Math.max(0,Number($("trimStart").value)||0);
+  const end=Math.max(
+    start,
+    Number($("trimEnd").value)||
+    sourceVideo.duration||
+    0
+  );
+
+  return Math.max(0,end-start);
+}
+
+function clampAudioStart(value){
+  const videoDuration=currentVideoDuration();
+  return Math.max(0,Math.min(videoDuration,value));
+}
+
+function setAudioStart(value){
+  const next=clampAudioStart(Number(value)||0);
+  $("videoAudioStart").value=next.toFixed(1);
+  updateAudioTimeline();
+}
+
+function updateAudioTimeline(){
+  const videoDuration=currentVideoDuration();
+  const audioStart=clampAudioStart(
+    Number($("videoAudioStart").value)||0
+  );
+
+  const visibleAudioDuration=Math.max(
+    .1,
+    Math.min(
+      videoAudioDuration||videoDuration||1,
+      Math.max(0,videoDuration-audioStart)
+    )
+  );
+
+  const startPercent=videoDuration
+    ?audioStart/videoDuration*100
+    :0;
+
+  const widthPercent=videoDuration
+    ?visibleAudioDuration/videoDuration*100
+    :0;
+
+  $("audioClipBar").style.left=startPercent+"%";
+  $("audioClipBar").style.width=
+    Math.max(3,Math.min(100-startPercent,widthPercent))+"%";
+
+  $("audioPositionLabel").textContent=
+    audioStart.toFixed(1)+"秒から開始";
+
+  $("audioTimelineEnd").textContent=
+    videoDuration.toFixed(1)+"秒";
+
+  if(Number($("videoAudioStart").value)!==audioStart){
+    $("videoAudioStart").value=audioStart.toFixed(1);
+  }
+}
+
+$("videoAudioStart").addEventListener("input",updateAudioTimeline);
+$("trimStart").addEventListener("input",updateAudioTimeline);
+$("trimEnd").addEventListener("input",updateAudioTimeline);
+
+document.querySelectorAll("[data-audio-shift]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    const delta=Number(button.dataset.audioShift)||0;
+    setAudioStart(
+      (Number($("videoAudioStart").value)||0)+delta
+    );
+  });
+});
+
+const audioTimeline=$("audioTimeline");
+const audioClipBar=$("audioClipBar");
+
+function pointerToAudioStart(event){
+  const rect=audioTimeline.getBoundingClientRect();
+  const videoDuration=currentVideoDuration();
+
+  if(!videoDuration)return 0;
+
+  const percent=Math.max(
+    0,
+    Math.min(1,(event.clientX-rect.left)/rect.width)
+  );
+
+  return percent*videoDuration;
+}
+
+audioClipBar.addEventListener("pointerdown",event=>{
+  event.preventDefault();
+  audioDragging=true;
+  audioClipBar.setPointerCapture(event.pointerId);
+  setAudioStart(pointerToAudioStart(event));
+});
+
+audioClipBar.addEventListener("pointermove",event=>{
+  if(!audioDragging)return;
+  setAudioStart(pointerToAudioStart(event));
+});
+
+audioClipBar.addEventListener("pointerup",event=>{
+  audioDragging=false;
+  audioClipBar.releasePointerCapture(event.pointerId);
+});
+
+audioClipBar.addEventListener("pointercancel",()=>{
+  audioDragging=false;
+});
+
+audioTimeline.addEventListener("pointerdown",event=>{
+  if(event.target.closest("#audioClipBar"))return;
+  setAudioStart(pointerToAudioStart(event));
+});
 async function decodeAudioFile(file){
   if(!file)return null;
 
@@ -699,6 +960,7 @@ $("shareBtn").onclick=async()=>{
 
 window.addEventListener("beforeunload",()=>{if(videoUrl)URL.revokeObjectURL(videoUrl);if(resultUrl)URL.revokeObjectURL(resultUrl);if(imageBitmap)imageBitmap.close()});
 drawPreview();
+updateAudioTimeline();
 </script>
 </body>
 </html>
