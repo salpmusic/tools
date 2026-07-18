@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp N88-BASIC v0.5 FM</title>
+<title>salp PC-8801MH Browser Edition v0.6</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -42,14 +42,151 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .keyHidden{display:none!important}
 @media(max-width:520px){.gameKeys{gap:14px}.dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}.actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}.keyChecks{grid-template-columns:repeat(2,1fr)}}
 
+
+:root{
+ --crt-fg:#7ef2a8;
+ --crt-glow:#7ef2a8;
+ --crt-bg:#000000;
+ --crt-filter:none;
+}
+.machinePanel{
+ margin-bottom:10px;
+ border:1px solid var(--line);
+ border-radius:16px;
+ background:linear-gradient(180deg,#151e31,#0d1423);
+ overflow:hidden;
+}
+.machineSummary{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ flex-wrap:wrap;
+ padding:11px 13px;
+}
+.machineName{font-weight:950;letter-spacing:.04em}
+.machineBadges{display:flex;gap:7px;flex-wrap:wrap}
+.machineBadge{
+ padding:5px 9px;
+ border:1px solid var(--line);
+ border-radius:999px;
+ background:#090f1a;
+ color:var(--cyan);
+ font-size:11px;
+ font-weight:900;
+}
+.settingsGrid{
+ display:grid;
+ grid-template-columns:repeat(5,minmax(120px,1fr));
+ gap:9px;
+ padding:0 13px 13px;
+}
+.settingBox{
+ padding:10px;
+ border:1px solid var(--line);
+ border-radius:12px;
+ background:#080e19;
+}
+.settingBox label{
+ display:block;
+ margin-bottom:6px;
+ color:var(--muted);
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.08em;
+}
+.settingBox select,.settingBox input{
+ width:100%;
+ min-height:39px;
+ border:1px solid var(--line);
+ border-radius:9px;
+ padding:7px 8px;
+ background:#121b2c;
+ color:var(--text);
+ font-weight:800;
+}
+.switchLine{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ color:var(--text);
+ font-size:12px;
+ font-weight:800;
+}
+.switchLine input{width:auto;accent-color:var(--cyan)}
+.displayFrame{
+ background:var(--crt-bg)!important;
+ filter:var(--crt-filter);
+ transition:filter .2s,box-shadow .2s,background .2s;
+}
+.displayFrame.crtGlow{
+ box-shadow:inset 0 0 35px #000,0 0 22px color-mix(in srgb,var(--crt-glow) 35%,transparent);
+}
+.displayFrame.crtCurve{
+ border-radius:20px/13px;
+ transform:perspective(900px) rotateX(.15deg);
+}
+.displayFrame.crtCurve::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ border-radius:inherit;
+ box-shadow:inset 0 0 24px #000b;
+}
+.scanlines.off{display:none}
+.bootOverlay{
+ position:absolute;
+ inset:0;
+ z-index:20;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ background:#000;
+ color:var(--crt-fg);
+ text-shadow:0 0 9px var(--crt-glow);
+ font:700 20px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ text-align:center;
+ white-space:pre-line;
+}
+.bootOverlay.show{display:flex}
+.mhLed{
+ display:inline-block;
+ width:8px;height:8px;
+ border-radius:50%;
+ margin-right:5px;
+ background:#50fa7b;
+ box-shadow:0 0 8px #50fa7b;
+}
+.soundMeter{
+ height:5px;
+ margin-top:7px;
+ border-radius:999px;
+ background:#172238;
+ overflow:hidden;
+}
+.soundMeter span{
+ display:block;
+ height:100%;
+ width:40%;
+ border-radius:inherit;
+ background:linear-gradient(90deg,var(--cyan),var(--pink));
+ transition:width .12s;
+}
+@media(max-width:850px){.settingsGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.settingsGrid{grid-template-columns:1fr}.machineSummary{align-items:flex-start}}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp N88-BASIC</h1><div class="sub">N88-BASIC Compatible Browser Interpreter</div></div></div><div class="version">v0.5 FM SOUND</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.6 MH EDITION</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
+<button id="bootBtn">⏻ MH BOOT</button>
+<button id="settingsBtn">⚙ MH SETTINGS</button>
 <button id="stopBtn">■ STOP</button>
 <button id="listBtn">LIST</button>
 <button id="newBtn">NEW</button>
@@ -61,6 +198,70 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <button id="loadBtn">LOAD</button>
 <input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
 </div>
+
+
+<section class="machinePanel" id="machinePanel">
+  <div class="machineSummary">
+    <div>
+      <div class="machineName"><span class="mhLed"></span>NEC PC-8801MH</div>
+      <div class="sub">Browser-compatible recreation mode</div>
+    </div>
+    <div class="machineBadges">
+      <span class="machineBadge" id="clockBadge">8MHz</span>
+      <span class="machineBadge" id="displayBadge">COLOR CRT</span>
+      <span class="machineBadge" id="soundBadge">FM AUTO</span>
+    </div>
+  </div>
+
+  <div class="settingsGrid" id="settingsGrid">
+    <div class="settingBox">
+      <label>CPU CLOCK</label>
+      <select id="cpuClock">
+        <option value="8" selected>8 MHz（高速）</option>
+        <option value="4">4 MHz（標準）</option>
+      </select>
+    </div>
+
+    <div class="settingBox">
+      <label>DISPLAY</label>
+      <select id="displayMode">
+        <option value="color" selected>Color Monitor</option>
+        <option value="green">Green CRT</option>
+        <option value="amber">Amber CRT</option>
+        <option value="white">White CRT</option>
+        <option value="lcd">Modern LCD</option>
+      </select>
+    </div>
+
+    <div class="settingBox">
+      <label>FM SOUND</label>
+      <select id="soundMode">
+        <option value="real" selected>MH Hardware Style</option>
+        <option value="enhanced">salp Enhanced</option>
+        <option value="silent">Silent</option>
+      </select>
+      <div class="soundMeter"><span id="soundMeterBar"></span></div>
+    </div>
+
+    <div class="settingBox">
+      <label>INSTRUMENT OVERRIDE</label>
+      <select id="instrumentMode">
+        <option value="auto" selected>Auto（MMLの@指定）</option>
+        <option value="12">Glock / Bell</option>
+        <option value="13">Piano</option>
+        <option value="2">Strings</option>
+        <option value="11">Harpsichord</option>
+      </select>
+    </div>
+
+    <div class="settingBox">
+      <label>CRT EFFECTS</label>
+      <div class="switchLine"><span>Scanlines</span><input id="scanToggle" type="checkbox" checked></div>
+      <div class="switchLine"><span>Glow</span><input id="glowToggle" type="checkbox" checked></div>
+      <div class="switchLine"><span>Curved glass</span><input id="curveToggle" type="checkbox"></div>
+    </div>
+  </div>
+</section>
 
 <div class="workspace">
 <section class="panel">
@@ -87,7 +288,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 
 <section class="panel">
 <div class="panelHead"><span>N88 SCREEN 640×400</span><span id="status">Ready</span></div>
-<div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div id="touchMarker" class="touchMarker"></div><div class="scanlines"></div></div></div>
+<div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div id="bootOverlay" class="bootOverlay"></div><div id="touchMarker" class="touchMarker"></div><div class="scanlines"></div></div></div>
 <div class="statusbar"><span id="cursorInfo">LOCATE 0,0</span><span class="touchHint">Touch screen → mouse coordinates</span></div>
 </section>
 </div>
@@ -151,12 +352,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.5追加：</b>
-PC-8801mkIISR風FM音源拡張：NEW CMD / CMD BGM / CMD PLAY / CMD STOPM /
-MMLの T・O・L・@・&gt;・&lt;・CDEFGAB・R・+・#・-・付点・音長指定。<br>
-@2=ストリング、@11=ハープシコード、@12=ベル、@13=ピアノをブラウザのWeb Audioで再現します。
-BGMモードでは演奏中もBASICプログラムが進み、同じCMD PLAYを繰り返しても重複再生しません。<br>
-※実機YM2203の完全エミュレーションではなく、Web AudioによるFM風互換音源です。
+<div class="help"><b>v0.6 PC-8801MH Edition：</b>
+4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
+CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
+MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出を追加。<br>
+CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
+実機ROMや実機回路を使う完全エミュレーターではなく、N88-BASIC互換環境として再現しています。
 </div>
 </div>
 
@@ -166,7 +367,7 @@ const $=id=>document.getElementById(id);
 const editor=$("editor"),canvas=$("screen"),ctx=canvas.getContext("2d"),promptInput=$("prompt"),statusEl=$("status"),cursorInfo=$("cursorInfo");
 const palette=["#000000","#243cff","#ef3b43","#d23ee8","#30d85a","#35d9dd","#f0df48","#f4f4f4","#777777","#7190ff","#ff7d84","#f18cff","#83f49a","#88f2f2","#fff18b","#ffffff"];
 const COLS=80,ROWS=25,CW=8,CH=16;
-let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,mmlSession=null,mmlBgm=true,mmlLastSource="",directVars={},directArrays={};
+let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,mmlSession=null,mmlBgm=true,mmlLastSource="",cpuClock=8,displayMode="color",soundMode="real",instrumentOverride="auto",directVars={},directArrays={};
 
 function resetText(){textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" "));cursorX=0;cursorY=0}
 function resetScreen(){ctx.fillStyle=palette[bg];ctx.fillRect(0,0,640,400);resetText();renderText()}
@@ -262,13 +463,20 @@ function stopMml(){
  setStatus(stopped?"Stopped":"Ready")
 }
 function mmlInstrumentPreset(n){
+ if(instrumentOverride!=="auto")n=Number(instrumentOverride);
  const presets={
   2:{name:"Strings",carrier:"sawtooth",mod:"sine",ratio:1.005,index:18,attack:.055,decay:.24,sustain:.55,release:.55,gain:.045},
   11:{name:"Harpsichord",carrier:"square",mod:"sine",ratio:2,index:75,attack:.003,decay:.15,sustain:.18,release:.16,gain:.042},
-  12:{name:"Bell",carrier:"sine",mod:"sine",ratio:2.71,index:260,attack:.003,decay:.75,sustain:.12,release:1.05,gain:.055},
+  12:{name:"Glock / Bell",carrier:"sine",mod:"sine",ratio:2.71,index:260,attack:.003,decay:.75,sustain:.12,release:1.05,gain:.055},
   13:{name:"Piano",carrier:"triangle",mod:"sine",ratio:2,index:62,attack:.006,decay:.34,sustain:.28,release:.48,gain:.05}
  };
- return presets[n]||presets[13]
+ const p={...(presets[n]||presets[13])};
+ if(soundMode==="enhanced"){
+  p.gain*=1.12;p.release*=1.35;p.index*=1.12;
+ }else if(soundMode==="real"){
+  p.gain*=.9;p.release*=.78;
+ }
+ return p
 }
 function parseMml(source){
  const s=String(source||"").toUpperCase();
@@ -312,6 +520,8 @@ function parseMml(source){
  return events
 }
 async function scheduleFmNote(ac,start,freq,duration,preset,session){
+ if(soundMode==="silent")return;
+ const meter=$("soundMeterBar");if(meter){meter.style.width=Math.min(100,28+freq/18)+"%";setTimeout(()=>meter.style.width="18%",130)}
  const carrier=ac.createOscillator(),mod=ac.createOscillator();
  const modGain=ac.createGain(),amp=ac.createGain();
  carrier.type=preset.carrier;mod.type=preset.mod;
@@ -418,8 +628,9 @@ async function execStmt(s,state,idx){
 }
 
 async function runProgram(){
- stopped=false;setStatus("Running");const lines=parseProgram(),state={vars:{},arrays:{},gosub:[],forStack:[],data:collectData(lines),dataPtr:0};let i=0,ops=0;
- while(i<lines.length&&!stopped){let moved=false;for(const s of splitStatements(lines[i].text)){const r=await execStmt(s,state,i);if(++ops%100===0)await new Promise(requestAnimationFrame);if(ops>500000)throw Error("Too many operations");if(r.end){i=lines.length;moved=true;break}if(r.jump!=null){const n=lineIndex(lines,r.jump);if(n<0)throw Error("Undefined line "+r.jump);i=n;moved=true;break}if(r.index!=null){i=r.index;moved=true;break}}if(!moved)i++}
+ stopped=false;setStatus(`Running ${cpuClock}MHz`);const lines=parseProgram(),state={vars:{},arrays:{},gosub:[],forStack:[],data:collectData(lines),dataPtr:0};let i=0,ops=0;
+ const frameOps=cpuClock===4?55:150;
+ while(i<lines.length&&!stopped){let moved=false;for(const s of splitStatements(lines[i].text)){const r=await execStmt(s,state,i);if(++ops%frameOps===0)await new Promise(requestAnimationFrame);if(ops>500000)throw Error("Too many operations");if(r.end){i=lines.length;moved=true;break}if(r.jump!=null){const n=lineIndex(lines,r.jump);if(n<0)throw Error("Undefined line "+r.jump);i=n;moved=true;break}if(r.index!=null){i=r.index;moved=true;break}}if(!moved)i++}
  setStatus(stopped?"Stopped":"Ready");if(!stopped)printText("Ok")
 }
 function renumProgram(start=10,step=10){
@@ -530,6 +741,84 @@ $("fileInput").onchange=async e=>{const f=e.target.files[0];if(f)editor.value=aw
 $("enterBtn").onclick=()=>{const v=promptInput.value;promptInput.value="";if(waitingInput){const r=waitingInput.resolve;waitingInput=null;promptInput.placeholder='PRINT LEFT$("SALP",2)';r(v)}else safe(()=>direct(v))};
 promptInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();$("enterBtn").click()}else if(!waitingInput&&e.key==="ArrowUp"){e.preventDefault();if(historyIndex>0)promptInput.value=history[--historyIndex]||""}else if(!waitingInput&&e.key==="ArrowDown"){e.preventDefault();if(historyIndex<history.length-1)promptInput.value=history[++historyIndex]||"";else{historyIndex=history.length;promptInput.value=""}}};
 
+
+const displayFrame=document.querySelector(".displayFrame");
+const scanlines=document.querySelector(".scanlines");
+function applyDisplayMode(){
+ displayMode=$("displayMode").value;
+ const themes={
+  color:{fg:"#f5f7fb",glow:"#66d9ff",bg:"#000000",palette:["#000000","#0046d5","#ef304f","#a834e3","#22bd68","#22c4d6","#f2dc3f","#f5f7fb"],filter:"none",label:"COLOR CRT"},
+  green:{fg:"#75ff98",glow:"#60ff88",bg:"#001407",palette:["#001407","#0b451d","#138833","#25b949","#53dd70","#70ed88","#9bf7aa","#d3ffdc"],filter:"sepia(.08) saturate(1.2)",label:"GREEN CRT"},
+  amber:{fg:"#ffc45f",glow:"#ffad36",bg:"#180c00",palette:["#180c00","#4b2400","#7c3f04","#a95b0b","#cf7c1d","#e89b34","#ffc467","#ffe0a5"],filter:"sepia(.2)",label:"AMBER CRT"},
+  white:{fg:"#f1f1f1",glow:"#ffffff",bg:"#050505",palette:["#050505","#222","#444","#666","#888","#aaa","#ccc","#f4f4f4"],filter:"grayscale(1)",label:"WHITE CRT"},
+  lcd:{fg:"#e9f1ff",glow:"#6cb8ff",bg:"#020814",palette:["#020814","#1645a7","#df3151","#9a42d2","#24ad61","#2bb7c7","#d5c64a","#e9f1ff"],filter:"contrast(1.04)",label:"LCD"}
+ };
+ const t=themes[displayMode];
+ palette=t.palette;
+ document.documentElement.style.setProperty("--crt-fg",t.fg);
+ document.documentElement.style.setProperty("--crt-glow",t.glow);
+ document.documentElement.style.setProperty("--crt-bg",t.bg);
+ document.documentElement.style.setProperty("--crt-filter",t.filter);
+ $("displayBadge").textContent=t.label;
+ renderText()
+}
+function applyEffects(){
+ scanlines.classList.toggle("off",!$("scanToggle").checked);
+ displayFrame.classList.toggle("crtGlow",$("glowToggle").checked);
+ displayFrame.classList.toggle("crtCurve",$("curveToggle").checked)
+}
+function applyMachineSettings(){
+ cpuClock=Number($("cpuClock").value);
+ soundMode=$("soundMode").value;
+ instrumentOverride=$("instrumentMode").value;
+ $("clockBadge").textContent=cpuClock+"MHz";
+ $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="enhanced"?"ENHANCED":"MH FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
+ localStorage.setItem("salpMHSettings",JSON.stringify({
+  cpuClock,displayMode:$("displayMode").value,soundMode,instrumentOverride,
+  scan:$("scanToggle").checked,glow:$("glowToggle").checked,curve:$("curveToggle").checked
+ }));
+ applyDisplayMode();applyEffects()
+}
+function restoreMachineSettings(){
+ try{
+  const s=JSON.parse(localStorage.getItem("salpMHSettings")||"{}");
+  if(s.cpuClock)$("cpuClock").value=String(s.cpuClock);
+  if(s.displayMode)$("displayMode").value=s.displayMode;
+  if(s.soundMode)$("soundMode").value=s.soundMode;
+  if(s.instrumentOverride)$("instrumentMode").value=s.instrumentOverride;
+  if(typeof s.scan==="boolean")$("scanToggle").checked=s.scan;
+  if(typeof s.glow==="boolean")$("glowToggle").checked=s.glow;
+  if(typeof s.curve==="boolean")$("curveToggle").checked=s.curve
+ }catch{}
+ applyMachineSettings()
+}
+["cpuClock","displayMode","soundMode","instrumentMode","scanToggle","glowToggle","curveToggle"].forEach(id=>{
+ $(id).addEventListener("change",applyMachineSettings)
+});
+$("settingsBtn").onclick=()=>{
+ $("settingsGrid").classList.toggle("keyHidden");
+ $("settingsBtn").textContent=$("settingsGrid").classList.contains("keyHidden")?"⚙ MH SETTINGS":"⚙ CLOSE SETTINGS"
+};
+async function bootMH(){
+ stopped=true;stopMml();
+ const o=$("bootOverlay");
+ o.classList.add("show");
+ o.textContent="NEC\n\nPC-8801MH\n\nsalp Browser Edition";
+ await new Promise(r=>setTimeout(r,850));
+ o.textContent=`CPU CLOCK ${cpuClock}MHz\nFM SOUND ${soundMode==="silent"?"OFF":"READY"}\nMEMORY CHECK... OK`;
+ await new Promise(r=>setTimeout(r,850));
+ o.classList.remove("show");
+ resetScreen();
+ printText("N88-BASIC Compatible Mode");
+ printText("PC-8801MH  "+cpuClock+"MHz");
+ printText("");
+ printText("How many files(0-15)?");
+ printText("Ok");
+ stopped=false;setStatus("Ready")
+}
+$("bootBtn").onclick=bootMH;
+restoreMachineSettings();
+
 const virtualMap={
   UP:String.fromCharCode(30),DOWN:String.fromCharCode(31),
   LEFT:String.fromCharCode(28),RIGHT:String.fromCharCode(29),
@@ -613,7 +902,7 @@ canvas.addEventListener("pointermove",e=>{if(e.buttons)updateTouch(e,true)});
 canvas.addEventListener("pointerup",e=>updateTouch(e,false));
 canvas.addEventListener("pointercancel",e=>{mouseButton=0});
 
-resetScreen();printText("salp N88-BASIC version 0.5");printText("FM sound and touch keyboard ready");printText("");printText("Ok");
+resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / 8MHz");printText("");printText("Ok");
 </script>
 </body>
 </html>
