@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp N88-BASIC v0.3</title>
+<title>salp N88-BASIC v0.4</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -16,11 +16,37 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .displayWrap{padding:10px;background:#03060c}.displayFrame{position:relative;width:100%;aspect-ratio:8/5;overflow:hidden;border:2px solid #344158;border-radius:8px;background:#000;box-shadow:inset 0 0 30px #000}canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,#0002 3px);mix-blend-mode:multiply}
 .statusbar{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;color:var(--muted);font:11px ui-monospace,monospace}.promptWrap{margin-top:10px;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--panel)}.promptLabel{padding:8px 12px 0;color:var(--cyan);font:11px ui-monospace,monospace}.promptRow{display:flex;align-items:center;gap:8px;padding:8px 10px 11px}.promptMark{color:var(--green);font:bold 17px ui-monospace,monospace}#prompt{flex:1;min-width:0;border:0;outline:0;padding:10px 11px;border-radius:10px;background:#070c17;color:var(--green);font:15px ui-monospace,monospace}.help{margin-top:10px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#111827aa;color:var(--muted);font-size:12px}.help b{color:var(--text)}
 @media(max-width:800px){.workspace{grid-template-columns:1fr}.editor{min-height:400px}.displayFrame{aspect-ratio:8/5}}
+
+.keypadPanel{margin-top:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.keypadTop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.keypadTop label{color:var(--muted);font-size:12px;font-weight:850}
+.keypadTop select{flex:1;min-width:190px;min-height:42px;border:1px solid var(--line);border-radius:11px;padding:8px 11px;background:#07101e;color:var(--text);font-weight:800}
+.keypadBody{padding:14px}
+.gameKeys{display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap}
+.dpad{display:grid;grid-template-columns:64px 64px 64px;grid-template-rows:56px 56px 56px;gap:7px}
+.vkey{min-width:60px;min-height:52px;padding:7px;border:1px solid #475978;border-radius:15px;background:linear-gradient(180deg,#2a3854,#172135);color:#fff;font-size:18px;font-weight:950;box-shadow:0 5px 0 #080d18;touch-action:none;user-select:none}
+.vkey:active,.vkey.pressed{transform:translateY(3px);box-shadow:0 2px 0 #080d18;background:#38527c}
+.vkey.blank{visibility:hidden}
+.actionKeys{display:grid;grid-template-columns:repeat(2,minmax(92px,130px));gap:9px}
+.vkey.zkey{background:linear-gradient(180deg,#315078,#1a2b44)}
+.vkey.xkey{background:linear-gradient(180deg,#71425d,#3b2332)}
+.vkey.enterkey{background:linear-gradient(180deg,#37624e,#1e382c)}
+.vkey.spacekey{background:linear-gradient(180deg,#695e35,#3b351e)}
+.keyCustom{display:none;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.keyChecks{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.keyChecks label{display:flex;align-items:center;gap:7px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#080e19;color:var(--muted);font-size:12px;font-weight:800}
+.keyChecks input{accent-color:var(--cyan)}
+.keyLog{margin-top:11px;padding:9px 11px;border-radius:10px;background:#060b13;color:var(--green);font:12px ui-monospace,monospace}
+.touchMarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--pink);border-radius:50%;background:#ff8fbd44;display:none;pointer-events:none}
+.touchHint{color:var(--cyan)}
+.keyHidden{display:none!important}
+@media(max-width:520px){.gameKeys{gap:14px}.dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}.actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}.keyChecks{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp N88-BASIC</h1><div class="sub">N88-BASIC Compatible Browser Interpreter</div></div></div><div class="version">v0.3 COMPAT</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp N88-BASIC</h1><div class="sub">N88-BASIC Compatible Browser Interpreter</div></div></div><div class="version">v0.4 TOUCH</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -29,6 +55,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <button id="newBtn">NEW</button>
 <button id="compatBtn">COMPAT SAMPLE</button>
 <button id="graphicsBtn">GRAPHICS</button>
+<button id="gameBtn">GAME SAMPLE</button>
 <button id="saveBtn">SAVE .BAS</button>
 <button id="loadBtn">LOAD</button>
 <input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
@@ -59,9 +86,63 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 
 <section class="panel">
 <div class="panelHead"><span>N88 SCREEN 640×400</span><span id="status">Ready</span></div>
-<div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div class="scanlines"></div></div></div>
-<div class="statusbar"><span id="cursorInfo">LOCATE 0,0</span><span>Click screen → keyboard input</span></div>
+<div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div id="touchMarker" class="touchMarker"></div><div class="scanlines"></div></div></div>
+<div class="statusbar"><span id="cursorInfo">LOCATE 0,0</span><span class="touchHint">Touch screen → mouse coordinates</span></div>
 </section>
+</div>
+
+<div class="keypadPanel">
+  <div class="keypadTop">
+    <label for="keyMode">ゲームキーパッド</label>
+    <select id="keyMode">
+      <option value="game">カーソル＋Z/X</option>
+      <option value="full">カーソル＋Z/X＋SPACE＋ENTER</option>
+      <option value="cursorEnter">カーソル＋ENTER</option>
+      <option value="cursor">カーソルのみ</option>
+      <option value="zx">Z/Xのみ</option>
+      <option value="custom">カスタム選択</option>
+    </select>
+    <button id="keyToggle">キーパッドを隠す</button>
+  </div>
+
+  <div id="keypadBody" class="keypadBody">
+    <div class="gameKeys">
+      <div id="dpad" class="dpad">
+        <button class="vkey blank" tabindex="-1"></button>
+        <button class="vkey" data-vkey="UP">↑</button>
+        <button class="vkey blank" tabindex="-1"></button>
+
+        <button class="vkey" data-vkey="LEFT">←</button>
+        <button class="vkey enterkey" data-vkey="ENTER">●</button>
+        <button class="vkey" data-vkey="RIGHT">→</button>
+
+        <button class="vkey blank" tabindex="-1"></button>
+        <button class="vkey" data-vkey="DOWN">↓</button>
+        <button class="vkey blank" tabindex="-1"></button>
+      </div>
+
+      <div id="actionKeys" class="actionKeys">
+        <button class="vkey zkey" data-vkey="Z">Z</button>
+        <button class="vkey xkey" data-vkey="X">X</button>
+        <button class="vkey spacekey" data-vkey="SPACE">SPACE</button>
+        <button class="vkey enterkey" data-vkey="ENTER">ENTER</button>
+      </div>
+    </div>
+
+    <div id="keyCustom" class="keyCustom">
+      <div class="keyChecks">
+        <label><input type="checkbox" value="UP" checked>↑</label>
+        <label><input type="checkbox" value="DOWN" checked>↓</label>
+        <label><input type="checkbox" value="LEFT" checked>←</label>
+        <label><input type="checkbox" value="RIGHT" checked>→</label>
+        <label><input type="checkbox" value="Z" checked>Z</label>
+        <label><input type="checkbox" value="X" checked>X</label>
+        <label><input type="checkbox" value="SPACE" checked>SPACE</label>
+        <label><input type="checkbox" value="ENTER" checked>ENTER</label>
+      </div>
+    </div>
+    <div id="keyLog" class="keyLog">INKEY$：待機中 / TOUCH：未入力</div>
+  </div>
 </div>
 
 <div class="promptWrap">
@@ -69,10 +150,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.3追加：</b>
-DIM・配列 / DATA・READ・RESTORE / ON…GOTO・ON…GOSUB / MOD・AND・OR・NOT /
-LEFT$・RIGHT$・MID$・SPACE$・STRING$ / RANDOMIZE / SWAP / CLEAR /
-RENUM / DELETE / PAINT / SOUND。<br>
+<div class="help"><b>v0.4追加：</b>
+スマホ用ゲームキーパッド / 表示モード切替 / カスタムキー /
+仮想キーと実キーのINKEY$連携 / STICK(0)・STRIG(0) /
+画面タッチ座標 MOUSEX(0)・MOUSEY(0)・MOUSEB(0)。<br>
+カーソルキーのINKEY$コード：←=CHR$(28)、→=CHR$(29)、↑=CHR$(30)、↓=CHR$(31)、ENTER=CHR$(13)。<br>
 ※完全なNEC N88-BASICではなく、ブラウザ上で互換性を段階的に高めている実装です。
 </div>
 </div>
@@ -83,7 +165,7 @@ const $=id=>document.getElementById(id);
 const editor=$("editor"),canvas=$("screen"),ctx=canvas.getContext("2d"),promptInput=$("prompt"),statusEl=$("status"),cursorInfo=$("cursorInfo");
 const palette=["#000000","#243cff","#ef3b43","#d23ee8","#30d85a","#35d9dd","#f0df48","#f4f4f4","#777777","#7190ff","#ff7d84","#f18cff","#83f49a","#88f2f2","#fff18b","#ffffff"];
 const COLS=80,ROWS=25,CW=8,CH=16;
-let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",history=[],historyIndex=0,audioCtx=null,directVars={},directArrays={};
+let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,directVars={},directArrays={};
 
 function resetText(){textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" "));cursorX=0;cursorY=0}
 function resetScreen(){ctx.fillStyle=palette[bg];ctx.fillRect(0,0,640,400);resetText();renderText()}
@@ -101,7 +183,7 @@ function tokens(expr){const a=[],r=/\s*(?:(\d+(?:\.\d*)?|\.\d+)|("([^"]|"")*")|(
 function arrayKey(args){return args.map(v=>Math.floor(Number(v)||0)).join(",")}
 function evaluate(expr,state){
  const vars=state.vars,arrays=state.arrays,t=tokens(expr);let p=0,peek=()=>t[p],take=()=>t[p++];
- const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","INKEY$"]);
+ const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","INKEY$","STICK","STRIG","MOUSEX","MOUSEY","MOUSEB"]);
  function fn(n,a){
   switch(n){
    case"INT":return Math.floor(+a[0]||0);case"FIX":return Math.trunc(+a[0]||0);case"ABS":return Math.abs(+a[0]||0);case"SGN":return Math.sign(+a[0]||0);
@@ -113,7 +195,10 @@ function evaluate(expr,state){
    case"RIGHT$":{const s=String(a[0]??"");return s.slice(Math.max(0,s.length-(+a[1]||0)))}
    case"MID$":return String(a[0]??"").substr(Math.max(0,(+a[1]||1)-1),a[2]==null?undefined:Math.max(0,+a[2]||0));
    case"SPACE$":return " ".repeat(Math.max(0,+a[0]||0));case"STRING$":return String.fromCharCode(+a[1]||32).repeat(Math.max(0,+a[0]||0));
-   case"INKEY$":{const k=lastKey;lastKey="";return k}
+   case"INKEY$":{const k=keyQueue.length?keyQueue.shift():"";lastKey=k;return k}
+   case"STICK":{const u=heldKeys.has("UP"),d=heldKeys.has("DOWN"),l=heldKeys.has("LEFT"),r=heldKeys.has("RIGHT");if(u&&r)return 2;if(r&&d)return 4;if(d&&l)return 6;if(l&&u)return 8;if(u)return 1;if(r)return 3;if(d)return 5;if(l)return 7;return 0}
+   case"STRIG":return (heldKeys.has("Z")||heldKeys.has("SPACE"))?-1:0;
+   case"MOUSEX":return mouseX;case"MOUSEY":return mouseY;case"MOUSEB":return mouseButton
    default:throw Error("Unknown function "+n)
   }
  }
@@ -121,7 +206,7 @@ function evaluate(expr,state){
   const x=take();if(!x)throw Error("Missing expression");
   if(x.t==="n"||x.t==="s")return x.v;
   if(x.t==="i"){
-   if(x.v==="NOT")return ~Math.trunc(+pri());
+   if(x.v==="NOT")return ~Math.trunc(+pri());if(x.v==="INKEY$")return fn("INKEY$",[]);
    if(peek()?.v==="("){
     take();const a=[];if(peek()?.v!==")"){a.push(logic());while(peek()?.v===","){take();a.push(logic())}}if(take()?.v!==")")throw Error("Missing )");
     if(knownFns.has(x.v))return fn(x.v,a);
@@ -259,14 +344,115 @@ $("graphicsBtn").onclick=()=>editor.value=`10 CLS
 100 PRINT "SALP N88-BASIC"
 110 PLAY "CDEFGAB"
 120 END`;
+$("gameBtn").onclick=()=>editor.value=`10 CLS
+20 COLOR 7,0
+30 X=300:Y=180
+40 K$=INKEY$
+50 S=STICK(0)
+60 IF S=1 THEN Y=Y-4
+70 IF S=3 THEN X=X+4
+80 IF S=5 THEN Y=Y+4
+90 IF S=7 THEN X=X-4
+100 IF K$="Z" THEN C=2
+110 IF K$="X" THEN C=6
+120 IF STRIG(0) THEN BEEP
+130 IF MOUSEB(0) THEN X=MOUSEX(0):Y=MOUSEY(0)
+140 CLS
+150 COLOR 7,0
+160 LOCATE 1,1
+170 PRINT "CURSOR / Z X / TOUCH"
+180 CIRCLE (X,Y),12,C
+190 GOTO 40`;
 $("saveBtn").onclick=()=>{const b=new Blob([editor.value],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="PROGRAM.BAS";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $("loadBtn").onclick=()=>$("fileInput").click();
 $("fileInput").onchange=async e=>{const f=e.target.files[0];if(f)editor.value=await f.text();e.target.value=""};
 $("enterBtn").onclick=()=>{const v=promptInput.value;promptInput.value="";if(waitingInput){const r=waitingInput.resolve;waitingInput=null;promptInput.placeholder='PRINT LEFT$("SALP",2)';r(v)}else safe(()=>direct(v))};
 promptInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();$("enterBtn").click()}else if(!waitingInput&&e.key==="ArrowUp"){e.preventDefault();if(historyIndex>0)promptInput.value=history[--historyIndex]||""}else if(!waitingInput&&e.key==="ArrowDown"){e.preventDefault();if(historyIndex<history.length-1)promptInput.value=history[++historyIndex]||"";else{historyIndex=history.length;promptInput.value=""}}};
-window.addEventListener("keydown",e=>{lastKey=e.key.toUpperCase();if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault()});
-canvas.tabIndex=0;canvas.onclick=()=>canvas.focus();
-resetScreen();printText("salp N88-BASIC version 0.3");printText("Compatibility mode ready");printText("");printText("Ok");
+
+const virtualMap={
+  UP:String.fromCharCode(30),DOWN:String.fromCharCode(31),
+  LEFT:String.fromCharCode(28),RIGHT:String.fromCharCode(29),
+  ENTER:String.fromCharCode(13),SPACE:" ",Z:"Z",X:"X"
+};
+const physicalName=e=>{
+  if(e.key==="ArrowUp")return"UP";if(e.key==="ArrowDown")return"DOWN";
+  if(e.key==="ArrowLeft")return"LEFT";if(e.key==="ArrowRight")return"RIGHT";
+  if(e.key==="Enter")return"ENTER";if(e.key===" ")return"SPACE";
+  if(e.key.toUpperCase()==="Z")return"Z";if(e.key.toUpperCase()==="X")return"X";
+  return e.key.length===1?e.key.toUpperCase():e.key.toUpperCase()
+};
+function pushGameKey(name){
+  const value=virtualMap[name]??name;
+  keyQueue.push(value);
+  if(keyQueue.length>32)keyQueue.shift();
+  lastKey=value;
+  $("keyLog").textContent=`INKEY$：${name} / TOUCH：${mouseX},${mouseY} ${mouseButton?"DOWN":"UP"}`;
+}
+function pressGameKey(name,button){
+  heldKeys.add(name);pushGameKey(name);button?.classList.add("pressed");
+}
+function releaseGameKey(name,button){heldKeys.delete(name);button?.classList.remove("pressed")}
+
+window.addEventListener("keydown",e=>{
+  if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)&&document.activeElement!==canvas)return;
+  const name=physicalName(e);
+  if(!heldKeys.has(name))pushGameKey(name);
+  heldKeys.add(name);
+  if(["UP","DOWN","LEFT","RIGHT","SPACE"].includes(name))e.preventDefault()
+});
+window.addEventListener("keyup",e=>heldKeys.delete(physicalName(e)));
+
+document.querySelectorAll("[data-vkey]").forEach(button=>{
+  const name=button.dataset.vkey;
+  const down=e=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);pressGameKey(name,button)};
+  const up=e=>{e.preventDefault();releaseGameKey(name,button)};
+  button.addEventListener("pointerdown",down);
+  button.addEventListener("pointerup",up);
+  button.addEventListener("pointercancel",up);
+  button.addEventListener("contextmenu",e=>e.preventDefault());
+});
+
+function setKeyVisibility(names){
+  document.querySelectorAll("[data-vkey]").forEach(button=>{
+    button.classList.toggle("keyHidden",!names.includes(button.dataset.vkey))
+  })
+}
+function applyKeyMode(){
+  const v=$("keyMode").value;
+  $("keyCustom").style.display=v==="custom"?"block":"none";
+  if(v==="game")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X"]);
+  else if(v==="full")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
+  else if(v==="cursorEnter")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","ENTER"]);
+  else if(v==="cursor")setKeyVisibility(["UP","DOWN","LEFT","RIGHT"]);
+  else if(v==="zx")setKeyVisibility(["Z","X"]);
+  else setKeyVisibility([...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value))
+}
+$("keyMode").onchange=applyKeyMode;
+$("keyCustom").onchange=applyKeyMode;
+$("keyToggle").onclick=()=>{
+  $("keypadBody").classList.toggle("keyHidden");
+  $("keyToggle").textContent=$("keypadBody").classList.contains("keyHidden")?"キーパッドを表示":"キーパッドを隠す"
+};
+applyKeyMode();
+
+const touchMarker=$("touchMarker");
+function updateTouch(e,down){
+  const r=canvas.getBoundingClientRect();
+  mouseX=Math.max(0,Math.min(639,Math.round((e.clientX-r.left)/r.width*640)));
+  mouseY=Math.max(0,Math.min(399,Math.round((e.clientY-r.top)/r.height*400)));
+  mouseButton=down?1:0;
+  touchMarker.style.display="block";
+  touchMarker.style.left=((mouseX/640)*r.width)+"px";
+  touchMarker.style.top=((mouseY/400)*r.height)+"px";
+  $("keyLog").textContent=`INKEY$：${lastKey?JSON.stringify(lastKey):"待機中"} / TOUCH：${mouseX},${mouseY} ${mouseButton?"DOWN":"UP"}`;
+}
+canvas.tabIndex=0;
+canvas.addEventListener("pointerdown",e=>{e.preventDefault();canvas.focus();canvas.setPointerCapture?.(e.pointerId);updateTouch(e,true)});
+canvas.addEventListener("pointermove",e=>{if(e.buttons)updateTouch(e,true)});
+canvas.addEventListener("pointerup",e=>updateTouch(e,false));
+canvas.addEventListener("pointercancel",e=>{mouseButton=0});
+
+resetScreen();printText("salp N88-BASIC version 0.4");printText("Touch game keyboard ready");printText("");printText("Ok");
 </script>
 </body>
 </html>
