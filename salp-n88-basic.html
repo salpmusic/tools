@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>salp N88-BASIC v0.1</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --panel:#111827;
+  --panel2:#0a0f1d;
+  --line:#263247;
+  --text:#e8eef7;
+  --muted:#95a3b8;
+  --green:#79f2a6;
+  --cyan:#6ee7f2;
+  --pink:#ff8fbd;
+  --danger:#ff6b7a;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 0 0,rgba(110,231,242,.12),transparent 28%),
+    radial-gradient(circle at 100% 0,rgba(255,143,189,.1),transparent 28%),
+    var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Helvetica Neue",sans-serif;
+}
+button,input,textarea{font:inherit}
+.app{
+  min-height:100%;
+  width:min(100%,1100px);
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 14px) 12px calc(env(safe-area-inset-bottom) + 18px);
+}
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{
+  width:48px;height:48px;
+  display:grid;place-items:center;
+  border-radius:15px;
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  color:#071018;
+  font-size:25px;
+  box-shadow:0 8px 24px #0005;
+}
+h1{margin:0;font-size:21px;line-height:1.1}
+.sub{color:var(--muted);font-size:11px}
+.version{
+  padding:5px 9px;border:1px solid var(--line);
+  border-radius:999px;color:var(--cyan);font-size:10px;font-weight:800
+}
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:7px;
+  margin-bottom:10px;
+}
+button{
+  min-height:42px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:8px 13px;
+  background:#182236;
+  color:var(--text);
+  font-weight:800;
+  cursor:pointer;
+}
+button.primary{
+  border:0;
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  color:#081018;
+}
+button.danger{color:#ff9da7}
+button:active{transform:translateY(1px)}
+.workspace{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.panel{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--panel);
+  box-shadow:0 12px 32px #0003;
+}
+.panelHead{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+  padding:10px 13px;
+  border-bottom:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;font-weight:800
+}
+.editor{
+  width:100%;
+  min-height:500px;
+  display:block;
+  resize:vertical;
+  border:0;outline:0;
+  padding:14px;
+  background:var(--panel2);
+  color:var(--green);
+  font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  tab-size:2;
+}
+.screen{
+  min-height:500px;
+  max-height:66vh;
+  overflow:auto;
+  padding:14px;
+  white-space:pre-wrap;
+  word-break:break-word;
+  background:#050914;
+  color:#e7f8ee;
+  font:15px/1.5 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+}
+.promptWrap{
+  margin-top:10px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  overflow:hidden;
+  background:var(--panel);
+}
+.promptLabel{
+  padding:9px 12px 0;
+  color:var(--cyan);
+  font:12px ui-monospace,monospace;
+}
+.promptRow{display:flex;align-items:center;padding:8px 10px 11px;gap:8px}
+.promptMark{color:var(--green);font:bold 18px ui-monospace,monospace}
+#prompt{
+  flex:1;min-width:0;
+  border:0;outline:0;
+  padding:10px 11px;
+  border-radius:10px;
+  background:#070c17;
+  color:var(--green);
+  font:15px ui-monospace,monospace;
+}
+.help{
+  margin-top:10px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#111827aa;
+  color:var(--muted);
+  font-size:12px;
+}
+.help b{color:var(--text)}
+kbd{
+  padding:2px 5px;border:1px solid #40506a;border-radius:5px;
+  background:#202b3e;color:#eaf1fa
+}
+.toast{
+  position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);
+  transform:translateX(-50%) translateY(20px);
+  opacity:0;pointer-events:none;
+  padding:10px 14px;border-radius:11px;
+  background:#eef5ff;color:#101827;font-weight:800;font-size:12px;
+  transition:.2s;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:760px){
+  .workspace{grid-template-columns:1fr}
+  .editor{min-height:360px}
+  .screen{min-height:310px;max-height:48vh}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">⌨️</div>
+      <div>
+        <h1>salp N88-BASIC</h1>
+        <div class="sub">Browser BASIC Interpreter</div>
+      </div>
+    </div>
+    <div class="version">v0.1 CORE</div>
+  </header>
+
+  <div class="toolbar">
+    <button class="primary" id="runBtn">▶ RUN</button>
+    <button id="stopBtn">■ STOP</button>
+    <button id="listBtn">LIST</button>
+    <button id="newBtn" class="danger">NEW</button>
+    <button id="sampleBtn">SAMPLE</button>
+    <button id="saveBtn">SAVE .BAS</button>
+    <button id="loadBtn">LOAD</button>
+    <input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
+  </div>
+
+  <div class="workspace">
+    <section class="panel">
+      <div class="panelHead"><span>PROGRAM EDITOR</span><span>行番号付きBASIC</span></div>
+      <textarea id="editor" class="editor" spellcheck="false">10 CLS
+20 PRINT "SALP N88-BASIC"
+30 PRINT "----------------"
+40 FOR I=1 TO 5
+50 PRINT "HELLO ";I
+60 NEXT I
+70 PRINT
+80 INPUT "YOUR NAME";N$
+90 PRINT "HELLO, ";N$;"!"
+100 END</textarea>
+    </section>
+
+    <section class="panel">
+      <div class="panelHead"><span>SCREEN</span><span id="status">Ready</span></div>
+      <div id="screen" class="screen">salp N88-BASIC version 0.1
+Copyright (C) 2026 salp
+
+Ok
+</div>
+    </section>
+  </div>
+
+  <div class="promptWrap">
+    <div class="promptLabel">DIRECT MODE — PRINT 1+2、RUN、LIST、NEW などを入力</div>
+    <div class="promptRow">
+      <span class="promptMark">Ok</span>
+      <input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT "HELLO"'>
+      <button id="enterBtn">ENTER</button>
+    </div>
+  </div>
+
+  <div class="help">
+    <b>v0.1対応：</b>
+    PRINT / ? / LET / 代入 / INPUT / IF…THEN / GOTO / GOSUB / RETURN /
+    FOR…TO…STEP / NEXT / CLS / REM / END / STOP / RUN / LIST / NEW。
+    文字列変数は <kbd>A$</kbd>、数値変数は <kbd>A</kbd> の形で使えます。
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+
+const editor = document.getElementById("editor");
+const screen = document.getElementById("screen");
+const promptInput = document.getElementById("prompt");
+const statusEl = document.getElementById("status");
+const toastEl = document.getElementById("toast");
+
+let stopped = false;
+let waitingInput = null;
+let history = [];
+let historyIndex = 0;
+
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  setTimeout(()=>toastEl.classList.remove("show"),1300);
+}
+
+function print(text="", newline=true){
+  screen.textContent += String(text) + (newline ? "\n" : "");
+  screen.scrollTop = screen.scrollHeight;
+}
+
+function clearScreen(){ screen.textContent = ""; }
+
+function setStatus(text){ statusEl.textContent = text; }
+
+function splitOutside(text, delimiter){
+  const out=[]; let buf=""; let quote=false; let depth=0;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"') quote=!quote;
+    if(!quote){
+      if(c==="(") depth++;
+      if(c===")") depth--;
+      if(depth===0 && text.slice(i,i+delimiter.length).toUpperCase()===delimiter.toUpperCase()){
+        out.push(buf); buf=""; i+=delimiter.length-1; continue;
+      }
+    }
+    buf+=c;
+  }
+  out.push(buf);
+  return out;
+}
+
+function splitStatements(line){
+  return splitOutside(line, ":").map(s=>s.trim()).filter(Boolean);
+}
+
+function tokenizeExpression(expr){
+  const tokens=[];
+  const re=/\s*(?:(\d+(?:\.\d*)?|\.\d+)|("([^"]|"")*")|([A-Za-z][A-Za-z0-9]*\$?)|(<=|>=|<>|=|<|>|\+|-|\*|\/|\^|\(|\)|,))\s*/gy;
+  let pos=0, m;
+  while(pos<expr.length){
+    re.lastIndex=pos; m=re.exec(expr);
+    if(!m) throw new Error("Syntax error near: "+expr.slice(pos));
+    const raw=m[0]; pos=re.lastIndex;
+    if(m[1]) tokens.push({type:"number",value:Number(m[1])});
+    else if(m[2]) tokens.push({type:"string",value:m[2].slice(1,-1).replace(/""/g,'"')});
+    else if(m[4]) tokens.push({type:"id",value:m[4].toUpperCase()});
+    else tokens.push({type:"op",value:m[5]});
+  }
+  return tokens;
+}
+
+function evaluate(expr, vars){
+  const t=tokenizeExpression(expr);
+  let p=0;
+  const peek=()=>t[p];
+  const take=()=>t[p++];
+
+  function primary(){
+    const x=take();
+    if(!x) throw new Error("Missing expression");
+    if(x.type==="number"||x.type==="string") return x.value;
+    if(x.type==="id"){
+      const name=x.value;
+      if(peek() && peek().value==="("){
+        take();
+        const args=[];
+        if(!peek() || peek().value!==")"){
+          args.push(compare());
+          while(peek() && peek().value===","){take();args.push(compare())}
+        }
+        if(!peek() || take().value!==")") throw new Error("Missing )");
+        return callFunction(name,args);
+      }
+      return Object.prototype.hasOwnProperty.call(vars,name) ? vars[name] : (name.endsWith("$") ? "" : 0);
+    }
+    if(x.value==="("){
+      const v=compare();
+      if(!peek() || take().value!==")") throw new Error("Missing )");
+      return v;
+    }
+    if(x.value==="+") return Number(primary());
+    if(x.value==="-") return -Number(primary());
+    throw new Error("Invalid expression");
+  }
+  function power(){
+    let v=primary();
+    while(peek()&&peek().value==="^"){take();v=Math.pow(Number(v),Number(primary()))}
+    return v;
+  }
+  function mul(){
+    let v=power();
+    while(peek()&&["*","/"].includes(peek().value)){
+      const op=take().value, r=power();
+      v=op==="*" ? Number(v)*Number(r) : Number(v)/Number(r);
+    }
+    return v;
+  }
+  function add(){
+    let v=mul();
+    while(peek()&&["+","-"].includes(peek().value)){
+      const op=take().value, r=mul();
+      if(op==="+") v=(typeof v==="string"||typeof r==="string") ? String(v)+String(r) : Number(v)+Number(r);
+      else v=Number(v)-Number(r);
+    }
+    return v;
+  }
+  function compare(){
+    let v=add();
+    if(peek()&&["=","<>","<",">","<=",">="].includes(peek().value)){
+      const op=take().value, r=add();
+      const ok=op==="="?v==r:op==="<>"?v!=r:op==="<"?v<r:op===">"?v>r:op==="<="?v<=r:v>=r;
+      return ok ? -1 : 0;
+    }
+    return v;
+  }
+  function callFunction(name,args){
+    switch(name){
+      case "INT": return Math.floor(Number(args[0]||0));
+      case "ABS": return Math.abs(Number(args[0]||0));
+      case "SQR": return Math.sqrt(Number(args[0]||0));
+      case "RND": return Math.random();
+      case "LEN": return String(args[0]??"").length;
+      case "STR$": return String(args[0]??"");
+      case "VAL": return Number(args[0]||0);
+      case "CHR$": return String.fromCharCode(Number(args[0]||0));
+      case "ASC": return String(args[0]??"").charCodeAt(0)||0;
+      default: throw new Error("Unknown function: "+name);
+    }
+  }
+
+  const value=compare();
+  if(p<t.length) throw new Error("Extra expression");
+  return value;
+}
+
+function parseProgram(){
+  const map=new Map();
+  const rawLines=editor.value.replace(/\r/g,"").split("\n");
+  for(const raw of rawLines){
+    if(!raw.trim()) continue;
+    const m=raw.match(/^\s*(\d+)\s*(.*)$/);
+    if(!m) throw new Error("Line number required: "+raw);
+    map.set(Number(m[1]),m[2]);
+  }
+  const lines=[...map.entries()].sort((a,b)=>a[0]-b[0]).map(([number,text])=>({number,text}));
+  return lines;
+}
+
+function findLineIndex(lines,num){
+  return lines.findIndex(x=>x.number===Number(num));
+}
+
+async function inputValue(message){
+  return new Promise(resolve=>{
+    waitingInput={resolve};
+    setStatus("Input");
+    promptInput.placeholder=message || "?";
+    promptInput.focus();
+  });
+}
+
+function formatBasicValue(v){
+  if(typeof v==="number"){
+    if(!Number.isFinite(v)) return "Overflow";
+    return String(v);
+  }
+  return String(v);
+}
+
+async function executeStatement(stmt, state, currentIndex){
+  let s=stmt.trim();
+  const upper=s.toUpperCase();
+
+  if(!s || upper.startsWith("REM") || s.startsWith("'")) return {next:currentIndex};
+
+  if(upper==="CLS"){ clearScreen(); return {next:currentIndex}; }
+  if(upper==="END" || upper==="STOP"){ return {end:true}; }
+
+  let m;
+
+  if((m=s.match(/^(?:PRINT|\?)\s*(.*)$/i))){
+    const body=m[1];
+    if(!body){print();return {next:currentIndex}}
+    const parts=[]; let buf=""; let quote=false; let depth=0; let lastSep=null;
+    for(let i=0;i<body.length;i++){
+      const c=body[i];
+      if(c==='"') quote=!quote;
+      if(!quote){if(c==="(")depth++;if(c===")")depth--}
+      if(!quote&&depth===0&&(c===";"||c===",")){
+        parts.push({expr:buf.trim(),sep:c});buf="";lastSep=c;
+      }else buf+=c;
+    }
+    if(buf.trim()||!parts.length) parts.push({expr:buf.trim(),sep:null});
+    let out="";
+    for(const part of parts){
+      if(part.expr) out+=formatBasicValue(evaluate(part.expr,state.vars));
+      if(part.sep===",") out+="        ";
+    }
+    const suppress=/[;,]\s*$/.test(body);
+    print(out,!suppress);
+    return {next:currentIndex};
+  }
+
+  if((m=s.match(/^INPUT\s*(?:(["].*?["])\s*[,;])?\s*([A-Za-z][A-Za-z0-9]*\$?)$/i))){
+    const msg=m[1]?m[1].slice(1,-1):"? ";
+    print(msg,false);
+    const value=await inputValue(msg);
+    const name=m[2].toUpperCase();
+    state.vars[name]=name.endsWith("$")?String(value):Number(value);
+    print(value);
+    return {next:currentIndex};
+  }
+
+  if((m=s.match(/^IF\s+(.+?)\s+THEN\s+(.+)$/i))){
+    if(evaluate(m[1],state.vars)){
+      const target=m[2].trim();
+      if(/^\d+$/.test(target)) return {jump:Number(target)};
+      return executeStatement(target,state,currentIndex);
+    }
+    return {next:currentIndex};
+  }
+
+  if((m=s.match(/^GOTO\s+(\d+)$/i))) return {jump:Number(m[1])};
+
+  if((m=s.match(/^GOSUB\s+(\d+)$/i))){
+    state.gosub.push(currentIndex+1);
+    return {jump:Number(m[1])};
+  }
+
+  if(/^RETURN$/i.test(s)){
+    if(!state.gosub.length) throw new Error("RETURN without GOSUB");
+    return {index:state.gosub.pop()};
+  }
+
+  if((m=s.match(/^FOR\s+([A-Za-z][A-Za-z0-9]*)\s*=\s*(.+?)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i))){
+    const name=m[1].toUpperCase();
+    state.vars[name]=Number(evaluate(m[2],state.vars));
+    state.forStack.push({
+      name,
+      limit:Number(evaluate(m[3],state.vars)),
+      step:m[4]?Number(evaluate(m[4],state.vars)):1,
+      returnIndex:currentIndex
+    });
+    return {next:currentIndex};
+  }
+
+  if((m=s.match(/^NEXT(?:\s+([A-Za-z][A-Za-z0-9]*))?$/i))){
+    if(!state.forStack.length) throw new Error("NEXT without FOR");
+    let frame=state.forStack[state.forStack.length-1];
+    if(m[1] && frame.name!==m[1].toUpperCase()) throw new Error("NEXT variable mismatch");
+    state.vars[frame.name]=Number(state.vars[frame.name]||0)+frame.step;
+    const again=frame.step>=0 ? state.vars[frame.name]<=frame.limit : state.vars[frame.name]>=frame.limit;
+    if(again) return {index:frame.returnIndex+1};
+    state.forStack.pop();
+    return {next:currentIndex};
+  }
+
+  m=s.match(/^(?:LET\s+)?([A-Za-z][A-Za-z0-9]*\$?)\s*=\s*(.+)$/i);
+  if(m){
+    const name=m[1].toUpperCase();
+    const val=evaluate(m[2],state.vars);
+    state.vars[name]=name.endsWith("$")?String(val):Number(val);
+    return {next:currentIndex};
+  }
+
+  throw new Error("Syntax error: "+s);
+}
+
+async function runProgram(){
+  stopped=false;
+  setStatus("Running");
+  const lines=parseProgram();
+  const state={vars:{},gosub:[],forStack:[]};
+  let i=0;
+  let operations=0;
+
+  while(i<lines.length && !stopped){
+    const line=lines[i];
+    const statements=splitStatements(line.text);
+    let moved=false;
+
+    for(const stmt of statements){
+      if(stopped) break;
+      const r=await executeStatement(stmt,state,i);
+      operations++;
+      if(operations%200===0) await new Promise(requestAnimationFrame);
+      if(operations>200000) throw new Error("Program stopped: too many operations");
+
+      if(r.end){i=lines.length;moved=true;break}
+      if(r.jump!==undefined){
+        const idx=findLineIndex(lines,r.jump);
+        if(idx<0) throw new Error("Undefined line "+r.jump);
+        i=idx;moved=true;break;
+      }
+      if(r.index!==undefined){i=r.index;moved=true;break}
+    }
+    if(!moved)i++;
+  }
+  setStatus(stopped?"Stopped":"Ready");
+  if(!stopped) print("Ok");
+}
+
+async function direct(command){
+  const raw=command.trim();
+  if(!raw)return;
+  history.push(raw);historyIndex=history.length;
+  print("> "+raw);
+
+  const numbered=raw.match(/^(\d+)\s*(.*)$/);
+  if(numbered){
+    const n=Number(numbered[1]);
+    const map=new Map();
+    try{for(const x of parseProgram())map.set(x.number,x.text)}catch{}
+    if(numbered[2].trim())map.set(n,numbered[2]);else map.delete(n);
+    editor.value=[...map.entries()].sort((a,b)=>a[0]-b[0]).map(([num,text])=>num+" "+text).join("\n");
+    print("Ok");return;
+  }
+
+  const u=raw.toUpperCase();
+  if(u==="RUN"){await runProgram();return}
+  if(u==="LIST"){print(editor.value);print("Ok");return}
+  if(u==="NEW"){editor.value="";clearScreen();print("Ok");return}
+  if(u==="CLS"){clearScreen();return}
+  if(u==="CLEAR"){clearScreen();print("Ok");return}
+
+  const state={vars:{},gosub:[],forStack:[]};
+  await executeStatement(raw,state,0);
+  print("Ok");
+}
+
+async function safeRun(fn){
+  try{await fn()}
+  catch(err){
+    setStatus("Error");
+    print("? "+(err?.message||String(err)));
+    print("Ok");
+  }
+}
+
+document.getElementById("runBtn").onclick=()=>safeRun(runProgram);
+document.getElementById("stopBtn").onclick=()=>{
+  stopped=true;
+  if(waitingInput){waitingInput.resolve("");waitingInput=null}
+  setStatus("Stopped");
+};
+document.getElementById("listBtn").onclick=()=>{print(editor.value);print("Ok")};
+document.getElementById("newBtn").onclick=()=>{
+  if(confirm("プログラムを消去しますか？")){editor.value="";clearScreen();print("Ok");}
+};
+document.getElementById("sampleBtn").onclick=()=>{
+  editor.value=`10 CLS
+20 PRINT "NUMBER GUESSING GAME"
+30 A=INT(RND(1)*10)+1
+40 INPUT "1 TO 10";N
+50 IF N=A THEN 90
+60 IF N<A THEN PRINT "TOO SMALL"
+70 IF N>A THEN PRINT "TOO BIG"
+80 GOTO 40
+90 PRINT "CORRECT!"
+100 END`;
+  toast("サンプルを読み込みました");
+};
+document.getElementById("saveBtn").onclick=()=>{
+  const blob=new Blob([editor.value],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="PROGRAM.BAS";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+document.getElementById("loadBtn").onclick=()=>document.getElementById("fileInput").click();
+document.getElementById("fileInput").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  editor.value=await f.text();
+  toast(f.name+" を読み込みました");
+  e.target.value="";
+};
+document.getElementById("enterBtn").onclick=()=>{
+  if(waitingInput){
+    const value=promptInput.value;
+    promptInput.value="";
+    promptInput.placeholder='PRINT "HELLO"';
+    const resolver=waitingInput.resolve;
+    waitingInput=null;
+    resolver(value);
+  }else{
+    const value=promptInput.value;
+    promptInput.value="";
+    safeRun(()=>direct(value));
+  }
+};
+promptInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();document.getElementById("enterBtn").click()}
+  else if(!waitingInput&&e.key==="ArrowUp"){
+    e.preventDefault();
+    if(historyIndex>0)promptInput.value=history[--historyIndex]||"";
+  }else if(!waitingInput&&e.key==="ArrowDown"){
+    e.preventDefault();
+    if(historyIndex<history.length-1)promptInput.value=history[++historyIndex]||"";
+    else{historyIndex=history.length;promptInput.value=""}
+  }
+});
+</script>
+</body>
+</html>
