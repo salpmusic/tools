@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.6</title>
+<title>salp PC-8801MH Browser Edition v0.7</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -181,7 +181,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.6 MH EDITION</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.7 CRYSTAL FM</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -236,8 +236,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
     <div class="settingBox">
       <label>FM SOUND</label>
       <select id="soundMode">
-        <option value="real" selected>MH Hardware Style</option>
+        <option value="real">MH Hardware Style</option>
         <option value="enhanced">salp Enhanced</option>
+        <option value="crystal" selected>Crystal Fantasy FM</option>
         <option value="silent">Silent</option>
       </select>
       <div class="soundMeter"><span id="soundMeterBar"></span></div>
@@ -352,8 +353,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.6 PC-8801MH Edition：</b>
-4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
+<div class="help"><b>v0.7 Crystal FM Engine：</b>
+4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
 CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
 MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出を追加。<br>
 CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
@@ -465,22 +466,62 @@ function stopMml(){
 function mmlInstrumentPreset(n){
  if(instrumentOverride!=="auto")n=Number(instrumentOverride);
  const presets={
-  2:{name:"Strings",carrier:"sawtooth",mod:"sine",ratio:1.005,index:18,attack:.055,decay:.24,sustain:.55,release:.55,gain:.045},
-  11:{name:"Harpsichord",carrier:"square",mod:"sine",ratio:2,index:75,attack:.003,decay:.15,sustain:.18,release:.16,gain:.042},
-  12:{name:"Glock / Bell",carrier:"sine",mod:"sine",ratio:2.71,index:260,attack:.003,decay:.75,sustain:.12,release:1.05,gain:.055},
-  13:{name:"Piano",carrier:"triangle",mod:"sine",ratio:2,index:62,attack:.006,decay:.34,sustain:.28,release:.48,gain:.05}
+  2:{
+   name:"Strings",gain:.050,attack:.075,decay:.42,sustain:.62,release:.78,
+   filter:5200,wet:.19,
+   ops:[
+    {wave:"sawtooth",ratio:1,level:.54,modRatio:1.003,index:10},
+    {wave:"triangle",ratio:1.003,level:.34,modRatio:2,index:18},
+    {wave:"sine",ratio:2,level:.09,modRatio:3.01,index:12}
+   ]
+  },
+  11:{
+   name:"Harpsichord",gain:.052,attack:.0025,decay:.19,sustain:.10,release:.26,
+   filter:7200,wet:.12,
+   ops:[
+    {wave:"square",ratio:1,level:.42,modRatio:2,index:58},
+    {wave:"triangle",ratio:2,level:.24,modRatio:3,index:42},
+    {wave:"sine",ratio:4,level:.10,modRatio:5,index:24}
+   ]
+  },
+  12:{
+   name:"Crystal Glock",gain:.058,attack:.002,decay:.82,sustain:.055,release:1.55,
+   filter:10800,wet:.34,
+   ops:[
+    {wave:"sine",ratio:1,level:.48,modRatio:2.71,index:250},
+    {wave:"sine",ratio:2.01,level:.25,modRatio:4.10,index:180},
+    {wave:"sine",ratio:3.99,level:.13,modRatio:6.82,index:105},
+    {wave:"sine",ratio:.5,level:.12,modRatio:1.41,index:42}
+   ]
+  },
+  13:{
+   name:"Fantasy Piano",gain:.055,attack:.004,decay:.40,sustain:.25,release:.72,
+   filter:7600,wet:.20,
+   ops:[
+    {wave:"triangle",ratio:1,level:.50,modRatio:2,index:62},
+    {wave:"sine",ratio:2,level:.20,modRatio:3,index:46},
+    {wave:"sine",ratio:3.01,level:.10,modRatio:5,index:30}
+   ]
+  }
  };
- const p={...(presets[n]||presets[13])};
+ const p=structuredClone(presets[n]||presets[13]);
  if(soundMode==="enhanced"){
-  p.gain*=1.12;p.release*=1.35;p.index*=1.12;
+  p.gain*=1.12;p.release*=1.25;p.wet=Math.min(.42,p.wet*1.25);
+  p.ops.forEach(op=>op.index*=1.08);
  }else if(soundMode==="real"){
-  p.gain*=.9;p.release*=.78;
+  p.gain*=.82;p.release*=.68;p.wet*=.38;
+  p.ops=p.ops.slice(0,2);
+ }else if(soundMode==="crystal"){
+  p.release*=1.18;p.wet=Math.max(.25,p.wet);
+  if(n===12||instrumentOverride==="12"){
+   p.ops.forEach((op,i)=>{op.index*=1+(i*.055)});
+  }
  }
  return p
 }
 function parseMml(source){
  const s=String(source||"").toUpperCase();
- let i=0,tempo=120,octave=4,defaultLength=4,instrument=13;
+ let i=0,tempo=120,octave=4,defaultLength=4,instrument=13,volume=12,gate=8,eventIndex=0;
  const events=[];
  const noteIndex={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
  const readNumber=()=>{
@@ -494,9 +535,10 @@ function parseMml(source){
   if(c==="O"){const n=readNumber();if(n!=null)octave=Math.max(0,Math.min(8,n));continue}
   if(c==="L"){const n=readNumber();if(n)defaultLength=Math.max(1,Math.min(128,n));continue}
   if(c==="@"){const n=readNumber();if(n!=null)instrument=n;continue}
+  if(c==="V"){const n=readNumber();if(n!=null)volume=Math.max(0,Math.min(15,n));continue}
+  if(c==="Q"){const n=readNumber();if(n!=null)gate=Math.max(1,Math.min(8,n));continue}
   if(c===">"){octave=Math.min(8,octave+1);continue}
   if(c==="<"){octave=Math.max(0,octave-1);continue}
-  if(c==="V"||c==="Q"){readNumber();continue}
   if(c==="R"||Object.hasOwn(noteIndex,c)){
    let accidental=0;
    if(s[i]==="+"||s[i]==="#"){accidental=1;i++}
@@ -512,35 +554,111 @@ function parseMml(source){
     const midi=12*(octave+1)+noteIndex[c]+accidental;
     freq=440*Math.pow(2,(midi-69)/12)
    }
-   events.push({freq,seconds,instrument});
+   events.push({
+    freq,seconds,instrument,
+    velocity:Math.pow(volume/15,1.35),
+    gate:gate/8,
+    index:eventIndex++
+   });
    continue
   }
-  // Unknown MML control characters are ignored for compatibility.
  }
  return events
 }
-async function scheduleFmNote(ac,start,freq,duration,preset,session){
+function createCrystalOutput(ac,session){
+ const input=ac.createGain(),dry=ac.createGain(),wet=ac.createGain();
+ const compressor=ac.createDynamicsCompressor();
+ compressor.threshold.value=-18;
+ compressor.knee.value=16;
+ compressor.ratio.value=3.2;
+ compressor.attack.value=.004;
+ compressor.release.value=.22;
+ dry.gain.value=.88;
+ wet.gain.value=soundMode==="real"?.12:soundMode==="enhanced"?.24:.30;
+
+ const delayL=ac.createDelay(1),delayR=ac.createDelay(1);
+ const feedbackL=ac.createGain(),feedbackR=ac.createGain();
+ const panL=ac.createStereoPanner(),panR=ac.createStereoPanner();
+ delayL.delayTime.value=.145;
+ delayR.delayTime.value=.225;
+ feedbackL.gain.value=.18;
+ feedbackR.gain.value=.14;
+ panL.pan.value=-.58;
+ panR.pan.value=.58;
+
+ input.connect(dry).connect(compressor);
+ input.connect(wet);
+ wet.connect(delayL);wet.connect(delayR);
+ delayL.connect(feedbackL).connect(delayR);
+ delayR.connect(feedbackR).connect(delayL);
+ delayL.connect(panL).connect(compressor);
+ delayR.connect(panR).connect(compressor);
+ compressor.connect(ac.destination);
+ session.nodes.push(input,dry,wet,compressor,delayL,delayR,feedbackL,feedbackR,panL,panR);
+ return input
+}
+async function scheduleFmNote(ac,start,freq,duration,preset,session,event){
  if(soundMode==="silent")return;
- const meter=$("soundMeterBar");if(meter){meter.style.width=Math.min(100,28+freq/18)+"%";setTimeout(()=>meter.style.width="18%",130)}
- const carrier=ac.createOscillator(),mod=ac.createOscillator();
- const modGain=ac.createGain(),amp=ac.createGain();
- carrier.type=preset.carrier;mod.type=preset.mod;
- carrier.frequency.setValueAtTime(freq,start);
- mod.frequency.setValueAtTime(freq*preset.ratio,start);
- modGain.gain.setValueAtTime(preset.index,start);
- mod.connect(modGain).connect(carrier.frequency);
- const a=Math.max(.002,preset.attack),d=Math.max(.01,preset.decay);
- const release=Math.min(Math.max(.04,preset.release),Math.max(.05,duration*.9));
- const sustainTime=Math.max(start+a+d,start+duration-release);
- amp.gain.setValueAtTime(.0001,start);
- amp.gain.exponentialRampToValueAtTime(preset.gain,start+a);
- amp.gain.exponentialRampToValueAtTime(Math.max(.0008,preset.gain*preset.sustain),start+a+d);
- amp.gain.setValueAtTime(Math.max(.0008,preset.gain*preset.sustain),sustainTime);
- amp.gain.exponentialRampToValueAtTime(.0001,start+duration);
- carrier.connect(amp).connect(ac.destination);
- carrier.start(start);mod.start(start);
- carrier.stop(start+duration+.03);mod.stop(start+duration+.03);
- session.nodes.push(carrier,mod,modGain,amp)
+ const meter=$("soundMeterBar");
+ if(meter){
+  meter.style.width=Math.min(100,24+freq/20)+"%";
+  setTimeout(()=>meter.style.width="18%",150)
+ }
+ const noteBus=ac.createGain();
+ const filter=ac.createBiquadFilter();
+ const panner=ac.createStereoPanner();
+ filter.type="lowpass";
+ filter.frequency.setValueAtTime(Math.min(14000,preset.filter+freq*1.6),start);
+ filter.Q.value=.55;
+ const spread=[-.42,.18,.44,-.16,.31,-.34];
+ panner.pan.setValueAtTime(spread[event.index%spread.length],start);
+ noteBus.connect(filter).connect(panner).connect(session.output);
+
+ const a=Math.max(.0015,preset.attack);
+ const d=Math.max(.018,preset.decay);
+ const musicalLength=Math.max(.04,duration*event.gate);
+ const tail=Math.max(.08,preset.release);
+ const noteEnd=start+musicalLength+tail;
+ const peak=preset.gain*event.velocity;
+ noteBus.gain.setValueAtTime(.0001,start);
+ noteBus.gain.exponentialRampToValueAtTime(Math.max(.001,peak),start+a);
+ noteBus.gain.exponentialRampToValueAtTime(Math.max(.0008,peak*preset.sustain),start+a+d);
+ noteBus.gain.exponentialRampToValueAtTime(.0001,noteEnd);
+
+ preset.ops.forEach((op,opIndex)=>{
+  const carrier=ac.createOscillator();
+  const mod=ac.createOscillator();
+  const modGain=ac.createGain();
+  const opGain=ac.createGain();
+  carrier.type=op.wave;
+  mod.type="sine";
+  const tinyDetune=(opIndex-1.5)*1.7;
+  carrier.frequency.setValueAtTime(freq*op.ratio,start);
+  carrier.detune.setValueAtTime(tinyDetune,start);
+  mod.frequency.setValueAtTime(freq*op.modRatio,start);
+  modGain.gain.setValueAtTime(op.index,start);
+  modGain.gain.exponentialRampToValueAtTime(Math.max(.3,op.index*.12),start+Math.max(.12,d*.9));
+  opGain.gain.setValueAtTime(Math.max(.001,op.level),start);
+  opGain.gain.exponentialRampToValueAtTime(Math.max(.0004,op.level*.20),noteEnd);
+  mod.connect(modGain).connect(carrier.frequency);
+  carrier.connect(opGain).connect(noteBus);
+  carrier.start(start);mod.start(start);
+  carrier.stop(noteEnd+.04);mod.stop(noteEnd+.04);
+  session.nodes.push(carrier,mod,modGain,opGain)
+ });
+
+ // Soft octave shimmer for the crystal preset.
+ if((preset.name.includes("Crystal")||soundMode==="crystal")&&freq>0){
+  const shimmer=ac.createOscillator(),sg=ac.createGain();
+  shimmer.type="sine";
+  shimmer.frequency.setValueAtTime(freq*2.005,start);
+  sg.gain.setValueAtTime(Math.max(.0001,peak*.055),start);
+  sg.gain.exponentialRampToValueAtTime(.0001,noteEnd*1.0);
+  shimmer.connect(sg).connect(noteBus);
+  shimmer.start(start);shimmer.stop(noteEnd+.03);
+  session.nodes.push(shimmer,sg)
+ }
+ session.nodes.push(noteBus,filter,panner)
 }
 async function playMml(source,{background=false}={}){
  const mml=String(source||"");
@@ -550,20 +668,29 @@ async function playMml(source,{background=false}={}){
  }
  const events=parseMml(mml);
  if(!events.length)return;
- const ac=await ensureAudio(),session={cancelled:false,nodes:[],promise:null};
+ const ac=await ensureAudio(),session={cancelled:false,nodes:[],promise:null,output:null};
+ session.output=createCrystalOutput(ac,session);
  mmlSession=session;mmlLastSource=mml;
- const begin=ac.currentTime+.035;
+ const begin=ac.currentTime+.04;
  let cursor=begin;
  for(const ev of events){
-  if(ev.freq>0)await scheduleFmNote(ac,cursor,ev.freq,Math.max(.035,ev.seconds*.9),mmlInstrumentPreset(ev.instrument),session);
+  if(ev.freq>0){
+   const preset=mmlInstrumentPreset(ev.instrument);
+   await scheduleFmNote(ac,cursor,ev.freq,Math.max(.035,ev.seconds*.92),preset,session,ev)
+  }
   cursor+=ev.seconds
  }
- const totalMs=Math.max(0,(cursor-ac.currentTime)*1000);
+ const longestTail=Math.max(...events.map(e=>mmlInstrumentPreset(e.instrument).release),.3);
+ const totalMs=Math.max(0,(cursor+longestTail-ac.currentTime)*1000);
  session.promise=new Promise(resolve=>setTimeout(()=>{
-  if(mmlSession===session){mmlSession=null;mmlLastSource="";setStatus(stopped?"Stopped":"Ready")}
+  if(mmlSession===session){
+   for(const n of session.nodes){try{n.disconnect()}catch{}}
+   mmlSession=null;mmlLastSource="";
+   setStatus(stopped?"Stopped":"Ready")
+  }
   resolve()
- },totalMs+40));
- setStatus("FM Playing");
+ },totalMs+80));
+ setStatus("Crystal FM Playing");
  if(!background)await session.promise;
  return session.promise
 }
@@ -705,36 +832,31 @@ $("gameBtn").onclick=()=>editor.value=`10 CLS
 180 CIRCLE (X,Y),12,C
 190 GOTO 40`;
 $("fmBtn").onclick=()=>editor.value=`10 ' ================================================
-20 '  綺麗なアルペジオ for PC-8801mkIISR (FM音源)
+20 '  CRYSTAL FANTASY ARPEGGIO - Crystal FM v0.7
 30 ' ================================================
 40 NEW CMD
 50 CLS
-60 PRINT "★☆★ 綺麗なアルペジオ (FM音源) ★☆★"
-70 PRINT "  PC-8801mkIISR  /  N88-BASIC"
+60 PRINT "CRYSTAL FANTASY ARPEGGIO"
+70 PRINT "PC-8801MH / FM SOUND TEST"
 80 PRINT
-90 PRINT "何かキーを押すと止まります..."
+90 PRINT "PRESS ANY KEY TO STOP..."
 100 PRINT
-110 '
-120 CMD BGM 1
-130 '
-140 ' 音色指定
-150 ' @11 = ハープシコード
-160 ' @12 = ベル（キラキラ）
-170 ' @13 = ピアノ
-180 ' @2  = ストリング（柔らかい）
-190 '
-200 A$ = "T105 O4 L16 @12 "
-210 A$ = A$ + "CEG>C<GEC EG>CEC<G CEG>C<GEC EG>CEC<G "
-220 A$ = A$ + "EG>CEC<G EG>CE>C<G EG>CEC<G >CEGEC< "
-230 A$ = A$ + "G>CEGEC<G >CEGEC G>CEG>CE C<"
-240 '
-250 CMD PLAY A$
-260 IF INKEY$ = "" THEN 250
-270 '
-280 CMD STOPM
-290 PRINT
-300 PRINT "終了しました。"
-310 END`;
+110 CMD BGM 1
+120 A$ = "T104 O4 L16 V13 Q7 @12 "
+130 A$ = A$ + "CEG>C<GEC EGC>EC<G "
+140 A$ = A$ + "ACE>A<ECA EAC>EA<C "
+150 A$ = A$ + "FAC>F<CAF ACF>AC<F "
+160 A$ = A$ + "GBD>G<DBG BDG>BD<G "
+170 A$ = A$ + "EGB>E<GBE GBE>GB<E "
+180 A$ = A$ + "DFA>D<FAD FAD>FA<D "
+190 A$ = A$ + "CEG>C<GEC GBD>G<DBG "
+200 A$ = A$ + "CEG>C<GEC >C4"
+210 CMD PLAY A$
+220 IF INKEY$ = "" THEN 210
+230 CMD STOPM
+240 PRINT
+250 PRINT "END"
+260 END`;
 $("saveBtn").onclick=()=>{const b=new Blob([editor.value],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="PROGRAM.BAS";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $("loadBtn").onclick=()=>$("fileInput").click();
 $("fileInput").onchange=async e=>{const f=e.target.files[0];if(f)editor.value=await f.text();e.target.value=""};
@@ -772,7 +894,7 @@ function applyMachineSettings(){
  soundMode=$("soundMode").value;
  instrumentOverride=$("instrumentMode").value;
  $("clockBadge").textContent=cpuClock+"MHz";
- $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="enhanced"?"ENHANCED":"MH FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
+ $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="crystal"?"CRYSTAL FM":soundMode==="enhanced"?"ENHANCED":"MH FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
  localStorage.setItem("salpMHSettings",JSON.stringify({
   cpuClock,displayMode:$("displayMode").value,soundMode,instrumentOverride,
   scan:$("scanToggle").checked,glow:$("glowToggle").checked,curve:$("curveToggle").checked
@@ -902,7 +1024,7 @@ canvas.addEventListener("pointermove",e=>{if(e.buttons)updateTouch(e,true)});
 canvas.addEventListener("pointerup",e=>updateTouch(e,false));
 canvas.addEventListener("pointercancel",e=>{mouseButton=0});
 
-resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / 8MHz");printText("");printText("Ok");
+resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / Crystal FM");printText("");printText("Ok");
 </script>
 </body>
 </html>
