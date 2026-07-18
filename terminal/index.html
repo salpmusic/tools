@@ -1,193 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071019">
-<title>salp Terminal v5.0｜BASIC Link</title>
+<meta name="theme-color" content="#0d1117">
+<title>salp Terminal v6.0｜salp OS Desktop</title>
 <style>
-:root{--bg:#071019;--panel:#0e1926;--panel2:#142337;--line:#29405b;--text:#edf7ff;--muted:#91a7ba;--green:#72f29a;--cyan:#6ee7f2;--pink:#ff8fbd;--red:#ff7f7f}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-button,input,textarea{font:inherit}button{cursor:pointer}
-body.light{--bg:#e9eef4;--panel:#fff;--panel2:#edf3f8;--line:#c4d1dc;--text:#182431;--muted:#657687}
-body.hacker{--bg:#010702;--panel:#061309;--panel2:#0a1e0f;--line:#19522a;--text:#b6ffc2;--muted:#65a970;--cyan:#6cff89;--pink:#6cff89}
-.os{height:100%;display:flex;flex-direction:column;background:radial-gradient(circle at 12% 0,#173c4d88,transparent 30%),radial-gradient(circle at 90% 0,#4a244188,transparent 32%),var(--bg)}
-.topbar{height:54px;display:flex;align-items:center;gap:10px;padding:8px 11px;border-bottom:1px solid var(--line);background:#071019dd;backdrop-filter:blur(15px)}
-.logo{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#071019;font-weight:1000}
-.title{font-weight:950}.sub{font-size:10px;color:var(--muted)}.spacer{flex:1}
-.topbar button{min-height:36px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);padding:6px 10px}
-.main{flex:1;min-height:0;display:grid;grid-template-columns:260px 1fr}
-.side{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line);background:#091421}
-.sideHead{padding:12px;border-bottom:1px solid var(--line)}.sideHead b{color:var(--cyan)}.sideHead small{display:block;color:var(--muted);margin-top:4px}
-.path{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--cyan);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fileList{flex:1;overflow:auto;padding:8px}
-.file{width:100%;display:flex;align-items:center;gap:8px;text-align:left;min-height:42px;margin-bottom:5px;padding:7px 9px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--text)}
-.file:hover,.file.selected{background:var(--panel2);border-color:var(--line)}.file .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
-.sideActions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;border-top:1px solid var(--line)}
-.sideActions button{min-height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--text)}
-.work{min-width:0;min-height:0;display:grid;grid-template-rows:1fr 42%}
-.terminal{min-height:0;display:flex;flex-direction:column;background:#03070a}
-.termToolbar{display:flex;gap:7px;padding:7px 9px;border-bottom:1px solid #22303d;background:#0b1219}
-.termToolbar button,.termToolbar select{min-height:32px;border:1px solid #314151;border-radius:8px;background:#141e28;color:#eef6ff;padding:4px 8px}
-.output{flex:1;overflow:auto;padding:12px;color:var(--green);white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.55}
-.inputRow{display:flex;align-items:center;gap:7px;padding:9px 11px;border-top:1px solid #22303d;background:#080d12}
-.prompt{color:var(--cyan);font-weight:950}.cmd{flex:1;min-width:0;border:0;outline:0;background:transparent;color:white;font-size:16px}
-.studio{min-height:0;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
-.editorPane,.basicPane{min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--panel)}
-.paneHead{height:42px;display:flex;align-items:center;gap:7px;padding:6px 9px;border-bottom:1px solid var(--line);background:var(--panel2);font-size:11px;font-weight:900}
-.paneHead .grow{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--cyan)}
-.paneHead button{min-height:30px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--text)}
-.code{flex:1;width:100%;resize:none;border:0;outline:0;padding:12px;background:#060b10;color:var(--green);font:13px/1.5 ui-monospace,monospace}
-.basicPane{border-left:1px solid var(--line)}iframe{width:100%;height:100%;border:0;background:white}
-.empty{display:grid;place-items:center;height:100%;padding:25px;text-align:center;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,15px);opacity:0;pointer-events:none;padding:10px 14px;border-radius:999px;background:#111d29;color:white;border:1px solid var(--line);transition:.2s;z-index:9}.toast.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:760px){
- .main{grid-template-columns:1fr}.side{display:none}.work{grid-template-rows:52% 48%}.studio{grid-template-columns:1fr}.basicPane{display:none}.editorPane{border:0}
- .topbar .optional{display:none}
-}
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#202733;--line:#303947;--text:#edf3fa;--muted:#96a3b3;--green:#72f29a;--blue:#6fd8ff;--pink:#ff8fbd;--danger:#ff7b7b;--taskbar:rgba(12,16,22,.94)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}button,input,select,textarea{font:inherit}button{cursor:pointer}
+body.light{--bg:#e9edf2;--panel:#fff;--panel2:#eef2f6;--line:#cbd4df;--text:#1d2630;--muted:#6f7c8c;--taskbar:rgba(238,243,248,.94)}
+body.hacker{--bg:#020704;--panel:#06120a;--panel2:#0b1d10;--line:#194d27;--text:#adffbe;--muted:#5ca869;--green:#54ff78;--blue:#88ff9d;--taskbar:rgba(1,8,3,.94)}
+.os{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 15% 12%,rgba(111,216,255,.15),transparent 30%),radial-gradient(circle at 85% 18%,rgba(255,143,189,.13),transparent 28%),linear-gradient(145deg,var(--bg),#090c11)}
+.wallpaperText{position:absolute;right:4vw;bottom:82px;opacity:.09;font-size:clamp(48px,11vw,145px);font-weight:900;letter-spacing:-8px;pointer-events:none;user-select:none}
+.desktop{position:absolute;inset:0 0 58px 0;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,92px);grid-auto-rows:104px;align-content:start;gap:10px}.desktopIcon{width:88px;height:98px;border:0;background:transparent;color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border-radius:13px;text-shadow:0 2px 5px #000}.desktopIcon:hover,.desktopIcon:focus{background:rgba(255,255,255,.1)}.desktopIcon .emoji{font-size:38px}.desktopIcon .label{font-size:11px;text-align:center;line-height:1.25}
+.taskbar{position:absolute;left:0;right:0;bottom:0;height:58px;z-index:1000;display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--taskbar);border-top:1px solid var(--line);backdrop-filter:blur(18px)}
+.startBtn,.taskBtn,.trayBtn{min-height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--text);padding:7px 11px}.startBtn{font-weight:900;background:linear-gradient(135deg,var(--green),var(--blue));color:#101418;border:0}.quickLaunch{display:flex;gap:5px}.quickBtn{width:42px;height:42px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-size:20px}.quickBtn:hover{outline:2px solid var(--blue)}.taskItems{display:flex;gap:6px;flex:1;overflow:auto}.taskBtn{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.taskBtn.active{outline:2px solid var(--green)}.clock{min-width:72px;text-align:center;font-size:11px;color:var(--muted)}
+.startMenu{position:absolute;left:10px;bottom:66px;width:min(92vw,380px);z-index:1100;display:none;padding:13px;border:1px solid var(--line);border-radius:18px;background:var(--taskbar);box-shadow:0 20px 55px rgba(0,0,0,.45);backdrop-filter:blur(20px)}.startMenu.show{display:block}.startHead{display:flex;align-items:center;gap:10px;padding:6px 4px 12px}.startLogo{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,var(--green),var(--blue));color:#111;font-weight:900}.startGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.startApp{min-height:76px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.startApp span:first-child{font-size:28px}.startApp span:last-child{font-size:10px}.startFoot{display:flex;gap:7px;margin-top:11px}.startFoot button{flex:1}
+.window{position:absolute;left:80px;top:54px;width:min(820px,calc(100vw - 30px));height:min(610px,calc(100vh - 92px));min-width:280px;min-height:220px;z-index:50;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:0 18px 55px rgba(0,0,0,.45)}.window.hidden{display:none}.window.maximized{left:0!important;top:0!important;width:100%!important;height:calc(100% - 58px)!important;border-radius:0}.titlebar{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:7px 8px 7px 12px;background:var(--panel2);border-bottom:1px solid var(--line);user-select:none;touch-action:none}.windowTitle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900}.winControls{display:flex;gap:5px}.winControls button{width:34px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);padding:0}.windowBody{position:relative;flex:1;min-height:0;overflow:auto;background:var(--panel)}.resizeHandle{position:absolute;right:0;bottom:0;width:20px;height:20px;cursor:nwse-resize;touch-action:none}.appFrame{width:100%;height:100%;border:0;background:#fff}
+.terminalApp{height:100%;display:flex;flex-direction:column;background:#050708}.termToolbar{display:flex;gap:7px;padding:8px;background:#10151b;border-bottom:1px solid #27303a}.termToolbar select,.termToolbar button{min-height:34px;border:1px solid #35404d;border-radius:8px;background:#18202a;color:#edf3fa;padding:5px 8px}.output{flex:1;overflow:auto;padding:13px;white-space:pre-wrap;word-break:break-word;color:var(--green);line-height:1.55;font-size:13px}.commandRow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #27303a;background:#0b0f14}.prompt{color:var(--blue);font-weight:900}.commandInput{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:16px}
+.fileApp{height:100%;display:grid;grid-template-columns:190px 1fr}.fileSide{padding:10px;border-right:1px solid var(--line);background:var(--panel2);overflow:auto}.fileSide button{width:100%;margin-bottom:5px;text-align:left;min-height:38px;border:0;border-radius:8px;background:transparent;color:var(--text)}.fileMain{display:flex;flex-direction:column;min-width:0}.fileToolbar{display:flex;gap:6px;flex-wrap:wrap;padding:9px;border-bottom:1px solid var(--line)}.fileToolbar button{min-height:37px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--text)}.filePath{padding:8px 11px;color:var(--blue);border-bottom:1px solid var(--line);font-size:12px}.fileGrid{padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;overflow:auto}.fileItem{min-height:94px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}.fileItem.selected{outline:3px solid var(--green)}.fileItem .ico{font-size:30px}.fileItem .nm{max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.editorApp{height:100%;display:flex;flex-direction:column}.editorToolbar{display:flex;gap:7px;padding:9px;border-bottom:1px solid var(--line)}.editorToolbar button{min-height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--text)}.editorPath{flex:1;padding:9px;color:var(--blue);font-size:12px}.editorText{flex:1;width:100%;resize:none;border:0;outline:0;background:#080c11;color:#fff;padding:14px;font:14px/1.55 ui-monospace,monospace}.settings,.aboutApp{padding:20px}.settingGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.themeCard{min-height:100px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);color:var(--text)}.hiddenInput{display:none}
+@media(max-width:700px){.desktop{grid-template-columns:repeat(3,88px);padding:10px}.window{left:8px!important;top:8px!important;width:calc(100% - 16px)!important;height:calc(100% - 74px)!important}.fileApp{grid-template-columns:1fr}.fileSide{display:none}.settingGrid{grid-template-columns:1fr}.clock{display:none}.taskItems{display:none}.quickLaunch{overflow:auto}.startBtn{padding:7px 9px}}
 </style>
 </head>
 <body>
-<div class="os">
-<header class="topbar">
- <div class="logo">SO</div><div><div class="title">salp Terminal v5.0</div><div class="sub">salp OS Command Center — N88-BASIC Link</div></div>
- <div class="spacer"></div>
- <button class="optional" id="basicAppBtn">⌨ BASIC</button>
- <button id="themeBtn">◐ Theme</button>
-</header>
-
-<div class="main">
-<aside class="side">
- <div class="sideHead"><b>📁 salp FS</b><small>BASIC対応仮想ファイル</small></div>
- <div class="path" id="path">/Projects/BASIC</div>
- <div class="fileList" id="fileList"></div>
- <div class="sideActions"><button id="newBas">＋ BAS</button><button id="newTxt">＋ TXT</button><button id="downloadBtn">保存</button><button id="deleteBtn">削除</button></div>
-</aside>
-
-<main class="work">
-<section class="terminal">
- <div class="termToolbar">
-  <button id="clearBtn">CLEAR</button><button id="helpBtn">HELP</button>
-  <select id="mode"><option value="linux">salp&gt;</option><option value="dos">C:\SALP&gt;</option><option value="basic">Ok</option></select>
- </div>
- <div class="output" id="output"></div>
- <div class="inputRow"><span class="prompt" id="prompt">salp&gt;</span><input class="cmd" id="cmd" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="help"></div>
-</section>
-
-<section class="studio">
- <div class="editorPane">
-  <div class="paneHead"><span>EDITOR</span><span class="grow" id="editName">/Projects/BASIC/hello.bas</span><button id="saveEdit">SAVE</button><button id="runEdit">▶ RUN</button></div>
-  <textarea class="code" id="code" spellcheck="false"></textarea>
- </div>
- <div class="basicPane">
-  <div class="paneHead"><span>salp N88-BASIC</span><span class="grow">linked application</span><button id="reloadBasic">↻</button></div>
-  <div id="basicHost" style="flex:1;min-height:0"><div class="empty">BASICを起動すると、ここに<br>salp-n88-basic.html が表示されます。</div></div>
- </div>
-</section>
-</main>
-</div>
-</div>
-<div class="toast" id="toast"></div>
+<div class="os" id="os">
+<div class="wallpaperText">salp OS 6</div>
+<div id="desktop" class="desktop"></div><div id="windows"></div>
+<div id="startMenu" class="startMenu"><div class="startHead"><div class="startLogo">SO</div><div><strong>salp OS Desktop</strong><br><small style="color:var(--muted)">Terminal v6.0 / BASIC Link</small></div></div><div id="startGrid" class="startGrid"></div><div class="startFoot"><button id="openSettings">⚙ Settings</button><button id="openAbout">ℹ About</button></div></div>
+<div class="taskbar">
+<button id="startBtn" class="startBtn">🐱 salp</button>
+<div class="quickLaunch" id="quickLaunch"></div>
+<div id="taskItems" class="taskItems"></div>
+<button id="showDesktop" class="trayBtn">▭</button><div id="clock" class="clock"></div>
+</div></div>
+<input id="uploadInput" class="hiddenInput" type="file" multiple>
 <script>
 (()=>{"use strict";
-const $=id=>document.getElementById(id);
-const FS_KEY="salpTerminalFS_v5",HIST_KEY="salpTerminalHistory_v5",THEME_KEY="salpTerminalTheme_v5";
-const BASIC_URL="../salp-n88-basic.html";
-const defaultFS=()=>({type:"dir",children:{
- "Projects":{type:"dir",children:{
-  "BASIC":{type:"dir",children:{
-   "hello.bas":{type:"file",content:'10 CLS\n20 PRINT "HELLO FROM SALP TERMINAL"\n30 FOR I=1 TO 5\n40 PRINT I;" "; \n50 NEXT I\n60 PRINT\n70 END'},
-   "arpeggio.bas":{type:"file",content:'10 CLS\n20 PRINT "SALP ARPEGGIO"\n30 PLAY "T95 O5 L16 CEG>CEG<C"\n40 END'},
-   "number-game.bas":{type:"file",content:'10 CLS\n20 N=INT(RND(1)*10)+1\n30 INPUT "1-10";A\n40 IF A=N THEN PRINT "CORRECT!":END\n50 IF A<N THEN PRINT "HIGHER"\n60 IF A>N THEN PRINT "LOWER"\n70 GOTO 30'}
-  }},
-  "WEB":{type:"dir",children:{"hello.html":{type:"file",content:"<!doctype html><h1>Hello salp OS</h1>"} }}
- }},
- "Documents":{type:"dir",children:{"readme.txt":{type:"file",content:"salp Terminal v5.0\nType help for commands."}}},
- "System":{type:"dir",children:{"version.txt":{type:"file",content:"salp Terminal v5.0\nBASIC Link Edition"}}}
-}});
+const $=id=>document.getElementById(id),FS_KEY="salpTerminalFS_v6",HIST_KEY="salpTerminalHistory_v6",THEME_KEY="salpOSTheme_v6";
+const APPS={
+ terminal:{name:"Terminal",icon:"⌨️",type:"terminal"},
+ basic:{name:"N88 BASIC",icon:"💾",type:"iframe",url:"../salp-n88-basic.html"},
+ files:{name:"Files",icon:"📁",type:"files"},
+ editor:{name:"Editor",icon:"📝",type:"editor"},
+ runner:{name:"HTML Runner",icon:"💻",type:"iframe",url:"../html-runner.html"},
+ pixel:{name:"Pixel",icon:"🎨",type:"iframe",url:"../Pixel.html"},
+ frame:{name:"Frame",icon:"🖼️",type:"iframe",url:"../Frame.html"},
+ qr:{name:"QR Maker",icon:"🔲",type:"iframe",url:"../qrcode.html"},
+ color:{name:"Color",icon:"🎮",type:"iframe",url:"../color/index.html"},
+ video:{name:"Video",icon:"🎬",type:"iframe",url:"../video.html"},
+ music:{name:"Music",icon:"🎵",type:"iframe",url:"https://linktr.ee/salp"},
+ settings:{name:"Settings",icon:"⚙️",type:"settings"},
+ about:{name:"About salp OS",icon:"ℹ️",type:"about"}
+};
+const desktopApps=["terminal","basic","files","editor","runner","video","qr","color","pixel","frame","music"];
+const quickApps=["terminal","basic","files","runner","qr"];
+function defaultFS(){return {type:"dir",children:{Desktop:{type:"dir",children:{}},Documents:{type:"dir",children:{"welcome.txt":{type:"file",content:"Welcome to salp OS v6.0"}}},Projects:{type:"dir",children:{BASIC:{type:"dir",children:{
+"hello.bas":{type:"file",content:'10 CLS\n20 PRINT "HELLO FROM SALP OS 6"\n30 END'},
+"arpeggio.bas":{type:"file",content:'10 CLS\n20 PRINT "SALP ARPEGGIO"\n30 PLAY "T95 O5 L16 CEG>CEG<C"\n40 END'},
+"number-game.bas":{type:"file",content:'10 CLS\n20 N=INT(RND(1)*10)+1\n30 INPUT "1-10";A\n40 IF A=N THEN PRINT "CORRECT!":END\n50 IF A<N THEN PRINT "HIGHER"\n60 IF A>N THEN PRINT "LOWER"\n70 GOTO 30'}
+}},WEB:{type:"dir",children:{"hello.html":{type:"file",content:"<!doctype html><h1>Hello salp OS 6</h1>"}}}}},Pictures:{type:"dir",children:{}},Music:{type:"dir",children:{}},Videos:{type:"dir",children:{}},Downloads:{type:"dir",children:{}},System:{type:"dir",children:{"version.txt":{type:"file",content:"salp Terminal v6.0\nsalp OS Desktop"}}}}}}
 let fs;try{fs=JSON.parse(localStorage.getItem(FS_KEY))||defaultFS()}catch{fs=defaultFS()}
-let cwd="/Projects/BASIC",selected="/Projects/BASIC/hello.bas",editing=selected;
-let hist=[];try{hist=JSON.parse(localStorage.getItem(HIST_KEY))||[]}catch{}let hi=hist.length;
-const out=$("output"),code=$("code"),basicHost=$("basicHost");
-function saveFS(){localStorage.setItem(FS_KEY,JSON.stringify(fs));renderFiles()}
-function norm(p,base=cwd){if(!p)return base;const full=p.startsWith("/")?p:(base==="/"?"/"+p:base+"/"+p),s=[];full.split("/").forEach(x=>{if(!x||x===".")return;x===".."?s.pop():s.push(x)});return"/"+s.join("/")}
-function parts(p){const n=norm(p,"/");return n==="/"?[]:n.slice(1).split("/")}
-function node(p){let n=fs;for(const x of parts(p)){if(!n||n.type!=="dir"||!n.children[x])return null;n=n.children[x]}return n}
-function parent(p){const a=parts(p),name=a.pop();return{dir:node("/"+a.join("/")),name}}
-function print(s=""){out.textContent+=String(s)+"\n";out.scrollTop=out.scrollHeight}
-function toast(s){const t=$("toast");t.textContent=s;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1200)}
-function promptText(){return $("mode").value==="dos"?"C:\\SALP>":$("mode").value==="basic"?"Ok":"salp>"}
-function updatePrompt(){$("prompt").textContent=promptText()}
-function renderFiles(){
- $("path").textContent=cwd;const box=$("fileList");box.innerHTML="";
- const n=node(cwd);if(!n||n.type!=="dir")return;
- if(cwd!=="/"){const b=document.createElement("button");b.className="file";b.innerHTML="↩ <span class=name>..</span>";b.onclick=()=>{cwd=norm("..");selected=null;renderFiles()};box.appendChild(b)}
- Object.entries(n.children).sort((a,b)=>a[1].type===b[1].type?a[0].localeCompare(b[0]):a[1].type==="dir"?-1:1).forEach(([name,v])=>{
-  const p=norm(name),b=document.createElement("button");b.className="file"+(p===selected?" selected":"");
-  b.innerHTML=(v.type==="dir"?"📁":"📄")+` <span class="name">${name}</span>`;
-  b.onclick=()=>{if(v.type==="dir"){cwd=p;selected=null;renderFiles()}else{selected=p;openFile(p)}};
-  box.appendChild(b)
- })
-}
-function openFile(p){const n=node(p);if(!n||n.type!=="file")throw Error("file not found");editing=p;selected=p;code.value=n.content;$("editName").textContent=p;renderFiles()}
-function writeFile(p,content){const q=parent(p);if(!q.dir||q.dir.type!=="dir")throw Error("parent not found");q.dir.children[q.name]={type:"file",content};saveFS()}
-function uniqueName(ext){let i=1,n=`new${ext}`;while(node(norm(n)))n=`new${i++}${ext}`;return n}
-function saveEditor(){writeFile(editing,code.value);toast("保存しました")}
-function openBasic(program="",autoRun=false){
- basicHost.innerHTML="";const f=document.createElement("iframe");f.src=BASIC_URL+"?terminal=v5&t="+Date.now();f.title="salp N88-BASIC";
- f.onload=()=>{try{const d=f.contentDocument,ed=d.getElementById("editor");if(ed&&program){ed.value=program;ed.dispatchEvent(new Event("input",{bubbles:true}))}if(autoRun){const run=d.getElementById("runBtn");if(run)setTimeout(()=>run.click(),120)}}catch(e){print("BASIC link error: "+e.message)}};
- basicHost.appendChild(f);return f
-}
-function runBas(p){const n=node(p);if(!n||n.type!=="file")throw Error("BAS file not found");if(!p.toLowerCase().endsWith(".bas"))throw Error("runbasic requires .bas");openFile(p);openBasic(n.content,true);print("Running BASIC: "+p)}
-function listBasic(){const n=node("/Projects/BASIC");if(!n)return print("BASIC folder not found");Object.keys(n.children).filter(x=>x.toLowerCase().endsWith(".bas")).forEach(x=>print(x))}
-function tree(n=node(cwd),pre=""){if(!n||n.type!=="dir")return"";return Object.entries(n.children).map(([k,v],i)=>{const last=i===Object.keys(n.children).length-1;return pre+(last?"└─ ":"├─ ")+k+(v.type==="dir"?"/\n"+tree(v,pre+(last?"   ":"│  ")):"")}).join("\n")}
-function exec(raw){
- const a=raw.match(/(?:[^\s"]+|"[^"]*")+/g)||[],cmd=(a.shift()||"").toLowerCase(),args=a.map(x=>x.replace(/^"|"$/g,""));
- if(!cmd)return;
- if(cmd==="help"){print("FILES: ls cd pwd tree cat mkdir touch write edit rm\nBASIC: basic | basic list | basic new <name> | basic load <name> | basic run <name>\n       runbasic <file.bas> | savebasic <name>\nSYSTEM: apps open clear history theme version exportfs");return}
- if(cmd==="pwd"){print(cwd);return}
- if(cmd==="ls"){const n=node(args[0]||cwd);if(!n)throw Error("path not found");print(n.type==="file"?args[0]:Object.entries(n.children).map(([k,v])=>k+(v.type==="dir"?"/":"")).join("  ")||"(empty)");return}
- if(cmd==="cd"){const p=norm(args[0]||"/"),n=node(p);if(!n||n.type!=="dir")throw Error("directory not found");cwd=p;selected=null;renderFiles();return}
- if(cmd==="tree"){print((args[0]||cwd)+"\n"+tree(node(args[0]||cwd)));return}
- if(cmd==="cat"){const n=node(args[0]);if(!n||n.type!=="file")throw Error("file not found");print(n.content);return}
- if(cmd==="mkdir"){if(!args[0])throw Error("name required");const q=parent(norm(args[0]));if(!q.dir)throw Error("parent not found");q.dir.children[q.name]={type:"dir",children:{}};saveFS();return}
- if(cmd==="touch"){if(!args[0])throw Error("name required");writeFile(norm(args[0]),"");return}
- if(cmd==="write"){if(!args[0])throw Error("file required");writeFile(norm(args[0]),args.slice(1).join(" "));return}
- if(cmd==="edit"){openFile(norm(args[0]));return}
- if(cmd==="rm"){const p=norm(args[0]);if(p==="/")throw Error("cannot delete root");const q=parent(p);if(!q.dir||!q.dir.children[q.name])throw Error("not found");delete q.dir.children[q.name];saveFS();return}
- if(cmd==="clear"){out.textContent="";return}
- if(cmd==="history"){hist.forEach((x,i)=>print(`${i+1}  ${x}`));return}
- if(cmd==="apps"){print("terminal  files  editor  basic  runner  pixel  frame  color  qr");return}
- if(cmd==="open"){if((args[0]||"").toLowerCase()==="basic"){openBasic();return}print("open: basic is linked in this build");return}
- if(cmd==="runbasic"){runBas(norm(args[0]));return}
- if(cmd==="savebasic"){const name=(args[0]||"program").replace(/\.bas$/i,"")+".bas";writeFile("/Projects/BASIC/"+name,code.value);print("Saved: /Projects/BASIC/"+name);return}
- if(cmd==="basic"){
-  const sub=(args.shift()||"").toLowerCase();
-  if(!sub){openBasic(code.value,false);return}
-  if(sub==="list"){listBasic();return}
-  if(sub==="new"){const name=(args[0]||"new").replace(/\.bas$/i,"")+".bas",p="/Projects/BASIC/"+name;writeFile(p,'10 CLS\n20 PRINT "NEW PROGRAM"\n30 END');openFile(p);print("Created: "+p);return}
-  if(sub==="load"){let name=args[0]||"";if(!name.toLowerCase().endsWith(".bas"))name+=".bas";openFile("/Projects/BASIC/"+name);print("Loaded: "+name);return}
-  if(sub==="run"){let name=args[0]||"";if(!name.toLowerCase().endsWith(".bas"))name+=".bas";runBas("/Projects/BASIC/"+name);return}
-  throw Error("basic command: list/new/load/run")
- }
- if(cmd==="theme"){applyTheme(args[0]||"dark");return}
- if(cmd==="version"){print("salp Terminal v5.0\nBASIC Link Edition");return}
- if(cmd==="exportfs"){const b=new Blob([JSON.stringify(fs,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="salp-terminal-v5-filesystem.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);return}
- throw Error("command not found: "+cmd)
-}
+let cwd="/Projects/BASIC",fileCwd="/Projects/BASIC",selectedPath=null,editingPath="",history=JSON.parse(localStorage.getItem(HIST_KEY)||"[]"),historyIndex=history.length,topZ=60,windowCount=0;
+const saveFS=()=>{localStorage.setItem(FS_KEY,JSON.stringify(fs));renderFiles()};
+function norm(path,base=cwd){if(!path)return base;const full=path.startsWith("/")?path:(base==="/"?"/"+path:base+"/"+path),stack=[];full.split("/").forEach(p=>{if(!p||p===".")return;p===".."?stack.pop():stack.push(p)});return "/"+stack.join("/")}
+const parts=p=>{const n=norm(p,"/");return n==="/"?[]:n.slice(1).split("/")};
+function node(path){let n=fs;for(const p of parts(path)){if(!n||n.type!=="dir"||!n.children[p])return null;n=n.children[p]}return n}
+function parent(path){const a=parts(path),name=a.pop();return {parent:node("/"+a.join("/")||"/"),name}}
+function fileIcon(name){return /\.bas$/i.test(name)?"💾":/\.html?$/i.test(name)?"🌐":"📄"}
+function renderDesktop(){const d=$("desktop");d.innerHTML="";desktopApps.forEach(key=>{const a=APPS[key],b=document.createElement("button");b.className="desktopIcon";b.innerHTML=`<span class="emoji">${a.icon}</span><span class="label">${a.name}</span>`;b.ondblclick=()=>openApp(key);b.onclick=()=>{if(innerWidth<700)openApp(key)};d.appendChild(b)})}
+function renderQuick(){const q=$("quickLaunch");q.innerHTML="";quickApps.forEach(key=>{const a=APPS[key],b=document.createElement("button");b.className="quickBtn";b.title=a.name;b.textContent=a.icon;b.onclick=()=>openApp(key);q.appendChild(b)})}
+function renderStart(){const g=$("startGrid");g.innerHTML="";Object.entries(APPS).filter(([k])=>!["settings","about"].includes(k)).forEach(([k,a])=>{const b=document.createElement("button");b.className="startApp";b.innerHTML=`<span>${a.icon}</span><span>${a.name}</span>`;b.onclick=()=>{openApp(k);toggleStart(false)};g.appendChild(b)})}
+function toggleStart(force){$("startMenu").classList.toggle("show",force??!$("startMenu").classList.contains("show"))}
+$("startBtn").onclick=()=>toggleStart();document.addEventListener("pointerdown",e=>{if(!$("startMenu").contains(e.target)&&e.target!==$("startBtn"))toggleStart(false)});
+function createWindow(key,title,icon){const id="win-"+(++windowCount),w=document.createElement("section");w.className="window";w.id=id;w.dataset.app=key;const o=(windowCount%7)*24;w.style.left=(55+o)+"px";w.style.top=(28+o)+"px";w.innerHTML=`<div class="titlebar"><div class="windowTitle"><span>${icon}</span><span>${title}</span></div><div class="winControls"><button data-act="min">—</button><button data-act="max">□</button><button data-act="close">×</button></div></div><div class="windowBody"></div><div class="resizeHandle"></div>`;$("windows").appendChild(w);makeWindowInteractive(w);createTaskButton(w,title,icon);focusWindow(w);return w}
+function createTaskButton(w,title,icon){const b=document.createElement("button");b.className="taskBtn active";b.dataset.win=w.id;b.textContent=icon+" "+title;b.onclick=()=>{if(w.classList.contains("hidden"))w.classList.remove("hidden");else if(+w.style.zIndex===topZ)w.classList.add("hidden");focusWindow(w)};$("taskItems").appendChild(b)}
+function focusWindow(w){topZ++;w.style.zIndex=topZ;document.querySelectorAll(".taskBtn").forEach(b=>b.classList.toggle("active",b.dataset.win===w.id&&!w.classList.contains("hidden")))}
+function closeWindow(w){document.querySelector(`.taskBtn[data-win="${w.id}"]`)?.remove();w.remove()}
+function makeWindowInteractive(w){const bar=w.querySelector(".titlebar");let drag=false,sx=0,sy=0,sl=0,st=0;bar.onpointerdown=e=>{if(e.target.closest("button")||w.classList.contains("maximized"))return;drag=true;sx=e.clientX;sy=e.clientY;sl=w.offsetLeft;st=w.offsetTop;bar.setPointerCapture(e.pointerId);focusWindow(w)};bar.onpointermove=e=>{if(drag){w.style.left=Math.max(0,sl+e.clientX-sx)+"px";w.style.top=Math.max(0,st+e.clientY-sy)+"px"}};bar.onpointerup=()=>drag=false;w.onpointerdown=()=>focusWindow(w);w.querySelector('[data-act="close"]').onclick=()=>closeWindow(w);w.querySelector('[data-act="min"]').onclick=()=>w.classList.add("hidden");w.querySelector('[data-act="max"]').onclick=()=>w.classList.toggle("maximized")}
+$("showDesktop").onclick=()=>document.querySelectorAll(".window").forEach(w=>w.classList.add("hidden"));
+function findOpen(k){return [...document.querySelectorAll(".window")].find(w=>w.dataset.app===k)}
+function openApp(k){const a=APPS[k];if(!a)return;const old=findOpen(k);if(old){old.classList.remove("hidden");focusWindow(old);return}const w=createWindow(k,a.name,a.icon),body=w.querySelector(".windowBody");if(a.type==="iframe"){const f=document.createElement("iframe");f.className="appFrame";f.src=a.url;body.appendChild(f)}else if(a.type==="terminal")buildTerminal(body);else if(a.type==="files")buildFiles(body);else if(a.type==="editor")buildEditor(body);else if(a.type==="settings")buildSettings(body);else buildAbout(body)}
+function openBasicCode(path,autoRun=false){const n=node(path);if(!n||n.type!=="file")throw Error("BASIC file not found");let w=findOpen("basic");if(!w){openApp("basic");w=findOpen("basic")}focusWindow(w);const f=w.querySelector("iframe");f.onload=()=>{try{const d=f.contentDocument,ed=d.getElementById("editor");if(ed){ed.value=n.content;ed.dispatchEvent(new Event("input",{bubbles:true}))}if(autoRun)d.getElementById("runBtn")?.click()}catch(e){}};f.src=APPS.basic.url+"?v6="+Date.now()}
+function buildTerminal(body){body.innerHTML=`<div class="terminalApp"><div class="termToolbar"><button data-cmd="help">help</button><button data-cmd="ls">ls</button><button data-cmd="basic list">basic list</button><button data-cmd="clear">clear</button></div><div class="output"></div><div class="commandRow"><span class="prompt">salp&gt;</span><input class="commandInput" autocomplete="off" autocapitalize="off" spellcheck="false"></div></div>`;const out=body.querySelector(".output"),input=body.querySelector(".commandInput");const print=(t="")=>{const d=document.createElement("div");d.textContent=t;out.appendChild(d);out.scrollTop=out.scrollHeight};function run(raw){const line=raw.trim();if(!line)return;print("salp> "+line);history.push(line);localStorage.setItem(HIST_KEY,JSON.stringify(history.slice(-100)));const a=line.match(/(?:[^\s"]+|"[^"]*")+/g)||[],cmd=(a.shift()||"").toLowerCase(),args=a.map(x=>x.replace(/^"|"$/g,""));try{exec(cmd,args,print,out)}catch(e){print("? "+e.message)}}input.onkeydown=e=>{if(e.key==="Enter"){const v=input.value;input.value="";run(v)}else if(e.key==="ArrowUp"){e.preventDefault();if(historyIndex>0)input.value=history[--historyIndex]||""}};body.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>run(b.dataset.cmd));print("salp Terminal v6.0");print("salp OS Desktop / BASIC Link");print('Type "help" for commands.\n');input.focus()}
+function exec(cmd,args,print,out){if(cmd==="help"){print("ls cd pwd tree cat edit files apps open <app>\nbasic | basic list | basic new <name> | basic load <name> | basic run <name>\nrunbasic <file.bas> clear history theme version");return}if(cmd==="ls"){const n=node(args[0]||cwd);print(Object.entries(n.children||{}).map(([k,v])=>k+(v.type==="dir"?"/":"")).join("  "));return}if(cmd==="cd"){const p=norm(args[0]||"/"),n=node(p);if(!n||n.type!=="dir")throw Error("directory not found");cwd=p;return}if(cmd==="pwd"){print(cwd);return}if(cmd==="cat"){const n=node(norm(args[0]));if(!n||n.type!=="file")throw Error("file not found");print(n.content);return}if(cmd==="files"){openApp("files");return}if(cmd==="apps"){Object.entries(APPS).forEach(([k,a])=>print(k+" - "+a.name));return}if(cmd==="open"){openApp((args[0]||"").toLowerCase());return}if(cmd==="edit"){openEditorPath(norm(args[0]));return}if(cmd==="basic"){const sub=(args.shift()||"").toLowerCase();if(!sub){openApp("basic");return}if(sub==="list"){Object.keys(node("/Projects/BASIC").children).forEach(x=>print(x));return}if(sub==="new"){const name=(args[0]||"new").replace(/\.bas$/i,"")+".bas";node("/Projects/BASIC").children[name]={type:"file",content:'10 CLS\n20 PRINT "NEW PROGRAM"\n30 END'};saveFS();openEditorPath("/Projects/BASIC/"+name);return}if(sub==="load"){let name=args[0]||"";if(!/\.bas$/i.test(name))name+=".bas";openEditorPath("/Projects/BASIC/"+name);return}if(sub==="run"){let name=args[0]||"";if(!/\.bas$/i.test(name))name+=".bas";openBasicCode("/Projects/BASIC/"+name,true);return}throw Error("basic command error")}if(cmd==="runbasic"){openBasicCode(norm(args[0]),true);return}if(cmd==="clear"){out.innerHTML="";return}if(cmd==="history"){history.forEach((x,i)=>print((i+1)+" "+x));return}if(cmd==="theme"){applyTheme(args[0]||"dark");return}if(cmd==="version"){print("salp Terminal v6.0\nsalp OS Desktop");return}throw Error("command not found")}
+function buildFiles(body){body.innerHTML=`<div class="fileApp"><aside class="fileSide">${["/","/Documents","/Projects","/Projects/BASIC","/Downloads"].map(p=>`<button data-path="${p}">${p}</button>`).join("")}</aside><main class="fileMain"><div class="fileToolbar"><button id="fileUp">⬆</button><button id="newFile">＋ File</button><button id="openFile">Open</button><button id="deleteFile">Delete</button></div><div id="filePath" class="filePath"></div><div id="fileGrid" class="fileGrid"></div></main></div>`;body.querySelectorAll("[data-path]").forEach(b=>b.onclick=()=>{fileCwd=b.dataset.path;selectedPath=null;renderFiles()});body.querySelector("#fileUp").onclick=()=>{fileCwd=norm("..",fileCwd);renderFiles()};body.querySelector("#newFile").onclick=()=>{const name=prompt("File name");if(name){node(fileCwd).children[name]={type:"file",content:""};saveFS()}};body.querySelector("#openFile").onclick=openSelectedFile;body.querySelector("#deleteFile").onclick=()=>{if(selectedPath&&confirm("Delete?")){const q=parent(selectedPath);delete q.parent.children[q.name];selectedPath=null;saveFS()}};renderFiles()}
+function renderFiles(){const grid=document.querySelector("#fileGrid"),path=document.querySelector("#filePath");if(!grid||!path)return;path.textContent=fileCwd;grid.innerHTML="";Object.entries(node(fileCwd)?.children||{}).forEach(([name,item])=>{const p=norm(name,fileCwd),b=document.createElement("button");b.className="fileItem"+(selectedPath===p?" selected":"");b.innerHTML=`<span class="ico">${item.type==="dir"?"📁":fileIcon(name)}</span><span class="nm">${name}</span>`;b.onclick=()=>{selectedPath=p;renderFiles()};b.ondblclick=()=>{selectedPath=p;openSelectedFile()};grid.appendChild(b)})}
+function openSelectedFile(){if(!selectedPath)return;const n=node(selectedPath);if(n.type==="dir"){fileCwd=selectedPath;selectedPath=null;renderFiles()}else if(/\.bas$/i.test(selectedPath))openEditorPath(selectedPath);else openEditorPath(selectedPath)}
+function buildEditor(body){body.innerHTML=`<div class="editorApp"><div class="editorToolbar"><button id="editorOpen">Open path</button><button id="editorSave">Save</button><button id="editorRun">Run</button><span id="editorPath" class="editorPath">No file</span></div><textarea id="editorText" class="editorText" spellcheck="false"></textarea></div>`;body.querySelector("#editorOpen").onclick=()=>{const p=prompt("Path",editingPath||"/Projects/BASIC/hello.bas");if(p)openEditorIn(body,norm(p,"/"))};body.querySelector("#editorSave").onclick=()=>saveEditorBody(body);body.querySelector("#editorRun").onclick=()=>{saveEditorBody(body);if(/\.bas$/i.test(editingPath))openBasicCode(editingPath,true)};if(editingPath)openEditorIn(body,editingPath)}
+function openEditorPath(path){editingPath=path;let w=findOpen("editor");if(!w){openApp("editor");w=findOpen("editor")}focusWindow(w);openEditorIn(w.querySelector(".windowBody"),path)}
+function openEditorIn(body,path){let n=node(path);if(!n){const q=parent(path);q.parent.children[q.name]={type:"file",content:""};saveFS();n=node(path)}editingPath=path;body.querySelector("#editorPath").textContent=path;body.querySelector("#editorText").value=n.content||""}
+function saveEditorBody(body){if(editingPath){node(editingPath).content=body.querySelector("#editorText").value;saveFS()}}
+function buildSettings(body){body.innerHTML=`<div class="settings"><h2>Appearance</h2><div class="settingGrid"><button class="themeCard" data-theme="dark">🌙<br>Dark</button><button class="themeCard" data-theme="light">☀️<br>Light</button><button class="themeCard" data-theme="hacker">🟢<br>Hacker</button></div></div>`;body.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>applyTheme(b.dataset.theme))}
+function buildAbout(body){body.innerHTML=`<div class="aboutApp"><h2>salp OS Desktop</h2><p><strong>salp Terminal v6.0</strong></p><p>v4のデスクトップ、左下ショートカット、スタートメニューを復活し、N88-BASIC連携を追加した統合版です。</p></div>`}
 function applyTheme(t){document.body.className=t==="light"?"light":t==="hacker"?"hacker":"";localStorage.setItem(THEME_KEY,t)}
-$("cmd").addEventListener("keydown",e=>{if(e.key==="Enter"){const raw=e.target.value.trim();e.target.value="";if(!raw)return;print(promptText()+" "+raw);hist.push(raw);localStorage.setItem(HIST_KEY,JSON.stringify(hist.slice(-100)));hi=hist.length;try{exec(raw)}catch(x){print("? "+x.message)}}else if(e.key==="ArrowUp"){e.preventDefault();if(hi>0)e.target.value=hist[--hi]||""}else if(e.key==="ArrowDown"){e.preventDefault();if(hi<hist.length-1)e.target.value=hist[++hi]||"";else{hi=hist.length;e.target.value=""}}});
-$("mode").onchange=updatePrompt;$("clearBtn").onclick=()=>out.textContent="";$("helpBtn").onclick=()=>exec("help");
-$("saveEdit").onclick=saveEditor;$("runEdit").onclick=()=>{saveEditor();runBas(editing)};
-$("basicAppBtn").onclick=()=>openBasic(code.value,false);$("reloadBasic").onclick=()=>openBasic(code.value,false);
-$("newBas").onclick=()=>exec("basic new "+uniqueName(".bas"));$("newTxt").onclick=()=>{const p=norm(uniqueName(".txt"));writeFile(p,"");openFile(p)};
-$("deleteBtn").onclick=()=>{if(!selected)return toast("ファイルを選択");if(confirm("削除しますか？"))exec("rm "+selected)};
-$("downloadBtn").onclick=()=>{if(!selected)return toast("ファイルを選択");const n=node(selected);if(!n||n.type!=="file")return;const b=new Blob([n.content],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=parts(selected).pop();a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
-$("themeBtn").onclick=()=>{const now=localStorage.getItem(THEME_KEY)||"dark",next=now==="dark"?"light":now==="light"?"hacker":"dark";applyTheme(next)};
-applyTheme(localStorage.getItem(THEME_KEY)||"dark");updatePrompt();renderFiles();openFile(editing);
-print("salp Terminal v5.0 — BASIC Link Edition");print('Type "help" for commands.');print("");$("cmd").focus();
+$("openSettings").onclick=()=>{openApp("settings");toggleStart(false)};$("openAbout").onclick=()=>{openApp("about");toggleStart(false)};
+function updateClock(){const d=new Date();$("clock").innerHTML=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+"<br>"+d.toLocaleDateString()}setInterval(updateClock,1000);updateClock();applyTheme(localStorage.getItem(THEME_KEY)||"dark");renderDesktop();renderQuick();renderStart();openApp("terminal");
 })();
 </script>
-</body>
-</html>
+</body></html>
