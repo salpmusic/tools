@@ -4,1027 +4,320 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.7</title>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>salp N88-BASIC v0.6 Studio</title>
 <style>
-:root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at 0 0,#12304455,transparent 30%),radial-gradient(circle at 100% 0,#44233a55,transparent 30%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
-button,input,textarea{font:inherit}.app{width:min(100%,1180px);margin:auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 22px)}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.brand{display:flex;align-items:center;gap:11px}.logo{width:50px;height:50px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#071018;font-size:26px}h1{margin:0;font-size:21px}.sub{color:var(--muted);font-size:11px}.version{padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);font-size:10px;font-weight:900}
-.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}button{min-height:42px;border:1px solid var(--line);border-radius:11px;padding:8px 13px;background:#182236;color:var(--text);font-weight:850;cursor:pointer}button.primary{border:0;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#081018}.workspace{display:grid;grid-template-columns:.95fr 1.05fr;gap:10px}.panel{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 12px 32px #0004}.panelHead{display:flex;justify-content:space-between;padding:10px 13px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:800}
-.editor{width:100%;min-height:600px;display:block;resize:vertical;border:0;outline:0;padding:14px;background:var(--panel2);color:var(--green);font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:2}
-.displayWrap{padding:10px;background:#03060c}.displayFrame{position:relative;width:100%;aspect-ratio:8/5;overflow:hidden;border:2px solid #344158;border-radius:8px;background:#000;box-shadow:inset 0 0 30px #000}canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,#0002 3px);mix-blend-mode:multiply}
-.statusbar{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;color:var(--muted);font:11px ui-monospace,monospace}.promptWrap{margin-top:10px;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--panel)}.promptLabel{padding:8px 12px 0;color:var(--cyan);font:11px ui-monospace,monospace}.promptRow{display:flex;align-items:center;gap:8px;padding:8px 10px 11px}.promptMark{color:var(--green);font:bold 17px ui-monospace,monospace}#prompt{flex:1;min-width:0;border:0;outline:0;padding:10px 11px;border-radius:10px;background:#070c17;color:var(--green);font:15px ui-monospace,monospace}.help{margin-top:10px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#111827aa;color:var(--muted);font-size:12px}.help b{color:var(--text)}
-@media(max-width:800px){.workspace{grid-template-columns:1fr}.editor{min-height:400px}.displayFrame{aspect-ratio:8/5}}
-
-.keypadPanel{margin-top:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
-.keypadTop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
-.keypadTop label{color:var(--muted);font-size:12px;font-weight:850}
-.keypadTop select{flex:1;min-width:190px;min-height:42px;border:1px solid var(--line);border-radius:11px;padding:8px 11px;background:#07101e;color:var(--text);font-weight:800}
-.keypadBody{padding:14px}
-.gameKeys{display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap}
-.dpad{display:grid;grid-template-columns:64px 64px 64px;grid-template-rows:56px 56px 56px;gap:7px}
-.vkey{min-width:60px;min-height:52px;padding:7px;border:1px solid #475978;border-radius:15px;background:linear-gradient(180deg,#2a3854,#172135);color:#fff;font-size:18px;font-weight:950;box-shadow:0 5px 0 #080d18;touch-action:none;user-select:none}
-.vkey:active,.vkey.pressed{transform:translateY(3px);box-shadow:0 2px 0 #080d18;background:#38527c}
-.vkey.blank{visibility:hidden}
-.actionKeys{display:grid;grid-template-columns:repeat(2,minmax(92px,130px));gap:9px}
-.vkey.zkey{background:linear-gradient(180deg,#315078,#1a2b44)}
-.vkey.xkey{background:linear-gradient(180deg,#71425d,#3b2332)}
-.vkey.enterkey{background:linear-gradient(180deg,#37624e,#1e382c)}
-.vkey.spacekey{background:linear-gradient(180deg,#695e35,#3b351e)}
-.keyCustom{display:none;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
-.keyChecks{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.keyChecks label{display:flex;align-items:center;gap:7px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#080e19;color:var(--muted);font-size:12px;font-weight:800}
-.keyChecks input{accent-color:var(--cyan)}
-.keyLog{margin-top:11px;padding:9px 11px;border-radius:10px;background:#060b13;color:var(--green);font:12px ui-monospace,monospace}
-.touchMarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--pink);border-radius:50%;background:#ff8fbd44;display:none;pointer-events:none}
-.touchHint{color:var(--cyan)}
-.keyHidden{display:none!important}
-@media(max-width:520px){.gameKeys{gap:14px}.dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}.actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}.keyChecks{grid-template-columns:repeat(2,1fr)}}
-
-
 :root{
- --crt-fg:#7ef2a8;
- --crt-glow:#7ef2a8;
- --crt-bg:#000000;
- --crt-filter:none;
+ --bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;
+ --text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;
+ --pink:#ff8fbd;--danger:#ff7585
 }
-.machinePanel{
- margin-bottom:10px;
- border:1px solid var(--line);
- border-radius:16px;
- background:linear-gradient(180deg,#151e31,#0d1423);
- overflow:hidden;
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+.topbar{
+ display:flex;align-items:center;gap:9px;padding:9px 11px;
+ border-bottom:1px solid var(--line);background:#0b1220
 }
-.machineSummary{
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:10px;
- flex-wrap:wrap;
- padding:11px 13px;
+.logo{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#071018;font-size:21px}
+.title{min-width:0;flex:1}.title strong{display:block;font-size:15px}.title small{display:block;color:var(--muted);font-size:10px}
+.version{padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);font-size:10px;font-weight:900}
+.layout{min-height:0;display:grid;grid-template-columns:245px 1fr}
+.sidebar{
+ min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line);
+ background:#0b111d
 }
-.machineName{font-weight:950;letter-spacing:.04em}
-.machineBadges{display:flex;gap:7px;flex-wrap:wrap}
-.machineBadge{
- padding:5px 9px;
- border:1px solid var(--line);
- border-radius:999px;
- background:#090f1a;
- color:var(--cyan);
- font-size:11px;
- font-weight:900;
+.projectHead{padding:11px;border-bottom:1px solid var(--line)}
+.projectHead label{display:block;margin-bottom:5px;color:var(--muted);font-size:10px;font-weight:900}
+.nameRow{display:flex;gap:6px}
+.nameRow input{
+ width:100%;min-width:0;height:39px;border:1px solid var(--line);border-radius:9px;
+ background:var(--panel2);color:var(--text);padding:0 9px
 }
-.settingsGrid{
- display:grid;
- grid-template-columns:repeat(5,minmax(120px,1fr));
- gap:9px;
- padding:0 13px 13px;
+.btnRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+button{
+ min-height:38px;border:1px solid var(--line);border-radius:9px;
+ background:#182236;color:var(--text);padding:7px 9px;font-weight:800
 }
-.settingBox{
- padding:10px;
- border:1px solid var(--line);
- border-radius:12px;
- background:#080e19;
+button.primary{border:0;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#081018}
+button.success{border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#081018}
+button.danger{color:#ffd9dd;border-color:#64343d;background:#321820}
+.libraryTitle{display:flex;align-items:center;justify-content:space-between;padding:10px 11px 6px;color:var(--muted);font-size:10px;font-weight:900}
+.projects{flex:1;overflow:auto;padding:0 8px 9px}
+.project{
+ width:100%;display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:8px;
+ border:1px solid transparent;border-radius:9px;background:transparent;color:var(--text);text-align:left
 }
-.settingBox label{
- display:block;
- margin-bottom:6px;
- color:var(--muted);
- font-size:10px;
- font-weight:900;
- letter-spacing:.08em;
+.project:hover,.project.active{border-color:var(--line);background:#151e2c}
+.projectIcon{font-size:21px}.projectText{min-width:0;flex:1}.projectName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900}.projectDate{color:var(--muted);font-size:9px}
+.status{
+ padding:8px 10px;border-top:1px solid var(--line);color:var(--muted);
+ font:10px ui-monospace,monospace
 }
-.settingBox select,.settingBox input{
- width:100%;
- min-height:39px;
- border:1px solid var(--line);
- border-radius:9px;
- padding:7px 8px;
- background:#121b2c;
- color:var(--text);
- font-weight:800;
+.main{position:relative;min-width:0;min-height:0}
+iframe{display:block;width:100%;height:100%;border:0;background:#080d18}
+.loading{position:absolute;inset:0;display:grid;place-items:center;background:#080d18;color:var(--green);font:13px ui-monospace,monospace}
+.toast{
+ position:fixed;left:50%;bottom:18px;z-index:1000;transform:translate(-50%,20px);
+ opacity:0;padding:10px 14px;border-radius:999px;background:#111;color:#fff;
+ box-shadow:0 10px 30px #0007;transition:.22s;font-size:12px
 }
-.switchLine{
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:8px;
- color:var(--text);
- font-size:12px;
- font-weight:800;
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.mobileToggle{display:none}
+@media(max-width:720px){
+ .layout{grid-template-columns:1fr}
+ .sidebar{
+  position:absolute;left:0;top:58px;bottom:0;width:min(86vw,300px);z-index:30;
+  transform:translateX(-101%);transition:.22s;box-shadow:15px 0 40px #0008
+ }
+ .sidebar.show{transform:translateX(0)}
+ .mobileToggle{display:inline-block}
+ .version{display:none}
 }
-.switchLine input{width:auto;accent-color:var(--cyan)}
-.displayFrame{
- background:var(--crt-bg)!important;
- filter:var(--crt-filter);
- transition:filter .2s,box-shadow .2s,background .2s;
-}
-.displayFrame.crtGlow{
- box-shadow:inset 0 0 35px #000,0 0 22px color-mix(in srgb,var(--crt-glow) 35%,transparent);
-}
-.displayFrame.crtCurve{
- border-radius:20px/13px;
- transform:perspective(900px) rotateX(.15deg);
-}
-.displayFrame.crtCurve::after{
- content:"";
- position:absolute;
- inset:0;
- pointer-events:none;
- border-radius:inherit;
- box-shadow:inset 0 0 24px #000b;
-}
-.scanlines.off{display:none}
-.bootOverlay{
- position:absolute;
- inset:0;
- z-index:20;
- display:none;
- align-items:center;
- justify-content:center;
- background:#000;
- color:var(--crt-fg);
- text-shadow:0 0 9px var(--crt-glow);
- font:700 20px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
- text-align:center;
- white-space:pre-line;
-}
-.bootOverlay.show{display:flex}
-.mhLed{
- display:inline-block;
- width:8px;height:8px;
- border-radius:50%;
- margin-right:5px;
- background:#50fa7b;
- box-shadow:0 0 8px #50fa7b;
-}
-.soundMeter{
- height:5px;
- margin-top:7px;
- border-radius:999px;
- background:#172238;
- overflow:hidden;
-}
-.soundMeter span{
- display:block;
- height:100%;
- width:40%;
- border-radius:inherit;
- background:linear-gradient(90deg,var(--cyan),var(--pink));
- transition:width .12s;
-}
-@media(max-width:850px){.settingsGrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.settingsGrid{grid-template-columns:1fr}.machineSummary{align-items:flex-start}}
-
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.7 CRYSTAL FM</div></header>
+<header class="topbar">
+ <button class="mobileToggle" id="mobileToggle">☰</button>
+ <div class="logo">⌨️</div>
+ <div class="title"><strong>salp N88-BASIC Studio</strong><small>Project Library × Auto Save × salp OS Link</small></div>
+ <button id="quickRun">▶ RUN</button>
+ <button id="quickSave" class="success">SAVE</button>
+ <div class="version">v0.6 STUDIO</div>
+</header>
 
-<div class="toolbar">
-<button class="primary" id="runBtn">▶ RUN</button>
-<button id="bootBtn">⏻ MH BOOT</button>
-<button id="settingsBtn">⚙ MH SETTINGS</button>
-<button id="stopBtn">■ STOP</button>
-<button id="listBtn">LIST</button>
-<button id="newBtn">NEW</button>
-<button id="compatBtn">COMPAT SAMPLE</button>
-<button id="graphicsBtn">GRAPHICS</button>
-<button id="gameBtn">GAME SAMPLE</button>
-<button id="fmBtn">FM ARPEGGIO</button>
-<button id="saveBtn">SAVE .BAS</button>
-<button id="loadBtn">LOAD</button>
-<input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
-</div>
-
-
-<section class="machinePanel" id="machinePanel">
-  <div class="machineSummary">
-    <div>
-      <div class="machineName"><span class="mhLed"></span>NEC PC-8801MH</div>
-      <div class="sub">Browser-compatible recreation mode</div>
-    </div>
-    <div class="machineBadges">
-      <span class="machineBadge" id="clockBadge">8MHz</span>
-      <span class="machineBadge" id="displayBadge">COLOR CRT</span>
-      <span class="machineBadge" id="soundBadge">FM AUTO</span>
-    </div>
+<div class="layout">
+ <aside id="sidebar" class="sidebar">
+  <div class="projectHead">
+   <label>PROGRAM NAME</label>
+   <div class="nameRow"><input id="programName" value="PROGRAM.BAS" autocomplete="off"></div>
+   <div class="btnRow">
+    <button id="newProject">＋ NEW</button>
+    <button id="saveProject" class="success">SAVE</button>
+    <button id="duplicateProject">DUPLICATE</button>
+    <button id="deleteProject" class="danger">DELETE</button>
+   </div>
+   <div class="btnRow">
+    <button id="exportBas">EXPORT .BAS</button>
+    <button id="importBas">IMPORT</button>
+   </div>
+   <input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
   </div>
+  <div class="libraryTitle"><span>PROGRAM LIBRARY</span><span id="projectCount">0</span></div>
+  <div id="projects" class="projects"></div>
+  <div id="status" class="status">Core loading...</div>
+ </aside>
 
-  <div class="settingsGrid" id="settingsGrid">
-    <div class="settingBox">
-      <label>CPU CLOCK</label>
-      <select id="cpuClock">
-        <option value="8" selected>8 MHz（高速）</option>
-        <option value="4">4 MHz（標準）</option>
-      </select>
-    </div>
-
-    <div class="settingBox">
-      <label>DISPLAY</label>
-      <select id="displayMode">
-        <option value="color" selected>Color Monitor</option>
-        <option value="green">Green CRT</option>
-        <option value="amber">Amber CRT</option>
-        <option value="white">White CRT</option>
-        <option value="lcd">Modern LCD</option>
-      </select>
-    </div>
-
-    <div class="settingBox">
-      <label>FM SOUND</label>
-      <select id="soundMode">
-        <option value="real">MH Hardware Style</option>
-        <option value="enhanced">salp Enhanced</option>
-        <option value="crystal" selected>Crystal Fantasy FM</option>
-        <option value="silent">Silent</option>
-      </select>
-      <div class="soundMeter"><span id="soundMeterBar"></span></div>
-    </div>
-
-    <div class="settingBox">
-      <label>INSTRUMENT OVERRIDE</label>
-      <select id="instrumentMode">
-        <option value="auto" selected>Auto（MMLの@指定）</option>
-        <option value="12">Glock / Bell</option>
-        <option value="13">Piano</option>
-        <option value="2">Strings</option>
-        <option value="11">Harpsichord</option>
-      </select>
-    </div>
-
-    <div class="settingBox">
-      <label>CRT EFFECTS</label>
-      <div class="switchLine"><span>Scanlines</span><input id="scanToggle" type="checkbox" checked></div>
-      <div class="switchLine"><span>Glow</span><input id="glowToggle" type="checkbox" checked></div>
-      <div class="switchLine"><span>Curved glass</span><input id="curveToggle" type="checkbox"></div>
-    </div>
-  </div>
-</section>
-
-<div class="workspace">
-<section class="panel">
-<div class="panelHead"><span>PROGRAM EDITOR</span><span>Line-numbered BASIC</span></div>
-<textarea id="editor" class="editor" spellcheck="false">10 CLS
-20 DIM N(5)
-30 DATA 10,20,30,40,50
-40 FOR I=1 TO 5
-50 READ N(I)
-60 NEXT I
-70 PRINT "DATA:";
-80 FOR I=1 TO 5
-90 PRINT N(I);
-100 NEXT I
-110 PRINT
-120 A$="SALP N88-BASIC"
-130 PRINT LEFT$(A$,4);" / ";RIGHT$(A$,5)
-140 ON 2 GOSUB 200,300
-150 PRINT "BACK FROM GOSUB"
-160 END
-200 PRINT "FIRST":RETURN
-300 PRINT "SECOND":RETURN</textarea>
-</section>
-
-<section class="panel">
-<div class="panelHead"><span>N88 SCREEN 640×400</span><span id="status">Ready</span></div>
-<div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div id="bootOverlay" class="bootOverlay"></div><div id="touchMarker" class="touchMarker"></div><div class="scanlines"></div></div></div>
-<div class="statusbar"><span id="cursorInfo">LOCATE 0,0</span><span class="touchHint">Touch screen → mouse coordinates</span></div>
-</section>
-</div>
-
-<div class="keypadPanel">
-  <div class="keypadTop">
-    <label for="keyMode">ゲームキーパッド</label>
-    <select id="keyMode">
-      <option value="game">カーソル＋Z/X</option>
-      <option value="full">カーソル＋Z/X＋SPACE＋ENTER</option>
-      <option value="cursorEnter">カーソル＋ENTER</option>
-      <option value="cursor">カーソルのみ</option>
-      <option value="zx">Z/Xのみ</option>
-      <option value="custom">カスタム選択</option>
-    </select>
-    <button id="keyToggle">キーパッドを隠す</button>
-  </div>
-
-  <div id="keypadBody" class="keypadBody">
-    <div class="gameKeys">
-      <div id="dpad" class="dpad">
-        <button class="vkey blank" tabindex="-1"></button>
-        <button class="vkey" data-vkey="UP">↑</button>
-        <button class="vkey blank" tabindex="-1"></button>
-
-        <button class="vkey" data-vkey="LEFT">←</button>
-        <button class="vkey enterkey" data-vkey="ENTER">●</button>
-        <button class="vkey" data-vkey="RIGHT">→</button>
-
-        <button class="vkey blank" tabindex="-1"></button>
-        <button class="vkey" data-vkey="DOWN">↓</button>
-        <button class="vkey blank" tabindex="-1"></button>
-      </div>
-
-      <div id="actionKeys" class="actionKeys">
-        <button class="vkey zkey" data-vkey="Z">Z</button>
-        <button class="vkey xkey" data-vkey="X">X</button>
-        <button class="vkey spacekey" data-vkey="SPACE">SPACE</button>
-        <button class="vkey enterkey" data-vkey="ENTER">ENTER</button>
-      </div>
-    </div>
-
-    <div id="keyCustom" class="keyCustom">
-      <div class="keyChecks">
-        <label><input type="checkbox" value="UP" checked>↑</label>
-        <label><input type="checkbox" value="DOWN" checked>↓</label>
-        <label><input type="checkbox" value="LEFT" checked>←</label>
-        <label><input type="checkbox" value="RIGHT" checked>→</label>
-        <label><input type="checkbox" value="Z" checked>Z</label>
-        <label><input type="checkbox" value="X" checked>X</label>
-        <label><input type="checkbox" value="SPACE" checked>SPACE</label>
-        <label><input type="checkbox" value="ENTER" checked>ENTER</label>
-      </div>
-    </div>
-    <div id="keyLog" class="keyLog">INKEY$：待機中 / TOUCH：未入力</div>
-  </div>
-</div>
-
-<div class="promptWrap">
-<div class="promptLabel">DIRECT MODE — RUN / LIST / RENUM / DELETE / PRINT / LINE / CIRCLE など</div>
-<div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
-</div>
-
-<div class="help"><b>v0.7 Crystal FM Engine：</b>
-4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
-CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
-MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出を追加。<br>
-CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
-実機ROMや実機回路を使う完全エミュレーターではなく、N88-BASIC互換環境として再現しています。
+ <main class="main">
+  <div id="loading" class="loading">Loading N88-BASIC core...</div>
+  <iframe id="core" title="salp N88-BASIC core" src="salp-n88-basic-core.html?v=060"></iframe>
+ </main>
 </div>
 </div>
+<div id="toast" class="toast"></div>
 
 <script>
+(()=>{
 "use strict";
+
 const $=id=>document.getElementById(id);
-const editor=$("editor"),canvas=$("screen"),ctx=canvas.getContext("2d"),promptInput=$("prompt"),statusEl=$("status"),cursorInfo=$("cursorInfo");
-const palette=["#000000","#243cff","#ef3b43","#d23ee8","#30d85a","#35d9dd","#f0df48","#f4f4f4","#777777","#7190ff","#ff7d84","#f18cff","#83f49a","#88f2f2","#fff18b","#ffffff"];
-const COLS=80,ROWS=25,CW=8,CH=16;
-let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,mmlSession=null,mmlBgm=true,mmlLastSource="",cpuClock=8,displayMode="color",soundMode="real",instrumentOverride="auto",directVars={},directArrays={};
+const STORAGE_KEY="salpN88StudioProjects_v06";
+const CURRENT_KEY="salpN88StudioCurrent_v06";
+const TERMINAL_FS_KEYS=["salpTerminalFS_v7","salpTerminalFS_v6","salpTerminalFS_v5"];
+const core=$("core");
+let editor=null,runBtn=null,currentId=null,saveTimer=null;
+let projects=loadProjects();
 
-function resetText(){textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" "));cursorX=0;cursorY=0}
-function resetScreen(){ctx.fillStyle=palette[bg];ctx.fillRect(0,0,640,400);resetText();renderText()}
-function renderText(){ctx.save();ctx.font="14px ui-monospace,Menlo,Consolas,monospace";ctx.textBaseline="top";for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const ch=textGrid[y][x];if(ch!==" "){ctx.fillStyle=palette[fg];ctx.fillText(ch,x*CW,y*CH+1)}}ctx.restore();cursorInfo.textContent=`LOCATE ${cursorX},${cursorY}  COLOR ${fg},${bg}`}
-function scrollText(){textGrid.shift();textGrid.push(Array(COLS).fill(" "));cursorY=ROWS-1}
-function putChar(ch){if(ch==="\n"){cursorX=0;cursorY++;if(cursorY>=ROWS)scrollText();return}if(ch==="\r")return;textGrid[cursorY][cursorX]=ch;cursorX++;if(cursorX>=COLS){cursorX=0;cursorY++;if(cursorY>=ROWS)scrollText()}}
-function printText(s="",newline=true){for(const c of String(s))putChar(c);if(newline)putChar("\n");renderText()}
-function setStatus(s){statusEl.textContent=s}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
-function splitOutside(text,delimiter){const out=[];let b="",q=false,d=0;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"')q=!q;if(!q){if(c==="(")d++;if(c===")")d--;if(d===0&&text.slice(i,i+delimiter.length).toUpperCase()===delimiter.toUpperCase()){out.push(b);b="";i+=delimiter.length-1;continue}}b+=c}out.push(b);return out}
-function splitStatements(s){return splitOutside(s,":").map(x=>x.trim()).filter(Boolean)}
-function stripBasicComment(s){
- let q=false;
- for(let i=0;i<s.length;i++){
-  if(s[i]==='"')q=!q;
-  else if(!q&&s[i]==="'")return s.slice(0,i).trim();
- }
- return s.trim()
+function nowText(){
+ return new Date().toLocaleString("ja-JP",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
 }
-function splitCSV(s){return splitOutside(s,",").map(x=>x.trim())}
-function tokens(expr){const a=[],r=/\s*(?:(\d+(?:\.\d*)?|\.\d+)|("([^"]|"")*")|([A-Za-z][A-Za-z0-9]*\$?)|(<=|>=|<>|=|<|>|\+|-|\*|\/|\^|\(|\)|,))\s*/gy;let p=0,m;while(p<expr.length){r.lastIndex=p;m=r.exec(expr);if(!m)throw Error("Syntax error near "+expr.slice(p));p=r.lastIndex;if(m[1])a.push({t:"n",v:+m[1]});else if(m[2])a.push({t:"s",v:m[2].slice(1,-1).replace(/""/g,'"')});else if(m[4])a.push({t:"i",v:m[4].toUpperCase()});else a.push({t:"o",v:m[5]})}return a}
-
-function arrayKey(args){return args.map(v=>Math.floor(Number(v)||0)).join(",")}
-function evaluate(expr,state){
- const vars=state.vars,arrays=state.arrays,t=tokens(expr);let p=0,peek=()=>t[p],take=()=>t[p++];
- const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","INKEY$","STICK","STRIG","MOUSEX","MOUSEY","MOUSEB"]);
- function fn(n,a){
-  switch(n){
-   case"INT":return Math.floor(+a[0]||0);case"FIX":return Math.trunc(+a[0]||0);case"ABS":return Math.abs(+a[0]||0);case"SGN":return Math.sign(+a[0]||0);
-   case"SQR":return Math.sqrt(+a[0]||0);case"RND":return Math.random();case"LEN":return String(a[0]??"").length;case"STR$":return String(a[0]??"");
-   case"VAL":return Number(a[0]||0);case"CHR$":return String.fromCharCode(+a[0]||0);case"ASC":return String(a[0]??"").charCodeAt(0)||0;
-   case"SIN":return Math.sin(+a[0]||0);case"COS":return Math.cos(+a[0]||0);case"TAN":return Math.tan(+a[0]||0);case"ATN":return Math.atan(+a[0]||0);
-   case"LOG":return Math.log(+a[0]||0);case"EXP":return Math.exp(+a[0]||0);
-   case"LEFT$":return String(a[0]??"").slice(0,Math.max(0,+a[1]||0));
-   case"RIGHT$":{const s=String(a[0]??"");return s.slice(Math.max(0,s.length-(+a[1]||0)))}
-   case"MID$":return String(a[0]??"").substr(Math.max(0,(+a[1]||1)-1),a[2]==null?undefined:Math.max(0,+a[2]||0));
-   case"SPACE$":return " ".repeat(Math.max(0,+a[0]||0));case"STRING$":return String.fromCharCode(+a[1]||32).repeat(Math.max(0,+a[0]||0));
-   case"INKEY$":{const k=keyQueue.length?keyQueue.shift():"";lastKey=k;return k}
-   case"STICK":{const u=heldKeys.has("UP"),d=heldKeys.has("DOWN"),l=heldKeys.has("LEFT"),r=heldKeys.has("RIGHT");if(u&&r)return 2;if(r&&d)return 4;if(d&&l)return 6;if(l&&u)return 8;if(u)return 1;if(r)return 3;if(d)return 5;if(l)return 7;return 0}
-   case"STRIG":return (heldKeys.has("Z")||heldKeys.has("SPACE"))?-1:0;
-   case"MOUSEX":return mouseX;case"MOUSEY":return mouseY;case"MOUSEB":return mouseButton
-   default:throw Error("Unknown function "+n)
-  }
- }
- function pri(){
-  const x=take();if(!x)throw Error("Missing expression");
-  if(x.t==="n"||x.t==="s")return x.v;
-  if(x.t==="i"){
-   if(x.v==="NOT")return ~Math.trunc(+pri());if(x.v==="INKEY$")return fn("INKEY$",[]);
-   if(peek()?.v==="("){
-    take();const a=[];if(peek()?.v!==")"){a.push(logic());while(peek()?.v===","){take();a.push(logic())}}if(take()?.v!==")")throw Error("Missing )");
-    if(knownFns.has(x.v))return fn(x.v,a);
-    const arr=arrays[x.v];return arr?.values[arrayKey(a)]??(x.v.endsWith("$")?"":0)
-   }
-   return Object.hasOwn(vars,x.v)?vars[x.v]:(x.v.endsWith("$")?"":0)
-  }
-  if(x.v==="("){const v=logic();if(take()?.v!==")")throw Error("Missing )");return v}
-  if(x.v==="+")return +pri();if(x.v==="-")return -pri();throw Error("Invalid expression")
- }
- function pow(){let v=pri();while(peek()?.v==="^"){take();v=Math.pow(+v,+pri())}return v}
- function mul(){let v=pow();while(["*","/"].includes(peek()?.v)||peek()?.v==="MOD"){const o=take().v,r=pow();v=o==="*"?+v*+r:o==="/"?+v/+r:Math.trunc(+v)%Math.trunc(+r)}return v}
- function add(){let v=mul();while(["+","-"].includes(peek()?.v)){const o=take().v,r=mul();v=o==="+"?(typeof v==="string"||typeof r==="string"?String(v)+String(r):+v+ +r):+v- +r}return v}
- function cmp(){let v=add();if(["=","<>","<",">","<=",">="].includes(peek()?.v)){const o=take().v,r=add(),z=o==="="?v==r:o==="<>"?v!=r:o==="<"?v<r:o===">"?v>r:o==="<="?v<=r:v>=r;return z?-1:0}return v}
- function logic(){let v=cmp();while(["AND","OR"].includes(peek()?.v)){const o=take().v,r=cmp();v=o==="AND"?(Math.trunc(+v)&Math.trunc(+r)):(Math.trunc(+v)|Math.trunc(+r))}return v}
- const v=logic();if(p<t.length)throw Error("Extra expression");return v
-}
-
-function parseProgram(){const m=new Map();for(const raw of editor.value.replace(/\r/g,"").split("\n")){if(!raw.trim())continue;const x=raw.match(/^\s*(\d+)\s*(.*)$/);if(!x)throw Error("Line number required: "+raw);m.set(+x[1],x[2])}return[...m.entries()].sort((a,b)=>a[0]-b[0]).map(([number,text])=>({number,text}))}
-function lineIndex(lines,n){return lines.findIndex(x=>x.number===+n)}
-function coords(s,state){const m=s.match(/^\(\s*(.+?)\s*,\s*(.+?)\s*\)$/);if(!m)throw Error("Coordinate syntax");return[+evaluate(m[1],state),+evaluate(m[2],state)]}
-function color(n){return palette[Math.max(0,Math.min(15,Math.floor(+n||0)))]}
-async function ensureAudio(){
- audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
- if(audioCtx.state==="suspended")await audioCtx.resume();
- return audioCtx
-}
-async function tone(freq=880,dur=.12){
- const ac=await ensureAudio(),now=ac.currentTime;
- const o=ac.createOscillator(),g=ac.createGain();
- o.frequency.value=freq;o.type="square";
- g.gain.setValueAtTime(.06,now);
- g.gain.exponentialRampToValueAtTime(.001,now+dur);
- o.connect(g).connect(ac.destination);o.start(now);o.stop(now+dur)
-}
-function stopMml(){
- if(!mmlSession)return;
- mmlSession.cancelled=true;
- for(const node of mmlSession.nodes){
-  try{node.stop()}catch{}
-  try{node.disconnect()}catch{}
- }
- mmlSession=null;mmlLastSource="";
- setStatus(stopped?"Stopped":"Ready")
-}
-function mmlInstrumentPreset(n){
- if(instrumentOverride!=="auto")n=Number(instrumentOverride);
- const presets={
-  2:{
-   name:"Strings",gain:.050,attack:.075,decay:.42,sustain:.62,release:.78,
-   filter:5200,wet:.19,
-   ops:[
-    {wave:"sawtooth",ratio:1,level:.54,modRatio:1.003,index:10},
-    {wave:"triangle",ratio:1.003,level:.34,modRatio:2,index:18},
-    {wave:"sine",ratio:2,level:.09,modRatio:3.01,index:12}
-   ]
-  },
-  11:{
-   name:"Harpsichord",gain:.052,attack:.0025,decay:.19,sustain:.10,release:.26,
-   filter:7200,wet:.12,
-   ops:[
-    {wave:"square",ratio:1,level:.42,modRatio:2,index:58},
-    {wave:"triangle",ratio:2,level:.24,modRatio:3,index:42},
-    {wave:"sine",ratio:4,level:.10,modRatio:5,index:24}
-   ]
-  },
-  12:{
-   name:"Crystal Glock",gain:.058,attack:.002,decay:.82,sustain:.055,release:1.55,
-   filter:10800,wet:.34,
-   ops:[
-    {wave:"sine",ratio:1,level:.48,modRatio:2.71,index:250},
-    {wave:"sine",ratio:2.01,level:.25,modRatio:4.10,index:180},
-    {wave:"sine",ratio:3.99,level:.13,modRatio:6.82,index:105},
-    {wave:"sine",ratio:.5,level:.12,modRatio:1.41,index:42}
-   ]
-  },
-  13:{
-   name:"Fantasy Piano",gain:.055,attack:.004,decay:.40,sustain:.25,release:.72,
-   filter:7600,wet:.20,
-   ops:[
-    {wave:"triangle",ratio:1,level:.50,modRatio:2,index:62},
-    {wave:"sine",ratio:2,level:.20,modRatio:3,index:46},
-    {wave:"sine",ratio:3.01,level:.10,modRatio:5,index:30}
-   ]
-  }
- };
- const p=structuredClone(presets[n]||presets[13]);
- if(soundMode==="enhanced"){
-  p.gain*=1.12;p.release*=1.25;p.wet=Math.min(.42,p.wet*1.25);
-  p.ops.forEach(op=>op.index*=1.08);
- }else if(soundMode==="real"){
-  p.gain*=.82;p.release*=.68;p.wet*=.38;
-  p.ops=p.ops.slice(0,2);
- }else if(soundMode==="crystal"){
-  p.release*=1.18;p.wet=Math.max(.25,p.wet);
-  if(n===12||instrumentOverride==="12"){
-   p.ops.forEach((op,i)=>{op.index*=1+(i*.055)});
-  }
- }
- return p
-}
-function parseMml(source){
- const s=String(source||"").toUpperCase();
- let i=0,tempo=120,octave=4,defaultLength=4,instrument=13,volume=12,gate=8,eventIndex=0;
- const events=[];
- const noteIndex={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
- const readNumber=()=>{
-  let z="";while(i<s.length&&/\d/.test(s[i]))z+=s[i++];
-  return z?Number(z):null
- };
- while(i<s.length){
-  const c=s[i++];
-  if(/\s|,/.test(c))continue;
-  if(c==="T"){const n=readNumber();if(n)tempo=Math.max(20,Math.min(400,n));continue}
-  if(c==="O"){const n=readNumber();if(n!=null)octave=Math.max(0,Math.min(8,n));continue}
-  if(c==="L"){const n=readNumber();if(n)defaultLength=Math.max(1,Math.min(128,n));continue}
-  if(c==="@"){const n=readNumber();if(n!=null)instrument=n;continue}
-  if(c==="V"){const n=readNumber();if(n!=null)volume=Math.max(0,Math.min(15,n));continue}
-  if(c==="Q"){const n=readNumber();if(n!=null)gate=Math.max(1,Math.min(8,n));continue}
-  if(c===">"){octave=Math.min(8,octave+1);continue}
-  if(c==="<"){octave=Math.max(0,octave-1);continue}
-  if(c==="R"||Object.hasOwn(noteIndex,c)){
-   let accidental=0;
-   if(s[i]==="+"||s[i]==="#"){accidental=1;i++}
-   else if(s[i]==="-"){accidental=-1;i++}
-   const length=readNumber()||defaultLength;
-   let dotted=false;
-   if(s[i]==="."){dotted=true;i++}
-   let beats=4/length;
-   if(dotted)beats*=1.5;
-   const seconds=beats*60/tempo;
-   let freq=0;
-   if(c!=="R"){
-    const midi=12*(octave+1)+noteIndex[c]+accidental;
-    freq=440*Math.pow(2,(midi-69)/12)
-   }
-   events.push({
-    freq,seconds,instrument,
-    velocity:Math.pow(volume/15,1.35),
-    gate:gate/8,
-    index:eventIndex++
-   });
-   continue
-  }
- }
- return events
-}
-function createCrystalOutput(ac,session){
- const input=ac.createGain(),dry=ac.createGain(),wet=ac.createGain();
- const compressor=ac.createDynamicsCompressor();
- compressor.threshold.value=-18;
- compressor.knee.value=16;
- compressor.ratio.value=3.2;
- compressor.attack.value=.004;
- compressor.release.value=.22;
- dry.gain.value=.88;
- wet.gain.value=soundMode==="real"?.12:soundMode==="enhanced"?.24:.30;
-
- const delayL=ac.createDelay(1),delayR=ac.createDelay(1);
- const feedbackL=ac.createGain(),feedbackR=ac.createGain();
- const panL=ac.createStereoPanner(),panR=ac.createStereoPanner();
- delayL.delayTime.value=.145;
- delayR.delayTime.value=.225;
- feedbackL.gain.value=.18;
- feedbackR.gain.value=.14;
- panL.pan.value=-.58;
- panR.pan.value=.58;
-
- input.connect(dry).connect(compressor);
- input.connect(wet);
- wet.connect(delayL);wet.connect(delayR);
- delayL.connect(feedbackL).connect(delayR);
- delayR.connect(feedbackR).connect(delayL);
- delayL.connect(panL).connect(compressor);
- delayR.connect(panR).connect(compressor);
- compressor.connect(ac.destination);
- session.nodes.push(input,dry,wet,compressor,delayL,delayR,feedbackL,feedbackR,panL,panR);
- return input
-}
-async function scheduleFmNote(ac,start,freq,duration,preset,session,event){
- if(soundMode==="silent")return;
- const meter=$("soundMeterBar");
- if(meter){
-  meter.style.width=Math.min(100,24+freq/20)+"%";
-  setTimeout(()=>meter.style.width="18%",150)
- }
- const noteBus=ac.createGain();
- const filter=ac.createBiquadFilter();
- const panner=ac.createStereoPanner();
- filter.type="lowpass";
- filter.frequency.setValueAtTime(Math.min(14000,preset.filter+freq*1.6),start);
- filter.Q.value=.55;
- const spread=[-.42,.18,.44,-.16,.31,-.34];
- panner.pan.setValueAtTime(spread[event.index%spread.length],start);
- noteBus.connect(filter).connect(panner).connect(session.output);
-
- const a=Math.max(.0015,preset.attack);
- const d=Math.max(.018,preset.decay);
- const musicalLength=Math.max(.04,duration*event.gate);
- const tail=Math.max(.08,preset.release);
- const noteEnd=start+musicalLength+tail;
- const peak=preset.gain*event.velocity;
- noteBus.gain.setValueAtTime(.0001,start);
- noteBus.gain.exponentialRampToValueAtTime(Math.max(.001,peak),start+a);
- noteBus.gain.exponentialRampToValueAtTime(Math.max(.0008,peak*preset.sustain),start+a+d);
- noteBus.gain.exponentialRampToValueAtTime(.0001,noteEnd);
-
- preset.ops.forEach((op,opIndex)=>{
-  const carrier=ac.createOscillator();
-  const mod=ac.createOscillator();
-  const modGain=ac.createGain();
-  const opGain=ac.createGain();
-  carrier.type=op.wave;
-  mod.type="sine";
-  const tinyDetune=(opIndex-1.5)*1.7;
-  carrier.frequency.setValueAtTime(freq*op.ratio,start);
-  carrier.detune.setValueAtTime(tinyDetune,start);
-  mod.frequency.setValueAtTime(freq*op.modRatio,start);
-  modGain.gain.setValueAtTime(op.index,start);
-  modGain.gain.exponentialRampToValueAtTime(Math.max(.3,op.index*.12),start+Math.max(.12,d*.9));
-  opGain.gain.setValueAtTime(Math.max(.001,op.level),start);
-  opGain.gain.exponentialRampToValueAtTime(Math.max(.0004,op.level*.20),noteEnd);
-  mod.connect(modGain).connect(carrier.frequency);
-  carrier.connect(opGain).connect(noteBus);
-  carrier.start(start);mod.start(start);
-  carrier.stop(noteEnd+.04);mod.stop(noteEnd+.04);
-  session.nodes.push(carrier,mod,modGain,opGain)
- });
-
- // Soft octave shimmer for the crystal preset.
- if((preset.name.includes("Crystal")||soundMode==="crystal")&&freq>0){
-  const shimmer=ac.createOscillator(),sg=ac.createGain();
-  shimmer.type="sine";
-  shimmer.frequency.setValueAtTime(freq*2.005,start);
-  sg.gain.setValueAtTime(Math.max(.0001,peak*.055),start);
-  sg.gain.exponentialRampToValueAtTime(.0001,noteEnd*1.0);
-  shimmer.connect(sg).connect(noteBus);
-  shimmer.start(start);shimmer.stop(noteEnd+.03);
-  session.nodes.push(shimmer,sg)
- }
- session.nodes.push(noteBus,filter,panner)
-}
-async function playMml(source,{background=false}={}){
- const mml=String(source||"");
- if(mmlSession&&!mmlSession.cancelled){
-  if(mmlLastSource===mml)return mmlSession.promise;
-  stopMml()
- }
- const events=parseMml(mml);
- if(!events.length)return;
- const ac=await ensureAudio(),session={cancelled:false,nodes:[],promise:null,output:null};
- session.output=createCrystalOutput(ac,session);
- mmlSession=session;mmlLastSource=mml;
- const begin=ac.currentTime+.04;
- let cursor=begin;
- for(const ev of events){
-  if(ev.freq>0){
-   const preset=mmlInstrumentPreset(ev.instrument);
-   await scheduleFmNote(ac,cursor,ev.freq,Math.max(.035,ev.seconds*.92),preset,session,ev)
-  }
-  cursor+=ev.seconds
- }
- const longestTail=Math.max(...events.map(e=>mmlInstrumentPreset(e.instrument).release),.3);
- const totalMs=Math.max(0,(cursor+longestTail-ac.currentTime)*1000);
- session.promise=new Promise(resolve=>setTimeout(()=>{
-  if(mmlSession===session){
-   for(const n of session.nodes){try{n.disconnect()}catch{}}
-   mmlSession=null;mmlLastSource="";
-   setStatus(stopped?"Stopped":"Ready")
-  }
-  resolve()
- },totalMs+80));
- setStatus("Crystal FM Playing");
- if(!background)await session.promise;
- return session.promise
-}
-async function inputValue(msg){return new Promise(resolve=>{waitingInput={resolve};setStatus("Input");promptInput.placeholder=msg||"?";promptInput.focus()})}
-function setVariable(target,value,state){
- const m=target.match(/^([A-Za-z][A-Za-z0-9]*\$?)\s*(?:\((.*)\))?$/);if(!m)throw Error("Invalid variable "+target);
- const name=m[1].toUpperCase();
- if(m[2]!=null){const args=splitCSV(m[2]).map(x=>evaluate(x,state));state.arrays[name] ||= {dims:[],values:{}};state.arrays[name].values[arrayKey(args)]=name.endsWith("$")?String(value):Number(value)}
- else state.vars[name]=name.endsWith("$")?String(value):Number(value)
-}
-function collectData(lines){
- const data=[];for(const line of lines)for(const s of splitStatements(line.text)){const m=s.match(/^DATA\s*(.*)$/i);if(m)for(const item of splitCSV(m[1])){if(/^".*"$/.test(item))data.push(item.slice(1,-1).replace(/""/g,'"'));else data.push(Number(item))}}
- return data
-}
-function floodFill(x,y,newColor){
- x=Math.floor(x);y=Math.floor(y);if(x<0||x>=640||y<0||y>=400)return;
- const img=ctx.getImageData(0,0,640,400),d=img.data,idx=(x,y)=>(y*640+x)*4;
- const start=idx(x,y),target=[d[start],d[start+1],d[start+2],d[start+3]];
- const tmp=document.createElement("canvas").getContext("2d");tmp.fillStyle=newColor;tmp.fillRect(0,0,1,1);const nc=tmp.getImageData(0,0,1,1).data;
- if(target[0]===nc[0]&&target[1]===nc[1]&&target[2]===nc[2])return;
- const q=[[x,y]];while(q.length){const [px,py]=q.pop();if(px<0||px>=640||py<0||py>=400)continue;const i=idx(px,py);if(d[i]!==target[0]||d[i+1]!==target[1]||d[i+2]!==target[2])continue;d[i]=nc[0];d[i+1]=nc[1];d[i+2]=nc[2];d[i+3]=255;q.push([px+1,py],[px-1,py],[px,py+1],[px,py-1]);if(q.length>200000)break}
- ctx.putImageData(img,0,0)
-}
-
-async function execStmt(s,state,idx){
- s=stripBasicComment(s);const u=s.toUpperCase();if(!s||u.startsWith("REM")||s.startsWith("'")||u.startsWith("DATA"))return{};if(u==="END"||u==="STOP")return{end:true};let m;
- if(/^NEW\s+CMD$/i.test(s)){stopMml();mmlBgm=true;return{}}
- if((m=s.match(/^CMD\s+BGM(?:\s+(.+))?$/i))){mmlBgm=m[1]==null?true:!!evaluate(m[1],state);return{}}
- if((m=s.match(/^CMD\s+PLAY\s+(.+)$/i))){const src=String(evaluate(m[1],state));await playMml(src,{background:mmlBgm});return{}}
- if(/^CMD\s+STOPM$/i.test(s)){stopMml();return{}}
- if(u==="CLS"){resetScreen();return{}}
- if(u==="CLEAR"){state.vars={};state.arrays={};state.forStack=[];state.gosub=[];return{}}
- if(/^DEF(?:INT|SNG|DBL|STR)\b/i.test(s))return{};
- if((m=s.match(/^SCREEN\s+(.+)$/i)))return{};
- if((m=s.match(/^WIDTH\s+(.+)$/i)))return{};
- if((m=s.match(/^COLOR\s+(.+?)(?:\s*,\s*(.+))?$/i))){fg=Math.floor(evaluate(m[1],state))&15;if(m[2]!=null)bg=Math.floor(evaluate(m[2],state))&15;renderText();return{}}
- if((m=s.match(/^LOCATE\s+(.+?)\s*,\s*(.+)$/i))){cursorX=Math.max(0,Math.min(79,Math.floor(evaluate(m[1],state))));cursorY=Math.max(0,Math.min(24,Math.floor(evaluate(m[2],state))));renderText();return{}}
- if((m=s.match(/^DIM\s+(.+)$/i))){for(const spec of splitCSV(m[1])){const a=spec.match(/^([A-Za-z][A-Za-z0-9]*\$?)\((.*)\)$/);if(!a)throw Error("Bad DIM");const name=a[1].toUpperCase(),dims=splitCSV(a[2]).map(x=>Math.floor(evaluate(x,state)));state.arrays[name]={dims,values:{}}}return{}}
- if((m=s.match(/^READ\s+(.+)$/i))){for(const target of splitCSV(m[1])){if(state.dataPtr>=state.data.length)throw Error("Out of DATA");setVariable(target,state.data[state.dataPtr++],state)}return{}}
- if((m=s.match(/^RESTORE(?:\s+\d+)?$/i))){state.dataPtr=0;return{}}
- if((m=s.match(/^RANDOMIZE(?:\s+(.+))?$/i))){Math.random();return{}}
- if((m=s.match(/^SWAP\s+(.+?)\s*,\s*(.+)$/i))){const a=m[1].trim(),b=m[2].trim(),va=evaluate(a,state),vb=evaluate(b,state);setVariable(a,vb,state);setVariable(b,va,state);return{}}
- if((m=s.match(/^(?:PSET|PRESET)\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),c=u.startsWith("PRESET")?bg:(m[2]!=null?evaluate(m[2],state):fg);ctx.fillStyle=color(c);ctx.fillRect(Math.round(x),Math.round(y),1,1);renderText();return{}}
- if((m=s.match(/^LINE\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+?))?(?:\s*,\s*(B|BF))?$/i))){const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg,mode=(m[4]||"").toUpperCase();ctx.strokeStyle=color(c);ctx.fillStyle=color(c);if(mode==="BF")ctx.fillRect(x1,y1,x2-x1,y2-y1);else if(mode==="B")ctx.strokeRect(x1,y1,x2-x1,y2-y1);else{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}renderText();return{}}
- if((m=s.match(/^CIRCLE\s*(\(.+?\))\s*,\s*(.+?)(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),r=+evaluate(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg;ctx.strokeStyle=color(c);ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();renderText();return{}}
- if((m=s.match(/^PAINT\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),c=m[2]!=null?evaluate(m[2],state):fg;floodFill(x,y,color(c));renderText();return{}}
- if(/^BEEP$/i.test(s)){await tone();return{}}
- if((m=s.match(/^SOUND\s+(.+?)\s*,\s*(.+)$/i))){await tone(Math.max(20,+evaluate(m[1],state)),Math.max(.02,+evaluate(m[2],state)/18.2/100));return{}}
- if((m=s.match(/^PLAY\s+(.+)$/i))){await playMml(String(evaluate(m[1],state)),{background:false});return{}}
- if((m=s.match(/^SLEEP\s+(.+)$/i))){await sleep(Math.max(0,+evaluate(m[1],state)));return{}}
- if((m=s.match(/^(?:PRINT|\?)\s*(.*)$/i))){const b=m[1];if(!b){printText();return{}}let out="",buf="",q=false,d=0;const parts=[];for(let i=0;i<b.length;i++){const c=b[i];if(c==='"')q=!q;if(!q){if(c==="(")d++;if(c===")")d--;if(d===0&&(c===";"||c===",")){parts.push([buf.trim(),c]);buf="";continue}}buf+=c}parts.push([buf.trim(),""]);for(const[e,sep]of parts){if(e)out+=String(evaluate(e,state));if(sep===",")out+="        "}printText(out,!/[;,]\s*$/.test(b));return{}}
- if((m=s.match(/^INPUT\s*(?:(["].*?["])\s*[,;])?\s*(.+)$/i))){const msg=m[1]?m[1].slice(1,-1):"? ",targets=splitCSV(m[2]);printText(msg,false);const raw=await inputValue(msg),values=splitCSV(raw);targets.forEach((t,i)=>setVariable(t,values[i]??"",state));printText(raw);return{}}
- if((m=s.match(/^IF\s+(.+?)\s+THEN\s+(.+?)(?:\s+ELSE\s+(.+))?$/i))){const chosen=evaluate(m[1],state)?m[2]:m[3];if(chosen){const t=chosen.trim();if(/^\d+$/.test(t))return{jump:+t};return execStmt(t,state,idx)}return{}}
- if((m=s.match(/^ON\s+(.+?)\s+GO(TO|SUB)\s+(.+)$/i))){const n=Math.floor(evaluate(m[1],state)),targets=splitCSV(m[3]).map(Number);if(n>=1&&n<=targets.length){if(m[2].toUpperCase()==="SUB")state.gosub.push(idx+1);return{jump:targets[n-1]}}return{}}
- if((m=s.match(/^GOTO\s+(\d+)$/i)))return{jump:+m[1]};
- if((m=s.match(/^GOSUB\s+(\d+)$/i))){state.gosub.push(idx+1);return{jump:+m[1]}}
- if(/^RETURN$/i.test(s)){if(!state.gosub.length)throw Error("RETURN without GOSUB");return{index:state.gosub.pop()}}
- if((m=s.match(/^FOR\s+([A-Za-z][A-Za-z0-9]*)\s*=\s*(.+?)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i))){const n=m[1].toUpperCase();state.vars[n]=+evaluate(m[2],state);state.forStack.push({n,lim:+evaluate(m[3],state),step:m[4]?+evaluate(m[4],state):1,ret:idx});return{}}
- if((m=s.match(/^NEXT(?:\s+([A-Za-z][A-Za-z0-9]*))?$/i))){const f=state.forStack.at(-1);if(!f)throw Error("NEXT without FOR");state.vars[f.n]+=f.step;const again=f.step>=0?state.vars[f.n]<=f.lim:state.vars[f.n]>=f.lim;if(again)return{index:f.ret+1};state.forStack.pop();return{}}
- if((m=s.match(/^(?:LET\s+)?([A-Za-z][A-Za-z0-9]*\$?(?:\s*\(.*\))?)\s*=\s*(.+)$/i))){setVariable(m[1],evaluate(m[2],state),state);return{}}
- throw Error("Syntax error: "+s)
-}
-
-async function runProgram(){
- stopped=false;setStatus(`Running ${cpuClock}MHz`);const lines=parseProgram(),state={vars:{},arrays:{},gosub:[],forStack:[],data:collectData(lines),dataPtr:0};let i=0,ops=0;
- const frameOps=cpuClock===4?55:150;
- while(i<lines.length&&!stopped){let moved=false;for(const s of splitStatements(lines[i].text)){const r=await execStmt(s,state,i);if(++ops%frameOps===0)await new Promise(requestAnimationFrame);if(ops>500000)throw Error("Too many operations");if(r.end){i=lines.length;moved=true;break}if(r.jump!=null){const n=lineIndex(lines,r.jump);if(n<0)throw Error("Undefined line "+r.jump);i=n;moved=true;break}if(r.index!=null){i=r.index;moved=true;break}}if(!moved)i++}
- setStatus(stopped?"Stopped":"Ready");if(!stopped)printText("Ok")
-}
-function renumProgram(start=10,step=10){
- const lines=parseProgram(),map=new Map();lines.forEach((l,i)=>map.set(l.number,start+i*step));
- editor.value=lines.map((l,i)=>{let t=l.text.replace(/\b(GOTO|GOSUB|THEN|ELSE|RESTORE)\s+(\d+)\b/gi,(all,k,n)=>`${k} ${map.get(+n)??n}`);t=t.replace(/\b(ON\s+.+?\s+GO(?:TO|SUB)\s+)([\d,\s]+)/gi,(all,p,list)=>p+list.split(",").map(x=>map.get(+x.trim())??x.trim()).join(","));return`${start+i*step} ${t}`}).join("\n")
-}
-async function direct(raw){
- raw=raw.trim();if(!raw)return;history.push(raw);historyIndex=history.length;
- const n=raw.match(/^(\d+)\s*(.*)$/);if(n){const map=new Map();try{for(const x of parseProgram())map.set(x.number,x.text)}catch{}if(n[2].trim())map.set(+n[1],n[2]);else map.delete(+n[1]);editor.value=[...map].sort((a,b)=>a[0]-b[0]).map(x=>x[0]+" "+x[1]).join("\n");return}
- const u=raw.toUpperCase();if(u==="RUN")return runProgram();if(u==="LIST"){printText(editor.value);return printText("Ok")}if(u==="NEW"){editor.value="";resetScreen();directVars={};directArrays={};return}
- if(u.startsWith("RENUM")){const a=raw.split(/\s+/).slice(1).join("").split(",").filter(Boolean).map(Number);renumProgram(a[0]||10,a[1]||10);printText("Ok");return}
- if(u.startsWith("DELETE")){const r=raw.match(/^DELETE\s+(\d+)(?:-(\d+))?$/i);if(!r)throw Error("DELETE syntax");const a=+r[1],b=r[2]?+r[2]:a;editor.value=parseProgram().filter(l=>l.number<a||l.number>b).map(l=>l.number+" "+l.text).join("\n");printText("Ok");return}
- const state={vars:directVars,arrays:directArrays,gosub:[],forStack:[],data:[],dataPtr:0};await execStmt(raw,state,0);directVars=state.vars;directArrays=state.arrays;printText("Ok")
-}
-async function safe(fn){try{await fn()}catch(e){setStatus("Error");printText("? "+e.message);printText("Ok")}}
-
-$("runBtn").onclick=()=>safe(async()=>{await ensureAudio();await runProgram()});
-$("stopBtn").onclick=()=>{stopped=true;stopMml();if(waitingInput){waitingInput.resolve("");waitingInput=null}setStatus("Stopped")};
-$("listBtn").onclick=()=>{printText(editor.value);printText("Ok")};
-$("newBtn").onclick=()=>{if(confirm("プログラムを消去しますか？")){editor.value="";resetScreen()}};
-$("compatBtn").onclick=()=>editor.value=`10 CLS
-20 DIM A(5)
-30 DATA 3,6,9,12,15
+function uid(){return "bas_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
+function defaultCode(){
+ return `10 CLS
+20 PRINT "SALP N88-BASIC STUDIO"
+30 PRINT "---------------------"
 40 FOR I=1 TO 5
-50 READ A(I)
+50 PRINT "HELLO ";I
 60 NEXT I
-70 PRINT "ARRAY:";
-80 FOR I=1 TO 5
-90 PRINT A(I);
-100 NEXT I
-110 PRINT
-120 S$="N88-BASIC"
-130 PRINT LEFT$(S$,3)
-140 PRINT RIGHT$(S$,5)
-150 PRINT MID$(S$,5,5)
-160 X=7
-170 IF X MOD 2=1 AND X>5 THEN PRINT "ODD AND LARGE"
-180 ON 2 GOSUB 300,400
-190 PRINT "RETURNED"
-200 END
-300 PRINT "GOSUB 1":RETURN
-400 PRINT "GOSUB 2":RETURN`;
-$("graphicsBtn").onclick=()=>editor.value=`10 CLS
-20 COLOR 7,0
-30 FOR I=0 TO 7
-40 LINE (40+I*15,40+I*10)-(600-I*15,360-I*10),I,B
-50 NEXT I
-60 CIRCLE (320,200),100,6
-70 PAINT (320,200),1
-80 COLOR 7
-90 LOCATE 25,12
-100 PRINT "SALP N88-BASIC"
-110 PLAY "CDEFGAB"
-120 END`;
-$("gameBtn").onclick=()=>editor.value=`10 CLS
-20 COLOR 7,0
-30 X=300:Y=180
-40 K$=INKEY$
-50 S=STICK(0)
-60 IF S=1 THEN Y=Y-4
-70 IF S=3 THEN X=X+4
-80 IF S=5 THEN Y=Y+4
-90 IF S=7 THEN X=X-4
-100 IF K$="Z" THEN C=2
-110 IF K$="X" THEN C=6
-120 IF STRIG(0) THEN BEEP
-130 IF MOUSEB(0) THEN X=MOUSEX(0):Y=MOUSEY(0)
-140 CLS
-150 COLOR 7,0
-160 LOCATE 1,1
-170 PRINT "CURSOR / Z X / TOUCH"
-180 CIRCLE (X,Y),12,C
-190 GOTO 40`;
-$("fmBtn").onclick=()=>editor.value=`10 ' ================================================
-20 '  CRYSTAL FANTASY ARPEGGIO - Crystal FM v0.7
-30 ' ================================================
-40 NEW CMD
-50 CLS
-60 PRINT "CRYSTAL FANTASY ARPEGGIO"
-70 PRINT "PC-8801MH / FM SOUND TEST"
-80 PRINT
-90 PRINT "PRESS ANY KEY TO STOP..."
-100 PRINT
-110 CMD BGM 1
-120 A$ = "T104 O4 L16 V13 Q7 @12 "
-130 A$ = A$ + "CEG>C<GEC EGC>EC<G "
-140 A$ = A$ + "ACE>A<ECA EAC>EA<C "
-150 A$ = A$ + "FAC>F<CAF ACF>AC<F "
-160 A$ = A$ + "GBD>G<DBG BDG>BD<G "
-170 A$ = A$ + "EGB>E<GBE GBE>GB<E "
-180 A$ = A$ + "DFA>D<FAD FAD>FA<D "
-190 A$ = A$ + "CEG>C<GEC GBD>G<DBG "
-200 A$ = A$ + "CEG>C<GEC >C4"
-210 CMD PLAY A$
-220 IF INKEY$ = "" THEN 210
-230 CMD STOPM
-240 PRINT
-250 PRINT "END"
-260 END`;
-$("saveBtn").onclick=()=>{const b=new Blob([editor.value],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="PROGRAM.BAS";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-$("loadBtn").onclick=()=>$("fileInput").click();
-$("fileInput").onchange=async e=>{const f=e.target.files[0];if(f)editor.value=await f.text();e.target.value=""};
-$("enterBtn").onclick=()=>{const v=promptInput.value;promptInput.value="";if(waitingInput){const r=waitingInput.resolve;waitingInput=null;promptInput.placeholder='PRINT LEFT$("SALP",2)';r(v)}else safe(()=>direct(v))};
-promptInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();$("enterBtn").click()}else if(!waitingInput&&e.key==="ArrowUp"){e.preventDefault();if(historyIndex>0)promptInput.value=history[--historyIndex]||""}else if(!waitingInput&&e.key==="ArrowDown"){e.preventDefault();if(historyIndex<history.length-1)promptInput.value=history[++historyIndex]||"";else{historyIndex=history.length;promptInput.value=""}}};
-
-
-const displayFrame=document.querySelector(".displayFrame");
-const scanlines=document.querySelector(".scanlines");
-function applyDisplayMode(){
- displayMode=$("displayMode").value;
- const themes={
-  color:{fg:"#f5f7fb",glow:"#66d9ff",bg:"#000000",palette:["#000000","#0046d5","#ef304f","#a834e3","#22bd68","#22c4d6","#f2dc3f","#f5f7fb"],filter:"none",label:"COLOR CRT"},
-  green:{fg:"#75ff98",glow:"#60ff88",bg:"#001407",palette:["#001407","#0b451d","#138833","#25b949","#53dd70","#70ed88","#9bf7aa","#d3ffdc"],filter:"sepia(.08) saturate(1.2)",label:"GREEN CRT"},
-  amber:{fg:"#ffc45f",glow:"#ffad36",bg:"#180c00",palette:["#180c00","#4b2400","#7c3f04","#a95b0b","#cf7c1d","#e89b34","#ffc467","#ffe0a5"],filter:"sepia(.2)",label:"AMBER CRT"},
-  white:{fg:"#f1f1f1",glow:"#ffffff",bg:"#050505",palette:["#050505","#222","#444","#666","#888","#aaa","#ccc","#f4f4f4"],filter:"grayscale(1)",label:"WHITE CRT"},
-  lcd:{fg:"#e9f1ff",glow:"#6cb8ff",bg:"#020814",palette:["#020814","#1645a7","#df3151","#9a42d2","#24ad61","#2bb7c7","#d5c64a","#e9f1ff"],filter:"contrast(1.04)",label:"LCD"}
- };
- const t=themes[displayMode];
- palette=t.palette;
- document.documentElement.style.setProperty("--crt-fg",t.fg);
- document.documentElement.style.setProperty("--crt-glow",t.glow);
- document.documentElement.style.setProperty("--crt-bg",t.bg);
- document.documentElement.style.setProperty("--crt-filter",t.filter);
- $("displayBadge").textContent=t.label;
- renderText()
+70 END`;
 }
-function applyEffects(){
- scanlines.classList.toggle("off",!$("scanToggle").checked);
- displayFrame.classList.toggle("crtGlow",$("glowToggle").checked);
- displayFrame.classList.toggle("crtCurve",$("curveToggle").checked)
-}
-function applyMachineSettings(){
- cpuClock=Number($("cpuClock").value);
- soundMode=$("soundMode").value;
- instrumentOverride=$("instrumentMode").value;
- $("clockBadge").textContent=cpuClock+"MHz";
- $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="crystal"?"CRYSTAL FM":soundMode==="enhanced"?"ENHANCED":"MH FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
- localStorage.setItem("salpMHSettings",JSON.stringify({
-  cpuClock,displayMode:$("displayMode").value,soundMode,instrumentOverride,
-  scan:$("scanToggle").checked,glow:$("glowToggle").checked,curve:$("curveToggle").checked
- }));
- applyDisplayMode();applyEffects()
-}
-function restoreMachineSettings(){
+function loadProjects(){
  try{
-  const s=JSON.parse(localStorage.getItem("salpMHSettings")||"{}");
-  if(s.cpuClock)$("cpuClock").value=String(s.cpuClock);
-  if(s.displayMode)$("displayMode").value=s.displayMode;
-  if(s.soundMode)$("soundMode").value=s.soundMode;
-  if(s.instrumentOverride)$("instrumentMode").value=s.instrumentOverride;
-  if(typeof s.scan==="boolean")$("scanToggle").checked=s.scan;
-  if(typeof s.glow==="boolean")$("glowToggle").checked=s.glow;
-  if(typeof s.curve==="boolean")$("curveToggle").checked=s.curve
+  const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  if(Array.isArray(data)&&data.length)return data;
  }catch{}
- applyMachineSettings()
+ return [{
+  id:uid(),name:"WELCOME.BAS",code:defaultCode(),updated:Date.now()
+ }];
 }
-["cpuClock","displayMode","soundMode","instrumentMode","scanToggle","glowToggle","curveToggle"].forEach(id=>{
- $(id).addEventListener("change",applyMachineSettings)
-});
-$("settingsBtn").onclick=()=>{
- $("settingsGrid").classList.toggle("keyHidden");
- $("settingsBtn").textContent=$("settingsGrid").classList.contains("keyHidden")?"⚙ MH SETTINGS":"⚙ CLOSE SETTINGS"
-};
-async function bootMH(){
- stopped=true;stopMml();
- const o=$("bootOverlay");
- o.classList.add("show");
- o.textContent="NEC\n\nPC-8801MH\n\nsalp Browser Edition";
- await new Promise(r=>setTimeout(r,850));
- o.textContent=`CPU CLOCK ${cpuClock}MHz\nFM SOUND ${soundMode==="silent"?"OFF":"READY"}\nMEMORY CHECK... OK`;
- await new Promise(r=>setTimeout(r,850));
- o.classList.remove("show");
- resetScreen();
- printText("N88-BASIC Compatible Mode");
- printText("PC-8801MH  "+cpuClock+"MHz");
- printText("");
- printText("How many files(0-15)?");
- printText("Ok");
- stopped=false;setStatus("Ready")
+function persist(){
+ localStorage.setItem(STORAGE_KEY,JSON.stringify(projects));
+ if(currentId)localStorage.setItem(CURRENT_KEY,currentId);
+ renderProjects();
 }
-$("bootBtn").onclick=bootMH;
-restoreMachineSettings();
+function toast(message){
+ const el=$("toast");el.textContent=message;el.classList.add("show");
+ clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),1500);
+}
+function currentProject(){return projects.find(p=>p.id===currentId)}
+function normalizeName(name){
+ let n=(name||"PROGRAM.BAS").trim().replace(/[\\/:*?"<>|]/g,"_");
+ if(!n)n="PROGRAM.BAS";
+ if(!/\.bas$/i.test(n))n+=".BAS";
+ return n.toUpperCase();
+}
+function renderProjects(){
+ const box=$("projects");box.innerHTML="";
+ projects.sort((a,b)=>b.updated-a.updated).forEach(p=>{
+  const b=document.createElement("button");
+  b.className="project"+(p.id===currentId?" active":"");
+  b.innerHTML=`<span class="projectIcon">💾</span><span class="projectText"><span class="projectName">${escapeHtml(p.name)}</span><span class="projectDate">${new Date(p.updated).toLocaleString("ja-JP")}</span></span>`;
+  b.onclick=()=>openProject(p.id);
+  box.appendChild(b);
+ });
+ $("projectCount").textContent=projects.length;
+}
+function escapeHtml(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function openProject(id){
+ const p=projects.find(x=>x.id===id);if(!p)return;
+ saveCurrent(false);
+ currentId=id;
+ $("programName").value=p.name;
+ if(editor){
+  editor.value=p.code;
+  editor.dispatchEvent(new Event("input",{bubbles:true}));
+ }
+ localStorage.setItem(CURRENT_KEY,id);
+ renderProjects();
+ $("sidebar").classList.remove("show");
+ toast("読み込み: "+p.name);
+}
+function saveCurrent(showToast=true){
+ if(!editor||!currentId)return;
+ const p=currentProject();if(!p)return;
+ p.name=normalizeName($("programName").value);
+ p.code=editor.value;
+ p.updated=Date.now();
+ $("programName").value=p.name;
+ persist();
+ syncToTerminal(p);
+ $("status").textContent="Auto saved: "+nowText();
+ if(showToast)toast("保存しました");
+}
+function scheduleSave(){
+ clearTimeout(saveTimer);
+ $("status").textContent="Editing...";
+ saveTimer=setTimeout(()=>saveCurrent(false),700);
+}
+function syncToTerminal(project){
+ for(const key of TERMINAL_FS_KEYS){
+  try{
+   const fs=JSON.parse(localStorage.getItem(key)||"null");
+   if(!fs)continue;
+   const basic=fs?.children?.Projects?.children?.BASIC;
+   if(!basic||basic.type!=="dir")continue;
+   basic.children[project.name]={type:"file",content:project.code};
+   localStorage.setItem(key,JSON.stringify(fs));
+  }catch{}
+ }
+}
+function importFromTerminal(){
+ for(const key of TERMINAL_FS_KEYS){
+  try{
+   const fs=JSON.parse(localStorage.getItem(key)||"null");
+   const children=fs?.children?.Projects?.children?.BASIC?.children;
+   if(!children)continue;
+   let added=0;
+   for(const [name,file] of Object.entries(children)){
+    if(file?.type!=="file"||!/\.bas$/i.test(name))continue;
+    const existing=projects.find(p=>p.name.toUpperCase()===name.toUpperCase());
+    if(existing){
+     if(!existing.code)existing.code=file.content||"";
+    }else{
+     projects.push({id:uid(),name:normalizeName(name),code:file.content||"",updated:Date.now()});
+     added++;
+    }
+   }
+   if(added)persist();
+   return added;
+  }catch{}
+ }
+ return 0;
+}
+function makeNew(){
+ saveCurrent(false);
+ const p={id:uid(),name:"NEWPROGRAM.BAS",code:"10 CLS\n20 PRINT \"NEW PROGRAM\"\n30 END",updated:Date.now()};
+ projects.push(p);persist();openProject(p.id);
+}
+function duplicate(){
+ saveCurrent(false);
+ const p=currentProject();if(!p)return;
+ const copy={id:uid(),name:normalizeName(p.name.replace(/\.BAS$/i,"_COPY.BAS")),code:p.code,updated:Date.now()};
+ projects.push(copy);persist();openProject(copy.id);
+}
+function removeCurrent(){
+ const p=currentProject();if(!p||!confirm(p.name+" を削除しますか？"))return;
+ projects=projects.filter(x=>x.id!==p.id);
+ if(!projects.length)projects.push({id:uid(),name:"PROGRAM.BAS",code:defaultCode(),updated:Date.now()});
+ currentId=projects[0].id;persist();openProject(currentId);
+}
+function exportCurrent(){
+ saveCurrent(false);const p=currentProject();if(!p)return;
+ const blob=new Blob([p.code],{type:"text/plain;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=p.name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+async function importFile(file){
+ if(!file)return;
+ const code=await file.text();
+ const p={id:uid(),name:normalizeName(file.name),code,updated:Date.now()};
+ projects.push(p);persist();openProject(p.id);
+}
+function connectCore(){
+ try{
+  const doc=core.contentDocument;
+  editor=doc.getElementById("editor");
+  runBtn=doc.getElementById("runBtn");
+  if(!editor)throw Error("editor not found");
 
-const virtualMap={
-  UP:String.fromCharCode(30),DOWN:String.fromCharCode(31),
-  LEFT:String.fromCharCode(28),RIGHT:String.fromCharCode(29),
-  ENTER:String.fromCharCode(13),SPACE:" ",Z:"Z",X:"X"
-};
-const physicalName=e=>{
-  if(e.key==="ArrowUp")return"UP";if(e.key==="ArrowDown")return"DOWN";
-  if(e.key==="ArrowLeft")return"LEFT";if(e.key==="ArrowRight")return"RIGHT";
-  if(e.key==="Enter")return"ENTER";if(e.key===" ")return"SPACE";
-  if(e.key.toUpperCase()==="Z")return"Z";if(e.key.toUpperCase()==="X")return"X";
-  return e.key.length===1?e.key.toUpperCase():e.key.toUpperCase()
-};
-function pushGameKey(name){
-  const value=virtualMap[name]??name;
-  keyQueue.push(value);
-  if(keyQueue.length>32)keyQueue.shift();
-  lastKey=value;
-  $("keyLog").textContent=`INKEY$：${name} / TOUCH：${mouseX},${mouseY} ${mouseButton?"DOWN":"UP"}`;
-}
-function pressGameKey(name,button){
-  heldKeys.add(name);pushGameKey(name);button?.classList.add("pressed");
-}
-function releaseGameKey(name,button){heldKeys.delete(name);button?.classList.remove("pressed")}
+  editor.addEventListener("input",scheduleSave);
 
-window.addEventListener("keydown",e=>{
-  if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)&&document.activeElement!==canvas)return;
-  const name=physicalName(e);
-  if(!heldKeys.has(name))pushGameKey(name);
-  heldKeys.add(name);
-  if(["UP","DOWN","LEFT","RIGHT","SPACE"].includes(name))e.preventDefault()
-});
-window.addEventListener("keyup",e=>heldKeys.delete(physicalName(e)));
+  const imported=importFromTerminal();
+  const savedId=localStorage.getItem(CURRENT_KEY);
+  currentId=projects.some(p=>p.id===savedId)?savedId:projects[0].id;
+  openProject(currentId);
 
-document.querySelectorAll("[data-vkey]").forEach(button=>{
-  const name=button.dataset.vkey;
-  const down=e=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);pressGameKey(name,button)};
-  const up=e=>{e.preventDefault();releaseGameKey(name,button)};
-  button.addEventListener("pointerdown",down);
-  button.addEventListener("pointerup",up);
-  button.addEventListener("pointercancel",up);
-  button.addEventListener("contextmenu",e=>e.preventDefault());
-});
-
-function setKeyVisibility(names){
-  document.querySelectorAll("[data-vkey]").forEach(button=>{
-    button.classList.toggle("keyHidden",!names.includes(button.dataset.vkey))
-  })
+  $("loading").style.display="none";
+  $("status").textContent="Ready / Auto save ON"+(imported?` / OSから${imported}件追加`:"");
+ }catch(error){
+  $("loading").textContent="Core connection error: "+error.message;
+  $("status").textContent="Core fileを確認してください";
+ }
 }
-function applyKeyMode(){
-  const v=$("keyMode").value;
-  $("keyCustom").style.display=v==="custom"?"block":"none";
-  if(v==="game")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X"]);
-  else if(v==="full")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
-  else if(v==="cursorEnter")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","ENTER"]);
-  else if(v==="cursor")setKeyVisibility(["UP","DOWN","LEFT","RIGHT"]);
-  else if(v==="zx")setKeyVisibility(["Z","X"]);
-  else setKeyVisibility([...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value))
-}
-$("keyMode").onchange=applyKeyMode;
-$("keyCustom").onchange=applyKeyMode;
-$("keyToggle").onclick=()=>{
-  $("keypadBody").classList.toggle("keyHidden");
-  $("keyToggle").textContent=$("keypadBody").classList.contains("keyHidden")?"キーパッドを表示":"キーパッドを隠す"
-};
-applyKeyMode();
 
-const touchMarker=$("touchMarker");
-function updateTouch(e,down){
-  const r=canvas.getBoundingClientRect();
-  mouseX=Math.max(0,Math.min(639,Math.round((e.clientX-r.left)/r.width*640)));
-  mouseY=Math.max(0,Math.min(399,Math.round((e.clientY-r.top)/r.height*400)));
-  mouseButton=down?1:0;
-  touchMarker.style.display="block";
-  touchMarker.style.left=((mouseX/640)*r.width)+"px";
-  touchMarker.style.top=((mouseY/400)*r.height)+"px";
-  $("keyLog").textContent=`INKEY$：${lastKey?JSON.stringify(lastKey):"待機中"} / TOUCH：${mouseX},${mouseY} ${mouseButton?"DOWN":"UP"}`;
-}
-canvas.tabIndex=0;
-canvas.addEventListener("pointerdown",e=>{e.preventDefault();canvas.focus();canvas.setPointerCapture?.(e.pointerId);updateTouch(e,true)});
-canvas.addEventListener("pointermove",e=>{if(e.buttons)updateTouch(e,true)});
-canvas.addEventListener("pointerup",e=>updateTouch(e,false));
-canvas.addEventListener("pointercancel",e=>{mouseButton=0});
+core.addEventListener("load",connectCore);
+$("quickRun").onclick=()=>{saveCurrent(false);runBtn?.click()};
+$("quickSave").onclick=()=>saveCurrent(true);
+$("saveProject").onclick=()=>saveCurrent(true);
+$("newProject").onclick=makeNew;
+$("duplicateProject").onclick=duplicate;
+$("deleteProject").onclick=removeCurrent;
+$("exportBas").onclick=exportCurrent;
+$("importBas").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=e=>{importFile(e.target.files[0]);e.target.value=""};
+$("programName").addEventListener("change",()=>saveCurrent(false));
+$("mobileToggle").onclick=()=>$("sidebar").classList.toggle("show");
 
-resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / Crystal FM");printText("");printText("Ok");
+window.addEventListener("beforeunload",()=>saveCurrent(false));
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveCurrent(false)});
+
+renderProjects();
+})();
 </script>
 </body>
 </html>
