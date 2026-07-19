@@ -1,21 +1,28 @@
-salp Linux v0.2 INTERACTIVE
+salp Linux v0.3 OFFICIAL INPUT
 
-v0.1の次の2ファイルを上書きしてください。
+上書き:
 - salp-linux.html
 - coi-serviceworker.js
 
 確認URL:
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=02
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=03
 
-操作:
-1. BOOT SALP LINUXを押す
-2. salp-linux:~$ が出るまで待つ
-3. 黒い画面、または「キーボード」をタップ
-4. uname -a と入力してEnter
+v0.3の重要修正:
+v0.2ではxterm.jsの入力をTextEncoderでUTF-8バイト化していました。
+CheerpX公式仕様では、xterm.js onDataの文字列をcharCodeAt()で
+1文字ずつsetCustomConsoleのsend関数へ渡します。
 
-変更点:
-- xterm.js搭載
-- setCustomConsoleによる双方向入出力
-- iPhoneキーボード対応
-- ANSI表示対応
-- コマンドショートカット追加
+これにより:
+- 英数字入力
+- Enter
+- Backspace
+- TAB
+- Ctrl+C
+- 矢印キーの制御シーケンス
+がbashへ正しく届く構成です。
+
+テスト:
+uname -a
+pwd
+ls -la
+python3 --version
