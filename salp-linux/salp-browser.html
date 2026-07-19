@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.1</title>
+<title>salp Browser OS v1.2</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -98,6 +98,9 @@ footer{
 .settingsBody p{color:var(--muted);font-size:11px;line-height:1.55}
 .settingsActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .sourceBadge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:10px}
+.launchOverlay{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:rgba(0,0,0,.68);backdrop-filter:blur(4px)}
+.launchCard{width:min(90%,520px);padding:22px;border:1px solid #315f8c;border-radius:18px;background:#07111a;text-align:center}
+.launchCard .big{font-size:46px}.launchCard h2{margin:8px 0}.launchCard p{color:var(--muted);font-size:11px;line-height:1.55}
 .hidden{display:none!important}
 @media(max-width:650px){.toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}}
 </style>
@@ -106,22 +109,22 @@ footer{
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title"><strong>salp Browser OS</strong><small>External ext2 + Built-in PC Browser</small></div>
+ <div class="title"><strong>salp Browser OS</strong><small>External ext2 + Auto PC Browser</small></div>
 </header>
 
 <div class="setupBar">
  <span id="stepBoot" class="step active">1 GUI起動</span>
  <span id="stepNet" class="step">2 Network</span>
- <span id="stepInstall" class="step">3 Install</span>
- <span id="stepLaunch" class="step">4 Launch</span>
+ <span id="stepInstall" class="step">3 Detect</span>
+ <span id="stepLaunch" class="step">4 Auto Launch</span>
 </div>
 
 <div class="toolbar">
  <button id="bootBtn" class="primary">▶ GUI Linux</button>
  <button id="networkBtn" class="network" disabled>🔐 Tailscale接続</button>
  <button id="testNetBtn" disabled>📡 通信テスト</button>
- <button id="installBtn" class="install" disabled>📦 NetSurf導入</button>
- <button id="detectBtn" disabled>🔎 検出</button>
+ <button id="installBtn" class="install" disabled>🔎 Browser確認</button>
+ <button id="detectBtn" disabled>↻ 再検出</button>
  <button id="launchBtn" disabled>🌐 起動</button>
  <button id="xtermBtn" disabled>💻 Terminal</button>
  <button id="filesBtn" disabled>📁 Files</button>
@@ -137,6 +140,7 @@ footer{
  <button id="homeUrlBtn">⌂</button>
  <input id="urlInput" value="https://example.com" autocapitalize="none" autocomplete="off">
  <button id="goBtn" disabled>開く</button>
+ <button id="autoToggleBtn">Auto: ON</button>
 </div>
 
 <main class="screenWrap" id="screenWrap">
@@ -153,14 +157,22 @@ footer{
   </div>
  </section>
 
-  <section id="settingsBox" class="settingsBox hidden">
+  <section id="launchOverlay" class="launchOverlay hidden">
+  <div class="launchCard">
+   <div class="big">🌐</div>
+   <h2>salp Browser 起動中</h2>
+   <p id="launchMessage">Linux GUIと内蔵ブラウザーを準備しています…</p>
+   <button id="cancelAutoBtn">自動起動を中止</button>
+  </div>
+ </section>
+ <section id="settingsBox" class="settingsBox hidden">
   <div class="settingsHead"><b>⚙ Linux Image Settings</b><button id="closeSettingsBtn">×</button></div>
   <div class="settingsBody">
    <p>ブラウザー入りのsalp-browser.ext2を置いた外部URLを入力します。URLはこの端末内に保存されます。</p>
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Browser Image v1.1">
+   <input id="imageNameInput" value="salp Browser Image v1.2">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -173,7 +185,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Browser OS v1.1</h1>
+   <h1>salp Browser OS v1.2</h1>
    <p>外部ストレージ上のブラウザー入りsalp Linuxイメージを起動します。</p>
    <div class="info">
     1. Alpine GUI Linuxを起動<br>
@@ -195,7 +207,7 @@ footer{
 </main>
 
 <footer>
- salp Linux v1.1：外部ext2 URLを保存して起動。通信はTailscale Exit Node経由です。
+ salp Linux v1.2：外部ext2 URLを保存して起動。通信はTailscale Exit Node経由です。
 </footer>
 </div>
 
@@ -203,7 +215,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=11");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=12");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -221,6 +233,8 @@ import * as CheerpX from "https://cxrtnc.leaningtech.com/1.3.5/cx.esm.js";
 
 const $=id=>document.getElementById(id);
 let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
+let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")!=="0";
+let autoCancelled=false;
 let initPromise=null;
 
 const candidates=[
@@ -272,6 +286,33 @@ async function shell(command,root=false){
 }
 async function exists(path){
  try{return (await shell("test -x "+path,false))===0}catch(_){return false}
+}
+
+
+function updateAutoButton(){
+ $("autoToggleBtn").textContent=autoLaunchEnabled?"Auto: ON":"Auto: OFF";
+ $("autoToggleBtn").style.borderColor=autoLaunchEnabled?"#327347":"#673039";
+}
+updateAutoButton();
+function showLaunchOverlay(message){$("launchMessage").textContent=message;$("launchOverlay").classList.remove("hidden")}
+function hideLaunchOverlay(){$("launchOverlay").classList.add("hidden")}
+async function autoDetectAndLaunch(){
+ if(!autoLaunchEnabled||autoCancelled)return;
+ showLaunchOverlay("Linux GUIの起動を待っています…");
+ await new Promise(r=>setTimeout(r,4500));
+ if(autoCancelled){hideLaunchOverlay();return}
+ $("launchMessage").textContent="内蔵ブラウザーを探しています…";
+ await detectBrowser();
+ if(autoCancelled){hideLaunchOverlay();return}
+ if(detectedBrowser){
+  $("launchMessage").textContent=detectedBrowser.name+" を起動しています…";
+  await new Promise(r=>setTimeout(r,600));
+  launchBrowser();
+  setTimeout(hideLaunchOverlay,1600);
+ }else{
+  $("launchMessage").textContent="ブラウザーが見つかりませんでした。⚙ Imageでブラウザー入りext2を設定してください。";
+  setTimeout(hideLaunchOverlay,3000);
+ }
 }
 
 async function detectBrowser(){
@@ -365,12 +406,13 @@ async function installBrowser(){
 
 async function boot(){
  if(booting||cx)return;
+ autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
  status("Alpine接続中…","busy");log("salp Browser OS BIOS");log("CheerpX 1.3.5 / Alpine GUI / Tailscale");
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.1";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.2";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -440,10 +482,11 @@ async function boot(){
   markStep("stepBoot","done");markStep("stepNet","active");
   setTimeout(async()=>{
    status("GUI Linux Ready","ok");
-   state("内蔵ブラウザーを確認しています…");
+   state("GUI Linuxが起動しました。");
    $("installBtn").disabled=false;
-   await detectBrowser();
-  },5500);
+   if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
+   else await detectBrowser();
+  },2500);
  }catch(e){
   console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");state("GUI Linuxを起動できませんでした。");
   $("bootBtn").disabled=false;$("bigBootBtn").disabled=false;cx=null;
@@ -453,7 +496,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.1";
+ const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.2";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"Image: "+name:"Image: Official Alpine";
@@ -465,7 +508,7 @@ $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.ad
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Browser Image v1.1";
+ const name=$("imageNameInput").value.trim()||"salp Browser Image v1.2";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -515,6 +558,16 @@ $("testImageBtn").addEventListener("click",async()=>{
  }
 });
 
+$("autoToggleBtn").addEventListener("click",()=>{
+ autoLaunchEnabled=!autoLaunchEnabled;
+ localStorage.setItem("salpAutoLaunch",autoLaunchEnabled?"1":"0");
+ updateAutoButton();
+ state(autoLaunchEnabled?"自動起動をONにしました。":"自動起動をOFFにしました。");
+});
+$("cancelAutoBtn").addEventListener("click",()=>{
+ autoCancelled=true;hideLaunchOverlay();
+ state("自動起動を中止しました。手動でBrowser検出・起動できます。");
+});
 $("bootBtn").addEventListener("click",boot);
 $("bigBootBtn").addEventListener("click",boot);
 $("networkBtn").addEventListener("click",connectNetwork);
@@ -545,7 +598,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=11");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=12");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
