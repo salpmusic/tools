@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.7</title>
+<title>salp PC-8801MH Browser Edition v0.7.1 Game Fix</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -40,6 +40,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .touchMarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--pink);border-radius:50%;background:#ff8fbd44;display:none;pointer-events:none}
 .touchHint{color:var(--cyan)}
 .keyHidden{display:none!important}
+.gameKeys.onlyActions #dpad{display:none}
+.gameKeys.onlyDpad #actionKeys{display:none}
+.actionKeys.singleRow{grid-template-columns:repeat(2,minmax(92px,130px))}
+.actionKeys.oneKey{grid-template-columns:minmax(110px,150px)}
 @media(max-width:520px){.gameKeys{gap:14px}.dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}.actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}.keyChecks{grid-template-columns:repeat(2,1fr)}}
 
 
@@ -181,7 +185,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.7 CRYSTAL FM</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.7.1 GAME FIX</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -316,7 +320,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
         <button class="vkey blank" tabindex="-1"></button>
 
         <button class="vkey" data-vkey="LEFT">←</button>
-        <button class="vkey enterkey" data-vkey="ENTER">●</button>
+        <button class="vkey enterkey" data-vkey="ENTER" data-key-role="dpad-enter">●</button>
         <button class="vkey" data-vkey="RIGHT">→</button>
 
         <button class="vkey blank" tabindex="-1"></button>
@@ -328,7 +332,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
         <button class="vkey zkey" data-vkey="Z">Z</button>
         <button class="vkey xkey" data-vkey="X">X</button>
         <button class="vkey spacekey" data-vkey="SPACE">SPACE</button>
-        <button class="vkey enterkey" data-vkey="ENTER">ENTER</button>
+        <button class="vkey enterkey" data-vkey="ENTER" data-key-role="action-enter">ENTER</button>
       </div>
     </div>
 
@@ -353,7 +357,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.7 Crystal FM Engine：</b>
+<div class="help"><b>v0.7.1 Game Fix：</b>
 4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
 CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
 MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出を追加。<br>
@@ -814,23 +818,42 @@ $("graphicsBtn").onclick=()=>editor.value=`10 CLS
 120 END`;
 $("gameBtn").onclick=()=>editor.value=`10 CLS
 20 COLOR 7,0
-30 X=300:Y=180
-40 K$=INKEY$
-50 S=STICK(0)
-60 IF S=1 THEN Y=Y-4
-70 IF S=3 THEN X=X+4
-80 IF S=5 THEN Y=Y+4
-90 IF S=7 THEN X=X-4
-100 IF K$="Z" THEN C=2
-110 IF K$="X" THEN C=6
-120 IF STRIG(0) THEN BEEP
-130 IF MOUSEB(0) THEN X=MOUSEX(0):Y=MOUSEY(0)
-140 CLS
-150 COLOR 7,0
-160 LOCATE 1,1
-170 PRINT "CURSOR / Z X / TOUCH"
-180 CIRCLE (X,Y),12,C
-190 GOTO 40`;
+30 X=320:Y=330:C=6
+40 TX=60+INT(RND(1)*520)
+50 TY=70+INT(RND(1)*230)
+60 SCORE=0
+70 K$=INKEY$
+80 S=STICK(0)
+90 IF S=1 THEN Y=Y-5
+100 IF S=2 THEN X=X+4:Y=Y-4
+110 IF S=3 THEN X=X+5
+120 IF S=4 THEN X=X+4:Y=Y+4
+130 IF S=5 THEN Y=Y+5
+140 IF S=6 THEN X=X-4:Y=Y+4
+150 IF S=7 THEN X=X-5
+160 IF S=8 THEN X=X-4:Y=Y-4
+170 IF X<14 THEN X=14
+180 IF X>626 THEN X=626
+190 IF Y<54 THEN Y=54
+200 IF Y>386 THEN Y=386
+210 IF K$="X" THEN C=C+1
+220 IF C>7 THEN C=2
+230 IF STRIG(0) THEN BEEP
+240 IF MOUSEB(0) THEN X=MOUSEX(0):Y=MOUSEY(0)
+250 IF ABS(X-TX)<24 AND ABS(Y-TY)<24 THEN SCORE=SCORE+1:BEEP:TX=60+INT(RND(1)*520):TY=70+INT(RND(1)*230)
+260 CLS
+270 COLOR 7,0
+280 LOCATE 1,1
+290 PRINT "SALP CATCH GAME  SCORE:";SCORE
+300 LOCATE 1,2
+310 PRINT "MOVE:CURSOR  COLOR:X  SOUND:Z"
+320 CIRCLE (TX,TY),10,2
+330 CIRCLE (TX,TY),4,2
+340 CIRCLE (X,Y),13,C
+350 LINE (X-8,Y)-(X+8,Y),C
+360 LINE (X,Y-8)-(X,Y+8),C
+370 SLEEP 16
+380 GOTO 70`;
 $("fmBtn").onclick=()=>editor.value=`10 ' ================================================
 20 '  CRYSTAL FANTASY ARPEGGIO - Crystal FM v0.7
 30 ' ================================================
@@ -984,20 +1007,56 @@ document.querySelectorAll("[data-vkey]").forEach(button=>{
   button.addEventListener("contextmenu",e=>e.preventDefault());
 });
 
-function setKeyVisibility(names){
+function setKeyVisibility(names,enterPlacement="auto"){
+  const allowed=new Set(names);
+  const arrows=["UP","DOWN","LEFT","RIGHT"];
+  const hasArrow=arrows.some(name=>allowed.has(name));
+  const hasAction=["Z","X","SPACE","ENTER"].some(name=>allowed.has(name));
+
   document.querySelectorAll("[data-vkey]").forEach(button=>{
-    button.classList.toggle("keyHidden",!names.includes(button.dataset.vkey))
-  })
+    const name=button.dataset.vkey;
+    let visible=allowed.has(name);
+
+    if(name==="ENTER"){
+      const role=button.dataset.keyRole;
+      if(enterPlacement==="dpad")visible=visible&&role==="dpad-enter";
+      else if(enterPlacement==="action")visible=visible&&role==="action-enter";
+      else visible=visible&&((hasArrow&&role==="dpad-enter")||(!hasArrow&&role==="action-enter"));
+    }
+
+    button.classList.toggle("keyHidden",!visible);
+  });
+
+  const gameKeys=document.querySelector(".gameKeys");
+  const dpad=$("dpad");
+  const action=$("actionKeys");
+
+  const visibleDpad=[...dpad.querySelectorAll("[data-vkey]")].some(b=>!b.classList.contains("keyHidden"));
+  const visibleAction=[...action.querySelectorAll("[data-vkey]")].some(b=>!b.classList.contains("keyHidden"));
+
+  dpad.classList.toggle("keyHidden",!visibleDpad);
+  action.classList.toggle("keyHidden",!visibleAction);
+  gameKeys.classList.toggle("onlyActions",!visibleDpad&&visibleAction);
+  gameKeys.classList.toggle("onlyDpad",visibleDpad&&!visibleAction);
+
+  const actionCount=[...action.querySelectorAll("[data-vkey]")].filter(b=>!b.classList.contains("keyHidden")).length;
+  action.classList.toggle("oneKey",actionCount===1);
+  action.classList.toggle("singleRow",actionCount===2);
 }
 function applyKeyMode(){
   const v=$("keyMode").value;
   $("keyCustom").style.display=v==="custom"?"block":"none";
+
   if(v==="game")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X"]);
-  else if(v==="full")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
-  else if(v==="cursorEnter")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","ENTER"]);
+  else if(v==="full")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"],"action");
+  else if(v==="cursorEnter")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","ENTER"],"dpad");
   else if(v==="cursor")setKeyVisibility(["UP","DOWN","LEFT","RIGHT"]);
   else if(v==="zx")setKeyVisibility(["Z","X"]);
-  else setKeyVisibility([...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value))
+  else{
+    const selected=[...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value);
+    const hasArrow=["UP","DOWN","LEFT","RIGHT"].some(name=>selected.includes(name));
+    setKeyVisibility(selected,hasArrow?"dpad":"action");
+  }
 }
 $("keyMode").onchange=applyKeyMode;
 $("keyCustom").onchange=applyKeyMode;
