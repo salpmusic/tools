@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1117">
-<title>salp Terminal v7.0｜Evolution Edition</title>
+<title>salp Terminal v7.0.1｜Evolution Edition</title>
 <style>
 :root{--bg:#0d1117;--panel:#161b22;--panel2:#202733;--line:#303947;--text:#edf3fa;--muted:#96a3b3;--green:#72f29a;--blue:#6fd8ff;--pink:#ff8fbd;--danger:#ff7b7b;--taskbar:rgba(12,16,22,.94)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -109,7 +109,29 @@ function buildSettings(body){body.innerHTML=`<div class="settings"><h2>Appearanc
 function buildAbout(body){body.innerHTML=`<div class="aboutApp"><h2>salp OS Desktop</h2><p><strong>salp Terminal v7.0 Evolution Edition</strong></p><p>ウィンドウ位置保存、左右スナップ、最近使ったアプリ、コマンドパレット、ターミナルのプロセス管理を追加しました。</p></div>`}
 function applyTheme(t){document.body.className=t==="light"?"light":t==="hacker"?"hacker":"";localStorage.setItem(THEME_KEY,t)}
 $("openSettings").onclick=()=>{openApp("settings");toggleStart(false)};$("openAbout").onclick=()=>{openApp("about");toggleStart(false)};
-function paletteItems(query=""){const q=query.toLowerCase();const appItems=Object.entries(APPS).map(([k,a])=>({label:a.name+" — open "+k,icon:a.icon,run:()=>openApp(k)}));const cmds=["help","apps","ps","basic list","basic run hello","files","theme hacker","version"].map(c=>({label:c,icon:"⌨️",run:()=>{openApp("terminal");setTimeout(()=>{const i=findOpen("terminal")?.querySelector(".commandInput");if(i){i.value=c;i.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))}},50)}));return [...appItems,...cmds].filter(x=>x.label.toLowerCase().includes(q))}
+function paletteItems(query=""){
+ const q=query.toLowerCase();
+ const appItems=Object.entries(APPS).map(([k,a])=>({
+  label:a.name+" — open "+k,
+  icon:a.icon,
+  run:()=>openApp(k)
+ }));
+ const cmds=["help","apps","ps","basic list","basic run hello","files","theme hacker","version"].map(c=>({
+  label:c,
+  icon:"⌨️",
+  run:()=>{
+   openApp("terminal");
+   setTimeout(()=>{
+    const i=findOpen("terminal")?.querySelector(".commandInput");
+    if(i){
+     i.value=c;
+     i.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+    }
+   },50);
+  }
+ }));
+ return [...appItems,...cmds].filter(x=>x.label.toLowerCase().includes(q));
+}
 function renderPalette(q=""){const list=$("paletteList");list.innerHTML="";paletteItems(q).forEach((x,i)=>{const b=document.createElement("button");b.className="paletteItem"+(i===0?" active":"");b.innerHTML=`<span>${x.icon}</span><span>${x.label}</span>`;b.onclick=()=>{x.run();togglePalette(false)};list.appendChild(b)})}
 function togglePalette(force){const p=$("commandPalette"),show=force??!p.classList.contains("show");p.classList.toggle("show",show);if(show){renderPalette("");setTimeout(()=>$("paletteInput").focus(),10)}}
 $("searchBtn").onclick=()=>togglePalette();$("paletteInput").oninput=e=>renderPalette(e.target.value);$("paletteInput").onkeydown=e=>{if(e.key==="Escape")togglePalette(false);if(e.key==="Enter")$("paletteList").querySelector(".paletteItem")?.click()};document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();togglePalette()}});
