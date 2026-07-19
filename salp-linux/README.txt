@@ -1,28 +1,28 @@
-salp Linux v0.3 OFFICIAL INPUT
+salp Linux v0.3.1 MOBILE KEYS
 
 上書き:
 - salp-linux.html
 - coi-serviceworker.js
 
 確認URL:
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=03
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=031
 
-v0.3の重要修正:
-v0.2ではxterm.jsの入力をTextEncoderでUTF-8バイト化していました。
-CheerpX公式仕様では、xterm.js onDataの文字列をcharCodeAt()で
-1文字ずつsetCustomConsoleのsend関数へ渡します。
-
-これにより:
-- 英数字入力
-- Enter
+追加:
+- SPACE専用ボタン
+- ENTER専用ボタン（LF=10）
 - Backspace
+- 矢印キー
 - TAB
 - Ctrl+C
-- 矢印キーの制御シーケンス
-がbashへ正しく届く構成です。
+- コマンドショートカットもLFで実行
+- iPhoneキーボード設定を英数字向けに調整
 
 テスト:
-uname -a
-pwd
-ls -la
-python3 --version
+1. ls と入力
+2. ENTERボタン
+3. uname
+4. SPACEボタン
+5. -a と入力
+6. ENTERボタン
+
+または uname -a ショートカットを押す。

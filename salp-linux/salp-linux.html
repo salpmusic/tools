@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v0.3</title>
+<title>salp Linux v0.3.1</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
 body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:hidden;overscroll-behavior:none}
-.app{height:100%;display:grid;grid-template-rows:auto auto 1fr auto auto}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr auto auto auto}
 header{display:flex;align-items:center;gap:11px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:1px solid var(--line);background:var(--panel)}
 .logo{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;color:#07110b;background:linear-gradient(135deg,var(--green),var(--cyan));font-size:24px;flex:0 0 auto}
 .title{flex:1;min-width:0}.title strong{display:block;font-size:16px}.title small{display:block;color:var(--muted);font-size:10px}
@@ -29,8 +29,11 @@ button:disabled{opacity:.4}
 .bootScreen{position:absolute;inset:0;display:grid;place-items:center;padding:24px;z-index:5;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(121,243,157,.13),transparent 35%),#010201}
 .bootCard{max-width:620px}.bootCard h1{margin:0;font-size:clamp(30px,8vw,54px)}.bootCard p{color:var(--muted)}
 .steps{margin:20px auto;text-align:left;max-width:430px;padding:15px 18px;border:1px solid var(--line);border-radius:15px;background:#09110c;font:12px/1.75 ui-monospace,monospace}
-.quickKeys{display:flex;gap:7px;padding:7px 9px;background:#07100a;border-top:1px solid var(--line);overflow-x:auto}
-.quickKeys button{min-height:36px;padding:6px 11px;font-family:ui-monospace,monospace}
+.quickKeys,.controlKeys{display:flex;gap:7px;padding:7px 9px;background:#07100a;border-top:1px solid var(--line);overflow-x:auto}
+.quickKeys button,.controlKeys button{min-height:36px;padding:6px 11px;font-family:ui-monospace,monospace}
+.controlKeys button{min-width:58px}
+.controlKeys .space{min-width:115px}
+.controlKeys .enter{min-width:100px;background:#183721;border-color:#3d8050}
 .keyboardBtn{background:#183721;border-color:#3d8050}
 footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);color:var(--muted);background:var(--panel);font-size:10px;text-align:center}
 .hidden{display:none!important}
@@ -41,9 +44,10 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Official Console Bridge / CheerpX + xterm.js</small></div>
-  <div class="badge">v0.3 OFFICIAL INPUT</div>
+  <div class="title"><strong>salp Linux</strong><small>iPhone Key Fix / CheerpX + xterm.js</small></div>
+  <div class="badge">v0.3.1 MOBILE KEYS</div>
 </header>
+
 <div class="toolbar">
   <button id="bootBtn" class="primary">▶ Linuxを起動</button>
   <button id="keyboardBtn" class="keyboardBtn" disabled>⌨️ キーボード</button>
@@ -51,39 +55,53 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
   <button id="reloadBtn">再起動</button>
   <div class="status"><span id="dot" class="dot"></span><span id="statusText">起動待ち</span></div>
 </div>
+
 <main class="terminalWrap">
   <div id="terminal"></div>
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v0.3</h1>
-      <p>CheerpX公式方式で、入力をbashへ直結。</p>
+      <h1>salp Linux v0.3.1</h1>
+      <p>iPhone用SPACE・ENTERキー搭載版。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
         2. プロンプトが出るまで待つ<br>
-        3. 黒い画面をタップ<br>
-        4. <b>uname -a</b> を入力してEnter
+        3. 文字はiPhoneキーボードで入力<br>
+        4. SPACEとENTERは下の専用ボタンを使用
       </div>
       <button id="bigBootBtn" class="primary">🐧 BOOT SALP LINUX</button>
       <p id="supportText"></p>
     </div>
   </section>
 </main>
+
 <div class="quickKeys">
   <button data-command="uname -a">uname -a</button>
   <button data-command="pwd">pwd</button>
   <button data-command="ls -la">ls -la</button>
   <button data-command="python3 --version">python3</button>
-  <button data-seq="\t">TAB</button>
+  <button data-command="whoami">whoami</button>
+</div>
+
+<div class="controlKeys">
+  <button class="space" data-code="32">SPACE</button>
+  <button class="enter" data-code="10">ENTER</button>
+  <button data-code="127">⌫</button>
+  <button data-text="&#27;[D">←</button>
+  <button data-text="&#27;[A">↑</button>
+  <button data-text="&#27;[B">↓</button>
+  <button data-text="&#27;[C">→</button>
+  <button data-code="9">TAB</button>
   <button data-code="3">Ctrl+C</button>
 </div>
-<footer>v0.3：xterm.jsの文字コードをCheerpX公式方式で送信します。</footer>
+
+<footer>SPACEとENTERが効かない場合は、画面内の専用キーを使ってください。</footer>
 </div>
 
 <script>
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=03");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=031");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -102,7 +120,7 @@ import { Terminal } from "https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/+esm";
 import { FitAddon } from "https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/+esm";
 
 const $=id=>document.getElementById(id);
-let cx=null, send=null, booting=false, ready=false;
+let cx=null,send=null,booting=false,ready=false;
 
 const term=new Terminal({
   cursorBlink:true,
@@ -117,36 +135,42 @@ const term=new Terminal({
     red:"#ff7f8a",yellow:"#ffd66b",white:"#eaf7ed"
   }
 });
+
 const fitAddon=new FitAddon();
 term.loadAddon(fitAddon);
 term.open($("terminal"));
 
-function fit(){try{fitAddon.fit()}catch(e){}}
+function fit(){try{fitAddon.fit()}catch(_){}}
 requestAnimationFrame(fit);
 window.addEventListener("resize",()=>setTimeout(fit,100));
 window.visualViewport?.addEventListener("resize",()=>setTimeout(fit,120));
 
-function status(text,state=""){
+function setStatus(text,state=""){
   $("statusText").textContent=text;
   $("dot").className="dot"+(state?" "+state:"");
 }
+
 function focusTerminal(){
   term.focus();
   const ta=$("terminal").querySelector("textarea");
   if(ta){
+    ta.setAttribute("inputmode","text");
+    ta.setAttribute("enterkeyhint","enter");
     ta.setAttribute("autocapitalize","none");
     ta.setAttribute("autocomplete","off");
     ta.setAttribute("autocorrect","off");
+    ta.setAttribute("spellcheck","false");
     ta.focus({preventScroll:true});
   }
 }
 
-/* 公式方式：UTF-8変換せず、文字列をcharCodeAtで1文字ずつ送る */
+function sendCode(code){
+  if(send)send(code);
+}
+
 function sendText(str){
   if(!send)return;
-  for(let i=0;i<str.length;i++){
-    send(str.charCodeAt(i));
-  }
+  for(let i=0;i<str.length;i++)send(str.charCodeAt(i));
 }
 
 term.onData(str=>sendText(str));
@@ -157,20 +181,21 @@ async function boot(){
   $("bootBtn").disabled=true;
   $("bigBootBtn").disabled=true;
   $("bootScreen").classList.add("hidden");
+
   term.clear();
   term.writeln("\x1b[1;32msalp Virtual PC BIOS\x1b[0m");
-  term.writeln("CheerpX 1.2.8 / Debian / official console bridge");
-  term.writeln("----------------------------------------------");
+  term.writeln("CheerpX 1.2.8 / Debian / mobile key bridge");
+  term.writeln("-----------------------------------------");
 
   try{
-    status("仮想ディスク接続中…","busy");
+    setStatus("仮想ディスク接続中…","busy");
     term.writeln("[1/5] Connecting virtual disk...");
     const cloud=await CheerpX.CloudDevice.create(
       "wss://disks.webvm.io/debian_large_20230522_5044875331.ext2"
     );
 
     term.writeln("[2/5] Opening persistent storage...");
-    const idb=await CheerpX.IDBDevice.create("salp-linux-v03-disk");
+    const idb=await CheerpX.IDBDevice.create("salp-linux-v031-disk");
 
     term.writeln("[3/5] Creating writable overlay...");
     const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
@@ -198,8 +223,9 @@ async function boot(){
 
     $("keyboardBtn").disabled=false;
     $("clearBtn").disabled=false;
+
     term.writeln("[5/5] Starting interactive bash...");
-    status("Linux起動中…","busy");
+    setStatus("Linux起動中…","busy");
     ready=true;
     setTimeout(focusTerminal,250);
 
@@ -221,12 +247,13 @@ async function boot(){
     });
 
     ready=false;
-    status("Linux終了","ok");
+    setStatus("Linux終了","ok");
+
   }catch(error){
     console.error(error);
     term.writeln("");
     term.writeln("\x1b[31mBOOT ERROR: "+(error?.message||String(error))+"\x1b[0m");
-    status("起動エラー","error");
+    setStatus("起動エラー","error");
     cx=null;send=null;ready=false;
     $("bootBtn").disabled=false;
     $("bigBootBtn").disabled=false;
@@ -245,21 +272,24 @@ $("reloadBtn").addEventListener("click",()=>location.reload());
 document.querySelectorAll("[data-command]").forEach(btn=>{
   btn.addEventListener("click",()=>{
     if(!ready)return;
-    sendText(btn.dataset.command+"\r");
+    sendText(btn.dataset.command);
+    sendCode(10);
     focusTerminal();
   });
 });
-document.querySelectorAll("[data-seq]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    if(!ready)return;
-    sendText(btn.dataset.seq);
-    focusTerminal();
-  });
-});
+
 document.querySelectorAll("[data-code]").forEach(btn=>{
   btn.addEventListener("click",()=>{
     if(!ready)return;
-    send(Number(btn.dataset.code));
+    sendCode(Number(btn.dataset.code));
+    focusTerminal();
+  });
+});
+
+document.querySelectorAll("[data-text]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    if(!ready)return;
+    sendText(btn.dataset.text);
     focusTerminal();
   });
 });
@@ -267,7 +297,7 @@ document.querySelectorAll("[data-code]").forEach(btn=>{
 $("supportText").textContent=[
   crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation",
   typeof SharedArrayBuffer!=="undefined"?"✓ SharedArrayBuffer":"✗ SharedArrayBuffer",
-  "✓ WebAssembly","✓ xterm.js","✓ official charCode input"
+  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys"
 ].join("  ");
 </script>
 </body>

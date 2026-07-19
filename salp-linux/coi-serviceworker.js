@@ -11,7 +11,9 @@ self.addEventListener("fetch",event=>{
     headers.set("Cross-Origin-Embedder-Policy","require-corp");
     headers.set("Cross-Origin-Resource-Policy","cross-origin");
     return new Response(response.body,{
-      status:response.status,statusText:response.statusText,headers
+      status:response.status,
+      statusText:response.statusText,
+      headers
     });
   })());
 });
