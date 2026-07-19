@@ -1,23 +1,21 @@
-salp Linux v0.1
+salp Linux v0.2 INTERACTIVE
 
-設置するファイル:
+v0.1の次の2ファイルを上書きしてください。
 - salp-linux.html
 - coi-serviceworker.js
 
-2ファイルを同じフォルダへ置いてください。
+確認URL:
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=02
 
-例:
-tools/
-  salp-linux.html
-  coi-serviceworker.js
+操作:
+1. BOOT SALP LINUXを押す
+2. salp-linux:~$ が出るまで待つ
+3. 黒い画面、または「キーボード」をタップ
+4. uname -a と入力してEnter
 
-起動:
-https://salpmusic.github.io/tools/salp-linux.html?v=01
-
-初回はService Workerを登録するため、自動で一度再読み込みされることがあります。
-
-注意:
-- Linux本体はCheerpXとWebVMの公開Debianイメージを利用します。
-- 初回起動は時間がかかります。
-- GitHub Pages上で動作確認してください。iPhone内のローカルHTML表示では動きません。
-- v0.1はターミナル版です。GUIやブラウザは次段階です。
+変更点:
+- xterm.js搭載
+- setCustomConsoleによる双方向入出力
+- iPhoneキーボード対応
+- ANSI表示対応
+- コマンドショートカット追加
