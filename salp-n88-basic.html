@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.8.3</title>
+<title>salp PC-8801MH Browser Edition v0.8.4</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -210,7 +210,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.8.3 PAD REBUILD</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.8.4 ISOLATED PAD</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -350,60 +350,198 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
     <div class="controllerTools"><button id="controllerTest">🎮 INPUT TEST</button><button id="controllerReset">RESET SETTINGS</button><span id="keyStateBadge" class="keyStateBadge">NO KEY</span></div>
   </div>
 
-  <div id="keypadBody" class="keypadBody" data-mode="game">
-  <div id="pad-game" class="padMode active">
-    <div class="dpad">
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="UP">↑</button><button class="vkey blank" tabindex="-1"></button>
-      <button class="vkey" data-vkey="LEFT">←</button><button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="RIGHT">→</button>
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="DOWN">↓</button><button class="vkey blank" tabindex="-1"></button>
+  <div id="keypadBody" class="keypadBody">
+    <div id="padMount"></div>
+    <div id="keyCustom" class="keyCustom">
+      <div class="keyChecks">
+        <label><input type="checkbox" value="UP" checked>↑</label>
+        <label><input type="checkbox" value="DOWN" checked>↓</label>
+        <label><input type="checkbox" value="LEFT" checked>←</label>
+        <label><input type="checkbox" value="RIGHT" checked>→</label>
+        <label><input type="checkbox" value="Z" checked>Z</label>
+        <label><input type="checkbox" value="X" checked>X</label>
+        <label><input type="checkbox" value="SPACE" checked>SPACE</label>
+        <label><input type="checkbox" value="ENTER" checked>ENTER</label>
+      </div>
     </div>
-    <div class="actionKeys compact"><button class="vkey zkey" data-vkey="Z">Z</button><button class="vkey xkey" data-vkey="X">X</button></div>
+    <div id="keyLog" class="keyLog">INKEY$：待機中 / TOUCH：未入力</div>
   </div>
-  <div id="pad-full" class="padMode">
-    <div class="dpad">
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="UP">↑</button><button class="vkey blank" tabindex="-1"></button>
-      <button class="vkey" data-vkey="LEFT">←</button><button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="RIGHT">→</button>
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="DOWN">↓</button><button class="vkey blank" tabindex="-1"></button>
-    </div>
-    <div class="actionKeys"><button class="vkey zkey" data-vkey="Z">Z</button><button class="vkey xkey" data-vkey="X">X</button><button class="vkey spacekey" data-vkey="SPACE">SPACE</button><button class="vkey enterkey" data-vkey="ENTER">ENTER</button></div>
-  </div>
-  <div id="pad-cursorEnter" class="padMode">
-    <div class="dpad">
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="UP">↑</button><button class="vkey blank" tabindex="-1"></button>
-      <button class="vkey" data-vkey="LEFT">←</button><button class="vkey enterkey" data-vkey="ENTER">●</button><button class="vkey" data-vkey="RIGHT">→</button>
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="DOWN">↓</button><button class="vkey blank" tabindex="-1"></button>
-    </div>
-  </div>
-  <div id="pad-cursor" class="padMode">
-    <div class="dpad">
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="UP">↑</button><button class="vkey blank" tabindex="-1"></button>
-      <button class="vkey" data-vkey="LEFT">←</button><button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="RIGHT">→</button>
-      <button class="vkey blank" tabindex="-1"></button><button class="vkey" data-vkey="DOWN">↓</button><button class="vkey blank" tabindex="-1"></button>
-    </div>
-  </div>
-  <div id="pad-zx" class="padMode actionsOnly"><div class="actionKeys compact"><button class="vkey zkey" data-vkey="Z">Z</button><button class="vkey xkey" data-vkey="X">X</button></div></div>
-  <div id="pad-custom" class="padMode customPad">
-    <div id="customButtons" class="customButtons">
-      <button class="vkey" data-vkey="UP">↑</button><button class="vkey" data-vkey="DOWN">↓</button><button class="vkey" data-vkey="LEFT">←</button><button class="vkey" data-vkey="RIGHT">→</button>
-      <button class="vkey zkey" data-vkey="Z">Z</button><button class="vkey xkey" data-vkey="X">X</button><button class="vkey spacekey" data-vkey="SPACE">SPACE</button><button class="vkey enterkey" data-vkey="ENTER">ENTER</button>
-    </div>
-  </div>
-  <div id="keyCustom" class="keyCustom">
-    <div class="keyChecks">
-      <label><input type="checkbox" value="UP" checked>↑</label><label><input type="checkbox" value="DOWN" checked>↓</label><label><input type="checkbox" value="LEFT" checked>←</label><label><input type="checkbox" value="RIGHT" checked>→</label>
-      <label><input type="checkbox" value="Z" checked>Z</label><label><input type="checkbox" value="X" checked>X</label><label><input type="checkbox" value="SPACE" checked>SPACE</label><label><input type="checkbox" value="ENTER" checked>ENTER</label>
-    </div>
-  </div>
-  <div id="keyLog" class="keyLog">INKEY$：待機中 / TOUCH：未入力</div>
 </div>
-</div>
+
+
+<script>
+/*
+  v0.8.4 isolated controller renderer
+  This runs independently from the BASIC interpreter so the visual mode
+  remains correct even if another part of the application reports an error.
+*/
+(()=>{
+  "use strict";
+
+  const byId=id=>document.getElementById(id);
+  const modeSelect=byId("keyMode");
+  const mount=byId("padMount");
+  const body=byId("keypadBody");
+  const custom=byId("keyCustom");
+  const toggle=byId("keyToggle");
+  const reset=byId("controllerReset");
+  const test=byId("controllerTest");
+  const badge=byId("keyStateBadge");
+  const STORAGE="salpN88Controller_v084";
+
+  const dpad=(center="")=>`
+    <div class="dpad">
+      <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
+      <button type="button" class="vkey" data-vkey="LEFT">←</button>
+      ${center ? `<button type="button" class="vkey enterkey" data-vkey="${center}">●</button>` : `<span></span>`}
+      <button type="button" class="vkey" data-vkey="RIGHT">→</button>
+      <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
+    </div>`;
+
+  const actionButtons=names=>`
+    <div class="actionKeys compact">
+      ${names.map(name=>{
+        const cls=name==="Z"?"zkey":name==="X"?"xkey":name==="SPACE"?"spacekey":"enterkey";
+        return `<button type="button" class="vkey ${cls}" data-vkey="${name}">${name}</button>`;
+      }).join("")}
+    </div>`;
+
+  function selectedCustom(){
+    return [...custom.querySelectorAll("input:checked")].map(input=>input.value);
+  }
+
+  function render(mode=modeSelect.value){
+    let html="";
+    custom.style.display=mode==="custom"?"block":"none";
+
+    if(mode==="game"){
+      html=`<div class="gameKeys">${dpad()}${actionButtons(["Z","X"])}</div>`;
+    }else if(mode==="full"){
+      html=`<div class="gameKeys">${dpad()}${actionButtons(["Z","X","SPACE","ENTER"])}</div>`;
+    }else if(mode==="cursorEnter"){
+      html=`<div class="gameKeys">${dpad("ENTER")}</div>`;
+    }else if(mode==="cursor"){
+      html=`<div class="gameKeys">${dpad()}</div>`;
+    }else if(mode==="zx"){
+      html=`<div class="gameKeys">${actionButtons(["Z","X"])}</div>`;
+    }else{
+      const names=selectedCustom();
+      const arrows=names.filter(name=>["UP","DOWN","LEFT","RIGHT"].includes(name));
+      const actions=names.filter(name=>!["UP","DOWN","LEFT","RIGHT"].includes(name));
+      let parts=[];
+      if(arrows.length){
+        parts.push(`<div class="customButtons">${arrows.map(name=>`<button type="button" class="vkey" data-vkey="${name}">${({UP:"↑",DOWN:"↓",LEFT:"←",RIGHT:"→"})[name]}</button>`).join("")}</div>`);
+      }
+      if(actions.length)parts.push(actionButtons(actions));
+      html=`<div class="gameKeys">${parts.join("")||"<span>キーが選択されていません</span>"}</div>`;
+    }
+
+    // replaceChildren equivalent: old controls are physically removed.
+    mount.innerHTML=html;
+    bindKeys();
+    body.dataset.mode=mode;
+    const log=byId("keyLog");
+    if(log) log.textContent=`MODE: ${mode.toUpperCase()} / INKEY$: 待機中`;
+  }
+
+  function bindKeys(){
+    mount.querySelectorAll("[data-vkey]").forEach(button=>{
+      const key=button.dataset.vkey;
+      const down=event=>{
+        event.preventDefault();
+        button.classList.add("pressed");
+        if(badge)badge.textContent=key;
+        if(typeof window.__salpPadPress==="function")window.__salpPadPress(key,button);
+      };
+      const up=event=>{
+        event.preventDefault();
+        button.classList.remove("pressed");
+        if(badge)badge.textContent="NO KEY";
+        if(typeof window.__salpPadRelease==="function")window.__salpPadRelease(key,button);
+      };
+      button.addEventListener("pointerdown",down);
+      button.addEventListener("pointerup",up);
+      button.addEventListener("pointercancel",up);
+      button.addEventListener("lostpointercapture",up);
+      button.addEventListener("contextmenu",event=>event.preventDefault());
+    });
+  }
+
+  function save(){
+    localStorage.setItem(STORAGE,JSON.stringify({
+      mode:modeSelect.value,
+      hidden:body.hidden,
+      custom:selectedCustom()
+    }));
+  }
+
+  function restore(){
+    try{
+      const state=JSON.parse(localStorage.getItem(STORAGE)||"{}");
+      if(state.mode)modeSelect.value=state.mode;
+      if(Array.isArray(state.custom)){
+        custom.querySelectorAll("input").forEach(input=>{
+          input.checked=state.custom.includes(input.value);
+        });
+      }
+      body.hidden=Boolean(state.hidden);
+      toggle.textContent=body.hidden?"キーパッドを表示":"キーパッドを隠す";
+    }catch{}
+  }
+
+  modeSelect.addEventListener("change",()=>{
+    render(modeSelect.value);
+    save();
+  });
+
+  custom.addEventListener("change",()=>{
+    if(modeSelect.value==="custom")render("custom");
+    save();
+  });
+
+  toggle.addEventListener("click",()=>{
+    body.hidden=!body.hidden;
+    toggle.textContent=body.hidden?"キーパッドを表示":"キーパッドを隠す";
+    save();
+  });
+
+  reset.addEventListener("click",()=>{
+    localStorage.removeItem(STORAGE);
+    modeSelect.value="game";
+    custom.querySelectorAll("input").forEach(input=>input.checked=true);
+    body.hidden=false;
+    toggle.textContent="キーパッドを隠す";
+    render("game");
+    save();
+  });
+
+  test.addEventListener("click",()=>{
+    body.hidden=false;
+    toggle.textContent="キーパッドを隠す";
+    render(modeSelect.value);
+    save();
+  });
+
+  restore();
+  render(modeSelect.value);
+
+  // Public hook used when GAME SAMPLE automatically selects game mode.
+  window.__salpSetPadMode=mode=>{
+    modeSelect.value=mode;
+    body.hidden=false;
+    toggle.textContent="キーパッドを隠す";
+    render(mode);
+    save();
+  };
+})();
+</script>
 
 <div class="promptWrap">
 <div class="promptLabel">DIRECT MODE — RUN / LIST / RENUM / DELETE / PRINT / LINE / CIRCLE など</div>
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.8 Game & Sound：</b>
+<div class="help"><b>v0.8.4 Game & Sound：</b>
 4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
 CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
 MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
@@ -863,12 +1001,7 @@ $("graphicsBtn").onclick=()=>editor.value=`10 CLS
 110 PLAY "CDEFGAB"
 120 END`;
 $("gameBtn").onclick=()=>{
-  $("keyMode").value="game";
-  $("keypadBody").classList.remove("keyHidden");
-  $("keypadBody").hidden=false;
-  $("keyToggle").textContent="キーパッドを隠す";
-  applyKeyMode();
-  saveControllerSettings();
+  window.__salpSetPadMode?.("game");
 
   editor.value=`10 ' SALP CATCH GAME v0.8.2
 20 CLS
@@ -1087,6 +1220,8 @@ window.addEventListener("keydown",e=>{
   if(["UP","DOWN","LEFT","RIGHT","SPACE"].includes(name))e.preventDefault()
 });
 window.addEventListener("keyup",e=>{heldKeys.delete(physicalName(e));updateControllerBadge()});
+window.__salpPadPress=(name,button)=>pressGameKey(name,button);
+window.__salpPadRelease=(name,button)=>releaseGameKey(name,button);
 window.addEventListener("blur",releaseAllKeys);
 
 document.querySelectorAll("[data-vkey]").forEach(button=>{
@@ -1101,35 +1236,17 @@ document.querySelectorAll("[data-vkey]").forEach(button=>{
   button.addEventListener("contextmenu",e=>e.preventDefault());
 });
 
-const CONTROLLER_KEY="salpN88Controller_v083";
-function updateControllerBadge(){const e=$("keyStateBadge");if(e)e.textContent=heldKeys.size?[...heldKeys].join(" + "):"NO KEY"}
-function releaseAllKeys(){heldKeys.clear();document.querySelectorAll("[data-vkey].pressed").forEach(b=>b.classList.remove("pressed"));updateControllerBadge()}
-function saveControllerSettings(){const custom=[...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value);localStorage.setItem(CONTROLLER_KEY,JSON.stringify({mode:$("keyMode").value,custom,hidden:$("keypadBody").classList.contains("keyHidden")}))}
-function restoreControllerSettings(){try{const c=JSON.parse(localStorage.getItem(CONTROLLER_KEY)||"{}");if(c.mode)$("keyMode").value=c.mode;if(Array.isArray(c.custom))$("keyCustom").querySelectorAll("input").forEach(x=>x.checked=c.custom.includes(x.value));$("keypadBody").classList.toggle("keyHidden",!!c.hidden);$("keypadBody").hidden=!!c.hidden;$("keyToggle").textContent=c.hidden?"キーパッドを表示":"キーパッドを隠す"}catch{}}
-function applyKeyMode(){
-  const mode=$("keyMode").value;
-  $("keypadBody").dataset.mode=mode;
-  document.querySelectorAll(".padMode").forEach(panel=>panel.classList.remove("active"));
-  const active=$("pad-"+mode)||$("pad-game");
-  active.classList.add("active");
-  const customMode=mode==="custom";
-  $("keyCustom").style.display=customMode?"block":"none";
-  if(customMode){
-    const selected=new Set([...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value));
-    $("customButtons").querySelectorAll("[data-vkey]").forEach(button=>{
-      const visible=selected.has(button.dataset.vkey);
-      button.hidden=!visible;
-    });
-  }
-  releaseAllKeys();
-  $("keyLog").textContent="MODE: "+mode.toUpperCase()+" / INKEY$: 待機中";
+/* Controller UI is handled by the isolated v0.8.4 renderer above. */
+function updateControllerBadge(){
+  const element=document.getElementById("keyStateBadge");
+  if(element)element.textContent=heldKeys.size?[...heldKeys].join(" + "):"NO KEY";
 }
-$("keyMode").onchange=()=>{releaseAllKeys();applyKeyMode();saveControllerSettings()};
-$("keyCustom").onchange=()=>{releaseAllKeys();applyKeyMode();saveControllerSettings()};
-$("keyToggle").onclick=()=>{releaseAllKeys();const hide=!$("keypadBody").hidden;$("keypadBody").hidden=hide;$("keypadBody").classList.toggle("keyHidden",hide);$("keyToggle").textContent=hide?"キーパッドを表示":"キーパッドを隠す";saveControllerSettings()};
-$("controllerReset").onclick=()=>{localStorage.removeItem(CONTROLLER_KEY);$("keyMode").value="game";$("keyCustom").querySelectorAll("input").forEach(x=>x.checked=true);$("keypadBody").classList.remove("keyHidden");$("keypadBody").hidden=false;$("keyToggle").textContent="キーパッドを隠す";releaseAllKeys();applyKeyMode();saveControllerSettings()};
-$("controllerTest").onclick=()=>{$("keypadBody").classList.remove("keyHidden");$("keypadBody").hidden=false;$("keyToggle").textContent="キーパッドを隠す";$("keyLog").textContent="INPUT TEST：ボタンを押して確認してください";saveControllerSettings()};
-restoreControllerSettings();applyKeyMode();updateControllerBadge();
+function releaseAllKeys(){
+  heldKeys.clear();
+  document.querySelectorAll("[data-vkey].pressed").forEach(button=>button.classList.remove("pressed"));
+  updateControllerBadge();
+}
+
 
 const touchMarker=$("touchMarker");
 function updateTouch(e,down){
