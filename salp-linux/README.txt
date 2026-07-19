@@ -1,26 +1,23 @@
-salp Linux v0.4 PRACTICAL TERMINAL
+salp Linux v0.5 DESKTOP α1
 
 上書き:
 - salp-linux.html
 - coi-serviceworker.js
 
 確認URL:
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=04
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=05
 
-主な追加:
-- 起動後に「操作できます」と表示
-- 文字サイズ A− / A＋
-- HOMEボタン
-- 保存テスト
-- projectsフォルダ作成
-- history表示
-- date / df / free のショートカット
-- Bash標準の履歴（↑↓）とTAB補完
-- 永続ディスク名を salp-linux-main-disk に統一
+追加:
+- Linux起動後にsalp Linux Desktopを表示
+- Terminalウィンドウ
+- Filesウィンドウ
+- Python Runner
+- Browser準備画面
+- Desktop Dock
+- System Info / Storage / Date
+- salp OS Homeへ戻るボタン
+- 既存の永続ディスク salp-linux-main-disk を継続利用
 
-確認:
-1. Linuxを起動
-2. 「保存テスト」を押す
-3. ls -la で salp-test.txt を確認
-4. ページを再起動
-5. cat salp-test.txt で保存が残っているか確認
+注意:
+Browserはまだ準備画面です。
+v0.5の目的は、Terminal単体からDesktop型UIへ進化することです。

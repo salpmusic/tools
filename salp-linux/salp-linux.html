@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v0.4</title>
+<title>salp Linux v0.5</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
@@ -42,6 +42,93 @@ button:disabled{opacity:.4}
 .utilityBar .danger{background:#2a1215;border-color:#673039}
 
 footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);color:var(--muted);background:var(--panel);font-size:10px;text-align:center}
+
+.desktop{
+  position:absolute;inset:0;z-index:6;
+  display:flex;flex-direction:column;
+  background:
+    radial-gradient(circle at 25% 20%,rgba(121,243,157,.14),transparent 28%),
+    radial-gradient(circle at 75% 30%,rgba(118,220,230,.10),transparent 32%),
+    linear-gradient(145deg,#06120b,#020604 68%);
+}
+.desktopTop{
+  height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;
+  background:rgba(5,12,8,.88);border-bottom:1px solid var(--line);
+  backdrop-filter:blur(12px);
+}
+.desktopTop strong{font-size:13px}
+.desktopClock{margin-left:auto;color:var(--muted);font:12px ui-monospace,monospace}
+.desktopArea{
+  flex:1;min-height:0;padding:18px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  align-content:start;gap:14px;overflow:auto;
+}
+.desktopIcon{
+  min-height:112px;padding:15px 12px;border:1px solid rgba(121,243,157,.22);
+  border-radius:18px;background:rgba(9,20,13,.72);
+  color:var(--text);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:7px;text-align:center;
+  box-shadow:0 12px 35px rgba(0,0,0,.22);
+}
+.desktopIcon .emoji{font-size:34px}
+.desktopIcon b{font-size:13px}
+.desktopIcon small{color:var(--muted);font-size:9px;line-height:1.35}
+.desktopDock{
+  display:flex;gap:9px;padding:9px 12px;
+  padding-bottom:calc(9px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);background:rgba(5,12,8,.9);
+  overflow-x:auto;
+}
+.desktopDock button{min-width:58px}
+.window{
+  position:absolute;inset:12px;z-index:10;
+  display:flex;flex-direction:column;min-height:0;
+  border:1px solid #31573c;border-radius:16px;
+  background:#07100a;box-shadow:0 24px 70px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.windowBar{
+  min-height:46px;display:flex;align-items:center;gap:8px;padding:7px 9px;
+  border-bottom:1px solid var(--line);background:#0d1911;
+}
+.windowTitle{font-weight:900;font-size:13px}
+.windowBar .spacer{flex:1}
+.windowBar button{min-height:32px;padding:4px 10px}
+.windowBody{flex:1;min-height:0;overflow:auto;padding:14px}
+.fileList{display:grid;gap:8px}
+.fileRow{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;
+  border:1px solid var(--line);border-radius:12px;background:#0a140e;
+  font:12px ui-monospace,monospace;
+}
+.fileRow span:last-child{margin-left:auto;color:var(--muted)}
+.browserMock{
+  display:grid;grid-template-rows:auto 1fr;height:100%;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+}
+.browserBar{display:flex;gap:7px;padding:8px;background:#0d1911}
+.browserBar input{
+  flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;
+  background:#050a07;color:var(--text);padding:10px 12px;
+}
+.browserView{
+  display:grid;place-items:center;padding:24px;text-align:center;
+  color:var(--muted);background:#020403;
+}
+.pythonPanel textarea{
+  width:100%;min-height:180px;border:1px solid var(--line);border-radius:12px;
+  background:#020403;color:#b7ffc7;padding:12px;
+  font:13px/1.5 ui-monospace,monospace;resize:vertical;
+}
+.pythonActions{display:flex;gap:8px;margin-top:10px}
+.notice{
+  padding:10px 12px;border:1px solid #5a4b1d;border-radius:12px;
+  background:#181407;color:#ffd66b;font-size:11px;line-height:1.55;
+}
+@media(min-width:700px){
+  .desktopArea{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
 .hidden{display:none!important}
 @media(max-width:650px){.badge{display:none}.toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}}
 </style>
@@ -50,8 +137,8 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Practical Debian Terminal / CheerpX + xterm.js</small></div>
-  <div class="badge">v0.4 PRACTICAL TERMINAL</div>
+  <div class="title"><strong>salp Linux</strong><small>Desktop α1 / Debian + CheerpX</small></div>
+  <div class="badge">v0.5 DESKTOP α1</div>
 </header>
 
 <div class="toolbar">
@@ -66,15 +153,135 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 
 <main class="terminalWrap">
   <div id="terminal"></div>
+
+  <section id="desktop" class="desktop hidden">
+    <div class="desktopTop">
+      <strong>🐧 salp Linux Desktop α1</strong>
+      <span id="desktopStatus" style="color:var(--green);font-size:10px">Linux Ready</span>
+      <span id="desktopClock" class="desktopClock">--:--</span>
+    </div>
+
+    <div class="desktopArea">
+      <button class="desktopIcon" data-open-window="terminalWindow">
+        <span class="emoji">💻</span><b>Terminal</b>
+        <small>Debian bashを操作</small>
+      </button>
+      <button class="desktopIcon" data-open-window="filesWindow">
+        <span class="emoji">📁</span><b>Files</b>
+        <small>Linuxホームを確認</small>
+      </button>
+      <button class="desktopIcon" data-open-window="pythonWindow">
+        <span class="emoji">🐍</span><b>Python</b>
+        <small>Pythonコードを実行</small>
+      </button>
+      <button class="desktopIcon" data-open-window="browserWindow">
+        <span class="emoji">🌐</span><b>Browser</b>
+        <small>PCブラウザ準備画面</small>
+      </button>
+      <button class="desktopIcon" data-command="uname -a">
+        <span class="emoji">🖥️</span><b>System Info</b>
+        <small>Linux情報を表示</small>
+      </button>
+      <button class="desktopIcon" data-command="df -h">
+        <span class="emoji">💾</span><b>Storage</b>
+        <small>仮想ディスク容量</small>
+      </button>
+      <button class="desktopIcon" data-command="date">
+        <span class="emoji">🕒</span><b>Date</b>
+        <small>Linux時刻を表示</small>
+      </button>
+      <button class="desktopIcon" id="desktopHomeBtn">
+        <span class="emoji">🏠</span><b>salp OS Home</b>
+        <small>メインホームへ戻る</small>
+      </button>
+    </div>
+
+    <div class="desktopDock">
+      <button data-open-window="terminalWindow">💻</button>
+      <button data-open-window="filesWindow">📁</button>
+      <button data-open-window="pythonWindow">🐍</button>
+      <button data-open-window="browserWindow">🌐</button>
+      <button id="dockHomeBtn">🏠</button>
+    </div>
+  </section>
+
+  <section id="terminalWindow" class="window hidden">
+    <div class="windowBar">
+      <span class="windowTitle">💻 Terminal</span><span class="spacer"></span>
+      <button data-min-window="terminalWindow">—</button>
+      <button data-close-window="terminalWindow">×</button>
+    </div>
+    <div class="windowBody" style="padding:0;position:relative">
+      <div id="terminalHost" style="position:absolute;inset:0"></div>
+    </div>
+  </section>
+
+  <section id="filesWindow" class="window hidden">
+    <div class="windowBar">
+      <span class="windowTitle">📁 Files</span><span class="spacer"></span>
+      <button id="refreshFilesBtn">更新</button>
+      <button data-close-window="filesWindow">×</button>
+    </div>
+    <div class="windowBody">
+      <div class="notice">α1ではLinuxの一覧をTerminalへ取得し、この画面には代表フォルダーを表示します。次版で本物のファイル一覧と接続予定。</div>
+      <div class="fileList" style="margin-top:12px">
+        <div class="fileRow"><span>📁 examples</span><span>folder</span></div>
+        <div class="fileRow"><span>📁 projects</span><span>folder</span></div>
+        <div class="fileRow"><span>📄 salp-test.txt</span><span>file</span></div>
+        <div class="fileRow"><span>🏠 /home/user</span><span>home</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pythonWindow" class="window hidden">
+    <div class="windowBar">
+      <span class="windowTitle">🐍 Python Runner</span><span class="spacer"></span>
+      <button data-close-window="pythonWindow">×</button>
+    </div>
+    <div class="windowBody pythonPanel">
+      <textarea id="pythonCode">print("Hello from salp Linux!")
+for i in range(1, 6):
+    print("salp", i)</textarea>
+      <div class="pythonActions">
+        <button id="runPythonBtn" class="primary">▶ Pythonを実行</button>
+        <button id="pythonVersionBtn">Version</button>
+      </div>
+      <p style="color:var(--muted);font-size:10px">実行結果はTerminalウィンドウへ表示されます。</p>
+    </div>
+  </section>
+
+  <section id="browserWindow" class="window hidden">
+    <div class="windowBar">
+      <span class="windowTitle">🌐 salp Browser α0</span><span class="spacer"></span>
+      <button data-close-window="browserWindow">×</button>
+    </div>
+    <div class="windowBody">
+      <div class="browserMock">
+        <div class="browserBar">
+          <button>←</button><button>→</button>
+          <input value="https://example.com" aria-label="URL">
+          <button>開く</button>
+        </div>
+        <div class="browserView">
+          <div>
+            <div style="font-size:48px">🌐</div>
+            <h3>PC Browser — Coming Next</h3>
+            <p>次の段階でLinux GUIまたは軽量ブラウザと接続します。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v0.4</h1>
-      <p>保存・履歴・表示調整を備えた実用ターミナル版。</p>
+      <h1>salp Linux v0.5</h1>
+      <p>Linuxターミナルを内蔵した、最初のsalp Linuxデスクトップ。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
         2. プロンプトが出るまで待つ<br>
-        3. 黒い画面をタップして入力<br>
-        4. ファイル作成・Python・履歴操作を試す
+        3. Linux起動後、デスクトップへ移動<br>
+        4. Terminal・Files・Pythonを開く
       </div>
       <button id="bigBootBtn" class="primary">🐧 BOOT SALP LINUX</button>
       <p id="supportText"></p>
@@ -107,20 +314,20 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 
 <div class="utilityBar">
   <button class="home" id="homeBtn">⌂ HOME</button>
-  <button class="saveTest" data-command="echo 'salp Linux v0.4' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
+  <button class="saveTest" data-command="echo 'salp Linux v0.5' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
   <button data-command="mkdir -p projects && cd projects && pwd">📁 projects</button>
   <button data-command="history | tail -10">↺ 履歴</button>
   <button data-command="clear">CLEAR</button>
   <button class="danger" data-command="exit">EXIT</button>
 </div>
-<footer>入力履歴は↑↓、補完はTAB。作成したファイルはブラウザ内へ永続保存されます。</footer>
+<footer>salp Linux Desktop α1：Terminal・Files・Python・Browserを一つのデスクトップへ統合。</footer>
 </div>
 
 <script>
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=04");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=05");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -158,7 +365,7 @@ const term=new Terminal({
 
 const fitAddon=new FitAddon();
 term.loadAddon(fitAddon);
-term.open($("terminal"));
+term.open($("terminalHost"));
 
 function fit(){try{fitAddon.fit()}catch(_){}}
 requestAnimationFrame(fit);
@@ -172,7 +379,7 @@ function setStatus(text,state=""){
 
 function focusTerminal(){
   term.focus();
-  const ta=$("terminal").querySelector("textarea");
+  const ta=$("terminalHost").querySelector("textarea");
   if(ta){
     ta.setAttribute("inputmode","text");
     ta.setAttribute("enterkeyhint","enter");
@@ -247,9 +454,14 @@ async function boot(){
     term.writeln("[5/5] Starting interactive bash...");
     setStatus("Linux起動中…","busy");
     ready=true;
-    setTimeout(focusTerminal,250);
+    $("desktop").classList.remove("hidden");
+    $("terminalWindow").classList.remove("hidden");
     setTimeout(()=>{
-      if(ready)setStatus("操作できます","ok");
+      fit();
+      focusTerminal();
+    },250);
+    setTimeout(()=>{
+      if(ready)setStatus("Desktop Ready","ok");
     },1200);
 
     await cx.run("/bin/bash",["--login"],{
@@ -288,7 +500,7 @@ async function boot(){
 $("bootBtn").addEventListener("click",boot);
 $("bigBootBtn").addEventListener("click",boot);
 $("keyboardBtn").addEventListener("click",focusTerminal);
-$("terminal").addEventListener("pointerdown",()=>setTimeout(focusTerminal,0));
+$("terminalHost").addEventListener("pointerdown",()=>setTimeout(focusTerminal,0));
 $("clearBtn").addEventListener("click",()=>{term.clear();focusTerminal()});
 $("reloadBtn").addEventListener("click",()=>location.reload());
 
@@ -333,6 +545,56 @@ $("fontUpBtn").addEventListener("click",()=>{
 $("homeBtn").addEventListener("click",()=>{
   location.href="../index.html";
 });
+
+
+function openWindow(id){
+  document.querySelectorAll(".window").forEach(w=>w.classList.add("hidden"));
+  const win=$(id);
+  if(win)win.classList.remove("hidden");
+  if(id==="terminalWindow"){
+    setTimeout(()=>{fit();focusTerminal()},80);
+  }
+}
+function closeWindow(id){
+  const win=$(id);
+  if(win)win.classList.add("hidden");
+}
+document.querySelectorAll("[data-open-window]").forEach(btn=>{
+  btn.addEventListener("click",()=>openWindow(btn.dataset.openWindow));
+});
+document.querySelectorAll("[data-close-window]").forEach(btn=>{
+  btn.addEventListener("click",()=>closeWindow(btn.dataset.closeWindow));
+});
+document.querySelectorAll("[data-min-window]").forEach(btn=>{
+  btn.addEventListener("click",()=>closeWindow(btn.dataset.minWindow));
+});
+$("desktopHomeBtn").addEventListener("click",()=>location.href="../index.html");
+$("dockHomeBtn").addEventListener("click",()=>location.href="../index.html");
+
+$("refreshFilesBtn").addEventListener("click",()=>{
+  if(!ready)return;
+  sendText("ls -la\\r");
+  openWindow("terminalWindow");
+});
+$("pythonVersionBtn").addEventListener("click",()=>{
+  if(!ready)return;
+  sendText("python3 --version\\r");
+  openWindow("terminalWindow");
+});
+$("runPythonBtn").addEventListener("click",()=>{
+  if(!ready)return;
+  const code=$("pythonCode").value;
+  const encoded=btoa(unescape(encodeURIComponent(code)));
+  sendText("echo "+encoded+" | base64 -d > /tmp/salp_run.py && python3 /tmp/salp_run.py\\r");
+  openWindow("terminalWindow");
+});
+
+function updateDesktopClock(){
+  const now=new Date();
+  $("desktopClock").textContent=now.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
+}
+updateDesktopClock();
+setInterval(updateDesktopClock,30000);
 
 $("supportText").textContent=[
   crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation",
