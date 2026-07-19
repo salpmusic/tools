@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110b">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>salp GUI Linux v0.6</title>
+<style>
+:root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:hidden}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr auto}
+header{display:flex;align-items:center;gap:11px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:1px solid var(--line);background:var(--panel)}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,var(--green),var(--cyan));font-size:24px}
+.title{flex:1}.title strong{display:block}.title small{color:var(--muted)}
+.toolbar{display:flex;gap:7px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;background:#07100a}
+button{min-height:40px;border:1px solid var(--line);border-radius:10px;padding:8px 13px;background:#122018;color:var(--text);font-weight:800;white-space:nowrap}
+button.primary{border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061009}
+button:disabled{opacity:.45}.status{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#667}.busy{background:var(--yellow)}.ok{background:var(--green)}.error{background:var(--red)}
+.screenWrap{position:relative;min-height:0;background:#000;overflow:hidden}
+#display{position:absolute;inset:0;width:100%;height:100%;background:#000;touch-action:none}
+.boot{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(121,243,157,.14),transparent 35%),#020403;z-index:4}
+.card{max-width:580px}.card h1{font-size:clamp(30px,8vw,54px);margin:0}.card p{color:var(--muted)}
+.info{margin:18px auto;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#09110c;text-align:left;font:12px/1.65 ui-monospace,monospace}
+#log{position:absolute;left:8px;right:8px;bottom:8px;max-height:32%;overflow:auto;padding:9px;border:1px solid #294532;border-radius:10px;background:rgba(0,0,0,.72);font:10px/1.4 ui-monospace,monospace;color:#aef7bf;z-index:3}
+footer{padding:8px 11px;padding-bottom:calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:10px;text-align:center}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">🖥️</div><div class="title"><strong>salp GUI Linux</strong><small>Alpine / Xorg / i3 / CheerpX KMS</small></div></header>
+<div class="toolbar">
+<button id="bootBtn" class="primary">▶ GUI Linuxを起動</button>
+<button id="keyboardBtn" disabled>⌨️ キーボード</button>
+<button id="fullBtn">⛶ 全画面</button>
+<button id="backBtn">← Desktop</button>
+<button id="reloadBtn">再起動</button>
+<div class="status"><span id="dot" class="dot"></span><span id="statusText">起動待ち</span></div>
+</div>
+<main class="screenWrap" id="screenWrap">
+<canvas id="display" tabindex="0"></canvas>
+<pre id="log"></pre>
+<section id="bootScreen" class="boot"><div class="card">
+<h1>salp GUI Linux v0.6</h1>
+<p>ブラウザ内にAlpine LinuxのXorgデスクトップを起動します。</p>
+<div class="info">Image: Alpine Linux graphical image<br>Display: CheerpX KMS Canvas<br>Desktop: Xorg + i3<br>Goal: Linux内のPCブラウザ</div>
+<button id="bigBootBtn" class="primary">🖥️ BOOT GUI LINUX</button>
+<p>初回は大きなLinuxイメージを読むため、黒画面がしばらく続く場合があります。</p>
+</div></section>
+</main>
+<footer>実験版：まずGUIデスクトップ起動を確認し、その次にPCブラウザを試します。</footer>
+</div>
+<script>
+(async()=>{
+ if(!crossOriginIsolated&&"serviceWorker"in navigator){
+  try{
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=06");
+   if(!navigator.serviceWorker.controller){
+    await new Promise(resolve=>{navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});reg.update();});
+    location.reload();
+   }
+  }catch(e){console.warn(e)}
+ }
+})();
+</script>
+<script type="module">
+import * as CheerpX from "https://cxrtnc.leaningtech.com/1.3.5/cx.esm.js";
+const $=id=>document.getElementById(id);
+let cx=null,booting=false,send=null;
+function status(msg,state=""){$("statusText").textContent=msg;$("dot").className="dot"+(state?" "+state:"");}
+function log(msg){$("log").textContent+=msg+"\n";$("log").scrollTop=$("log").scrollHeight;}
+function sizeCanvas(){
+ const canvas=$("display"),rect=$("screenWrap").getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.max(640,Math.floor(rect.width*dpr));
+ canvas.height=Math.max(480,Math.floor(rect.height*dpr));
+ canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
+ if(cx)cx.setKmsCanvas(canvas,canvas.width,canvas.height);
+}
+window.addEventListener("resize",()=>setTimeout(sizeCanvas,120));
+async function boot(){
+ if(booting||cx)return;
+ booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
+ status("Alpineディスク接続中…","busy");log("salp GUI Linux BIOS");log("CheerpX 1.3.5 / Alpine / Xorg / i3");
+ try{
+  const cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");log("[1/4] Alpine image connected");
+  const idb=await CheerpX.IDBDevice.create("salp-gui-linux-v06-disk");
+  const overlay=await CheerpX.OverlayDevice.create(cloud,idb);log("[2/4] Persistent overlay ready");
+  cx=await CheerpX.Linux.create({mounts:[{type:"ext2",path:"/",dev:overlay},{type:"devs",path:"/dev"}]});log("[3/4] Linux created");
+  sizeCanvas();
+  send=cx.setCustomConsole(buf=>{try{const t=new TextDecoder().decode(new Uint8Array(buf));if(t.trim())log(t.replace(/\x1b\[[0-9;?]*[A-Za-z]/g,"").trimEnd());}catch(_){}},80,24);
+  $("keyboardBtn").disabled=false;status("GUIを起動中…","busy");log("[4/4] Starting /sbin/init");
+  await cx.run("/sbin/init",[],{uid:0,gid:0});
+  status("GUI終了","ok");
+ }catch(error){
+  console.error(error);log("BOOT ERROR: "+(error?.message||String(error)));status("起動エラー","error");
+  $("bootBtn").disabled=false;$("bigBootBtn").disabled=false;cx=null;
+ }finally{booting=false;}
+}
+$("bootBtn").addEventListener("click",boot);
+$("bigBootBtn").addEventListener("click",boot);
+$("keyboardBtn").addEventListener("click",()=>{$("display").focus();$("display").click();});
+$("fullBtn").addEventListener("click",async()=>{try{if(!document.fullscreenElement)await $("screenWrap").requestFullscreen();else await document.exitFullscreen();setTimeout(sizeCanvas,200);}catch(_){}});
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=06");
+$("reloadBtn").addEventListener("click",()=>location.reload());
+$("display").addEventListener("pointerdown",()=>$("display").focus());
+</script>
+</body></html>

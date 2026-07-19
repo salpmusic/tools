@@ -1,23 +1,25 @@
-salp Linux v0.5 DESKTOP α1
+salp Linux v0.6 GUI BRIDGE
 
-上書き:
+同じ salp-linux フォルダーへ:
 - salp-linux.html
+- salp-gui.html
 - coi-serviceworker.js
 
 確認URL:
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=05
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=06
 
-追加:
-- Linux起動後にsalp Linux Desktopを表示
-- Terminalウィンドウ
-- Filesウィンドウ
-- Python Runner
-- Browser準備画面
-- Desktop Dock
-- System Info / Storage / Date
-- salp OS Homeへ戻るボタン
-- 既存の永続ディスク salp-linux-main-disk を継続利用
+使い方:
+1. Debian Linuxを起動
+2. DesktopのBrowserアイコンを押す
+3. salp-gui.htmlへ移動
+4. GUI Linuxを起動
+5. Alpine / Xorg / i3の起動を待つ
 
-注意:
-Browserはまだ準備画面です。
-v0.5の目的は、Terminal単体からDesktop型UIへ進化することです。
+GUI側:
+- Official Alpine graphical image
+- CheerpX 1.3.5
+- setKmsCanvas
+- /sbin/init
+
+第一目標はGUIデスクトップの起動です。
+PCブラウザはGUI起動後に搭載状況を確認します。
