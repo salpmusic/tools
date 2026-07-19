@@ -1,25 +1,29 @@
-salp Linux v0.7 DESKTOP FIRST
+salp Linux v0.8 BROWSER LAUNCHER
 
 同じ salp-linux フォルダーへ:
 - salp-linux.html
-- salp-gui.html
+- salp-browser.html  ← 新規
 - coi-serviceworker.js
+- README.txt
 
 確認URL:
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=07
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=08
 
-v0.7変更:
-- Linux起動後にTerminalを自動表示しない
-- 最初にDesktopだけを表示
-- Terminal / Files / Python / Browserをアイコンから起動
-- 各ウィンドウにDesktopへ戻る⌂ボタン
-- System Info / Storage / DateはTerminalを自動で開いて表示
-- Browserは別ページのGUI Linuxへ移動
-- GUI Linuxの永続ディスク名を共通化
+流れ:
+1. Debian Linuxを起動
+2. DesktopのBrowserアイコンを押す
+3. salp Browser Labを起動
+4. GUI Linux起動
+5. Browser検出
+6. 見つかればURL付きで起動
 
-操作:
-1. Linuxを起動
-2. Desktop Readyを確認
-3. Terminalアイコンで端末を開く
-4. ×または⌂でデスクトップへ戻る
-5. BrowserアイコンでGUI Linuxを試す
+v0.8で確実に使えるGUIアプリ:
+- xterm
+- Thunar または PCManFM
+- rofiアプリランチャー
+- Xorg / i3
+
+重要:
+公式Alpine GUIイメージのDockerfileにはChromium・Firefox等は含まれていません。
+そのためv0.8はブラウザーを自動検出し、未導入の場合は明確に表示します。
+次段階ではChromium/NetSurf等を含むカスタムext2イメージが必要です。
