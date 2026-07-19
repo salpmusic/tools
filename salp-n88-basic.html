@@ -39,12 +39,22 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .keyLog{margin-top:11px;padding:9px 11px;border-radius:10px;background:#060b13;color:var(--green);font:12px ui-monospace,monospace}
 .touchMarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--pink);border-radius:50%;background:#ff8fbd44;display:none;pointer-events:none}
 .touchHint{color:var(--cyan)}
-.keyHidden{display:none!important}
+.keyHidden,[hidden]{display:none!important}
 .gameKeys.onlyActions #dpad{display:none}
 .gameKeys.onlyDpad #actionKeys{display:none}
 .actionKeys.singleRow{grid-template-columns:repeat(2,minmax(92px,130px))}
 .actionKeys.oneKey{grid-template-columns:minmax(110px,150px)}
-@media(max-width:520px){.gameKeys{gap:14px}.dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}.actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}.keyChecks{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){
+ .keypadTop{align-items:stretch}
+ .keypadTop label{width:100%}
+ .keypadTop select{width:100%;min-width:0}
+ .controllerTools{display:grid;grid-template-columns:1fr 1fr;width:100%}
+ .controllerTools .keyStateBadge{grid-column:1/-1;text-align:center}
+ .gameKeys{gap:14px}
+ .dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}
+ .actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}
+ .keyChecks{grid-template-columns:repeat(2,1fr)}
+}
 
 
 :root{
@@ -196,7 +206,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible</div></div></div><div class="version">v0.8 GAME & SOUND</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.8 GAME & SOUND</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -841,52 +851,107 @@ $("graphicsBtn").onclick=()=>editor.value=`10 CLS
 110 PLAY "CDEFGAB"
 120 END`;
 $("gameBtn").onclick=()=>{
-  $("keyMode").value="game";applyKeyMode();saveControllerSettings();
-  editor.value=`10 CLS
-20 RANDOMIZE
-30 X=320:Y=330:C=6
-40 TX=60+INT(RND(1)*520):TY=80+INT(RND(1)*220)
-50 EX=60+INT(RND(1)*520):EY=80+INT(RND(1)*220)
-60 SCORE=0:LIFE=3:T=1800:SHOT=0
-70 K$=INKEY$:S=STICK(0)
-80 IF S=1 THEN Y=Y-6
-90 IF S=2 THEN X=X+4:Y=Y-4
-100 IF S=3 THEN X=X+6
-110 IF S=4 THEN X=X+4:Y=Y+4
-120 IF S=5 THEN Y=Y+6
-130 IF S=6 THEN X=X-4:Y=Y+4
-140 IF S=7 THEN X=X-6
-150 IF S=8 THEN X=X-4:Y=Y-4
-160 IF X<14 THEN X=14
-170 IF X>626 THEN X=626
-180 IF Y<70 THEN Y=70
-190 IF Y>386 THEN Y=386
-200 IF K$="X" THEN C=C+1
-210 IF C>7 THEN C=2
-220 IF STRIG(0) THEN SHOT=1
-230 IF MOUSEB(0) THEN X=MOUSEX(0):Y=MOUSEY(0)
-240 IF ABS(X-TX)<25 AND ABS(Y-TY)<25 THEN SCORE=SCORE+10:BEEP:TX=60+INT(RND(1)*520):TY=80+INT(RND(1)*220)
-250 IF SHOT=1 AND ABS(X-EX)<90 AND ABS(Y-EY)<90 THEN SCORE=SCORE+25:BEEP:EX=60+INT(RND(1)*520):EY=80+INT(RND(1)*220)
-260 SHOT=0
-270 EX=EX+SGN(X-EX)*2:EY=EY+SGN(Y-EY)*2
-280 IF ABS(X-EX)<18 AND ABS(Y-EY)<18 THEN LIFE=LIFE-1:BEEP:EX=60+INT(RND(1)*520):EY=80+INT(RND(1)*220)
-290 T=T-1
-300 CLS:COLOR 7,0
-310 LOCATE 1,1:PRINT "SALP STAR CATCH  SCORE:";SCORE;" LIFE:";LIFE
-320 LOCATE 1,2:PRINT "MOVE:PAD  Z:BLAST  X:COLOR  TIME:";INT(T/60)
-330 COLOR 6:CIRCLE (TX,TY),12,6:CIRCLE (TX,TY),4,6
-340 COLOR 2:CIRCLE (EX,EY),11,2:LINE (EX-8,EY-8)-(EX+8,EY+8),2:LINE (EX+8,EY-8)-(EX-8,EY+8),2
-350 COLOR C:CIRCLE (X,Y),14,C:LINE (X-10,Y)-(X+10,Y),C:LINE (X,Y-10)-(X,Y+10),C
-360 IF STRIG(0) THEN CIRCLE (X,Y),45,3
-370 IF LIFE<=0 THEN 430
-380 IF T<=0 THEN 430
-390 SLEEP 16:GOTO 70
-430 CLS:COLOR 7
-440 LOCATE 27,10:PRINT "GAME OVER"
-450 LOCATE 24,12:PRINT "FINAL SCORE:";SCORE
-460 PLAY "T140O4L8CGE>C"
-470 END`;
+  $("keyMode").value="game";
+  $("keypadBody").classList.remove("keyHidden");
+  $("keypadBody").hidden=false;
+  $("keyToggle").textContent="キーパッドを隠す";
+  applyKeyMode();saveControllerSettings();
+  editor.value=`10 ' SALP STAR CATCH v0.8
+20 CLS
+30 RANDOMIZE
+40 X=320
+50 Y=330
+60 C=6
+70 SCORE=0
+80 LIFE=3
+90 T=1800
+100 TX=60+INT(RND(1)*520)
+110 TY=80+INT(RND(1)*220)
+120 EX=60+INT(RND(1)*520)
+130 EY=80+INT(RND(1)*220)
+140 K$=INKEY$
+150 S=STICK(0)
+160 IF S=1 THEN Y=Y-6
+170 IF S=2 THEN X=X+4
+180 IF S=2 THEN Y=Y-4
+190 IF S=3 THEN X=X+6
+200 IF S=4 THEN X=X+4
+210 IF S=4 THEN Y=Y+4
+220 IF S=5 THEN Y=Y+6
+230 IF S=6 THEN X=X-4
+240 IF S=6 THEN Y=Y+4
+250 IF S=7 THEN X=X-6
+260 IF S=8 THEN X=X-4
+270 IF S=8 THEN Y=Y-4
+280 IF X<14 THEN X=14
+290 IF X>626 THEN X=626
+300 IF Y<70 THEN Y=70
+310 IF Y>386 THEN Y=386
+320 IF K$="X" THEN GOSUB 800
+330 IF K$="Z" THEN GOSUB 850
+340 IF MOUSEB(0)=0 THEN 370
+350 X=MOUSEX(0)
+360 Y=MOUSEY(0)
+370 IF ABS(X-TX)<25 THEN GOSUB 900
+380 EX=EX+SGN(X-EX)*2
+390 EY=EY+SGN(Y-EY)*2
+400 IF ABS(X-EX)<18 THEN GOSUB 950
+410 T=T-1
+420 CLS
+430 COLOR 7,0
+440 LOCATE 1,1
+450 PRINT "SALP STAR CATCH  SCORE:";SCORE;" LIFE:";LIFE
+460 LOCATE 1,2
+470 PRINT "PAD:MOVE  Z:BLAST  X:COLOR  TIME:";INT(T/60)
+480 COLOR 6
+490 CIRCLE (TX,TY),12,6
+500 CIRCLE (TX,TY),4,6
+510 COLOR 2
+520 CIRCLE (EX,EY),11,2
+530 LINE (EX-8,EY-8)-(EX+8,EY+8),2
+540 LINE (EX+8,EY-8)-(EX-8,EY+8),2
+550 COLOR C
+560 CIRCLE (X,Y),14,C
+570 LINE (X-10,Y)-(X+10,Y),C
+580 LINE (X,Y-10)-(X,Y+10),C
+590 IF LIFE<=0 THEN 1000
+600 IF T<=0 THEN 1000
+610 SLEEP 16
+620 GOTO 140
+800 C=C+1
+810 IF C>7 THEN C=2
+820 BEEP
+830 RETURN
+850 CIRCLE (X,Y),45,3
+860 IF ABS(X-EX)<90 THEN GOSUB 980
+870 RETURN
+900 SCORE=SCORE+10
+910 BEEP
+920 TX=60+INT(RND(1)*520)
+930 TY=80+INT(RND(1)*220)
+940 RETURN
+950 IF ABS(Y-EY)>=18 THEN RETURN
+960 LIFE=LIFE-1
+970 BEEP
+975 EX=60+INT(RND(1)*520)
+976 EY=80+INT(RND(1)*220)
+977 RETURN
+980 IF ABS(Y-EY)>=90 THEN RETURN
+985 SCORE=SCORE+25
+986 SOUND 880,3
+987 EX=60+INT(RND(1)*520)
+988 EY=80+INT(RND(1)*220)
+989 RETURN
+1000 CLS
+1010 COLOR 7
+1020 LOCATE 27,10
+1030 PRINT "GAME OVER"
+1040 LOCATE 24,12
+1050 PRINT "FINAL SCORE:";SCORE
+1060 PLAY "T140O4L8CGE>C"
+1070 END`;
   editor.dispatchEvent(new Event("input",{bubbles:true}));
+  $("keyLog").textContent="GAME READY：方向キーで移動 / Zで攻撃 / Xで色変更";
 };
 $("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.8
 20 NEW CMD
@@ -1056,40 +1121,37 @@ const CONTROLLER_KEY="salpN88Controller_v08";
 function updateControllerBadge(){const e=$("keyStateBadge");if(e)e.textContent=heldKeys.size?[...heldKeys].join(" + "):"NO KEY"}
 function releaseAllKeys(){heldKeys.clear();document.querySelectorAll("[data-vkey].pressed").forEach(b=>b.classList.remove("pressed"));updateControllerBadge()}
 function saveControllerSettings(){const custom=[...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value);localStorage.setItem(CONTROLLER_KEY,JSON.stringify({mode:$("keyMode").value,custom,hidden:$("keypadBody").classList.contains("keyHidden")}))}
-function restoreControllerSettings(){try{const c=JSON.parse(localStorage.getItem(CONTROLLER_KEY)||"{}");if(c.mode)$("keyMode").value=c.mode;if(Array.isArray(c.custom))$("keyCustom").querySelectorAll("input").forEach(x=>x.checked=c.custom.includes(x.value));$("keypadBody").classList.toggle("keyHidden",!!c.hidden);$("keyToggle").textContent=c.hidden?"キーパッドを表示":"キーパッドを隠す"}catch{}}
+function restoreControllerSettings(){try{const c=JSON.parse(localStorage.getItem(CONTROLLER_KEY)||"{}");if(c.mode)$("keyMode").value=c.mode;if(Array.isArray(c.custom))$("keyCustom").querySelectorAll("input").forEach(x=>x.checked=c.custom.includes(x.value));$("keypadBody").classList.toggle("keyHidden",!!c.hidden);$("keypadBody").hidden=!!c.hidden;$("keyToggle").textContent=c.hidden?"キーパッドを表示":"キーパッドを隠す"}catch{}}
 function setKeyVisibility(names,enterPlacement="auto"){
   const allowed=new Set(names);
   const arrows=["UP","DOWN","LEFT","RIGHT"];
   const hasArrow=arrows.some(name=>allowed.has(name));
-  const hasAction=["Z","X","SPACE","ENTER"].some(name=>allowed.has(name));
 
   document.querySelectorAll("[data-vkey]").forEach(button=>{
     const name=button.dataset.vkey;
     let visible=allowed.has(name);
-
     if(name==="ENTER"){
       const role=button.dataset.keyRole;
       if(enterPlacement==="dpad")visible=visible&&role==="dpad-enter";
       else if(enterPlacement==="action")visible=visible&&role==="action-enter";
       else visible=visible&&((hasArrow&&role==="dpad-enter")||(!hasArrow&&role==="action-enter"));
     }
-
+    button.hidden=!visible;
     button.classList.toggle("keyHidden",!visible);
+    if(!visible)button.classList.remove("pressed");
   });
 
-  const gameKeys=document.querySelector(".gameKeys");
   const dpad=$("dpad");
   const action=$("actionKeys");
+  const visibleDpad=[...dpad.querySelectorAll("[data-vkey]")].some(b=>!b.hidden);
+  const visibleAction=[...action.querySelectorAll("[data-vkey]")].some(b=>!b.hidden);
 
-  const visibleDpad=[...dpad.querySelectorAll("[data-vkey]")].some(b=>!b.classList.contains("keyHidden"));
-  const visibleAction=[...action.querySelectorAll("[data-vkey]")].some(b=>!b.classList.contains("keyHidden"));
-
+  dpad.hidden=!visibleDpad;
+  action.hidden=!visibleAction;
   dpad.classList.toggle("keyHidden",!visibleDpad);
   action.classList.toggle("keyHidden",!visibleAction);
-  gameKeys.classList.toggle("onlyActions",!visibleDpad&&visibleAction);
-  gameKeys.classList.toggle("onlyDpad",visibleDpad&&!visibleAction);
 
-  const actionCount=[...action.querySelectorAll("[data-vkey]")].filter(b=>!b.classList.contains("keyHidden")).length;
+  const actionCount=[...action.querySelectorAll("[data-vkey]")].filter(b=>!b.hidden).length;
   action.classList.toggle("oneKey",actionCount===1);
   action.classList.toggle("singleRow",actionCount===2);
 }
@@ -1110,9 +1172,9 @@ function applyKeyMode(){
 }
 $("keyMode").onchange=()=>{releaseAllKeys();applyKeyMode();saveControllerSettings()};
 $("keyCustom").onchange=()=>{releaseAllKeys();applyKeyMode();saveControllerSettings()};
-$("keyToggle").onclick=()=>{releaseAllKeys();$("keypadBody").classList.toggle("keyHidden");$("keyToggle").textContent=$("keypadBody").classList.contains("keyHidden")?"キーパッドを表示":"キーパッドを隠す";saveControllerSettings()};
-$("controllerReset").onclick=()=>{localStorage.removeItem(CONTROLLER_KEY);$("keyMode").value="game";$("keyCustom").querySelectorAll("input").forEach(x=>x.checked=true);$("keypadBody").classList.remove("keyHidden");$("keyToggle").textContent="キーパッドを隠す";releaseAllKeys();applyKeyMode();saveControllerSettings()};
-$("controllerTest").onclick=()=>{$("keypadBody").classList.remove("keyHidden");$("keyToggle").textContent="キーパッドを隠す";$("keyLog").textContent="INPUT TEST：ボタンを押して確認してください";saveControllerSettings()};
+$("keyToggle").onclick=()=>{releaseAllKeys();const hide=!$("keypadBody").hidden;$("keypadBody").hidden=hide;$("keypadBody").classList.toggle("keyHidden",hide);$("keyToggle").textContent=hide?"キーパッドを表示":"キーパッドを隠す";saveControllerSettings()};
+$("controllerReset").onclick=()=>{localStorage.removeItem(CONTROLLER_KEY);$("keyMode").value="game";$("keyCustom").querySelectorAll("input").forEach(x=>x.checked=true);$("keypadBody").classList.remove("keyHidden");$("keypadBody").hidden=false;$("keyToggle").textContent="キーパッドを隠す";releaseAllKeys();applyKeyMode();saveControllerSettings()};
+$("controllerTest").onclick=()=>{$("keypadBody").classList.remove("keyHidden");$("keypadBody").hidden=false;$("keyToggle").textContent="キーパッドを隠す";$("keyLog").textContent="INPUT TEST：ボタンを押して確認してください";saveControllerSettings()};
 restoreControllerSettings();applyKeyMode();updateControllerBadge();
 
 const touchMarker=$("touchMarker");
