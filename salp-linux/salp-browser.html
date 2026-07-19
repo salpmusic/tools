@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser Lab v0.8</title>
+<title>salp Browser Setup v0.9</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
  --muted:#90aa98;--green:#79f39d;--cyan:#76dce6;
- --yellow:#ffd66b;--red:#ff7f8a;
+ --yellow:#ffd66b;--red:#ff7f8a;--blue:#78b7ff
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
 body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:hidden}
-.app{height:100%;display:grid;grid-template-rows:auto auto auto 1fr auto}
+.app{height:100%;display:grid;grid-template-rows:auto auto auto auto 1fr auto}
 header{
  display:flex;align-items:center;gap:11px;padding:10px 12px;
  padding-top:calc(10px + env(safe-area-inset-top));
@@ -26,24 +26,32 @@ header{
  background:linear-gradient(135deg,var(--green),var(--cyan));font-size:24px
 }
 .title{flex:1;min-width:0}.title strong{display:block}.title small{color:var(--muted)}
-.toolbar,.addressBar{
+.toolbar,.addressBar,.setupBar{
  display:flex;gap:7px;padding:8px 10px;border-bottom:1px solid var(--line);
  overflow-x:auto;background:#07100a
 }
-button{
+button,a.toolButton{
  min-height:40px;border:1px solid var(--line);border-radius:10px;
  padding:8px 13px;background:#122018;color:var(--text);
- font-weight:800;white-space:nowrap
+ font-weight:800;white-space:nowrap;text-decoration:none;
+ display:inline-flex;align-items:center;justify-content:center
 }
-button.primary{
- border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061009
-}
-button:disabled{opacity:.42}
+button.primary{border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061009}
+button.network{border-color:#315f8c;background:#102236}
+button.install{border-color:#75601f;background:#272009}
+button:disabled{opacity:.4}
 .addressBar input{
  flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;
  padding:9px 12px;background:#020503;color:var(--text);
  font:13px ui-monospace,monospace
 }
+.setupBar{align-items:center}
+.step{
+ display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line);
+ border-radius:999px;color:var(--muted);font-size:10px;white-space:nowrap
+}
+.step.active{border-color:#76601e;color:var(--yellow)}
+.step.done{border-color:#327347;color:var(--green)}
 .status{
  margin-left:auto;display:flex;align-items:center;gap:8px;
  color:var(--muted);font-size:11px;white-space:nowrap
@@ -51,68 +59,63 @@ button:disabled{opacity:.42}
 .dot{width:9px;height:9px;border-radius:50%;background:#667}
 .dot.busy{background:var(--yellow)}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}
 .screenWrap{position:relative;min-height:0;background:#000;overflow:hidden}
-#display{
- position:absolute;inset:0;width:100%;height:100%;background:#000;
- touch-action:none;outline:none
-}
+#display{position:absolute;inset:0;width:100%;height:100%;background:#000;touch-action:none;outline:none}
 .boot{
  position:absolute;inset:0;display:grid;place-items:center;padding:22px;
- text-align:center;z-index:5;
+ text-align:center;z-index:6;
  background:radial-gradient(circle at 50% 28%,rgba(121,243,157,.14),transparent 35%),#020403
 }
-.card{max-width:620px}.card h1{font-size:clamp(29px,8vw,52px);margin:0}
-.card p{color:var(--muted)}
+.card{max-width:650px}.card h1{font-size:clamp(28px,8vw,50px);margin:0}.card p{color:var(--muted)}
 .info{
  margin:18px auto;padding:14px 16px;border:1px solid var(--line);
- border-radius:14px;background:#09110c;text-align:left;
- font:12px/1.65 ui-monospace,monospace
+ border-radius:14px;background:#09110c;text-align:left;font:12px/1.65 ui-monospace,monospace
 }
 #panel{
- position:absolute;left:8px;right:8px;bottom:8px;max-height:38%;
- z-index:4;border:1px solid #294532;border-radius:12px;
- background:rgba(0,0,0,.82);overflow:hidden
+ position:absolute;left:8px;right:8px;bottom:8px;max-height:43%;
+ z-index:5;border:1px solid #294532;border-radius:12px;
+ background:rgba(0,0,0,.86);overflow:hidden
 }
-.panelHead{
- display:flex;align-items:center;gap:8px;padding:7px 9px;
- border-bottom:1px solid #294532;background:#07100a
-}
+.panelHead{display:flex;align-items:center;gap:8px;padding:7px 9px;border-bottom:1px solid #294532;background:#07100a}
 .panelHead b{font-size:11px}.panelHead button{margin-left:auto;min-height:30px;padding:3px 9px}
-#log{
- margin:0;max-height:180px;overflow:auto;padding:9px;
- white-space:pre-wrap;color:#aef7bf;font:10px/1.45 ui-monospace,monospace
+#log{margin:0;max-height:190px;overflow:auto;padding:9px;white-space:pre-wrap;color:#aef7bf;font:10px/1.45 ui-monospace,monospace}
+.browserState{padding:8px 10px;border-top:1px solid #294532;color:var(--muted);font-size:10px;line-height:1.5}
+.loginBox{
+ position:absolute;left:12px;right:12px;top:12px;z-index:7;padding:13px;
+ border:1px solid #315f8c;border-radius:13px;background:rgba(8,18,30,.95)
 }
-.browserState{
- padding:8px 10px;border-top:1px solid #294532;
- color:var(--muted);font-size:10px;line-height:1.45
-}
+.loginBox h3{margin:0 0 7px}.loginBox p{margin:4px 0;color:var(--muted);font-size:11px}
+.loginActions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 footer{
  padding:8px 11px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
- border-top:1px solid var(--line);background:var(--panel);
- color:var(--muted);font-size:10px;text-align:center
+ border-top:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:10px;text-align:center
 }
 .hidden{display:none!important}
-@media(max-width:650px){
- .toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}
-}
+@media(max-width:650px){.toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title">
-  <strong>salp Browser Lab</strong>
-  <small>Alpine GUI Linux / Browser detection & launcher</small>
- </div>
+ <div class="title"><strong>salp Browser Setup</strong><small>GUI Linux + Tailscale + apk browser installer</small></div>
 </header>
 
+<div class="setupBar">
+ <span id="stepBoot" class="step active">1 GUI起動</span>
+ <span id="stepNet" class="step">2 Network</span>
+ <span id="stepInstall" class="step">3 Install</span>
+ <span id="stepLaunch" class="step">4 Launch</span>
+</div>
+
 <div class="toolbar">
- <button id="bootBtn" class="primary">▶ GUI Linux起動</button>
- <button id="detectBtn" disabled>🔎 Browser検出</button>
- <button id="launchBtn" disabled>🌐 Browser起動</button>
+ <button id="bootBtn" class="primary">▶ GUI Linux</button>
+ <button id="networkBtn" class="network" disabled>🔐 Tailscale接続</button>
+ <button id="testNetBtn" disabled>📡 通信テスト</button>
+ <button id="installBtn" class="install" disabled>📦 NetSurf導入</button>
+ <button id="detectBtn" disabled>🔎 検出</button>
+ <button id="launchBtn" disabled>🌐 起動</button>
  <button id="xtermBtn" disabled>💻 Terminal</button>
  <button id="filesBtn" disabled>📁 Files</button>
- <button id="appsBtn" disabled>◉ Apps</button>
  <button id="keyboardBtn" disabled>⌨️</button>
  <button id="fullBtn">⛶</button>
  <button id="backBtn">← Desktop</button>
@@ -128,30 +131,42 @@ footer{
 <main class="screenWrap" id="screenWrap">
  <canvas id="display" tabindex="0"></canvas>
 
+ <section id="loginBox" class="loginBox hidden">
+  <h3>🔐 Tailscaleログイン</h3>
+  <p>下のボタンでTailscale認証ページを新しいタブに開きます。</p>
+  <p>公開インターネットへ接続するには、Tailnet内でExit Nodeを設定しておく必要があります。</p>
+  <div class="loginActions">
+   <a id="loginLink" class="toolButton network" target="_blank" rel="noopener">Tailscaleを開く</a>
+   <button id="loginDoneBtn">認証後に確認</button>
+   <button id="cancelLoginBtn">閉じる</button>
+  </div>
+ </section>
+
  <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Browser Lab v0.8</h1>
-   <p>GUI Linuxを起動し、利用可能なPCブラウザーを探します。</p>
+   <h1>salp Browser Setup v0.9</h1>
+   <p>GUI Linuxへ軽量PCブラウザーをインストールして起動します。</p>
    <div class="info">
-    Linux image: Alpine 3.17 graphical<br>
-    Desktop: Xorg + i3<br>
-    Included GUI apps: xterm / Thunar / PCManFM / gedit / rofi<br>
-    Browser candidates: Chromium / Firefox / NetSurf / Dillo
+    1. Alpine GUI Linuxを起動<br>
+    2. Tailscaleへログイン<br>
+    3. Exit Node経由でネット接続<br>
+    4. apk add netsurf を実行<br>
+    5. NetSurfでPCサイトを開く
    </div>
-   <button id="bigBootBtn" class="primary">🖥️ BOOT BROWSER LAB</button>
-   <p>公式イメージにはブラウザー本体が入っていない可能性があります。その場合も検出結果を明確に表示します。</p>
+   <button id="bigBootBtn" class="primary">🖥️ START BROWSER SETUP</button>
+   <p>ネット接続にはTailscaleアカウントとExit Nodeが必要です。</p>
   </div>
  </section>
 
  <section id="panel">
-  <div class="panelHead"><b>起動ログ</b><button id="hideLogBtn">隠す</button></div>
+  <div class="panelHead"><b>Setup Log</b><button id="hideLogBtn">隠す</button></div>
   <pre id="log"></pre>
   <div id="browserState" class="browserState">GUI Linuxを起動してください。</div>
  </section>
 </main>
 
 <footer>
- v0.8はBrowser Launcher基盤。実ブラウザーが未導入なら、次にブラウザー入りカスタムLinuxイメージを作ります。
+ CheerpXの一般TCP/IP通信はTailscale経由です。外部Webへ出るにはExit Nodeが必要です。
 </footer>
 </div>
 
@@ -159,7 +174,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=08");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=09");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -176,19 +191,16 @@ footer{
 import * as CheerpX from "https://cxrtnc.leaningtech.com/1.3.5/cx.esm.js";
 
 const $=id=>document.getElementById(id);
-let cx=null;
-let booting=false;
+let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
 let initPromise=null;
-let detectedBrowser=null;
 
 const candidates=[
- {name:"Chromium",path:"/usr/bin/chromium-browser"},
- {name:"Chromium",path:"/usr/bin/chromium"},
- {name:"Firefox",path:"/usr/bin/firefox"},
- {name:"NetSurf",path:"/usr/bin/netsurf-gtk3"},
- {name:"NetSurf",path:"/usr/bin/netsurf"},
- {name:"Dillo",path:"/usr/bin/dillo"},
- {name:"Links",path:"/usr/bin/links"}
+ {name:"NetSurf",path:"/usr/bin/netsurf-gtk3",pkg:"netsurf"},
+ {name:"NetSurf",path:"/usr/bin/netsurf",pkg:"netsurf"},
+ {name:"Dillo",path:"/usr/bin/dillo",pkg:"dillo"},
+ {name:"Chromium",path:"/usr/bin/chromium-browser",pkg:"chromium"},
+ {name:"Chromium",path:"/usr/bin/chromium",pkg:"chromium"},
+ {name:"Firefox",path:"/usr/bin/firefox",pkg:"firefox"}
 ];
 
 function status(msg,state=""){
@@ -200,177 +212,207 @@ function log(msg){
  $("log").scrollTop=$("log").scrollHeight;
 }
 function state(msg){$("browserState").textContent=msg}
-function appEnv(){
- return [
-  "HOME=/home/user","USER=user","LOGNAME=user","SHELL=/bin/bash",
-  "DISPLAY=:0","XDG_RUNTIME_DIR=/tmp/runtime-user","LANG=C.UTF-8"
- ];
+function markStep(id,kind){
+ $(id).className="step"+(kind?" "+kind:"");
 }
+function appEnv(){
+ return ["HOME=/home/user","USER=user","LOGNAME=user","SHELL=/bin/sh","DISPLAY=:0","XDG_RUNTIME_DIR=/tmp/runtime-user","LANG=C.UTF-8"];
+}
+function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/sh","DISPLAY=:0","LANG=C.UTF-8"]}
+
 function sizeCanvas(){
- const canvas=$("display");
- const rect=$("screenWrap").getBoundingClientRect();
+ const canvas=$("display"),rect=$("screenWrap").getBoundingClientRect();
  const dpr=Math.min(window.devicePixelRatio||1,1.5);
- const w=Math.max(640,Math.floor(rect.width*dpr));
- const h=Math.max(480,Math.floor(rect.height*dpr));
- canvas.width=w;canvas.height=h;
- canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
+ const w=Math.max(640,Math.floor(rect.width*dpr)),h=Math.max(480,Math.floor(rect.height*dpr));
+ canvas.width=w;canvas.height=h;canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
  if(cx)cx.setKmsCanvas(canvas,w,h);
 }
-window.addEventListener("resize",()=>setTimeout(sizeCanvas,140));
+window.addEventListener("resize",()=>setTimeout(sizeCanvas,130));
 
-async function runApp(path,args=[]){
- if(!cx)return;
+async function run(path,args=[],root=false,wait=false){
+ if(!cx)throw new Error("Linux not ready");
  log("$ "+path+" "+args.join(" "));
- try{
-  const promise=cx.run(path,args,{
-   env:appEnv(),cwd:"/home/user",uid:1000,gid:1000
-  });
-  promise.catch(error=>log("APP ERROR: "+(error?.message||String(error))));
-  return promise;
- }catch(error){
-  log("APP ERROR: "+(error?.message||String(error)));
-  throw error;
- }
+ const p=cx.run(path,args,{env:root?rootEnv():appEnv(),cwd:root?"/root":"/home/user",uid:root?0:1000,gid:root?0:1000});
+ if(wait)return await p;
+ p.catch(e=>log("APP ERROR: "+(e?.message||String(e))));
+ return p;
 }
-
-async function pathExists(path){
- try{
-  const code=await cx.run("/bin/sh",["-lc","test -x "+path],{
-   env:appEnv(),cwd:"/home/user",uid:1000,gid:1000
-  });
-  return code===0;
- }catch(_){return false}
+async function shell(command,root=false){
+ return await run("/bin/sh",["-lc",command],root,true);
+}
+async function exists(path){
+ try{return (await shell("test -x "+path,false))===0}catch(_){return false}
 }
 
 async function detectBrowser(){
- if(!cx)return;
  $("detectBtn").disabled=true;
- status("ブラウザー検出中…","busy");
- state("インストール済みブラウザーを検査しています…");
- detectedBrowser=null;
-
- for(const candidate of candidates){
-  log("checking "+candidate.path);
-  if(await pathExists(candidate.path)){
-   detectedBrowser=candidate;
-   break;
-  }
+ status("Browser検出中…","busy");state("ブラウザーを探しています…");detectedBrowser=null;
+ for(const c of candidates){
+  log("checking "+c.path);
+  if(await exists(c.path)){detectedBrowser=c;break}
  }
  if(detectedBrowser){
-  state("検出成功："+detectedBrowser.name+"  "+detectedBrowser.path);
-  status(detectedBrowser.name+" 検出","ok");
-  $("launchBtn").disabled=false;
-  $("goBtn").disabled=false;
+  state("検出成功："+detectedBrowser.name+" / "+detectedBrowser.path);
+  status(detectedBrowser.name+" Ready","ok");
+  $("launchBtn").disabled=false;$("goBtn").disabled=false;
+  markStep("stepInstall","done");markStep("stepLaunch","active");
  }else{
-  state("ブラウザー本体は見つかりませんでした。公式Alpine GUIイメージにはXorg・i3・xterm・Files等はありますが、Chromium/Firefox等は未収録です。次段階ではブラウザー入りカスタムイメージが必要です。");
+  state("ブラウザーは未導入です。Network接続後に「NetSurf導入」を押してください。");
   status("Browser未導入","error");
-  $("launchBtn").disabled=true;
-  $("goBtn").disabled=true;
+  $("launchBtn").disabled=true;$("goBtn").disabled=true;
  }
  $("detectBtn").disabled=false;
 }
 
 async function launchBrowser(){
- if(!detectedBrowser){
-  await detectBrowser();
-  if(!detectedBrowser)return;
- }
+ if(!detectedBrowser){await detectBrowser();if(!detectedBrowser)return}
  const url=$("urlInput").value.trim()||"about:blank";
+ const args=detectedBrowser.name==="Chromium"?["--no-sandbox","--disable-gpu",url]:[url];
  status(detectedBrowser.name+" 起動中…","busy");
  state(detectedBrowser.name+"で "+url+" を開いています。");
- const args=[];
- if(detectedBrowser.name==="Chromium")args.push("--no-sandbox","--disable-gpu",url);
- else args.push(url);
- runApp(detectedBrowser.path,args);
- setTimeout(()=>status("Browser起動要求済み","ok"),1000);
+ run(detectedBrowser.path,args,false,false);
+ markStep("stepLaunch","done");
+ setTimeout(()=>status("Browser起動済み","ok"),1200);
+}
+
+async function connectNetwork(){
+ if(!cx)return;
+ status("Tailscaleログイン準備…","busy");
+ state("Tailscale認証URLを生成しています…");
+ try{
+  await cx.networkLogin();
+  if(loginUrl){
+   $("loginLink").href=loginUrl;
+   $("loginBox").classList.remove("hidden");
+   status("Tailscale認証待ち","busy");
+  }
+ }catch(e){
+  log("NETWORK LOGIN ERROR: "+(e?.message||String(e)));
+  state("Tailscaleログイン開始に失敗しました。");
+  status("Network error","error");
+ }
+}
+
+async function testNetwork(){
+ status("通信テスト中…","busy");state("Alpineリポジトリへ接続確認中…");
+ try{
+  const code=await shell("wget -q --spider https://dl-cdn.alpinelinux.org/alpine/ || busybox wget -q -O /dev/null https://dl-cdn.alpinelinux.org/alpine/",true);
+  if(code===0){
+   status("Internet Ready","ok");state("外部インターネットへ接続できました。ブラウザーをインストールできます。");
+   $("installBtn").disabled=false;
+   markStep("stepNet","done");markStep("stepInstall","active");
+  }else throw new Error("network test exit "+code);
+ }catch(e){
+  log("NETWORK TEST ERROR: "+(e?.message||String(e)));
+  status("Internet未接続","error");
+  state("外部インターネットへ接続できません。TailnetのExit Node設定を確認してください。");
+ }
+}
+
+async function installBrowser(){
+ $("installBtn").disabled=true;
+ status("NetSurf導入中…","busy");
+ state("apk update と apk add netsurf を実行しています。数分かかる場合があります。");
+ try{
+  let code=await shell("apk update",true);
+  if(code!==0)throw new Error("apk update exit "+code);
+  code=await shell("apk add netsurf",true);
+  if(code!==0){
+   log("netsurf package failed; trying dillo");
+   code=await shell("apk add dillo",true);
+  }
+  if(code!==0)throw new Error("browser install exit "+code);
+  status("Install complete","ok");
+  state("ブラウザーをインストールしました。検出を実行します。");
+  await detectBrowser();
+ }catch(e){
+  log("INSTALL ERROR: "+(e?.message||String(e)));
+  status("Install failed","error");
+  state("ブラウザーのインストールに失敗しました。ネット接続またはAlpineリポジトリを確認してください。");
+  $("installBtn").disabled=false;
+ }
 }
 
 async function boot(){
  if(booting||cx)return;
- booting=true;
- $("bootBtn").disabled=true;
- $("bigBootBtn").disabled=true;
- $("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");
- log("salp Browser Lab BIOS");
- log("CheerpX 1.3.5 / Alpine / Xorg / i3");
-
+ booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
+ status("Alpine接続中…","busy");log("salp Browser Setup BIOS");log("CheerpX 1.3.5 / Alpine GUI / Tailscale");
  try{
-  const cloud=await CheerpX.CloudDevice.create(
-   "wss://disks.webvm.io/alpine_20251007.ext2"
-  );
+  const cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
   log("[1/4] Alpine image connected");
-
   const idb=await CheerpX.IDBDevice.create("salp-gui-linux-main-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   log("[2/4] Persistent overlay ready");
 
   cx=await CheerpX.Linux.create({
-   mounts:[
-    {type:"ext2",path:"/",dev:overlay},
-    {type:"devs",path:"/dev"}
-   ]
+   mounts:[{type:"ext2",path:"/",dev:overlay},{type:"devs",path:"/dev"}],
+   networkInterface:{
+    loginUrlCb:(url)=>{
+     loginUrl=url;
+     $("loginLink").href=url;
+     $("loginBox").classList.remove("hidden");
+     log("Tailscale login URL ready");
+    },
+    stateUpdateCb:(s)=>{
+     networkState=String(s);
+     log("Network state: "+networkState);
+     if(/running|connected/i.test(networkState)){
+      status("Tailscale Connected","ok");
+      $("testNetBtn").disabled=false;
+      $("loginBox").classList.add("hidden");
+      markStep("stepNet","done");markStep("stepInstall","active");
+     }
+    },
+    netmapUpdateCb:(map)=>log("Network map updated")
+   }
   });
-  log("[3/4] Linux created");
+  log("[3/4] Linux + network interface created");
   sizeCanvas();
 
-  cx.setCustomConsole((buf)=>{
+  cx.setCustomConsole(buf=>{
    try{
-    const text=new TextDecoder().decode(new Uint8Array(buf));
-    const clean=text.replace(/\\x1b\\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
+    const t=new TextDecoder().decode(new Uint8Array(buf));
+    const clean=t.replace(/\\x1b\\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
     if(clean)log(clean);
    }catch(_){}
   },80,24);
 
-  status("Xorg/i3起動中…","busy");
-  state("GUI Linuxを起動しています。黒画面のまま少し待つ場合があります。");
-  log("[4/4] Starting /sbin/init");
-
+  status("Xorg/i3起動中…","busy");state("GUI Linuxを起動しています…");log("[4/4] Starting /sbin/init");
   initPromise=cx.run("/sbin/init",[],{uid:0,gid:0});
-  initPromise.catch(error=>{
-   log("INIT ERROR: "+(error?.message||String(error)));
-   status("GUI起動エラー","error");
-  });
+  initPromise.catch(e=>{log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
 
-  ["detectBtn","xtermBtn","filesBtn","appsBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
-  setTimeout(()=>{
-   status("GUI Linux Ready","ok");
-   state("GUIが表示されたらBrowser検出を押してください。");
-  },6000);
-
- }catch(error){
-  console.error(error);
-  log("BOOT ERROR: "+(error?.message||String(error)));
-  status("起動エラー","error");
-  state("GUI Linuxの起動に失敗しました。ログを確認してください。");
-  $("bootBtn").disabled=false;
-  $("bigBootBtn").disabled=false;
-  cx=null;
- }finally{
-  booting=false;
- }
+  ["networkBtn","detectBtn","xtermBtn","filesBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
+  markStep("stepBoot","done");markStep("stepNet","active");
+  setTimeout(()=>{status("GUI Linux Ready","ok");state("次にTailscale接続を行ってください。");},5500);
+ }catch(e){
+  console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");state("GUI Linuxを起動できませんでした。");
+  $("bootBtn").disabled=false;$("bigBootBtn").disabled=false;cx=null;
+ }finally{booting=false}
 }
 
 $("bootBtn").addEventListener("click",boot);
 $("bigBootBtn").addEventListener("click",boot);
+$("networkBtn").addEventListener("click",connectNetwork);
+$("loginDoneBtn").addEventListener("click",async()=>{
+ $("loginBox").classList.add("hidden");
+ $("testNetBtn").disabled=false;
+ await testNetwork();
+});
+$("cancelLoginBtn").addEventListener("click",()=>$("loginBox").classList.add("hidden"));
+$("testNetBtn").addEventListener("click",testNetwork);
+$("installBtn").addEventListener("click",installBrowser);
 $("detectBtn").addEventListener("click",detectBrowser);
 $("launchBtn").addEventListener("click",launchBrowser);
 $("goBtn").addEventListener("click",launchBrowser);
-$("urlInput").addEventListener("keydown",e=>{
- if(e.key==="Enter"&&!$("goBtn").disabled)launchBrowser();
-});
+$("urlInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("goBtn").disabled)launchBrowser()});
 $("homeUrlBtn").addEventListener("click",()=>{$("urlInput").value="https://example.com"});
-$("xtermBtn").addEventListener("click",()=>runApp("/usr/bin/xterm"));
+$("xtermBtn").addEventListener("click",()=>run("/usr/bin/xterm"));
 $("filesBtn").addEventListener("click",async()=>{
- if(await pathExists("/usr/bin/thunar"))runApp("/usr/bin/thunar");
- else if(await pathExists("/usr/bin/pcmanfm"))runApp("/usr/bin/pcmanfm");
+ if(await exists("/usr/bin/thunar"))run("/usr/bin/thunar");
+ else if(await exists("/usr/bin/pcmanfm"))run("/usr/bin/pcmanfm");
  else state("ファイルマネージャーが見つかりません。");
 });
-$("appsBtn").addEventListener("click",()=>runApp("/usr/bin/rofi",["-show","drun"]));
-$("keyboardBtn").addEventListener("click",()=>{
- $("display").focus({preventScroll:true});
- $("display").click();
-});
+$("keyboardBtn").addEventListener("click",()=>{$("display").focus({preventScroll:true});$("display").click()});
 $("fullBtn").addEventListener("click",async()=>{
  try{
   if(!document.fullscreenElement)await $("screenWrap").requestFullscreen();
@@ -378,10 +420,8 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=08");
-$("hideLogBtn").addEventListener("click",()=>{
- $("panel").classList.toggle("hidden");
-});
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=09");
+$("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
 </body>
