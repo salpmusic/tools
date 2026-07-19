@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110b">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>salp Linux v0.1</title>
+<style>
+:root{--bg:#050907;--panel:#0b130e;--line:#213729;--text:#e8f5eb;--muted:#8fa999;--green:#75f39c;--cyan:#68dce9;--red:#ff7b88}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:hidden}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr auto}
+header{display:flex;align-items:center;gap:11px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:1px solid var(--line);background:#08100b}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;color:#07110b;background:linear-gradient(135deg,var(--green),var(--cyan));font-size:24px}
+.title{flex:1;min-width:0}.title strong{display:block;font-size:16px}.title small{display:block;color:var(--muted);font-size:10px}
+.badge{padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--green);font:800 10px ui-monospace,monospace}
+.toolbar{display:flex;gap:7px;padding:8px 10px;border-bottom:1px solid var(--line);background:#09110c;overflow-x:auto}
+button{min-height:39px;border:1px solid var(--line);border-radius:10px;padding:8px 13px;background:#132019;color:var(--text);font-weight:800;white-space:nowrap}
+button.primary{border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061009}
+button:disabled{opacity:.45}
+.status{display:flex;align-items:center;gap:8px;margin-left:auto;padding:0 8px;color:var(--muted);font-size:11px;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#667}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}.dot.busy{background:#ffd66b}
+.terminalWrap{position:relative;min-height:0;background:#020403}
+#console{width:100%;height:100%;margin:0;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));overflow:auto;white-space:pre-wrap;word-break:break-word;color:#a8ffc0;background:#020403;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;outline:none}
+.bootScreen{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(117,243,156,.12),transparent 35%),#020403}
+.bootCard{max-width:620px}.bootCard h1{margin:0;font-size:clamp(30px,8vw,54px)}.bootCard p{color:var(--muted)}
+.steps{margin:20px auto;text-align:left;max-width:420px;padding:15px 18px;border:1px solid var(--line);border-radius:15px;background:#0a110d;font:12px/1.7 ui-monospace,monospace}
+.warning{padding:8px 11px;border-top:1px solid var(--line);color:var(--muted);background:#08100b;font-size:10px;text-align:center}
+.hidden{display:none!important}
+@media(max-width:620px){.badge{display:none}.toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}#console{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">🐧</div>
+  <div class="title"><strong>salp Linux</strong><small>Debian on CheerpX / Browser Virtual Linux</small></div>
+  <div class="badge">v0.1 EXPERIMENTAL</div>
+</header>
+<div class="toolbar">
+  <button id="bootBtn" class="primary">▶ Linuxを起動</button>
+  <button id="focusBtn" disabled>⌨️ 入力を有効化</button>
+  <button id="clearBtn">画面クリア</button>
+  <button id="reloadBtn">再起動</button>
+  <div class="status"><span id="dot" class="dot"></span><span id="statusText">起動待ち</span></div>
+</div>
+<main class="terminalWrap">
+  <pre id="console" tabindex="0" aria-label="Linux terminal"></pre>
+  <section id="bootScreen" class="bootScreen">
+    <div class="bootCard">
+      <h1>salp Linux v0.1</h1>
+      <p>スマホブラウザの中で、本物のDebian環境を起動します。</p>
+      <div class="steps">
+        1. 「Linuxを起動」を押す<br>
+        2. 初回はディスク情報を読み込むため待つ<br>
+        3. プロンプトが出たら <b>uname -a</b><br>
+        4. 次に <b>ls</b> や <b>python3</b> を試す
+      </div>
+      <button id="bigBootBtn" class="primary">🐧 BOOT SALP LINUX</button>
+      <p id="supportText"></p>
+    </div>
+  </section>
+</main>
+<footer class="warning">実験版：初回起動は通信環境や端末性能により時間がかかります。作成した変更は端末内のIndexedDBへ保存されます。</footer>
+</div>
+
+<script>
+(async()=>{
+  if(!crossOriginIsolated && "serviceWorker" in navigator){
+    try{
+      const registration=await navigator.serviceWorker.register("./coi-serviceworker.js");
+      if(!navigator.serviceWorker.controller){
+        await new Promise(resolve=>{
+          navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
+          registration.update();
+        });
+        location.reload();
+      }
+    }catch(error){
+      console.warn("COI service worker:",error);
+    }
+  }
+})();
+</script>
+
+<script type="module">
+import * as CheerpX from "https://cxrtnc.leaningtech.com/1.2.8/cx.esm.js";
+
+const $=id=>document.getElementById(id);
+let cx=null;
+let booting=false;
+
+function status(message,state=""){
+  $("statusText").textContent=message;
+  $("dot").className="dot"+(state?" "+state:"");
+}
+function print(message){
+  $("console").textContent+=message+"\n";
+  $("console").scrollTop=$("console").scrollHeight;
+}
+function supportMessage(){
+  const items=[];
+  items.push(crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation準備中");
+  items.push(typeof SharedArrayBuffer!=="undefined"?"✓ SharedArrayBuffer":"✗ SharedArrayBuffer");
+  items.push("WebAssembly" in window?"✓ WebAssembly":"✗ WebAssembly");
+  $("supportText").textContent=items.join("  ");
+}
+supportMessage();
+
+async function boot(){
+  if(booting||cx)return;
+  booting=true;
+  $("bootBtn").disabled=true;
+  $("bigBootBtn").disabled=true;
+  $("bootScreen").classList.add("hidden");
+  status("CheerpXを準備中…","busy");
+  print("salp Virtual PC BIOS");
+  print("CheerpX 1.2.8 / Debian");
+  print("--------------------------------");
+
+  if(!crossOriginIsolated || typeof SharedArrayBuffer==="undefined"){
+    print("");
+    print("ERROR: SharedArrayBufferが利用できません。");
+    print("ページを一度再読み込みしてください。");
+    status("再読み込みが必要","error");
+    booting=false;
+    return;
+  }
+
+  try{
+    status("Debianディスクへ接続中…","busy");
+    print("[1/5] Connecting virtual disk...");
+    const cloudDevice=await CheerpX.CloudDevice.create("wss://disks.webvm.io/debian_large_20230522_5044875331.ext2");
+
+    print("[2/5] Opening persistent storage...");
+    const idbDevice=await CheerpX.IDBDevice.create("salp-linux-v01-disk");
+
+    print("[3/5] Creating writable overlay...");
+    const overlayDevice=await CheerpX.OverlayDevice.create(cloudDevice,idbDevice);
+
+    print("[4/5] Mounting virtual filesystem...");
+    const webDevice=await CheerpX.WebDevice.create("");
+    const dataDevice=await CheerpX.DataDevice.create();
+
+    cx=await CheerpX.Linux.create({
+      mounts:[
+        {type:"ext2",path:"/",dev:overlayDevice},
+        {type:"dir",path:"/app",dev:webDevice},
+        {type:"dir",path:"/data",dev:dataDevice},
+        {type:"devs",path:"/dev"}
+      ]
+    });
+
+    cx.setConsole($("console"));
+    $("focusBtn").disabled=false;
+    $("console").focus();
+
+    print("[5/5] Starting bash...");
+    status("Linux起動中…","busy");
+
+    await cx.run("/bin/bash",["--login"],{
+      env:[
+        "HOME=/home/user",
+        "USER=user",
+        "LOGNAME=user",
+        "SHELL=/bin/bash",
+        "TERM=xterm",
+        "EDITOR=vim",
+        "LANG=en_US.UTF-8",
+        "LC_ALL=C",
+        "PS1=salp-linux:\\w$ "
+      ],
+      cwd:"/home/user",
+      uid:1000,
+      gid:1000
+    });
+
+    status("Linux終了","ok");
+  }catch(error){
+    console.error(error);
+    print("");
+    print("BOOT ERROR: "+(error?.message||String(error)));
+    print("通信状態を確認して再起動してください。");
+    status("起動エラー","error");
+    cx=null;
+    $("bootBtn").disabled=false;
+    $("bigBootBtn").disabled=false;
+  }finally{
+    booting=false;
+  }
+}
+
+$("bootBtn").addEventListener("click",boot);
+$("bigBootBtn").addEventListener("click",boot);
+$("focusBtn").addEventListener("click",()=>$("console").focus());
+$("clearBtn").addEventListener("click",()=>{$("console").textContent=""});
+$("reloadBtn").addEventListener("click",()=>location.reload());
+$("console").addEventListener("click",()=>$("console").focus());
+
+window.addEventListener("error",event=>{
+  status("JavaScriptエラー","error");
+  print("ERROR: "+event.message);
+});
+</script>
+</body>
+</html>
