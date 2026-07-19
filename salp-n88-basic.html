@@ -40,6 +40,17 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .touchMarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--pink);border-radius:50%;background:#ff8fbd44;display:none;pointer-events:none}
 .touchHint{color:var(--cyan)}
 .keyHidden,[hidden]{display:none!important}
+/* iPhone/Safari向け強制キーパッド表示制御 */
+#keypadBody[data-mode="zx"] #dpad,
+#keypadBody[data-mode="zx"] .spacekey,
+#keypadBody[data-mode="zx"] [data-key-role="action-enter"]{display:none!important}
+#keypadBody[data-mode="cursor"] #actionKeys{display:none!important}
+#keypadBody[data-mode="cursorEnter"] #actionKeys{display:none!important}
+#keypadBody[data-mode="game"] .spacekey,
+#keypadBody[data-mode="game"] [data-key-role="action-enter"],
+#keypadBody[data-mode="game"] [data-key-role="dpad-enter"]{display:none!important}
+#keypadBody[data-mode="full"] [data-key-role="dpad-enter"]{display:none!important}
+
 .gameKeys.onlyActions #dpad{display:none}
 .gameKeys.onlyDpad #actionKeys{display:none}
 .actionKeys.singleRow{grid-template-columns:repeat(2,minmax(92px,130px))}
@@ -206,7 +217,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.8 GAME & SOUND</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.8.2 CONTROL FIX</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -855,103 +866,75 @@ $("gameBtn").onclick=()=>{
   $("keypadBody").classList.remove("keyHidden");
   $("keypadBody").hidden=false;
   $("keyToggle").textContent="キーパッドを隠す";
-  applyKeyMode();saveControllerSettings();
-  editor.value=`10 ' SALP STAR CATCH v0.8
+  applyKeyMode();
+  saveControllerSettings();
+
+  editor.value=`10 ' SALP CATCH GAME v0.8.2
 20 CLS
 30 RANDOMIZE
-40 X=320
-50 Y=330
-60 C=6
+40 PX=320:PY=340
+50 TX=80+INT(RND(1)*480)
+60 TY=80+INT(RND(1)*220)
 70 SCORE=0
-80 LIFE=3
-90 T=1800
-100 TX=60+INT(RND(1)*520)
-110 TY=80+INT(RND(1)*220)
-120 EX=60+INT(RND(1)*520)
-130 EY=80+INT(RND(1)*220)
-140 K$=INKEY$
-150 S=STICK(0)
-160 IF S=1 THEN Y=Y-6
-170 IF S=2 THEN X=X+4
-180 IF S=2 THEN Y=Y-4
-190 IF S=3 THEN X=X+6
-200 IF S=4 THEN X=X+4
-210 IF S=4 THEN Y=Y+4
-220 IF S=5 THEN Y=Y+6
-230 IF S=6 THEN X=X-4
-240 IF S=6 THEN Y=Y+4
-250 IF S=7 THEN X=X-6
-260 IF S=8 THEN X=X-4
-270 IF S=8 THEN Y=Y-4
-280 IF X<14 THEN X=14
-290 IF X>626 THEN X=626
-300 IF Y<70 THEN Y=70
-310 IF Y>386 THEN Y=386
-320 IF K$="X" THEN GOSUB 800
-330 IF K$="Z" THEN GOSUB 850
-340 IF MOUSEB(0)=0 THEN 370
-350 X=MOUSEX(0)
-360 Y=MOUSEY(0)
-370 IF ABS(X-TX)<25 THEN GOSUB 900
-380 EX=EX+SGN(X-EX)*2
-390 EY=EY+SGN(Y-EY)*2
-400 IF ABS(X-EX)<18 THEN GOSUB 950
-410 T=T-1
-420 CLS
-430 COLOR 7,0
-440 LOCATE 1,1
-450 PRINT "SALP STAR CATCH  SCORE:";SCORE;" LIFE:";LIFE
-460 LOCATE 1,2
-470 PRINT "PAD:MOVE  Z:BLAST  X:COLOR  TIME:";INT(T/60)
-480 COLOR 6
-490 CIRCLE (TX,TY),12,6
-500 CIRCLE (TX,TY),4,6
-510 COLOR 2
-520 CIRCLE (EX,EY),11,2
-530 LINE (EX-8,EY-8)-(EX+8,EY+8),2
-540 LINE (EX+8,EY-8)-(EX-8,EY+8),2
-550 COLOR C
-560 CIRCLE (X,Y),14,C
-570 LINE (X-10,Y)-(X+10,Y),C
-580 LINE (X,Y-10)-(X,Y+10),C
-590 IF LIFE<=0 THEN 1000
-600 IF T<=0 THEN 1000
-610 SLEEP 16
-620 GOTO 140
-800 C=C+1
-810 IF C>7 THEN C=2
-820 BEEP
-830 RETURN
-850 CIRCLE (X,Y),45,3
-860 IF ABS(X-EX)<90 THEN GOSUB 980
-870 RETURN
-900 SCORE=SCORE+10
-910 BEEP
-920 TX=60+INT(RND(1)*520)
-930 TY=80+INT(RND(1)*220)
-940 RETURN
-950 IF ABS(Y-EY)>=18 THEN RETURN
-960 LIFE=LIFE-1
-970 BEEP
-975 EX=60+INT(RND(1)*520)
-976 EY=80+INT(RND(1)*220)
-977 RETURN
-980 IF ABS(Y-EY)>=90 THEN RETURN
-985 SCORE=SCORE+25
-986 SOUND 880,3
-987 EX=60+INT(RND(1)*520)
-988 EY=80+INT(RND(1)*220)
-989 RETURN
-1000 CLS
-1010 COLOR 7
-1020 LOCATE 27,10
-1030 PRINT "GAME OVER"
-1040 LOCATE 24,12
-1050 PRINT "FINAL SCORE:";SCORE
-1060 PLAY "T140O4L8CGE>C"
-1070 END`;
-  editor.dispatchEvent(new Event("input",{bubbles:true}));
-  $("keyLog").textContent="GAME READY：方向キーで移動 / Zで攻撃 / Xで色変更";
+80 TIME=1200
+90 C=6
+100 CLS
+110 COLOR 7
+120 LOCATE 1,1
+130 PRINT "SALP CATCH  SCORE";SCORE;" TIME";INT(TIME/60)
+140 COLOR 3
+150 CIRCLE (TX,TY),10,3
+160 PAINT (TX,TY),3
+170 COLOR C
+180 LINE (PX-12,PY-8)-(PX+12,PY+8),C,BF
+190 K$=INKEY$
+200 S=STICK(0)
+210 IF S=1 THEN PY=PY-6
+220 IF S=2 THEN PX=PX+5
+230 IF S=2 THEN PY=PY-5
+240 IF S=3 THEN PX=PX+6
+250 IF S=4 THEN PX=PX+5
+260 IF S=4 THEN PY=PY+5
+270 IF S=5 THEN PY=PY+6
+280 IF S=6 THEN PX=PX-5
+290 IF S=6 THEN PY=PY+5
+300 IF S=7 THEN PX=PX-6
+310 IF S=8 THEN PX=PX-5
+320 IF S=8 THEN PY=PY-5
+330 IF K$="Z" THEN GOSUB 600
+340 IF K$="X" THEN GOSUB 700
+350 IF PX<15 THEN PX=15
+360 IF PX>625 THEN PX=625
+370 IF PY<55 THEN PY=55
+380 IF PY>385 THEN PY=385
+390 DX=PX-TX
+400 DY=PY-TY
+410 D=DX*DX+DY*DY
+420 IF D<625 THEN GOSUB 500
+430 TIME=TIME-1
+440 IF TIME<=0 THEN GOTO 800
+450 GOTO 100
+500 SCORE=SCORE+10
+510 BEEP
+520 TX=80+INT(RND(1)*480)
+530 TY=80+INT(RND(1)*220)
+540 RETURN
+600 COLOR 7
+610 CIRCLE (PX,PY),25,7
+620 BEEP 1
+630 RETURN
+700 C=C+1
+710 IF C>7 THEN C=1
+720 RETURN
+800 CLS
+810 COLOR 7
+820 LOCATE 24,10
+830 PRINT "TIME UP!"
+840 LOCATE 22,12
+850 PRINT "SCORE";SCORE
+860 PLAY "CDEG"
+870 END`;
+  toast?.("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
 };
 $("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.8
 20 NEW CMD
@@ -1117,7 +1100,7 @@ document.querySelectorAll("[data-vkey]").forEach(button=>{
   button.addEventListener("contextmenu",e=>e.preventDefault());
 });
 
-const CONTROLLER_KEY="salpN88Controller_v08";
+const CONTROLLER_KEY="salpN88Controller_v082";
 function updateControllerBadge(){const e=$("keyStateBadge");if(e)e.textContent=heldKeys.size?[...heldKeys].join(" + "):"NO KEY"}
 function releaseAllKeys(){heldKeys.clear();document.querySelectorAll("[data-vkey].pressed").forEach(b=>b.classList.remove("pressed"));updateControllerBadge()}
 function saveControllerSettings(){const custom=[...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value);localStorage.setItem(CONTROLLER_KEY,JSON.stringify({mode:$("keyMode").value,custom,hidden:$("keypadBody").classList.contains("keyHidden")}))}
@@ -1157,18 +1140,45 @@ function setKeyVisibility(names,enterPlacement="auto"){
 }
 function applyKeyMode(){
   const v=$("keyMode").value;
+  const body=$("keypadBody");
+  body.dataset.mode=v;
   $("keyCustom").style.display=v==="custom"?"block":"none";
 
-  if(v==="game")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X"]);
-  else if(v==="full")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"],"action");
-  else if(v==="cursorEnter")setKeyVisibility(["UP","DOWN","LEFT","RIGHT","ENTER"],"dpad");
-  else if(v==="cursor")setKeyVisibility(["UP","DOWN","LEFT","RIGHT"]);
-  else if(v==="zx")setKeyVisibility(["Z","X"]);
-  else{
+  const dpad=$("dpad");
+  const action=$("actionKeys");
+  const buttons=[...document.querySelectorAll("[data-vkey]")];
+
+  // 一度すべて初期化
+  dpad.style.display="";
+  action.style.display="";
+  buttons.forEach(button=>{
+    button.style.display="";
+    button.hidden=false;
+    button.classList.remove("keyHidden","pressed");
+  });
+
+  if(v==="game"){
+    setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X"]);
+  }else if(v==="full"){
+    setKeyVisibility(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"],"action");
+  }else if(v==="cursorEnter"){
+    setKeyVisibility(["UP","DOWN","LEFT","RIGHT","ENTER"],"dpad");
+    action.style.display="none";
+  }else if(v==="cursor"){
+    setKeyVisibility(["UP","DOWN","LEFT","RIGHT"]);
+    action.style.display="none";
+  }else if(v==="zx"){
+    // Safariでも絶対に方向キーを残さない
+    dpad.style.setProperty("display","none","important");
+    setKeyVisibility(["Z","X"]);
+    action.style.display="grid";
+  }else{
     const selected=[...$("keyCustom").querySelectorAll("input:checked")].map(x=>x.value);
     const hasArrow=["UP","DOWN","LEFT","RIGHT"].some(name=>selected.includes(name));
     setKeyVisibility(selected,hasArrow?"dpad":"action");
   }
+
+  $("keyLog").textContent="MODE: "+v.toUpperCase()+" / INKEY$: 待機中";
 }
 $("keyMode").onchange=()=>{releaseAllKeys();applyKeyMode();saveControllerSettings()};
 $("keyCustom").onchange=()=>{releaseAllKeys();applyKeyMode();saveControllerSettings()};
