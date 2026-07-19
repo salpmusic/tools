@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser Setup v0.9</title>
+<title>salp Browser OS v1.0</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -97,7 +97,7 @@ footer{
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title"><strong>salp Browser Setup</strong><small>GUI Linux + Tailscale + apk browser installer</small></div>
+ <div class="title"><strong>salp Browser OS</strong><small>Custom Alpine GUI + Built-in PC Browser</small></div>
 </header>
 
 <div class="setupBar">
@@ -144,17 +144,17 @@ footer{
 
  <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Browser Setup v0.9</h1>
-   <p>GUI Linuxへ軽量PCブラウザーをインストールして起動します。</p>
+   <h1>salp Browser OS v1.0</h1>
+   <p>ブラウザーを内蔵したsalp Linuxカスタムイメージを起動します。</p>
    <div class="info">
     1. Alpine GUI Linuxを起動<br>
     2. Tailscaleへログイン<br>
     3. Exit Node経由でネット接続<br>
-    4. apk add netsurf を実行<br>
-    5. NetSurfでPCサイトを開く
+    4. 内蔵ブラウザーを検出<br>
+    5. PCサイトを開く
    </div>
    <button id="bigBootBtn" class="primary">🖥️ START BROWSER SETUP</button>
-   <p>ネット接続にはTailscaleアカウントとExit Nodeが必要です。</p>
+   <p>ブラウザー本体は内蔵。外部Web接続にはTailscale Exit Nodeが必要です。</p>
   </div>
  </section>
 
@@ -166,7 +166,7 @@ footer{
 </main>
 
 <footer>
- CheerpXの一般TCP/IP通信はTailscale経由です。外部Webへ出るにはExit Nodeが必要です。
+ salp Linux v1.0：ブラウザー本体はカスタムext2に内蔵。外部Web通信はTailscale Exit Node経由です。
 </footer>
 </div>
 
@@ -174,7 +174,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=09");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=10");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -195,6 +195,7 @@ let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
 let initPromise=null;
 
 const candidates=[
+ {name:"salp Browser",path:"/usr/local/bin/salp-browser",pkg:"included"},
  {name:"NetSurf",path:"/usr/bin/netsurf-gtk3",pkg:"netsurf"},
  {name:"NetSurf",path:"/usr/bin/netsurf",pkg:"netsurf"},
  {name:"Dillo",path:"/usr/bin/dillo",pkg:"dillo"},
@@ -336,11 +337,22 @@ async function installBrowser(){
 async function boot(){
  if(booting||cx)return;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");log("salp Browser Setup BIOS");log("CheerpX 1.3.5 / Alpine GUI / Tailscale");
+ status("Alpine接続中…","busy");log("salp Browser OS BIOS");log("CheerpX 1.3.5 / Alpine GUI / Tailscale");
  try{
-  const cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
-  log("[1/4] Alpine image connected");
-  const idb=await CheerpX.IDBDevice.create("salp-gui-linux-main-disk");
+  let cloud;
+  try{
+   const probe=await fetch("./salp-browser.ext2",{method:"HEAD",cache:"no-store"});
+   if(!probe.ok)throw new Error("local image not found");
+   cloud=await CheerpX.HttpBytesDevice.create("./salp-browser.ext2?v=10");
+   log("[1/4] salp-browser.ext2 connected");
+   state("salp Linux v1.0 カスタムイメージを読み込んでいます。");
+  }catch(localError){
+   log("Local image unavailable: "+localError.message);
+   cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
+   log("[1/4] Official Alpine fallback connected");
+   state("カスタムイメージがないため公式Alpineへフォールバックしました。");
+  }
+  const idb=await CheerpX.IDBDevice.create("salp-linux-v1-browser-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   log("[2/4] Persistent overlay ready");
 
@@ -383,7 +395,12 @@ async function boot(){
 
   ["networkBtn","detectBtn","xtermBtn","filesBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
   markStep("stepBoot","done");markStep("stepNet","active");
-  setTimeout(()=>{status("GUI Linux Ready","ok");state("次にTailscale接続を行ってください。");},5500);
+  setTimeout(async()=>{
+   status("GUI Linux Ready","ok");
+   state("内蔵ブラウザーを確認しています…");
+   $("installBtn").disabled=false;
+   await detectBrowser();
+  },5500);
  }catch(e){
   console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");state("GUI Linuxを起動できませんでした。");
   $("bootBtn").disabled=false;$("bigBootBtn").disabled=false;cx=null;
@@ -400,7 +417,7 @@ $("loginDoneBtn").addEventListener("click",async()=>{
 });
 $("cancelLoginBtn").addEventListener("click",()=>$("loginBox").classList.add("hidden"));
 $("testNetBtn").addEventListener("click",testNetwork);
-$("installBtn").addEventListener("click",installBrowser);
+$("installBtn").addEventListener("click",detectBrowser);
 $("detectBtn").addEventListener("click",detectBrowser);
 $("launchBtn").addEventListener("click",launchBrowser);
 $("goBtn").addEventListener("click",launchBrowser);
@@ -420,7 +437,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=09");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=10");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
