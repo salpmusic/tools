@@ -1,31 +1,42 @@
-# salp Linux v1.0 — Browser OS
+# salp Linux v1.1 — External Image Edition
 
-このZIPは、ブラウザー入りLinuxディスクをGitHub Actionsで生成するソース一式です。
+## 配置
+tools/salp-linux/ に以下を置きます。
 
-## 重要
-`salp-browser.ext2`本体はZIPに入っていません。
-約1.4GBのためGitHub Actionsで作ります。
+- salp-linux.html
+- salp-browser.html
+- coi-serviceworker.js
+
+## URL
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=11
+
+## 新機能
+- 外部ストレージ上のext2 URLを設定
+- URLと表示名をlocalStorageへ保存
+- 接続テスト
+- 読み込み失敗時は公式Alpineへフォールバック
+- 現在のイメージ名を表示
+- 公式Alpine固定・設定削除
+
+## 外部ストレージの必要条件
+- HTTPS
+- CORS対応
+- Range Request対応
+- 大容量配信対応
+
+候補:
+- Cloudflare R2
+- Backblaze B2
+- Amazon S3
+- S3互換ストレージ
 
 ## 手順
-1. ZIPの中身をGitHubリポジトリのルートへアップロード
-2. GitHubのActionsを開く
-3. `Build salp Linux v1 Browser Image`を実行
-4. 完了後、Artifactから`salp-browser.ext2`を取得
-5. `tools/salp-linux/salp-browser.ext2`へアップロード
-6. HTML類も`tools/salp-linux/`へアップロード
-7. 次を開く
-
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=10
-
-## v1.0で追加されるもの
-- NetSurf（利用不可ならDillo）
-- `/usr/local/bin/salp-browser`
-- デスクトップ用salp Browserアイコン
-
-## ネット接続
-ブラウザー本体はLinux内に入ります。
-公開インターネットへ出るにはTailscaleとExit Nodeが必要です。
-
-## サイズ
-CheerpXのカスタムイメージは2GB以下が必要です。
-このビルドは1.4GBのext2を作成します。
+1. salp-browser.ext2を外部ストレージへアップロード
+2. Browser OSで「⚙ Image」
+3. URLを入力
+4. 接続テスト
+5. 保存
+6. 再起動
+7. GUI Linux起動
+8. Browser検出
+9. Browser起動

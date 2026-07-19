@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v1.0</title>
+<title>salp Linux v1.1</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
@@ -145,8 +145,8 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Desktop 1.0 / Browser Included</small></div>
-  <div class="badge">v1.0 CUSTOM BROWSER OS</div>
+  <div class="title"><strong>salp Linux</strong><small>Desktop 1.1 / External Browser Image</small></div>
+  <div class="badge">v1.1 EXTERNAL IMAGE</div>
 </header>
 
 <div class="toolbar">
@@ -164,7 +164,7 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 
   <section id="desktop" class="desktop hidden">
     <div class="desktopTop">
-      <strong>🐧 salp Linux Desktop 1.0</strong>
+      <strong>🐧 salp Linux Desktop 1.1</strong>
       <span id="desktopStatus" style="color:var(--green);font-size:10px">Linux Ready</span>
       <span id="desktopClock" class="desktopClock">--:--</span>
     </div>
@@ -294,7 +294,7 @@ for i in range(1, 6):
 
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v1.0</h1>
+      <h1>salp Linux v1.1</h1>
       <p>Linuxターミナルを内蔵した、最初のsalp Linuxデスクトップ。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
@@ -333,20 +333,20 @@ for i in range(1, 6):
 
 <div class="utilityBar">
   <button class="home" id="homeBtn">⌂ HOME</button>
-  <button class="saveTest" data-command="echo 'salp Linux v1.0' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
+  <button class="saveTest" data-command="echo 'salp Linux v1.1' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
   <button data-command="mkdir -p projects && cd projects && pwd">📁 projects</button>
   <button data-command="history | tail -10">↺ 履歴</button>
   <button data-command="clear">CLEAR</button>
   <button class="danger" data-command="exit">EXIT</button>
 </div>
-<footer>salp Linux Desktop 1.0：Terminal・Files・Python・Browserを一つのデスクトップへ統合。</footer>
+<footer>salp Linux Desktop 1.1：Terminal・Files・Python・Browserを一つのデスクトップへ統合。</footer>
 </div>
 
 <script>
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=10");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=11");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -575,7 +575,7 @@ function closeWindow(id){
   if(win)win.classList.add("hidden");
 }
 document.querySelectorAll("[data-open-gui]").forEach(btn=>{
-  btn.addEventListener("click",()=>location.href="./salp-browser.html?v=10");
+  btn.addEventListener("click",()=>location.href="./salp-browser.html?v=11");
 });
 document.querySelectorAll("[data-open-window]").forEach(btn=>{
   btn.addEventListener("click",()=>openWindow(btn.dataset.openWindow));
