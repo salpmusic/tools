@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080d18">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>salp N88-BASIC v0.6 Studio</title>
+<style>
+:root{
+ --bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;
+ --text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;
+ --pink:#ff8fbd;--danger:#ff7585
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+.topbar{
+ display:flex;align-items:center;gap:9px;padding:9px 11px;
+ border-bottom:1px solid var(--line);background:#0b1220
+}
+.logo{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#071018;font-size:21px}
+.title{min-width:0;flex:1}.title strong{display:block;font-size:15px}.title small{display:block;color:var(--muted);font-size:10px}
+.version{padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);font-size:10px;font-weight:900}
+.layout{min-height:0;display:grid;grid-template-columns:245px 1fr}
+.sidebar{
+ min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line);
+ background:#0b111d
+}
+.projectHead{padding:11px;border-bottom:1px solid var(--line)}
+.projectHead label{display:block;margin-bottom:5px;color:var(--muted);font-size:10px;font-weight:900}
+.nameRow{display:flex;gap:6px}
+.nameRow input{
+ width:100%;min-width:0;height:39px;border:1px solid var(--line);border-radius:9px;
+ background:var(--panel2);color:var(--text);padding:0 9px
+}
+.btnRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+button{
+ min-height:38px;border:1px solid var(--line);border-radius:9px;
+ background:#182236;color:var(--text);padding:7px 9px;font-weight:800
+}
+button.primary{border:0;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#081018}
+button.success{border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#081018}
+button.danger{color:#ffd9dd;border-color:#64343d;background:#321820}
+.libraryTitle{display:flex;align-items:center;justify-content:space-between;padding:10px 11px 6px;color:var(--muted);font-size:10px;font-weight:900}
+.projects{flex:1;overflow:auto;padding:0 8px 9px}
+.project{
+ width:100%;display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:8px;
+ border:1px solid transparent;border-radius:9px;background:transparent;color:var(--text);text-align:left
+}
+.project:hover,.project.active{border-color:var(--line);background:#151e2c}
+.projectIcon{font-size:21px}.projectText{min-width:0;flex:1}.projectName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900}.projectDate{color:var(--muted);font-size:9px}
+.status{
+ padding:8px 10px;border-top:1px solid var(--line);color:var(--muted);
+ font:10px ui-monospace,monospace
+}
+.main{position:relative;min-width:0;min-height:0}
+iframe{display:block;width:100%;height:100%;border:0;background:#080d18}
+.loading{position:absolute;inset:0;display:grid;place-items:center;background:#080d18;color:var(--green);font:13px ui-monospace,monospace}
+.toast{
+ position:fixed;left:50%;bottom:18px;z-index:1000;transform:translate(-50%,20px);
+ opacity:0;padding:10px 14px;border-radius:999px;background:#111;color:#fff;
+ box-shadow:0 10px 30px #0007;transition:.22s;font-size:12px
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.mobileToggle{display:none}
+@media(max-width:720px){
+ .layout{grid-template-columns:1fr}
+ .sidebar{
+  position:absolute;left:0;top:58px;bottom:0;width:min(86vw,300px);z-index:30;
+  transform:translateX(-101%);transition:.22s;box-shadow:15px 0 40px #0008
+ }
+ .sidebar.show{transform:translateX(0)}
+ .mobileToggle{display:inline-block}
+ .version{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+ <button class="mobileToggle" id="mobileToggle">☰</button>
+ <div class="logo">⌨️</div>
+ <div class="title"><strong>salp N88-BASIC Studio</strong><small>Project Library × Auto Save × salp OS Link</small></div>
+ <button id="quickRun">▶ RUN</button>
+ <button id="quickSave" class="success">SAVE</button>
+ <div class="version">v0.6 STUDIO</div>
+</header>
+
+<div class="layout">
+ <aside id="sidebar" class="sidebar">
+  <div class="projectHead">
+   <label>PROGRAM NAME</label>
+   <div class="nameRow"><input id="programName" value="PROGRAM.BAS" autocomplete="off"></div>
+   <div class="btnRow">
+    <button id="newProject">＋ NEW</button>
+    <button id="saveProject" class="success">SAVE</button>
+    <button id="duplicateProject">DUPLICATE</button>
+    <button id="deleteProject" class="danger">DELETE</button>
+   </div>
+   <div class="btnRow">
+    <button id="exportBas">EXPORT .BAS</button>
+    <button id="importBas">IMPORT</button>
+   </div>
+   <input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
+  </div>
+  <div class="libraryTitle"><span>PROGRAM LIBRARY</span><span id="projectCount">0</span></div>
+  <div id="projects" class="projects"></div>
+  <div id="status" class="status">Core loading...</div>
+ </aside>
+
+ <main class="main">
+  <div id="loading" class="loading">Loading N88-BASIC core...</div>
+  <iframe id="core" title="salp N88-BASIC core" src="salp-n88-basic-core.html?v=060"></iframe>
+ </main>
+</div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+(()=>{
+"use strict";
+
+const $=id=>document.getElementById(id);
+const STORAGE_KEY="salpN88StudioProjects_v06";
+const CURRENT_KEY="salpN88StudioCurrent_v06";
+const TERMINAL_FS_KEYS=["salpTerminalFS_v7","salpTerminalFS_v6","salpTerminalFS_v5"];
+const core=$("core");
+let editor=null,runBtn=null,currentId=null,saveTimer=null;
+let projects=loadProjects();
+
+function nowText(){
+ return new Date().toLocaleString("ja-JP",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+function uid(){return "bas_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
+function defaultCode(){
+ return `10 CLS
+20 PRINT "SALP N88-BASIC STUDIO"
+30 PRINT "---------------------"
+40 FOR I=1 TO 5
+50 PRINT "HELLO ";I
+60 NEXT I
+70 END`;
+}
+function loadProjects(){
+ try{
+  const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  if(Array.isArray(data)&&data.length)return data;
+ }catch{}
+ return [{
+  id:uid(),name:"WELCOME.BAS",code:defaultCode(),updated:Date.now()
+ }];
+}
+function persist(){
+ localStorage.setItem(STORAGE_KEY,JSON.stringify(projects));
+ if(currentId)localStorage.setItem(CURRENT_KEY,currentId);
+ renderProjects();
+}
+function toast(message){
+ const el=$("toast");el.textContent=message;el.classList.add("show");
+ clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),1500);
+}
+function currentProject(){return projects.find(p=>p.id===currentId)}
+function normalizeName(name){
+ let n=(name||"PROGRAM.BAS").trim().replace(/[\\/:*?"<>|]/g,"_");
+ if(!n)n="PROGRAM.BAS";
+ if(!/\.bas$/i.test(n))n+=".BAS";
+ return n.toUpperCase();
+}
+function renderProjects(){
+ const box=$("projects");box.innerHTML="";
+ projects.sort((a,b)=>b.updated-a.updated).forEach(p=>{
+  const b=document.createElement("button");
+  b.className="project"+(p.id===currentId?" active":"");
+  b.innerHTML=`<span class="projectIcon">💾</span><span class="projectText"><span class="projectName">${escapeHtml(p.name)}</span><span class="projectDate">${new Date(p.updated).toLocaleString("ja-JP")}</span></span>`;
+  b.onclick=()=>openProject(p.id);
+  box.appendChild(b);
+ });
+ $("projectCount").textContent=projects.length;
+}
+function escapeHtml(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function openProject(id){
+ const p=projects.find(x=>x.id===id);if(!p)return;
+ saveCurrent(false);
+ currentId=id;
+ $("programName").value=p.name;
+ if(editor){
+  editor.value=p.code;
+  editor.dispatchEvent(new Event("input",{bubbles:true}));
+ }
+ localStorage.setItem(CURRENT_KEY,id);
+ renderProjects();
+ $("sidebar").classList.remove("show");
+ toast("読み込み: "+p.name);
+}
+function saveCurrent(showToast=true){
+ if(!editor||!currentId)return;
+ const p=currentProject();if(!p)return;
+ p.name=normalizeName($("programName").value);
+ p.code=editor.value;
+ p.updated=Date.now();
+ $("programName").value=p.name;
+ persist();
+ syncToTerminal(p);
+ $("status").textContent="Auto saved: "+nowText();
+ if(showToast)toast("保存しました");
+}
+function scheduleSave(){
+ clearTimeout(saveTimer);
+ $("status").textContent="Editing...";
+ saveTimer=setTimeout(()=>saveCurrent(false),700);
+}
+function syncToTerminal(project){
+ for(const key of TERMINAL_FS_KEYS){
+  try{
+   const fs=JSON.parse(localStorage.getItem(key)||"null");
+   if(!fs)continue;
+   const basic=fs?.children?.Projects?.children?.BASIC;
+   if(!basic||basic.type!=="dir")continue;
+   basic.children[project.name]={type:"file",content:project.code};
+   localStorage.setItem(key,JSON.stringify(fs));
+  }catch{}
+ }
+}
+function importFromTerminal(){
+ for(const key of TERMINAL_FS_KEYS){
+  try{
+   const fs=JSON.parse(localStorage.getItem(key)||"null");
+   const children=fs?.children?.Projects?.children?.BASIC?.children;
+   if(!children)continue;
+   let added=0;
+   for(const [name,file] of Object.entries(children)){
+    if(file?.type!=="file"||!/\.bas$/i.test(name))continue;
+    const existing=projects.find(p=>p.name.toUpperCase()===name.toUpperCase());
+    if(existing){
+     if(!existing.code)existing.code=file.content||"";
+    }else{
+     projects.push({id:uid(),name:normalizeName(name),code:file.content||"",updated:Date.now()});
+     added++;
+    }
+   }
+   if(added)persist();
+   return added;
+  }catch{}
+ }
+ return 0;
+}
+function makeNew(){
+ saveCurrent(false);
+ const p={id:uid(),name:"NEWPROGRAM.BAS",code:"10 CLS\n20 PRINT \"NEW PROGRAM\"\n30 END",updated:Date.now()};
+ projects.push(p);persist();openProject(p.id);
+}
+function duplicate(){
+ saveCurrent(false);
+ const p=currentProject();if(!p)return;
+ const copy={id:uid(),name:normalizeName(p.name.replace(/\.BAS$/i,"_COPY.BAS")),code:p.code,updated:Date.now()};
+ projects.push(copy);persist();openProject(copy.id);
+}
+function removeCurrent(){
+ const p=currentProject();if(!p||!confirm(p.name+" を削除しますか？"))return;
+ projects=projects.filter(x=>x.id!==p.id);
+ if(!projects.length)projects.push({id:uid(),name:"PROGRAM.BAS",code:defaultCode(),updated:Date.now()});
+ currentId=projects[0].id;persist();openProject(currentId);
+}
+function exportCurrent(){
+ saveCurrent(false);const p=currentProject();if(!p)return;
+ const blob=new Blob([p.code],{type:"text/plain;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=p.name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+async function importFile(file){
+ if(!file)return;
+ const code=await file.text();
+ const p={id:uid(),name:normalizeName(file.name),code,updated:Date.now()};
+ projects.push(p);persist();openProject(p.id);
+}
+function connectCore(){
+ try{
+  const doc=core.contentDocument;
+  editor=doc.getElementById("editor");
+  runBtn=doc.getElementById("runBtn");
+  if(!editor)throw Error("editor not found");
+
+  editor.addEventListener("input",scheduleSave);
+
+  const imported=importFromTerminal();
+  const savedId=localStorage.getItem(CURRENT_KEY);
+  currentId=projects.some(p=>p.id===savedId)?savedId:projects[0].id;
+  openProject(currentId);
+
+  $("loading").style.display="none";
+  $("status").textContent="Ready / Auto save ON"+(imported?` / OSから${imported}件追加`:"");
+ }catch(error){
+  $("loading").textContent="Core connection error: "+error.message;
+  $("status").textContent="Core fileを確認してください";
+ }
+}
+
+core.addEventListener("load",connectCore);
+$("quickRun").onclick=()=>{saveCurrent(false);runBtn?.click()};
+$("quickSave").onclick=()=>saveCurrent(true);
+$("saveProject").onclick=()=>saveCurrent(true);
+$("newProject").onclick=makeNew;
+$("duplicateProject").onclick=duplicate;
+$("deleteProject").onclick=removeCurrent;
+$("exportBas").onclick=exportCurrent;
+$("importBas").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=e=>{importFile(e.target.files[0]);e.target.value=""};
+$("programName").addEventListener("change",()=>saveCurrent(false));
+$("mobileToggle").onclick=()=>$("sidebar").classList.toggle("show");
+
+window.addEventListener("beforeunload",()=>saveCurrent(false));
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveCurrent(false)});
+
+renderProjects();
+})();
+</script>
+</body>
+</html>
