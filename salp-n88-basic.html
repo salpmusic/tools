@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp N88-BASIC v0.6 Studio</title>
+<title>salp N88-BASIC v0.6.1 Studio</title>
 <style>
 :root{
  --bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;
@@ -86,7 +86,7 @@ iframe{display:block;width:100%;height:100%;border:0;background:#080d18}
  <div class="title"><strong>salp N88-BASIC Studio</strong><small>Project Library × Auto Save × salp OS Link</small></div>
  <button id="quickRun">▶ RUN</button>
  <button id="quickSave" class="success">SAVE</button>
- <div class="version">v0.6 STUDIO</div>
+ <div class="version">v0.6.1 STUDIO</div>
 </header>
 
 <div class="layout">
@@ -128,7 +128,7 @@ const STORAGE_KEY="salpN88StudioProjects_v06";
 const CURRENT_KEY="salpN88StudioCurrent_v06";
 const TERMINAL_FS_KEYS=["salpTerminalFS_v7","salpTerminalFS_v6","salpTerminalFS_v5"];
 const core=$("core");
-let editor=null,runBtn=null,currentId=null,saveTimer=null;
+let editor=null,runBtn=null,stopBtn=null,currentId=null,saveTimer=null;
 let projects=loadProjects();
 
 function nowText(){
@@ -283,9 +283,59 @@ function connectCore(){
   const doc=core.contentDocument;
   editor=doc.getElementById("editor");
   runBtn=doc.getElementById("runBtn");
+  stopBtn=doc.getElementById("stopBtn");
   if(!editor)throw Error("editor not found");
 
   editor.addEventListener("input",scheduleSave);
+
+  // Core側のサンプルボタンは editor.value を直接変更するため、
+  // Studio側でクリック後の内容を正式なプロジェクトとして取り込む。
+  const sampleButtons = [
+    ["compatBtn","COMPAT-SAMPLE.BAS"],
+    ["graphicsBtn","GRAPHICS-SAMPLE.BAS"],
+    ["gameBtn","GAME-SAMPLE.BAS"],
+    ["fmBtn","FM-ARPEGGIO.BAS"]
+  ];
+
+  sampleButtons.forEach(([buttonId,fileName])=>{
+    const button=doc.getElementById(buttonId);
+    if(!button)return;
+
+    button.addEventListener("click",()=>{
+      // 実行中の前サンプルを停止してから切り替える
+      try{ stopBtn?.click(); }catch{}
+
+      setTimeout(()=>{
+        const project={
+          id:uid(),
+          name:fileName,
+          code:editor.value,
+          updated:Date.now()
+        };
+
+        // 同名サンプルは増殖させず更新
+        const existing=projects.find(
+          p=>p.name.toUpperCase()===fileName.toUpperCase()
+        );
+
+        if(existing){
+          existing.code=editor.value;
+          existing.updated=Date.now();
+          currentId=existing.id;
+        }else{
+          projects.push(project);
+          currentId=project.id;
+        }
+
+        $("programName").value=fileName;
+        persist();
+        syncToTerminal(currentProject());
+        renderProjects();
+        $("status").textContent="Sample loaded: "+fileName;
+        toast(fileName+" を読み込みました");
+      },0);
+    });
+  });
 
   const imported=importFromTerminal();
   const savedId=localStorage.getItem(CURRENT_KEY);
