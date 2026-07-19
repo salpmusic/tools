@@ -1,4 +1,4 @@
-salp Linux v0.6 GUI BRIDGE
+salp Linux v0.7 DESKTOP FIRST
 
 同じ salp-linux フォルダーへ:
 - salp-linux.html
@@ -6,20 +6,20 @@ salp Linux v0.6 GUI BRIDGE
 - coi-serviceworker.js
 
 確認URL:
-https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=06
+https://salpmusic.github.io/tools/salp-linux/salp-linux.html?v=07
 
-使い方:
-1. Debian Linuxを起動
-2. DesktopのBrowserアイコンを押す
-3. salp-gui.htmlへ移動
-4. GUI Linuxを起動
-5. Alpine / Xorg / i3の起動を待つ
+v0.7変更:
+- Linux起動後にTerminalを自動表示しない
+- 最初にDesktopだけを表示
+- Terminal / Files / Python / Browserをアイコンから起動
+- 各ウィンドウにDesktopへ戻る⌂ボタン
+- System Info / Storage / DateはTerminalを自動で開いて表示
+- Browserは別ページのGUI Linuxへ移動
+- GUI Linuxの永続ディスク名を共通化
 
-GUI側:
-- Official Alpine graphical image
-- CheerpX 1.3.5
-- setKmsCanvas
-- /sbin/init
-
-第一目標はGUIデスクトップの起動です。
-PCブラウザはGUI起動後に搭載状況を確認します。
+操作:
+1. Linuxを起動
+2. Desktop Readyを確認
+3. Terminalアイコンで端末を開く
+4. ×または⌂でデスクトップへ戻る
+5. BrowserアイコンでGUI Linuxを試す
