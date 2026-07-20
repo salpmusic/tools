@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110b">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>salp Linux Image Builder v1.3</title>
+<style>
+:root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
+header{display:flex;align-items:center;gap:11px;padding:12px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,var(--green),var(--cyan));font-size:24px}.title{flex:1}.title strong{display:block}.title small{color:var(--muted)}
+main{max-width:920px;margin:auto;padding:14px;padding-bottom:calc(90px + env(safe-area-inset-bottom))}.card{border:1px solid var(--line);border-radius:16px;background:#08100b;margin-bottom:14px;overflow:hidden}.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--line);font-size:15px}.body{padding:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.option{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#0b160f}.option input{width:20px;height:20px}.option b{display:block;font-size:12px}.option small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+label{display:block;margin:12px 0 6px;font-weight:800;font-size:12px}input[type="text"],input[type="number"]{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#020503;color:var(--text);font:13px ui-monospace,monospace}
+.actions{display:flex;gap:8px;flex-wrap:wrap}button{min-height:42px;padding:9px 14px;border:1px solid var(--line);border-radius:10px;background:#122018;color:var(--text);font-weight:800}button.primary{border:0;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061009}button.warn{border-color:#75601f;background:#272009}
+pre{margin:0;min-height:240px;max-height:520px;overflow:auto;padding:13px;background:#010201;color:#b7ffc7;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap}.notice{padding:11px;border:1px solid #5a4b1d;border-radius:11px;background:#181407;color:#ffd66b;font-size:11px;line-height:1.55}
+footer{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:9px;padding-bottom:calc(9px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(8,16,11,.96);backdrop-filter:blur(12px)}footer button{flex:1}@media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="logo">🏗️</div><div class="title"><strong>salp Linux Image Builder</strong><small>v1.3 / GitHub Actions image generator</small></div></header>
+<main>
+<section class="card"><h2>🌐 Browser</h2><div class="body grid">
+<label class="option"><input type="radio" name="browser" value="netsurf" checked><span><b>NetSurf</b><small>軽量・第一候補</small></span></label>
+<label class="option"><input type="radio" name="browser" value="dillo"><span><b>Dillo</b><small>超軽量</small></span></label>
+<label class="option"><input type="radio" name="browser" value="chromium"><span><b>Chromium</b><small>高機能・重い</small></span></label>
+<label class="option"><input type="radio" name="browser" value="firefox"><span><b>Firefox</b><small>高機能・重い</small></span></label>
+</div></section>
+<section class="card"><h2>📦 Additional Packages</h2><div class="body grid" id="packageGrid">
+<label class="option"><input type="checkbox" value="python3" checked><span><b>Python 3</b><small>開発環境</small></span></label>
+<label class="option"><input type="checkbox" value="git" checked><span><b>Git</b><small>ソース管理</small></span></label>
+<label class="option"><input type="checkbox" value="nano" checked><span><b>Nano</b><small>簡単エディター</small></span></label>
+<label class="option"><input type="checkbox" value="vim"><span><b>Vim</b><small>高機能エディター</small></span></label>
+<label class="option"><input type="checkbox" value="curl" checked><span><b>curl</b><small>通信テスト</small></span></label>
+<label class="option"><input type="checkbox" value="wget" checked><span><b>wget</b><small>ダウンロード</small></span></label>
+<label class="option"><input type="checkbox" value="bash" checked><span><b>Bash</b><small>シェル</small></span></label>
+<label class="option"><input type="checkbox" value="htop"><span><b>htop</b><small>システム監視</small></span></label>
+</div></section>
+<section class="card"><h2>⚙ Image Settings</h2><div class="body">
+<label>起動URL</label><input id="homeUrl" type="text" value="https://example.com">
+<label>ext2サイズ（MB）</label><input id="imageSize" type="number" min="700" max="1900" step="100" value="1400">
+<label>イメージ名</label><input id="imageName" type="text" value="salp-browser.ext2">
+<label class="option" style="margin-top:12px"><input id="autoStart" type="checkbox" checked><span><b>GUI起動時にブラウザーを自動起動</b><small>autostart設定を追加</small></span></label>
+</div></section>
+<section class="card"><h2>🧰 Generate</h2><div class="body"><div class="notice">iPhone上で1GB級のLinuxを直接生成せず、GitHub Actions用の設定とスクリプトを生成します。</div><div class="actions" style="margin-top:12px">
+<button id="previewBtn" class="primary">プレビュー生成</button><button id="downloadConfigBtn">build-config.json</button><button id="downloadDockerBtn">Dockerfile追加</button><button id="downloadWorkflowBtn">Workflow</button>
+</div></div></section>
+<section class="card"><h2>📄 Preview</h2><pre id="preview">設定を選び「プレビュー生成」を押してください。</pre></section>
+</main>
+<footer><button id="backBtn">← Browser OS</button><button id="saveBtn" class="warn">端末へ設定保存</button></footer>
+<script>
+const $=id=>document.getElementById(id);
+function getConfig(){return{version:"1.3",browser:document.querySelector('input[name="browser"]:checked').value,packages:[...document.querySelectorAll('#packageGrid input:checked')].map(x=>x.value),homeUrl:$("homeUrl").value.trim()||"https://example.com",imageSizeMB:Number($("imageSize").value)||1400,imageName:$("imageName").value.trim()||"salp-browser.ext2",autoStart:$("autoStart").checked}}
+function dockerSnippet(c){const packages=[c.browser,...c.packages].join(" ");return `# salp Linux v1.3 browser layer\nRUN apk add --no-cache ${packages}\n\nRUN cat > /usr/local/bin/salp-browser <<'EOF'\n#!/bin/sh\nURL="\${1:-${c.homeUrl}}"\nif command -v netsurf-gtk3 >/dev/null 2>&1; then exec netsurf-gtk3 "$URL";\nelif command -v netsurf >/dev/null 2>&1; then exec netsurf "$URL";\nelif command -v dillo >/dev/null 2>&1; then exec dillo "$URL";\nelif command -v chromium-browser >/dev/null 2>&1; then exec chromium-browser --no-sandbox --disable-gpu "$URL";\nelif command -v chromium >/dev/null 2>&1; then exec chromium --no-sandbox --disable-gpu "$URL";\nelif command -v firefox >/dev/null 2>&1; then exec firefox "$URL";\nelse xmessage "salp Browser is not installed"; fi\nEOF\nRUN chmod +x /usr/local/bin/salp-browser\n${c.autoStart?`RUN mkdir -p /home/user/.config/autostart && cat > /home/user/.config/autostart/salp-browser.desktop <<'EOF'\n[Desktop Entry]\nType=Application\nName=salp Browser\nExec=/usr/local/bin/salp-browser\nTerminal=false\nEOF\n`:""}`}
+function workflowText(c){return `name: Build salp Linux Browser Image\n\non:\n  workflow_dispatch:\n\njobs:\n  build:\n    runs-on: ubuntu-24.04\n    timeout-minutes: 90\n    steps:\n      - uses: actions/checkout@v4\n      - run: |\n          sudo apt-get update\n          sudo apt-get install -y buildah e2fsprogs git python3\n      - run: |\n          sudo -E bash image/build-image.sh "$RUNNER_TEMP/salp-build" "$GITHUB_WORKSPACE/${c.imageName}"\n        env:\n          IMAGE_SIZE: ${c.imageSizeMB}M\n      - uses: actions/upload-artifact@v4\n        with:\n          name: salp-browser-ext2\n          path: ${c.imageName}\n          compression-level: 0`}
+function preview(){const c=getConfig();$("preview").textContent=`BUILD CONFIG\n${JSON.stringify(c,null,2)}\n\nDOCKERFILE ADDITION\n${dockerSnippet(c)}\n\nGITHUB WORKFLOW\n${workflowText(c)}`;return c}
+function download(name,text,type="text/plain"){const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$("previewBtn").addEventListener("click",preview);$("downloadConfigBtn").addEventListener("click",()=>{const c=preview();download("build-config.json",JSON.stringify(c,null,2),"application/json")});$("downloadDockerBtn").addEventListener("click",()=>{const c=preview();download("Dockerfile.addition.txt",dockerSnippet(c))});$("downloadWorkflowBtn").addEventListener("click",()=>{const c=preview();download("build-salp-image.yml",workflowText(c))});$("saveBtn").addEventListener("click",()=>{const c=getConfig();localStorage.setItem("salpBuilderConfig",JSON.stringify(c));$("preview").textContent="設定を端末へ保存しました。\n\n"+JSON.stringify(c,null,2)});$("backBtn").addEventListener("click",()=>location.href="./salp-browser.html?v=13");
+try{const s=JSON.parse(localStorage.getItem("salpBuilderConfig")||"null");if(s){const r=document.querySelector(`input[name="browser"][value="${s.browser}"]`);if(r)r.checked=true;document.querySelectorAll('#packageGrid input').forEach(x=>x.checked=s.packages?.includes(x.value));$("homeUrl").value=s.homeUrl||"https://example.com";$("imageSize").value=s.imageSizeMB||1400;$("imageName").value=s.imageName||"salp-browser.ext2";$("autoStart").checked=s.autoStart!==false}}catch(_){}
+</script></body></html>

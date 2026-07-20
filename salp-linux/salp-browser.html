@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.2</title>
+<title>salp Browser OS v1.3</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -109,7 +109,7 @@ footer{
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title"><strong>salp Browser OS</strong><small>External ext2 + Auto PC Browser</small></div>
+ <div class="title"><strong>salp Browser OS</strong><small>Custom Image Builder + Auto Browser</small></div>
 </header>
 
 <div class="setupBar">
@@ -130,6 +130,7 @@ footer{
  <button id="filesBtn" disabled>📁 Files</button>
  <button id="keyboardBtn" disabled>⌨️</button>
  <button id="settingsBtn">⚙ Image</button>
+ <button id="builderBtn">🏗 Builder</button>
  <button id="fullBtn">⛶</button>
  <button id="backBtn">← Desktop</button>
  <div class="status"><span id="dot" class="dot"></span><span id="statusText">起動待ち</span></div>
@@ -185,7 +186,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Browser OS v1.2</h1>
+   <h1>salp Browser OS v1.3</h1>
    <p>外部ストレージ上のブラウザー入りsalp Linuxイメージを起動します。</p>
    <div class="info">
     1. Alpine GUI Linuxを起動<br>
@@ -207,7 +208,7 @@ footer{
 </main>
 
 <footer>
- salp Linux v1.2：外部ext2 URLを保存して起動。通信はTailscale Exit Node経由です。
+ salp Linux v1.3：外部ext2 URLを保存して起動。通信はTailscale Exit Node経由です。
 </footer>
 </div>
 
@@ -215,7 +216,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=12");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=13");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -503,6 +504,7 @@ function loadImageSettings(){
 }
 loadImageSettings();
 
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=13");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -598,7 +600,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=12");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=13");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
