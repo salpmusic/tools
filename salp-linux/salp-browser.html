@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.3</title>
+<title>salp Browser OS v1.4</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -109,7 +109,7 @@ footer{
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title"><strong>salp Browser OS</strong><small>Custom Image Builder + Auto Browser</small></div>
+ <div class="title"><strong>salp Browser OS</strong><small>NetSurf Image + Auto Browser</small></div>
 </header>
 
 <div class="setupBar">
@@ -173,7 +173,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Browser Image v1.2">
+   <input id="imageNameInput" value="salp Browser Image v1.4">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -186,7 +186,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Browser OS v1.3</h1>
+   <h1>salp Browser OS v1.4</h1>
    <p>外部ストレージ上のブラウザー入りsalp Linuxイメージを起動します。</p>
    <div class="info">
     1. Alpine GUI Linuxを起動<br>
@@ -208,7 +208,7 @@ footer{
 </main>
 
 <footer>
- salp Linux v1.3：外部ext2 URLを保存して起動。通信はTailscale Exit Node経由です。
+ salp Linux v1.4：NetSurf入りext2に対応。ImageでURLを保存し、Browser確認から起動します。
 </footer>
 </div>
 
@@ -216,7 +216,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=13");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=14");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -240,6 +240,8 @@ let initPromise=null;
 
 const candidates=[
  {name:"salp Browser",path:"/usr/local/bin/salp-browser",pkg:"included"},
+ {name:"NetSurf GTK",path:"/usr/bin/netsurf-gtk3",pkg:"netsurf"},
+ {name:"NetSurf",path:"/usr/bin/netsurf",pkg:"netsurf"},
  {name:"NetSurf",path:"/usr/bin/netsurf-gtk3",pkg:"netsurf"},
  {name:"NetSurf",path:"/usr/bin/netsurf",pkg:"netsurf"},
  {name:"Dillo",path:"/usr/bin/dillo",pkg:"dillo"},
@@ -330,7 +332,7 @@ async function detectBrowser(){
   markStep("stepInstall","done");markStep("stepLaunch","active");
  }else{
   state("ブラウザーは未導入です。Network接続後に「NetSurf導入」を押してください。");
-  status("Browser未導入","error");
+  status("Browser未検出","error");
   $("launchBtn").disabled=true;$("goBtn").disabled=true;
  }
  $("detectBtn").disabled=false;
@@ -413,7 +415,7 @@ async function boot(){
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.2";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.4";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -497,20 +499,20 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.2";
+ const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.4";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"Image: "+name:"Image: Official Alpine";
 }
 loadImageSettings();
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=13");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=14");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Browser Image v1.2";
+ const name=$("imageNameInput").value.trim()||"salp Browser Image v1.4";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -600,7 +602,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=13");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=14");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
