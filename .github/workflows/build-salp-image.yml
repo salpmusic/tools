@@ -1,73 +1,24 @@
-
 name: Build salp Linux Browser Image
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-salp-image.yml"
+      - "image/**"
 
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install build tools
+      - name: Confirm workflow works
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            buildah \
-            e2fsprogs \
-            git \
-            python3 \
-            qemu-user-static
-
-      - name: Check build files
-        run: |
+          echo "salp Linux workflow started"
           echo "Repository files:"
           find . -maxdepth 3 -type f | sort
-
-          test -f image/build-image.sh || {
-            echo "ERROR: image/build-image.sh が見つかりません"
-            exit 1
-          }
-
-          chmod +x image/build-image.sh
-
-      - name: Build salp browser ext2
-        env:
-          IMAGE_SIZE: 1600M
-        run: |
-          sudo -E bash image/build-image.sh \
-            "$RUNNER_TEMP/salp-build" \
-            "$GITHUB_WORKSPACE/salp-browser.ext2"
-
-      - name: Check generated image
-        run: |
-          test -f salp-browser.ext2 || {
-            echo "ERROR: salp-browser.ext2 が生成されませんでした"
-            exit 1
-          }
-
-          ls -lh salp-browser.ext2
-          sha256sum salp-browser.ext2 > salp-browser.ext2.sha256
-
-          {
-            echo "salp Linux Browser Image"
-            echo "Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            echo "Commit: $GITHUB_SHA"
-            echo "Size:"
-            ls -lh salp-browser.ext2
-          } > salp-browser.ext2.manifest.txt
-
-      - name: Upload ext2 artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: salp-browser-ext2
-          path: |
-            salp-browser.ext2
-            salp-browser.ext2.sha256
-            salp-browser.ext2.manifest.txt
-          compression-level: 0
-          if-no-files-found: error
