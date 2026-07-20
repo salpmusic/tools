@@ -1,66 +1,78 @@
+FROM i386/alpine:3.22
 
-FROM i386/alpine:3.18
+RUN printf '%s\n' \
+  'https://dl-cdn.alpinelinux.org/alpine/v3.22/main' \
+  'https://dl-cdn.alpinelinux.org/alpine/v3.22/community' \
+  > /etc/apk/repositories
 
-RUN apk update && \
-    apk add --no-cache \
-      bash \
-      ca-certificates \
-      curl \
-      wget \
-      nano \
-      git \
-      python3 \
-      font-noto \
-      font-noto-cjk \
-      dbus \
-      mesa-dri-gallium \
-      xf86-video-vesa \
-      xorg-server \
-      xinit \
-      openbox \
-      netsurf && \
-    update-ca-certificates
+RUN apk update && apk add --no-cache \
+  bash \
+  ca-certificates \
+  curl \
+  wget \
+  git \
+  nano \
+  python3 \
+  dbus \
+  font-noto \
+  font-noto-cjk \
+  xorg-server \
+  xinit \
+  openbox \
+  netsurf
+
+RUN update-ca-certificates
 
 RUN mkdir -p /root/.config/openbox
 
-RUN printf '%s\n' \
-  '<?xml version="1.0" encoding="UTF-8"?>' \
-  '<openbox_config xmlns="http://openbox.org/3.4/rc">' \
-  '  <applications>' \
-  '    <application class="*">' \
-  '      <decor>yes</decor>' \
-  '    </application>' \
-  '  </applications>' \
-  '</openbox_config>' \
-  > /root/.config/openbox/rc.xml
+RUN cat > /root/.config/openbox/autostart <<'EOF'
+#!/bin/sh
 
-RUN printf '%s\n' \
-  '#!/bin/sh' \
-  'URL="${1:-https://example.com}"' \
-  'if command -v netsurf-gtk3 >/dev/null 2>&1; then' \
-  '  exec netsurf-gtk3 "$URL"' \
-  'elif command -v netsurf >/dev/null 2>&1; then' \
-  '  exec netsurf "$URL"' \
-  'else' \
-  '  echo "NetSurf not found"' \
-  '  exit 1' \
-  'fi' \
-  > /usr/local/bin/salp-browser && \
-  chmod +x /usr/local/bin/salp-browser
+sleep 2
+/usr/local/bin/salp-browser https://example.com &
+EOF
 
-RUN printf '%s\n' \
-  '#!/bin/sh' \
-  'openbox-session &' \
-  'sleep 2' \
-  '/usr/local/bin/salp-browser https://example.com &' \
-  'wait' \
-  > /usr/local/bin/salp-desktop && \
-  chmod +x /usr/local/bin/salp-desktop
+RUN chmod +x /root/.config/openbox/autostart
 
-RUN printf '%s\n' \
-  'salp Linux Browser Image' \
-  'Version 1.7' \
-  'Browser: NetSurf' \
-  > /etc/salp-release
+RUN cat > /usr/local/bin/salp-browser <<'EOF'
+#!/bin/sh
+
+URL="${1:-https://example.com}"
+
+if command -v netsurf-gtk3 >/dev/null 2>&1; then
+  exec netsurf-gtk3 "$URL"
+fi
+
+if command -v netsurf >/dev/null 2>&1; then
+  exec netsurf "$URL"
+fi
+
+echo "NetSurf not found"
+exit 1
+EOF
+
+RUN chmod +x /usr/local/bin/salp-browser
+
+RUN cat > /usr/local/bin/salp-desktop <<'EOF'
+#!/bin/sh
+
+export DISPLAY="${DISPLAY:-:0}"
+
+openbox-session &
+sleep 2
+
+exec /usr/local/bin/salp-browser https://example.com
+EOF
+
+RUN chmod +x /usr/local/bin/salp-desktop
+
+RUN cat > /etc/salp-release <<'EOF'
+salp Linux Browser Image
+Version 1.7
+Browser: NetSurf
+Base: Alpine Linux 3.22 x86
+EOF
+
+RUN echo 'salp Linux image ready' > /root/README.txt
 
 CMD ["/bin/sh"]
