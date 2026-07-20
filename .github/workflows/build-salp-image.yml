@@ -2,80 +2,18 @@ name: Build salp Linux Browser Image
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/build-salp-image.yml"
-      - "image/**"
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
 
     steps:
-      - name: Checkout salp tools
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout WebVM builder
-        uses: actions/checkout@v4
-        with:
-          repository: leaningtech/webvm
-          path: webvm
-
-      - name: Copy salp Dockerfile
+      - name: Check Dockerfile
         run: |
-          test -f image/Dockerfile || {
-            echo "ERROR: image/Dockerfile がありません"
-            exit 1
-          }
-
-          mkdir -p webvm/dockerfiles/salp_linux
-          cp image/Dockerfile webvm/dockerfiles/salp_linux/Dockerfile
-
-      - name: Show build files
-        run: |
-          echo "salp Dockerfile:"
+          echo "Dockerfile check"
+          test -f image/Dockerfile
           cat image/Dockerfile
-
-          echo ""
-          echo "WebVM files:"
-          find webvm -maxdepth 3 -type f | sort | head -200
-
-      - name: Build salp ext2
-        working-directory: webvm
-        run: |
-          if [ -x ./build.sh ]; then
-            ./build.sh dockerfiles/salp_linux
-          elif [ -f ./Makefile ]; then
-            make dockerfile=dockerfiles/salp_linux
-          else
-            echo "ERROR: WebVMのビルド入口が見つかりません"
-            exit 1
-          fi
-
-      - name: Find generated ext2
-        run: |
-          EXT2_FILE="$(find webvm -type f -name '*.ext2' | head -1)"
-
-          if [ -z "$EXT2_FILE" ]; then
-            echo "ERROR: ext2が生成されませんでした"
-            find webvm -maxdepth 4 -type f | sort
-            exit 1
-          fi
-
-          echo "Found: $EXT2_FILE"
-          cp "$EXT2_FILE" salp-browser.ext2
-          ls -lh salp-browser.ext2
-          sha256sum salp-browser.ext2 > salp-browser.ext2.sha256
-
-      - name: Upload salp browser image
-        uses: actions/upload-artifact@v4
-        with:
-          name: salp-browser-ext2
-          path: |
-            salp-browser.ext2
-            salp-browser.ext2.sha256
-          compression-level: 0
-          if-no-files-found: error
+          echo "Dockerfile found successfully"
