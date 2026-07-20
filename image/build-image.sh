@@ -1,50 +1,48 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
-WORKDIR="${1:-$PWD/build}"
-OUTPUT="${2:-$PWD/salp-browser.ext2}"
+WORKDIR="${1:-${RUNNER_TEMP:-/tmp}/salp-build}"
+OUTPUT="${2:-${GITHUB_WORKSPACE:-$PWD}/salp-browser.ext2}"
 IMAGE_SIZE="${IMAGE_SIZE:-1400M}"
-REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "$0")/../.." && pwd)}"
-ADDITION="$REPO_ROOT/tools/image/Dockerfile.addition.txt"
+REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+ADDITION="$REPO_ROOT/image/Dockerfile.addition.txt"
+UPSTREAM="${UPSTREAM_REPO:-https://github.com/leaningtech/alpine-image.git}"
 
+cleanup() {
+  if [[ -n "${container:-}" ]]; then
+    buildah umount "$container" >/dev/null 2>&1 || true
+    buildah rm "$container" >/dev/null 2>&1 || true
+  fi
+}
+trap cleanup EXIT
+
+[[ -f "$ADDITION" ]] || { echo "Missing: $ADDITION" >&2; exit 1; }
 rm -rf "$WORKDIR"
-mkdir -p "$WORKDIR"
-cd "$WORKDIR"
+mkdir -p "$WORKDIR" "$(dirname "$OUTPUT")"
 
-git clone --depth 1 https://github.com/leaningtech/alpine-image.git source
-cd source
+git clone --depth 1 "$UPSTREAM" "$WORKDIR/source"
+cd "$WORKDIR/source"
 
-if [ ! -f "$ADDITION" ]; then
-  echo "Missing: $ADDITION" >&2
-  exit 1
+# Dockerfile命令はCMDの後ろにRUNを追加しても有効。上流の構造に依存せず追記する。
+printf '\n' >> Dockerfile
+cat "$ADDITION" >> Dockerfile
+
+echo '--- salp Dockerfile tail ---'
+tail -n 80 Dockerfile
+
+buildah bud --platform linux/386 --format docker -t salp-linux-browser:v1.5 .
+container="$(buildah from salp-linux-browser:v1.5)"
+rootfs="$(buildah mount "$container")"
+
+rm -f "$OUTPUT" "$OUTPUT.sha256"
+truncate -s "$IMAGE_SIZE" "$OUTPUT"
+mkfs.ext2 -F -b 4096 -L SALP_LINUX -d "$rootfs" "$OUTPUT"
+e2fsck -fn "$OUTPUT" || status=$?
+if [[ "${status:-0}" -gt 1 ]]; then
+  echo "e2fsck failed with status $status" >&2
+  exit "$status"
 fi
-
-python3 - "$ADDITION" <<'PY2'
-from pathlib import Path
-import sys
-addition=Path(sys.argv[1]).read_text()
-dockerfile=Path('Dockerfile')
-text=dockerfile.read_text()
-markers=['CMD [ "/bin/sh" ]', "CMD ["/bin/sh"]"]
-for marker in markers:
-    if marker in text:
-        dockerfile.write_text(text.replace(marker, addition+'
-'+marker))
-        break
-else:
-    dockerfile.write_text(text+'
-'+addition+'
-')
-PY2
-
-buildah bud --platform linux/i386 -t salp-linux-browser .
-container="$(buildah from salp-linux-browser)"
-mountpoint="$(buildah mount "$container")"
-trap 'buildah umount "$container" >/dev/null 2>&1 || true; buildah rm "$container" >/dev/null 2>&1 || true' EXIT
-mkfs.ext2 -F -b 4096 -d "$mountpoint" "$OUTPUT" "$IMAGE_SIZE"
-buildah umount "$container"
-buildah rm "$container"
-trap - EXIT
-buildah rmi salp-linux-browser >/dev/null 2>&1 || true
 sha256sum "$OUTPUT" > "$OUTPUT.sha256"
+
 ls -lh "$OUTPUT" "$OUTPUT.sha256"
+echo "Built: $OUTPUT"

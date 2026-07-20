@@ -1,22 +1,37 @@
-# salp Linux v1.4 browser layer
-RUN printf "%s\n" \
-  "https://dl-cdn.alpinelinux.org/alpine/v3.22/main" \
-  "https://dl-cdn.alpinelinux.org/alpine/v3.22/community" > /etc/apk/repositories \
- && apk update \
- && apk add --no-cache netsurf ca-certificates font-noto font-noto-cjk ttf-dejavu curl wget nano bash \
- && update-ca-certificates
 
-RUN cat > /usr/local/bin/salp-browser <<'EOF'
+# salp Linux v1.5 browser layer
+RUN printf '%s\n' \
+  'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
+  'https://dl-cdn.alpinelinux.org/alpine/v3.17/community' > /etc/apk/repositories \
+ && apk update \
+ && apk add --no-cache \
+      netsurf \
+      ca-certificates \
+      font-noto \
+      font-noto-cjk \
+      ttf-dejavu \
+      curl wget nano bash python3 git \
+ && update-ca-certificates \
+ && rm -rf /var/cache/apk/*
+
+RUN cat > /usr/local/bin/salp-browser <<'SALP_BROWSER'
 #!/bin/sh
 URL="${1:-https://salpmusic.github.io/}"
 export DISPLAY="${DISPLAY:-:0}"
-if command -v netsurf-gtk3 >/dev/null 2>&1; then
-  exec netsurf-gtk3 "$URL"
-elif command -v netsurf >/dev/null 2>&1; then
-  exec netsurf "$URL"
-else
-  echo "NetSurf is not installed" >&2
-  exit 1
-fi
-EOF
-RUN chmod +x /usr/local/bin/salp-browser
+for browser in netsurf-gtk3 netsurf-gtk netsurf; do
+  if command -v "$browser" >/dev/null 2>&1; then
+    exec "$browser" "$URL"
+  fi
+done
+echo 'NetSurf is not installed' >&2
+exit 1
+SALP_BROWSER
+RUN chmod 0755 /usr/local/bin/salp-browser \
+ && printf '%s\n' \
+    '[Desktop Entry]' \
+    'Type=Application' \
+    'Name=salp Browser' \
+    'Exec=/usr/local/bin/salp-browser' \
+    'Terminal=false' \
+    'Categories=Network;WebBrowser;' \
+    > /usr/share/applications/salp-browser.desktop
