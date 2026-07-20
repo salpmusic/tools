@@ -1,21 +1,32 @@
 
-# salp Linux v1.5 browser layer
-RUN printf '%s\n' \
-  'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
-  'https://dl-cdn.alpinelinux.org/alpine/v3.17/community' > /etc/apk/repositories \
- && apk update \
- && apk add --no-cache \
-      netsurf \
+# salp Linux v1.6 browser layer
+# Keep the upstream WebVM Alpine image and add a small graphical browser.
+RUN set -eux; \
+    printf '%s\n' \
+      'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
+      'https://dl-cdn.alpinelinux.org/alpine/v3.17/community' \
+      > /etc/apk/repositories; \
+    apk update; \
+    if ! apk add --no-cache netsurf; then \
+      printf '%s\n' \
+        'https://dl-cdn.alpinelinux.org/alpine/edge/main' \
+        'https://dl-cdn.alpinelinux.org/alpine/edge/community' \
+        > /etc/apk/repositories; \
+      apk update; \
+      apk add --no-cache netsurf; \
+    fi; \
+    apk add --no-cache \
       ca-certificates \
       font-noto \
       font-noto-cjk \
       ttf-dejavu \
-      curl wget nano bash python3 git \
- && update-ca-certificates \
- && rm -rf /var/cache/apk/*
+      curl wget nano bash python3 git; \
+    update-ca-certificates; \
+    rm -rf /var/cache/apk/*
 
 RUN cat > /usr/local/bin/salp-browser <<'SALP_BROWSER'
 #!/bin/sh
+set -eu
 URL="${1:-https://salpmusic.github.io/}"
 export DISPLAY="${DISPLAY:-:0}"
 for browser in netsurf-gtk3 netsurf-gtk netsurf; do
@@ -23,15 +34,24 @@ for browser in netsurf-gtk3 netsurf-gtk netsurf; do
     exec "$browser" "$URL"
   fi
 done
-echo 'NetSurf is not installed' >&2
-exit 1
+echo 'salp Browser: NetSurf executable was not found.' >&2
+exit 127
 SALP_BROWSER
+
 RUN chmod 0755 /usr/local/bin/salp-browser \
+ && mkdir -p /usr/share/applications \
  && printf '%s\n' \
     '[Desktop Entry]' \
     'Type=Application' \
     'Name=salp Browser' \
+    'Comment=Lightweight browser for salp Linux' \
     'Exec=/usr/local/bin/salp-browser' \
     'Terminal=false' \
     'Categories=Network;WebBrowser;' \
-    > /usr/share/applications/salp-browser.desktop
+    > /usr/share/applications/salp-browser.desktop \
+ && printf '%s\n' \
+    'salp Linux v1.6' \
+    'browser=netsurf' \
+    > /etc/salp-release \
+ && command -v /usr/local/bin/salp-browser \
+ && (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf)
