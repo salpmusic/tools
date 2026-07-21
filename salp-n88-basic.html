@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.9.1 Phoenix</title>
+<title>salp PC-8801MH Browser Edition v0.9.2 Phoenix</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -265,7 +265,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Phoenix Editor</div></div></div><div class="version">v0.9.1 PHOENIX</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Phoenix Editor</div></div></div><div class="version">v0.9.2 PHOENIX</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -627,7 +627,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.9.1 Phoenix：</b>
+<div class="help"><b>v0.9.2 Phoenix：</b>
 毎日使いたくなるエディタ強化。<br>
 <strong>新規：</strong> 検索 (Ctrl+F) / 置換 (Ctrl+H) / 行ジャンプ (Ctrl+G) / TABインデント (2スペース) / 現在行ハイライト / HOME・END改善。<br>
 既存：Undo/Redo (Ctrl+Z/Y) ・AutoSave ・Ctrl+S ・4オペレータ風FM合成・ステレオ・アルペジオ・CRT効果・MH設定・SOUND LAB・ゲームパッド。<br>
@@ -993,7 +993,7 @@ async function execStmt(s,state,idx){
  s=stripBasicComment(s);const u=s.toUpperCase();if(!s||u.startsWith("REM")||s.startsWith("'")||u.startsWith("DATA"))return{};if(u==="END"||u==="STOP")return{end:true};let m;
  if(/^NEW\s+CMD$/i.test(s)){stopMml();mmlBgm=true;return{}}
  if((m=s.match(/^CMD\s+BGM(?:\s+(.+))?$/i))){mmlBgm=m[1]==null?true:!!evaluate(m[1],state);return{}}
- if((m=s.match(/^CMD\s+PLAY\s+(.+)$/i))){const src=String(evaluate(m[1],state));await playMml(src,{background:mmlBgm});return{}}
+ if((m=s.match(/^CMD\s+PLAY\s+(.+)$/i))){const src=String(evaluate(m[1],state));if(mmlBgm){void playMml(src,{background:true});}else{await playMml(src,{background:false});}return{}}
  if(/^CMD\s+STOPM$/i.test(s)){stopMml();return{}}
  if(u==="CLS"){resetScreen();return{}}
  if(u==="CLEAR"){state.vars={};state.arrays={};state.forStack=[];state.gosub=[];return{}}
@@ -1011,7 +1011,7 @@ async function execStmt(s,state,idx){
  if((m=s.match(/^LINE\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+?))?(?:\s*,\s*(B|BF))?$/i))){const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg,mode=(m[4]||"").toUpperCase();ctx.strokeStyle=color(c);ctx.fillStyle=color(c);if(mode==="BF")ctx.fillRect(x1,y1,x2-x1,y2-y1);else if(mode==="B")ctx.strokeRect(x1,y1,x2-x1,y2-y1);else{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}renderText();return{}}
  if((m=s.match(/^CIRCLE\s*(\(.+?\))\s*,\s*(.+?)(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),r=+evaluate(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg;ctx.strokeStyle=color(c);ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();renderText();return{}}
  if((m=s.match(/^PAINT\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),c=m[2]!=null?evaluate(m[2],state):fg;floodFill(x,y,color(c));renderText();return{}}
- if(/^BEEP$/i.test(s)){await tone();return{}}
+ if((m=s.match(/^BEEP(?:\s+(.+))?$/i))){await tone();return{}}
  if((m=s.match(/^SOUND\s+(.+?)\s*,\s*(.+)$/i))){await tone(Math.max(20,+evaluate(m[1],state)),Math.max(.02,+evaluate(m[2],state)/18.2/100));return{}}
  if((m=s.match(/^PLAY\s+(.+)$/i))){await playMml(String(evaluate(m[1],state)),{background:false});return{}}
  if((m=s.match(/^SLEEP\s+(.+)$/i))){await sleep(Math.max(0,+evaluate(m[1],state)));return{}}
@@ -1154,7 +1154,7 @@ $("gameBtn").onclick=()=>{
 850 PRINT "SCORE";SCORE
 860 PLAY "CDEG"
 870 END`;
-  toast?.("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
+  if(typeof window.toast==="function")window.toast("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
 };
 $("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.8
 20 NEW CMD
@@ -1310,18 +1310,6 @@ window.__salpPadPress=(name,button)=>pressGameKey(name,button);
 window.__salpPadRelease=(name,button)=>releaseGameKey(name,button);
 window.addEventListener("blur",releaseAllKeys);
 
-document.querySelectorAll("[data-vkey]").forEach(button=>{
-  const name=button.dataset.vkey;
-  const down=e=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);pressGameKey(name,button)};
-  const up=e=>{e.preventDefault();releaseGameKey(name,button)};
-  button.addEventListener("pointerdown",down);
-  button.addEventListener("pointerup",up);
-  button.addEventListener("pointercancel",up);
-  button.addEventListener("lostpointercapture",up);
-  button.addEventListener("pointerleave",e=>{if(e.buttons)up(e)});
-  button.addEventListener("contextmenu",e=>e.preventDefault());
-});
-
 /* Controller UI is handled by the isolated v0.8.4 renderer above. */
 function updateControllerBadge(){
   const element=document.getElementById("keyStateBadge");
@@ -1352,8 +1340,8 @@ canvas.addEventListener("pointerup",e=>updateTouch(e,false));
 canvas.addEventListener("pointercancel",e=>{mouseButton=0});
 
 
-/* ===== v0.9.1 Phoenix Editor workspace ===== */
-const PHOENIX_STORAGE_KEY="salpN88PhoenixWorkspace_v091";
+/* ===== v0.9.2 Phoenix Editor workspace ===== */
+const PHOENIX_STORAGE_KEY="salpN88PhoenixWorkspace_v092";
 const PHOENIX_HISTORY_LIMIT=100;
 const EDITOR_LINE_HEIGHT=21.7; // 14px * 1.55
 const EDITOR_PADDING_TOP=14;
@@ -1740,7 +1728,7 @@ phoenixUpdateEditorInfo();
 phoenixUpdateButtons();
 /* ===== end Phoenix editor workspace ===== */
 
-resetScreen();printText("salp PC-8801MH Browser Edition v0.9.1");printText("N88-BASIC compatible / Phoenix Editor");printText("Ctrl+F Find  Ctrl+H Replace  Ctrl+G Goto");printText("");printText("Ok");
+resetScreen();printText("salp PC-8801MH Browser Edition v0.9.2");printText("N88-BASIC compatible / Phoenix Editor");printText("Ctrl+F Find  Ctrl+H Replace  Ctrl+G Goto");printText("");printText("Ok");
 </script>
 </body>
 </html>
