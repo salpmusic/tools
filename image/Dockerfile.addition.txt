@@ -1,5 +1,5 @@
 
-# salp Linux v1.8 browser layer
+# salp Linux v1.9 browser layer
 # Keep the upstream WebVM Alpine image and add a small graphical browser.
 RUN set -eux; \
     printf '%s\n' \
@@ -50,7 +50,7 @@ RUN chmod 0755 /usr/local/bin/salp-browser \
     'Categories=Network;WebBrowser;' \
     > /usr/share/applications/salp-browser.desktop \
  && printf '%s\n' \
-    'salp Linux v1.8' \
+    'salp Linux v1.9' \
     'browser=netsurf' \
     > /etc/salp-release \
  && command -v /usr/local/bin/salp-browser \
