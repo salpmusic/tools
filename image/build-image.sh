@@ -7,7 +7,7 @@ IMAGE_SIZE="${IMAGE_SIZE:-1600M}"
 REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ADDITION="$REPO_ROOT/image/Dockerfile.addition.txt"
 UPSTREAM="${UPSTREAM_REPO:-https://github.com/leaningtech/alpine-image.git}"
-IMAGE_TAG="salp-linux-browser:v1.7"
+IMAGE_TAG="salp-linux-browser:v1.8"
 container=""
 rootfs=""
 
@@ -77,7 +77,7 @@ fi
 
 sha256sum "$OUTPUT" > "$OUTPUT.sha256"
 {
-  echo 'salp Linux v1.7 Browser Image'
+  echo 'salp Linux v1.8 Browser Image'
   echo "built_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "image_size=$IMAGE_SIZE"
   echo 'architecture=i386'
