@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.8.4</title>
+<title>salp PC-8801MH Browser Edition v0.9.1 Phoenix</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -16,6 +16,61 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .displayWrap{padding:10px;background:#03060c}.displayFrame{position:relative;width:100%;aspect-ratio:8/5;overflow:hidden;border:2px solid #344158;border-radius:8px;background:#000;box-shadow:inset 0 0 30px #000}canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,#0002 3px);mix-blend-mode:multiply}
 .statusbar{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;color:var(--muted);font:11px ui-monospace,monospace}.promptWrap{margin-top:10px;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--panel)}.promptLabel{padding:8px 12px 0;color:var(--cyan);font:11px ui-monospace,monospace}.promptRow{display:flex;align-items:center;gap:8px;padding:8px 10px 11px}.promptMark{color:var(--green);font:bold 17px ui-monospace,monospace}#prompt{flex:1;min-width:0;border:0;outline:0;padding:10px 11px;border-radius:10px;background:#070c17;color:var(--green);font:15px ui-monospace,monospace}.help{margin-top:10px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#111827aa;color:var(--muted);font-size:12px}.help b{color:var(--text)}
 @media(max-width:800px){.workspace{grid-template-columns:1fr}.editor{min-height:400px}.displayFrame{aspect-ratio:8/5}}
+.editorPanelHead{align-items:center;gap:8px}
+#editorDocStatus{color:var(--cyan)}
+.editorStatusbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);background:#0a101c;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+#editorSaveState.modified{color:#ffd166}
+#editorSaveState.saving{color:var(--cyan)}
+#editorSaveState.saved{color:var(--green)}
+#editorSaveState.error{color:#ff8f8f}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+/* ===== Phoenix Editor extras (v0.9.1) ===== */
+.editorWrap{position:relative}
+.findBar{
+  display:none;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  padding:8px 10px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#152036,#0d1524);
+}
+.findBar.show{display:flex}
+.findBar input{
+  min-height:34px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:6px 10px;
+  background:#070c17;
+  color:var(--green);
+  font:13px ui-monospace,monospace;
+}
+.findBar input[type="text"]{flex:1;min-width:120px}
+.findBar .findBtns{display:flex;gap:4px;flex-wrap:wrap}
+.findBar button{
+  min-height:34px;
+  padding:5px 10px;
+  font-size:11px;
+  border-radius:8px;
+}
+.findBar .findStatus{color:var(--muted);font:11px ui-monospace,monospace;min-width:70px}
+.findBar .closeFind{background:#2a1a22;border-color:#5a3040}
+.editorTools{display:flex;gap:5px;align-items:center}
+.editorTools button{min-height:28px;padding:4px 8px;font-size:11px;border-radius:8px}
+.currentLineHighlight{
+  position:absolute;
+  left:0;right:0;
+  height:21.7px;
+  background:rgba(110,231,242,0.07);
+  pointer-events:none;
+  z-index:1;
+  display:none;
+  border-left:3px solid var(--cyan);
+}
+.editor{position:relative;z-index:2;background:transparent}
+.editorPanelInner{position:relative;background:var(--panel2);overflow:hidden}
+/* ===== end Phoenix Editor extras ===== */
 
 .keypadPanel{margin-top:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
 .keypadTop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
@@ -210,7 +265,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.8.4 ISOLATED PAD</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Phoenix Editor</div></div></div><div class="version">v0.9.1 PHOENIX</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -219,6 +274,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <button id="stopBtn">■ STOP</button>
 <button id="listBtn">LIST</button>
 <button id="newBtn">NEW</button>
+<button id="undoBtn" title="Undo / Ctrl+Z">↶ UNDO</button>
+<button id="redoBtn" title="Redo / Ctrl+Y">↷ REDO</button>
+<button id="saveLocalBtn" title="Save workspace / Ctrl+S">💾 SAVE WORK</button>
 <button id="compatBtn">COMPAT SAMPLE</button>
 <button id="graphicsBtn">GRAPHICS</button>
 <button id="gameBtn">GAME SAMPLE</button>
@@ -307,8 +365,30 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 
 <div class="workspace">
 <section class="panel">
-<div class="panelHead"><span>PROGRAM EDITOR</span><span>Line-numbered BASIC</span></div>
-<textarea id="editor" class="editor" spellcheck="false">10 CLS
+<div class="panelHead editorPanelHead">
+  <span>PROGRAM EDITOR</span>
+  <div class="editorTools">
+    <button type="button" id="findBtn" title="検索 Ctrl+F">🔍 FIND</button>
+    <button type="button" id="replaceBtn" title="置換 Ctrl+H">🔁 REPLACE</button>
+    <button type="button" id="gotoBtn" title="行ジャンプ Ctrl+G">⤵ GOTO</button>
+    <span id="editorDocStatus">Saved · AutoSave ON</span>
+  </div>
+</div>
+<div id="findBar" class="findBar">
+  <input type="text" id="findInput" placeholder="検索文字列…" autocomplete="off">
+  <input type="text" id="replaceInput" placeholder="置換後…" autocomplete="off" style="display:none">
+  <div class="findBtns">
+    <button type="button" id="findPrevBtn">↑ Prev</button>
+    <button type="button" id="findNextBtn">↓ Next</button>
+    <button type="button" id="replaceOneBtn" style="display:none">Replace</button>
+    <button type="button" id="replaceAllBtn" style="display:none">All</button>
+    <button type="button" id="closeFindBtn" class="closeFind">✕</button>
+  </div>
+  <span id="findStatus" class="findStatus"></span>
+</div>
+<div class="editorPanelInner">
+  <div id="currentLineHighlight" class="currentLineHighlight"></div>
+  <textarea id="editor" class="editor" spellcheck="false">10 CLS
 20 DIM N(5)
 30 DATA 10,20,30,40,50
 40 FOR I=1 TO 5
@@ -326,6 +406,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 160 END
 200 PRINT "FIRST":RETURN
 300 PRINT "SECOND":RETURN</textarea>
+</div>
+<div class="editorStatusbar">
+  <span id="editorCursor">Ln 1 · Col 1</span>
+  <span id="editorStats">Lines 1 · Chars 0</span>
+  <span id="editorSaveState">Saved</span>
+</div>
 </section>
 
 <section class="panel">
@@ -541,11 +627,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.8.4 Game & Sound：</b>
-4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
-CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
-MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
-CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
+<div class="help"><b>v0.9.1 Phoenix：</b>
+毎日使いたくなるエディタ強化。<br>
+<strong>新規：</strong> 検索 (Ctrl+F) / 置換 (Ctrl+H) / 行ジャンプ (Ctrl+G) / TABインデント (2スペース) / 現在行ハイライト / HOME・END改善。<br>
+既存：Undo/Redo (Ctrl+Z/Y) ・AutoSave ・Ctrl+S ・4オペレータ風FM合成・ステレオ・アルペジオ・CRT効果・MH設定・SOUND LAB・ゲームパッド。<br>
+CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。<br>
 実機ROMや実機回路を使う完全エミュレーターではなく、N88-BASIC互換環境として再現しています。
 </div>
 </div>
@@ -1265,7 +1351,396 @@ canvas.addEventListener("pointermove",e=>{if(e.buttons)updateTouch(e,true)});
 canvas.addEventListener("pointerup",e=>updateTouch(e,false));
 canvas.addEventListener("pointercancel",e=>{mouseButton=0});
 
-resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / Crystal FM");printText("");printText("Ok");
+
+/* ===== v0.9.1 Phoenix Editor workspace ===== */
+const PHOENIX_STORAGE_KEY="salpN88PhoenixWorkspace_v091";
+const PHOENIX_HISTORY_LIMIT=100;
+const EDITOR_LINE_HEIGHT=21.7; // 14px * 1.55
+const EDITOR_PADDING_TOP=14;
+let phoenixUndoStack=[];
+let phoenixRedoStack=[];
+let phoenixLastValue=editor.value;
+let phoenixModified=false;
+let phoenixAutosaveTimer=null;
+let phoenixApplyingHistory=false;
+let findMatches=[];
+let findIndex=-1;
+let findMode="find"; // "find" | "replace"
+
+function phoenixSnapshot(){return{code:editor.value,selectionStart:editor.selectionStart,selectionEnd:editor.selectionEnd,scrollTop:editor.scrollTop,savedAt:new Date().toISOString()}}
+function phoenixUpdateEditorInfo(){
+  const before=editor.value.slice(0,editor.selectionStart);
+  const line=before.split("\n").length;
+  const lastBreak=before.lastIndexOf("\n");
+  const col=editor.selectionStart-(lastBreak+1)+1;
+  const lines=editor.value?editor.value.split("\n").length:1;
+  $("editorCursor").textContent=`Ln ${line} · Col ${col}`;
+  $("editorStats").textContent=`Lines ${lines} · Chars ${editor.value.length}`;
+  updateCurrentLineHighlight(line);
+}
+function phoenixSetSaveState(state,label){
+  const stateEl=$("editorSaveState"),docEl=$("editorDocStatus");
+  stateEl.className=state;stateEl.textContent=label;
+  docEl.textContent=`${label} · AutoSave ON`;
+}
+function phoenixUpdateButtons(){
+  $("undoBtn").disabled=phoenixUndoStack.length===0;
+  $("redoBtn").disabled=phoenixRedoStack.length===0;
+}
+function phoenixPushUndo(value,selectionStart,selectionEnd,scrollTop){
+  phoenixUndoStack.push({value,selectionStart,selectionEnd,scrollTop});
+  if(phoenixUndoStack.length>PHOENIX_HISTORY_LIMIT)phoenixUndoStack.shift();
+  phoenixUpdateButtons();
+}
+function phoenixApplyState(state){
+  if(!state)return;
+  phoenixApplyingHistory=true;
+  editor.value=state.value;
+  editor.focus();
+  editor.setSelectionRange(Math.min(state.selectionStart??editor.value.length,editor.value.length),Math.min(state.selectionEnd??editor.value.length,editor.value.length));
+  editor.scrollTop=state.scrollTop??0;
+  phoenixLastValue=editor.value;
+  phoenixApplyingHistory=false;
+  phoenixModified=true;
+  phoenixSetSaveState("modified","Modified");
+  phoenixUpdateEditorInfo();
+  phoenixScheduleAutosave();
+}
+function phoenixUndo(){
+  if(!phoenixUndoStack.length)return;
+  phoenixRedoStack.push({value:editor.value,selectionStart:editor.selectionStart,selectionEnd:editor.selectionEnd,scrollTop:editor.scrollTop});
+  phoenixApplyState(phoenixUndoStack.pop());
+  phoenixUpdateButtons();
+}
+function phoenixRedo(){
+  if(!phoenixRedoStack.length)return;
+  phoenixUndoStack.push({value:editor.value,selectionStart:editor.selectionStart,selectionEnd:editor.selectionEnd,scrollTop:editor.scrollTop});
+  phoenixApplyState(phoenixRedoStack.pop());
+  phoenixUpdateButtons();
+}
+function phoenixSaveWorkspace(){
+  try{
+    localStorage.setItem(PHOENIX_STORAGE_KEY,JSON.stringify(phoenixSnapshot()));
+    phoenixModified=false;
+    phoenixSetSaveState("saved","Saved");
+    return true;
+  }catch(error){
+    phoenixSetSaveState("error","Save Error");
+    console.error(error);
+    return false;
+  }
+}
+function phoenixScheduleAutosave(){
+  clearTimeout(phoenixAutosaveTimer);
+  phoenixSetSaveState("saving","Saving…");
+  phoenixAutosaveTimer=setTimeout(phoenixSaveWorkspace,900);
+}
+function phoenixRestoreWorkspace(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PHOENIX_STORAGE_KEY)||"null");
+    if(!saved||typeof saved.code!=="string")return false;
+    editor.value=saved.code;
+    const p=Math.min(Number(saved.selectionStart)||0,editor.value.length);
+    const e=Math.min(Number(saved.selectionEnd)||p,editor.value.length);
+    editor.setSelectionRange(p,e);
+    editor.scrollTop=Number(saved.scrollTop)||0;
+    phoenixLastValue=editor.value;
+    phoenixModified=false;
+    phoenixSetSaveState("saved","Restored");
+    phoenixUpdateEditorInfo();
+    return true;
+  }catch(error){
+    console.warn("Phoenix restore failed",error);
+    return false;
+  }
+}
+function phoenixTrackProgrammaticChange(){
+  if(editor.value===phoenixLastValue)return;
+  phoenixPushUndo(phoenixLastValue,0,0,0);
+  phoenixRedoStack.length=0;
+  phoenixLastValue=editor.value;
+  phoenixModified=true;
+  phoenixSetSaveState("modified","Modified");
+  phoenixUpdateEditorInfo();
+  phoenixScheduleAutosave();
+  phoenixUpdateButtons();
+}
+
+/* --- Current line highlight --- */
+function updateCurrentLineHighlight(line){
+  const hl=$("currentLineHighlight");
+  if(!hl)return;
+  const top=EDITOR_PADDING_TOP + (line-1)*EDITOR_LINE_HEIGHT - editor.scrollTop;
+  hl.style.display="block";
+  hl.style.top=top+"px";
+  hl.style.height=EDITOR_LINE_HEIGHT+"px";
+}
+
+/* --- Find / Replace --- */
+function openFindBar(mode="find"){
+  findMode=mode;
+  const bar=$("findBar");
+  bar.classList.add("show");
+  $("replaceInput").style.display=mode==="replace"?"block":"none";
+  $("replaceOneBtn").style.display=mode==="replace"?"inline-block":"none";
+  $("replaceAllBtn").style.display=mode==="replace"?"inline-block":"none";
+  $("findInput").focus();
+  $("findInput").select();
+  if($("findInput").value)runFind(true);
+}
+function closeFindBar(){
+  $("findBar").classList.remove("show");
+  findMatches=[];findIndex=-1;
+  $("findStatus").textContent="";
+  editor.focus();
+}
+function collectFindMatches(query){
+  findMatches=[];
+  if(!query)return;
+  const text=editor.value;
+  const q=query; // case sensitive for BASIC feel; can lower if wanted
+  let pos=0;
+  while(true){
+    const i=text.indexOf(q,pos);
+    if(i<0)break;
+    findMatches.push(i);
+    pos=i+Math.max(1,q.length);
+  }
+}
+function runFind(fromStart=false){
+  const q=$("findInput").value;
+  collectFindMatches(q);
+  if(!findMatches.length){
+    findIndex=-1;
+    $("findStatus").textContent=q?"0/0":"";
+    return;
+  }
+  if(fromStart||findIndex<0){
+    // start after current caret if possible
+    const caret=editor.selectionStart;
+    findIndex=findMatches.findIndex(m=>m>=caret);
+    if(findIndex<0)findIndex=0;
+  }
+  selectFindMatch();
+}
+function selectFindMatch(){
+  if(findIndex<0||!findMatches.length)return;
+  const start=findMatches[findIndex];
+  const end=start+$("findInput").value.length;
+  editor.focus();
+  editor.setSelectionRange(start,end);
+  // scroll into view roughly
+  const before=editor.value.slice(0,start);
+  const line=before.split("\n").length;
+  const targetTop=EDITOR_PADDING_TOP+(line-1)*EDITOR_LINE_HEIGHT - editor.clientHeight/3;
+  editor.scrollTop=Math.max(0,targetTop);
+  $("findStatus").textContent=`${findIndex+1}/${findMatches.length}`;
+  phoenixUpdateEditorInfo();
+}
+function findNext(){
+  if(!findMatches.length){runFind(true);return;}
+  findIndex=(findIndex+1)%findMatches.length;
+  selectFindMatch();
+}
+function findPrev(){
+  if(!findMatches.length){runFind(true);return;}
+  findIndex=(findIndex-1+findMatches.length)%findMatches.length;
+  selectFindMatch();
+}
+function replaceOne(){
+  const q=$("findInput").value;
+  const r=$("replaceInput").value;
+  if(!q||findIndex<0||!findMatches.length)return;
+  const start=findMatches[findIndex];
+  const end=start+q.length;
+  // ensure selection matches
+  if(editor.selectionStart!==start)selectFindMatch();
+  phoenixPushUndo(editor.value,editor.selectionStart,editor.selectionEnd,editor.scrollTop);
+  phoenixRedoStack.length=0;
+  editor.setRangeText(r,start,end,"end");
+  phoenixLastValue=editor.value;
+  phoenixModified=true;
+  phoenixSetSaveState("modified","Modified");
+  phoenixScheduleAutosave();
+  // re-collect from current position
+  const newCaret=start+r.length;
+  collectFindMatches(q);
+  findIndex=findMatches.findIndex(m=>m>=newCaret);
+  if(findIndex<0&&findMatches.length)findIndex=0;
+  if(findMatches.length)selectFindMatch();
+  else $("findStatus").textContent="0/0";
+  phoenixUpdateEditorInfo();
+  phoenixUpdateButtons();
+}
+function replaceAll(){
+  const q=$("findInput").value;
+  const r=$("replaceInput").value;
+  if(!q)return;
+  const count=(editor.value.split(q).length-1);
+  if(count<=0){$("findStatus").textContent="0 replaced";return;}
+  phoenixPushUndo(editor.value,editor.selectionStart,editor.selectionEnd,editor.scrollTop);
+  phoenixRedoStack.length=0;
+  editor.value=editor.value.split(q).join(r);
+  phoenixLastValue=editor.value;
+  phoenixModified=true;
+  phoenixSetSaveState("modified","Modified");
+  phoenixScheduleAutosave();
+  findMatches=[];findIndex=-1;
+  $("findStatus").textContent=`${count} replaced`;
+  phoenixUpdateEditorInfo();
+  phoenixUpdateButtons();
+}
+
+/* --- Goto line --- */
+function gotoLine(){
+  const lines=editor.value?editor.value.split("\n").length:1;
+  const input=prompt(`行番号を入力 (1〜${lines})`,"");
+  if(input==null||input==="")return;
+  let n=parseInt(input,10);
+  if(isNaN(n))return;
+  n=Math.max(1,Math.min(lines,n));
+  const parts=editor.value.split("\n");
+  let pos=0;
+  for(let i=0;i<n-1;i++)pos+=parts[i].length+1;
+  editor.focus();
+  editor.setSelectionRange(pos,pos);
+  const targetTop=EDITOR_PADDING_TOP+(n-1)*EDITOR_LINE_HEIGHT - editor.clientHeight/3;
+  editor.scrollTop=Math.max(0,targetTop);
+  phoenixUpdateEditorInfo();
+}
+
+/* --- TAB indent (2 spaces) & improved HOME/END --- */
+editor.addEventListener("keydown",e=>{
+  // TAB → 2 spaces
+  if(e.key==="Tab"){
+    e.preventDefault();
+    const start=editor.selectionStart,end=editor.selectionEnd;
+    if(start===end){
+      // insert
+      phoenixPushUndo(editor.value,start,end,editor.scrollTop);
+      phoenixRedoStack.length=0;
+      editor.setRangeText("  ",start,end,"end");
+      phoenixLastValue=editor.value;
+      phoenixModified=true;
+      phoenixSetSaveState("modified","Modified");
+      phoenixScheduleAutosave();
+      phoenixUpdateButtons();
+    }else{
+      // indent selection lines
+      phoenixPushUndo(editor.value,start,end,editor.scrollTop);
+      phoenixRedoStack.length=0;
+      const text=editor.value;
+      const before=text.slice(0,start);
+      const sel=text.slice(start,end);
+      const after=text.slice(end);
+      const indented=sel.split("\n").map(line=>"  "+line).join("\n");
+      editor.value=before+indented+after;
+      editor.setSelectionRange(start,start+indented.length);
+      phoenixLastValue=editor.value;
+      phoenixModified=true;
+      phoenixSetSaveState("modified","Modified");
+      phoenixScheduleAutosave();
+      phoenixUpdateButtons();
+    }
+    phoenixUpdateEditorInfo();
+    return;
+  }
+  // HOME: go to first non-space or absolute start of line
+  if(e.key==="Home"&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    e.preventDefault();
+    const pos=editor.selectionStart;
+    const before=editor.value.slice(0,pos);
+    const lineStart=before.lastIndexOf("\n")+1;
+    const lineText=editor.value.slice(lineStart,editor.value.indexOf("\n",lineStart)===-1?editor.value.length:editor.value.indexOf("\n",lineStart));
+    const firstNonSpace=lineText.search(/\S/);
+    const target=firstNonSpace<=0||pos===lineStart+firstNonSpace?lineStart:lineStart+firstNonSpace;
+    if(e.shiftKey)editor.setSelectionRange(Math.min(editor.selectionEnd,target),Math.max(editor.selectionEnd,target));
+    else editor.setSelectionRange(target,target);
+    phoenixUpdateEditorInfo();
+    return;
+  }
+  // END: end of line
+  if(e.key==="End"&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    e.preventDefault();
+    const pos=editor.selectionStart;
+    const after=editor.value.slice(pos);
+    const lineEndRel=after.indexOf("\n");
+    const target=lineEndRel<0?editor.value.length:pos+lineEndRel;
+    if(e.shiftKey)editor.setSelectionRange(Math.min(editor.selectionStart,target),Math.max(editor.selectionStart,target));
+    else editor.setSelectionRange(target,target);
+    phoenixUpdateEditorInfo();
+    return;
+  }
+});
+
+/* --- Event wiring --- */
+editor.addEventListener("beforeinput",()=>{
+  if(phoenixApplyingHistory)return;
+  phoenixPushUndo(editor.value,editor.selectionStart,editor.selectionEnd,editor.scrollTop);
+  phoenixRedoStack.length=0;
+  phoenixUpdateButtons();
+});
+editor.addEventListener("input",()=>{
+  phoenixLastValue=editor.value;
+  phoenixModified=true;
+  phoenixSetSaveState("modified","Modified");
+  phoenixUpdateEditorInfo();
+  phoenixScheduleAutosave();
+  if($("findBar").classList.contains("show")&&$("findInput").value){
+    // keep match list fresh after edit
+    collectFindMatches($("findInput").value);
+    $("findStatus").textContent=findMatches.length?`${Math.min(findIndex+1,findMatches.length)}/${findMatches.length}`:"0/0";
+  }
+});
+["keyup","click","select","scroll"].forEach(type=>editor.addEventListener(type,phoenixUpdateEditorInfo));
+
+$("undoBtn").onclick=phoenixUndo;
+$("redoBtn").onclick=phoenixRedo;
+$("saveLocalBtn").onclick=phoenixSaveWorkspace;
+
+$("findBtn").onclick=()=>openFindBar("find");
+$("replaceBtn").onclick=()=>openFindBar("replace");
+$("gotoBtn").onclick=gotoLine;
+$("closeFindBtn").onclick=closeFindBar;
+$("findNextBtn").onclick=findNext;
+$("findPrevBtn").onclick=findPrev;
+$("replaceOneBtn").onclick=replaceOne;
+$("replaceAllBtn").onclick=replaceAll;
+$("findInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();if(e.shiftKey)findPrev();else findNext();}
+  if(e.key==="Escape"){e.preventDefault();closeFindBar();}
+});
+$("replaceInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();replaceOne();}
+  if(e.key==="Escape"){e.preventDefault();closeFindBar();}
+});
+$("findInput").addEventListener("input",()=>runFind(true));
+
+document.addEventListener("keydown",event=>{
+  const ctrl=event.ctrlKey||event.metaKey;
+  if(!ctrl)return;
+  const key=event.key.toLowerCase();
+  // only when not typing in prompt or other inputs (except editor itself)
+  const tag=document.activeElement?.tagName;
+  const inEditor=document.activeElement===editor;
+  const inFind=document.activeElement===$("findInput")||document.activeElement===$("replaceInput");
+  if(key==="s"){event.preventDefault();phoenixSaveWorkspace();}
+  else if(key==="z"&&!event.shiftKey){event.preventDefault();phoenixUndo();}
+  else if(key==="y"||(key==="z"&&event.shiftKey)){event.preventDefault();phoenixRedo();}
+  else if(key==="f"){event.preventDefault();openFindBar("find");}
+  else if(key==="h"){event.preventDefault();openFindBar("replace");}
+  else if(key==="g"){event.preventDefault();gotoLine();}
+});
+
+window.addEventListener("beforeunload",()=>{if(phoenixModified)phoenixSaveWorkspace()});
+setInterval(phoenixTrackProgrammaticChange,250);
+phoenixRestoreWorkspace();
+phoenixLastValue=editor.value;
+phoenixUpdateEditorInfo();
+phoenixUpdateButtons();
+/* ===== end Phoenix editor workspace ===== */
+
+resetScreen();printText("salp PC-8801MH Browser Edition v0.9.1");printText("N88-BASIC compatible / Phoenix Editor");printText("Ctrl+F Find  Ctrl+H Replace  Ctrl+G Goto");printText("");printText("Ok");
 </script>
 </body>
 </html>
