@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v1.9</title>
+<title>salp Linux v1.9.1.1</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
@@ -112,20 +112,40 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 .fileRow span:last-child{margin-left:auto;color:var(--muted)}
 .browserMock{
   display:grid;grid-template-rows:auto auto 1fr;height:100%;
-  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#020403;
 }
-.browserBar{display:flex;gap:7px;padding:8px;background:#0d1911}
+.browserBar{display:flex;gap:7px;padding:8px;background:#0d1911;align-items:center;overflow-x:auto}
 .browserBar button{min-width:42px;padding:7px 10px}
 .browserBar input{
-  flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;
+  flex:1;min-width:150px;border:1px solid var(--line);border-radius:9px;
   background:#050a07;color:var(--text);padding:10px 12px;
   font:12px ui-monospace,monospace;
 }
-.browserHint{padding:7px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#09110c;color:var(--muted);font-size:10px;line-height:1.45}
-.browserView{position:relative;min-height:0;background:#fff}
-.browserView iframe{width:100%;height:100%;border:0;background:#fff}
-.browserEmpty{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--muted);background:#020403}
+.browserHint{display:flex;align-items:center;gap:8px;padding:7px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#09110c;color:var(--muted);font-size:10px;line-height:1.45}
+.browserHint .browserStatus{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.browserView{position:relative;min-height:0;background:#fff;overflow:hidden}
+.browserView iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#fff;transform-origin:0 0}
+.browserEmpty{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--muted);background:radial-gradient(circle at 50% 25%,rgba(121,243,157,.12),transparent 35%),#020403;z-index:3}
 .browserEmpty h3{color:var(--text);margin:8px 0}.browserEmpty p{max-width:520px;font-size:11px;line-height:1.6}
+.browserQuick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px auto 0;max-width:430px}
+.browserQuick button{min-height:44px}
+.browserLoading{position:absolute;left:0;right:0;top:0;height:3px;z-index:6;background:rgba(121,243,157,.13);overflow:hidden}
+.browserLoading::after{content:"";display:block;width:35%;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));animation:browserLoad 1s linear infinite}
+@keyframes browserLoad{from{transform:translateX(-110%)}to{transform:translateX(320%)}}
+.browserRestore{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top));z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.45);background:#183721;border-color:#3d8050}
+body.browserFullscreen .app>header,body.browserFullscreen .app>.toolbar,body.browserFullscreen footer,body.browserFullscreen .desktopTop,body.browserFullscreen .desktopDock{display:none!important}
+body.browserFullscreen .app{grid-template-rows:1fr}
+body.browserFullscreen .terminalWrap{position:fixed;inset:0;z-index:30}
+body.browserFullscreen #browserWindow{inset:0;border:0;border-radius:0;box-shadow:none}
+body.browserFullscreen #browserWindow>.windowBar{display:none}
+body.browserFullscreen #browserWindow .browserMock{border:0;border-radius:0}
+body.browserFullscreen #browserWindow .windowBody{height:100%}
+@media(max-width:650px){
+ .browserBar{display:grid;grid-template-columns:repeat(5,auto);overflow:visible}
+ .browserBar input{grid-column:1/-2;grid-row:2;min-width:0}
+ .browserBar #browserGoBtn{grid-column:-2;grid-row:2}
+ .browserQuick{grid-template-columns:1fr 1fr}
+}
 .pythonPanel textarea{
   width:100%;min-height:180px;border:1px solid var(--line);border-radius:12px;
   background:#020403;color:#b7ffc7;padding:12px;
@@ -148,8 +168,8 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Desktop 1.9 / Image Builder</small></div>
-  <div class="badge">v1.9 STABLE DESKTOP</div>
+  <div class="title"><strong>salp Linux</strong><small>Desktop 1.9.1 / Browser Upgrade</small></div>
+  <div class="badge">v1.9.1.1 BROWSER UPGRADE</div>
 </header>
 
 <div class="toolbar">
@@ -167,7 +187,7 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 
   <section id="desktop" class="desktop hidden">
     <div class="desktopTop">
-      <strong>🐧 salp Linux Desktop 1.9</strong>
+      <strong>🐧 salp Linux Desktop 1.9.1</strong>
       <span id="desktopStatus" style="color:var(--green);font-size:10px">Linux Ready</span>
       <span id="desktopClock" class="desktopClock">--:--</span>
     </div>
@@ -273,7 +293,11 @@ for i in range(1, 6):
 
   <section id="browserWindow" class="window hidden">
     <div class="windowBar">
-      <span class="windowTitle">🌐 salp Browser 1.0</span><span class="spacer"></span>
+      <span class="windowTitle">🌐 salp Browser 1.1</span><span class="spacer"></span>
+      <button id="browserZoomOutBtn" title="縮小">A−</button>
+      <button id="browserZoomLabel" title="表示倍率">100%</button>
+      <button id="browserZoomInBtn" title="拡大">A＋</button>
+      <button id="browserFullscreenBtn" title="ブラウザだけを全画面表示">⛶</button>
       <button id="browserExternalBtn" title="外部ブラウザで開く">↗</button>
       <button data-show-desktop="1">⌂</button>
       <button data-close-window="browserWindow">×</button>
@@ -288,14 +312,21 @@ for i in range(1, 6):
           <input id="browserUrl" value="https://example.com" aria-label="URL" autocapitalize="none" autocomplete="off" spellcheck="false">
           <button id="browserGoBtn" class="primary">開く</button>
         </div>
-        <div class="browserHint">iframe表示を許可しているサイトはこの画面内で開きます。表示を拒否するサイトは右上の「↗」でSafariなどに開けます。</div>
-        <div class="browserView">
-          <iframe id="browserFrame" title="salp Browser web view" referrerpolicy="no-referrer"></iframe>
+        <div class="browserHint"><span id="browserSecurity">🔒</span><span id="browserStatus" class="browserStatus">ホーム — URLまたは検索語を入力してください</span><button id="browserHelpBtn" style="min-height:28px;padding:3px 8px">表示ヘルプ</button></div>
+        <div class="browserView" id="browserView">
+          <div id="browserLoading" class="browserLoading hidden"></div>
+          <iframe id="browserFrame" title="salp Browser web view" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; clipboard-read; clipboard-write" loading="eager"></iframe>
           <div id="browserEmpty" class="browserEmpty">
             <div>
               <div style="font-size:48px">🌐</div>
-              <h3>salp Browser</h3>
-              <p>URLを入力して「開く」を押してください。まずはexample.comなど、埋め込み表示に対応したページで動作を確認できます。</p>
+              <h3>salp Browser 1.1</h3>
+              <p>URLまたは検索語を入力してください。全画面切り替え・表示倍率・読み込み状態表示を追加しました。</p>
+              <div class="browserQuick">
+                <button data-browser-url="https://example.com">🌐 Example</button>
+                <button data-browser-url="https://www.wikipedia.org">📚 Wikipedia</button>
+                <button data-browser-url="https://developer.mozilla.org">🧩 MDN</button>
+                <button data-browser-url="https://salpmusic.github.io/tools/">🐧 salp Tools</button>
+              </div>
             </div>
           </div>
         </div>
@@ -303,9 +334,11 @@ for i in range(1, 6):
     </div>
   </section>
 
+  <button id="browserRestoreBtn" class="browserRestore hidden">↙ デスクトップ表示へ戻す</button>
+
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v1.9</h1>
+      <h1>salp Linux v1.9.1.1</h1>
       <p>Linuxターミナルを内蔵した、最初のsalp Linuxデスクトップ。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
@@ -344,20 +377,20 @@ for i in range(1, 6):
 
 <div class="utilityBar">
   <button class="home" id="homeBtn">⌂ HOME</button>
-  <button class="saveTest" data-command="echo 'salp Linux v1.9' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
+  <button class="saveTest" data-command="echo 'salp Linux v1.9.1' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
   <button data-command="mkdir -p projects && cd projects && pwd">📁 projects</button>
   <button data-command="history | tail -10">↺ 履歴</button>
   <button data-command="clear">CLEAR</button>
   <button class="danger" data-command="exit">EXIT</button>
 </div>
-<footer>salp Linux Desktop 1.9：Terminal・Files・Python・Browserを一つのデスクトップへ統合。</footer>
+<footer>salp Linux Desktop 1.9.1：Terminal・Files・Python・Browserを一つのデスクトップへ統合。</footer>
 </div>
 
 <script>
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=19");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=191");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -441,7 +474,7 @@ async function boot(){
 
   term.clear();
   term.writeln("\x1b[1;32msalp Virtual PC BIOS\x1b[0m");
-  term.writeln("CheerpX 1.2.8 / Debian / salp Desktop 1.9");
+  term.writeln("CheerpX 1.2.8 / Debian / salp Desktop 1.9.1");
   term.writeln("-----------------------------------------");
 
   try{
@@ -627,6 +660,8 @@ $("runPythonBtn").addEventListener("click",()=>{
 const browserHistory=[];
 let browserHistoryIndex=-1;
 let currentBrowserUrl="https://example.com";
+let browserZoom=1;
+let browserLoadTimer=null;
 
 function normalizeBrowserUrl(value){
   const raw=(value||"").trim();
@@ -642,12 +677,32 @@ function updateBrowserButtons(){
   $("browserForwardBtn").disabled=browserHistoryIndex<0||browserHistoryIndex>=browserHistory.length-1;
 }
 
+function setBrowserStatus(text,state="idle"){
+  $("browserStatus").textContent=text;
+  $("browserLoading").classList.toggle("hidden",state!=="loading");
+  $("browserSecurity").textContent=currentBrowserUrl.startsWith("https://")?"🔒":"⚠️";
+}
+
+function applyBrowserZoom(){
+  const frame=$("browserFrame");
+  frame.style.width=(100/browserZoom)+"%";
+  frame.style.height=(100/browserZoom)+"%";
+  frame.style.transform=`scale(${browserZoom})`;
+  $("browserZoomLabel").textContent=Math.round(browserZoom*100)+"%";
+  localStorage.setItem("salpBrowserZoom",String(browserZoom));
+}
+
 function navigateBrowser(value,{record=true}={}){
   const url=normalizeBrowserUrl(value);
   currentBrowserUrl=url;
   $("browserUrl").value=url;
   $("browserEmpty").classList.add("hidden");
+  setBrowserStatus("読み込み中: "+url,"loading");
   $("browserFrame").src=url;
+  clearTimeout(browserLoadTimer);
+  browserLoadTimer=setTimeout(()=>{
+    setBrowserStatus("表示に時間がかかっています。表示されない場合は ↗ で外部ブラウザを使えます。","idle");
+  },7000);
   if(record){
     browserHistory.splice(browserHistoryIndex+1);
     browserHistory.push(url);
@@ -657,14 +712,27 @@ function navigateBrowser(value,{record=true}={}){
   localStorage.setItem("salpBrowserLastUrl",url);
 }
 
+function setBrowserFullscreen(enabled){
+  document.body.classList.toggle("browserFullscreen",enabled);
+  $("browserRestoreBtn").classList.toggle("hidden",!enabled);
+  if(enabled)openWindow("browserWindow");
+  localStorage.setItem("salpBrowserFullscreen",enabled?"1":"0");
+}
+
 $("browserGoBtn").addEventListener("click",()=>navigateBrowser($("browserUrl").value));
 $("browserUrl").addEventListener("keydown",event=>{
   if(event.key==="Enter")navigateBrowser(event.currentTarget.value);
 });
-$("browserHomeBtn").addEventListener("click",()=>navigateBrowser("https://example.com"));
+$("browserHomeBtn").addEventListener("click",()=>{
+  $("browserFrame").src="about:blank";
+  $("browserEmpty").classList.remove("hidden");
+  $("browserUrl").value="";
+  currentBrowserUrl="https://example.com";
+  setBrowserStatus("ホーム — URLまたは検索語を入力してください");
+});
 $("browserReloadBtn").addEventListener("click",()=>{
-  const frame=$("browserFrame");
-  frame.src=currentBrowserUrl;
+  setBrowserStatus("再読み込み中: "+currentBrowserUrl,"loading");
+  $("browserFrame").src=currentBrowserUrl;
 });
 $("browserBackBtn").addEventListener("click",()=>{
   if(browserHistoryIndex<=0)return;
@@ -676,14 +744,24 @@ $("browserForwardBtn").addEventListener("click",()=>{
   browserHistoryIndex++;
   navigateBrowser(browserHistory[browserHistoryIndex],{record:false});
 });
-$("browserExternalBtn").addEventListener("click",()=>{
-  window.open(currentBrowserUrl,"_blank","noopener,noreferrer");
-});
+$("browserExternalBtn").addEventListener("click",()=>window.open(currentBrowserUrl,"_blank","noopener,noreferrer"));
+$("browserFullscreenBtn").addEventListener("click",()=>setBrowserFullscreen(true));
+$("browserRestoreBtn").addEventListener("click",()=>setBrowserFullscreen(false));
+$("browserZoomOutBtn").addEventListener("click",()=>{browserZoom=Math.max(.6,Math.round((browserZoom-.1)*10)/10);applyBrowserZoom()});
+$("browserZoomInBtn").addEventListener("click",()=>{browserZoom=Math.min(1.6,Math.round((browserZoom+.1)*10)/10);applyBrowserZoom()});
+$("browserZoomLabel").addEventListener("click",()=>{browserZoom=1;applyBrowserZoom()});
+$("browserHelpBtn").addEventListener("click",()=>alert("サイト側のセキュリティ設定により、画面内表示できないページがあります。その場合は右上の ↗ でSafariなどの外部ブラウザに開いてください。\n\nA− / A＋で内部表示倍率を変更できます。⛶でブラウザだけの全画面表示になります。"));
+document.querySelectorAll("[data-browser-url]").forEach(btn=>btn.addEventListener("click",()=>navigateBrowser(btn.dataset.browserUrl)));
 $("browserFrame").addEventListener("load",()=>{
+  clearTimeout(browserLoadTimer);
+  setBrowserStatus("表示完了: "+currentBrowserUrl,"done");
   setStatus("Browser Loaded","ok");
 });
 const savedBrowserUrl=localStorage.getItem("salpBrowserLastUrl");
 if(savedBrowserUrl)$("browserUrl").value=savedBrowserUrl;
+const savedZoom=Number(localStorage.getItem("salpBrowserZoom"));
+if(savedZoom>=.6&&savedZoom<=1.6)browserZoom=savedZoom;
+applyBrowserZoom();
 updateBrowserButtons();
 
 function updateDesktopClock(){
@@ -696,7 +774,7 @@ setInterval(updateDesktopClock,30000);
 $("supportText").textContent=[
   crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation",
   typeof SharedArrayBuffer!=="undefined"?"✓ SharedArrayBuffer":"✗ SharedArrayBuffer",
-  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.9"
+  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.9.1"
 ].join("  ");
 </script>
 </body>
