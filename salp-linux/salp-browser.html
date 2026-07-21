@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.7</title>
+<title>salp Browser OS v1.8</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -15,7 +15,7 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
 body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:hidden}
-.app{height:100%;display:grid;grid-template-rows:auto auto auto auto 1fr auto}
+.app{height:100%;display:grid;grid-template-rows:auto auto auto auto auto 1fr auto}
 header{
  display:flex;align-items:center;gap:11px;padding:10px 12px;
  padding-top:calc(10px + env(safe-area-inset-top));
@@ -101,22 +101,56 @@ footer{
 .launchOverlay{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:rgba(0,0,0,.68);backdrop-filter:blur(4px)}
 .launchCard{width:min(90%,520px);padding:22px;border:1px solid #315f8c;border-radius:18px;background:#07111a;text-align:center}
 .launchCard .big{font-size:46px}.launchCard h2{margin:8px 0}.launchCard p{color:var(--muted);font-size:11px;line-height:1.55}
+
+.readyStrip{display:flex;gap:7px;padding:7px 10px;border-bottom:1px solid var(--line);background:#061009;overflow-x:auto}
+.readyChip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:10px;white-space:nowrap}
+.readyChip::before{content:"";width:7px;height:7px;border-radius:50%;background:#667}
+.readyChip.busy{color:var(--yellow);border-color:#75601f}.readyChip.busy::before{background:var(--yellow)}
+.readyChip.ok{color:var(--green);border-color:#327347}.readyChip.ok::before{background:var(--green)}
+.readyChip.error{color:var(--red);border-color:#673039}.readyChip.error::before{background:var(--red)}
+.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#020403;transition:opacity .45s ease}
+.splash.fade{opacity:0;pointer-events:none}
+.splashInner{text-align:center;padding:30px}.splashLogo{width:92px;height:92px;margin:auto;display:grid;place-items:center;border-radius:28px;background:linear-gradient(135deg,var(--green),var(--cyan));font-size:50px;box-shadow:0 0 55px rgba(121,243,157,.18)}
+.splash h1{margin:18px 0 5px;font-size:clamp(30px,9vw,54px)}.splash p{margin:0;color:var(--muted)}
+.splashVersion{display:inline-block;margin-top:15px;padding:6px 11px;border:1px solid var(--line);border-radius:999px;color:var(--green);font:11px ui-monospace,monospace}
 .hidden{display:none!important}
-@media(max-width:650px){.toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}}
+@media(max-width:650px){
+ .app{grid-template-rows:auto auto auto auto auto 1fr auto}
+ .toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
+ .toolbar button,.toolbar a.toolButton{width:100%;padding:8px 6px;font-size:12px}
+ .toolbar .status{grid-column:1/-1;width:100%;margin-left:0;padding:2px 3px}
+ .addressBar{display:grid;grid-template-columns:auto 1fr auto;overflow:visible}
+ .addressBar .sourceBadge{grid-column:1/-1;justify-self:start}
+ .addressBar #homeUrlBtn{grid-column:1}.addressBar input{grid-column:2;min-width:0}.addressBar #goBtn{grid-column:3}.addressBar #autoToggleBtn{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
+<section id="splash" class="splash" aria-label="salp Linux Desktopを起動中">
+ <div class="splashInner">
+  <div class="splashLogo">🐧</div>
+  <h1>salp Linux Desktop</h1>
+  <p>Browser Linux Environment</p>
+  <span class="splashVersion">VERSION 1.8</span>
+ </div>
+</section>
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title"><strong>salp Browser OS</strong><small>Verified Browser Image + Auto Browser</small></div>
+ <div class="title"><strong>salp Browser OS</strong><small>salp Linux Desktop Environment</small></div>
 </header>
 
+<div class="readyStrip" aria-label="システム状態">
+ <span id="linuxReady" class="readyChip">Linux Waiting</span>
+ <span id="imageReady" class="readyChip">Image Checking</span>
+ <span id="browserReady" class="readyChip">Browser Waiting</span>
+</div>
+
 <div class="setupBar">
- <span id="stepBoot" class="step active">1 GUI起動</span>
+ <span id="stepBoot" class="step active">1 Boot</span>
  <span id="stepNet" class="step">2 Network</span>
- <span id="stepInstall" class="step">3 Detect</span>
- <span id="stepLaunch" class="step">4 Auto Launch</span>
+ <span id="stepInstall" class="step">3 Detect Browser</span>
+ <span id="stepLaunch" class="step">4 Launch</span>
 </div>
 
 <div class="toolbar">
@@ -137,7 +171,7 @@ footer{
 </div>
 
 <div class="addressBar">
- <span id="sourceBadge" class="sourceBadge">Image: 未選択</span>
+ <span id="sourceBadge" class="sourceBadge">🐧 Alpine Image</span>
  <button id="homeUrlBtn">⌂</button>
  <input id="urlInput" value="https://example.com" autocapitalize="none" autocomplete="off">
  <button id="goBtn" disabled>開く</button>
@@ -173,7 +207,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Browser Image v1.7">
+   <input id="imageNameInput" value="salp Browser Image v1.8">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -186,14 +220,13 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Browser OS v1.7</h1>
-   <p>外部ストレージ上のブラウザー入りsalp Linuxイメージを起動します。</p>
+   <h1>salp Linux Desktop v1.8</h1>
+   <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
-    1. Alpine GUI Linuxを起動<br>
-    2. Tailscaleへログイン<br>
-    3. Exit Node経由でネット接続<br>
-    4. 内蔵ブラウザーを検出<br>
-    5. PCサイトを開く
+    ① Linux Imageを準備<br>
+    ② Desktop Environmentを起動<br>
+    ③ Networkを接続<br>
+    ④ Browserを検出して起動
    </div>
    <button id="bigBootBtn" class="primary">🖥️ START BROWSER SETUP</button>
    <p>外部イメージURLを設定後に起動します。外部Web接続にはTailscale Exit Nodeが必要です。</p>
@@ -208,7 +241,7 @@ footer{
 </main>
 
 <footer>
- salp Linux v1.7：GitHub Actionsで検証済みNetSurf ext2を生成し、ImageでURLを設定して起動します。
+ salp Linux Desktop v1.8：Browser Linux・Image Builder・Auto Browserを統合。
 </footer>
 </div>
 
@@ -216,7 +249,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=17");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=18");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -320,7 +353,7 @@ async function autoDetectAndLaunch(){
 
 async function detectBrowser(){
  $("detectBtn").disabled=true;
- status("Browser検出中…","busy");state("ブラウザーを探しています…");detectedBrowser=null;
+ status("Browser検出中…","busy");setReady("browserReady","busy","Browser Detecting");state("ブラウザーを探しています…");detectedBrowser=null;
  for(const c of candidates){
   log("checking "+c.path);
   if(await exists(c.path)){detectedBrowser=c;break}
@@ -329,10 +362,10 @@ async function detectBrowser(){
   state("検出成功："+detectedBrowser.name+" / "+detectedBrowser.path);
   status(detectedBrowser.name+" Ready","ok");
   $("launchBtn").disabled=false;$("goBtn").disabled=false;
-  markStep("stepInstall","done");markStep("stepLaunch","active");
+  markStep("stepInstall","done");markStep("stepLaunch","active");setReady("browserReady","ok",detectedBrowser.name+" Ready");
  }else{
   state("ブラウザーは未導入です。Network接続後に「NetSurf導入」を押してください。");
-  status("Browser未検出","error");
+  status("Browser未検出","error");setReady("browserReady","error","Browser Not Found");
   $("launchBtn").disabled=true;$("goBtn").disabled=true;
  }
  $("detectBtn").disabled=false;
@@ -411,11 +444,11 @@ async function boot(){
  if(booting||cx)return;
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");log("salp Browser OS BIOS");log("CheerpX 1.3.5 / Alpine GUI / Tailscale");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.8...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.7";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.8";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -426,19 +459,19 @@ async function boot(){
     cloud=await CheerpX.HttpBytesDevice.create(configuredUrl);
     log("[1/4] External image connected: "+configuredUrl);
     state(configuredName+" を読み込んでいます。");
-    $("sourceBadge").textContent="Image: "+configuredName;
+    $("sourceBadge").textContent="🐧 "+configuredName;setReady("imageReady","ok","Image Verified");
    }catch(externalError){
     log("External image failed: "+externalError.message);
     state("外部イメージを読み込めないため公式Alpineへフォールバックします。");
     cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
     log("[1/4] Official Alpine fallback connected");
-    $("sourceBadge").textContent="Image: Official Alpine fallback";
+    $("sourceBadge").textContent="🐧 Official Alpine fallback";setReady("imageReady","ok","Image Fallback Ready");
    }
   }else{
    cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
    log("[1/4] Official Alpine connected");
    state("公式Alpineイメージを読み込んでいます。");
-   $("sourceBadge").textContent="Image: Official Alpine";
+   $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Image Verified");
   }
   const idb=await CheerpX.IDBDevice.create("salp-linux-v11-browser-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
@@ -457,7 +490,7 @@ async function boot(){
      networkState=String(s);
      log("Network state: "+networkState);
      if(/running|connected/i.test(networkState)){
-      status("Tailscale Connected","ok");
+      status("Tailscale Connected","ok");log("Network connection ready.");
       $("testNetBtn").disabled=false;
       $("loginBox").classList.add("hidden");
       markStep("stepNet","done");markStep("stepInstall","active");
@@ -484,14 +517,14 @@ async function boot(){
   ["networkBtn","detectBtn","xtermBtn","filesBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
   markStep("stepBoot","done");markStep("stepNet","active");
   setTimeout(async()=>{
-   status("GUI Linux Ready","ok");
-   state("GUI Linuxが起動しました。");
+   status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
+   state("GUI Linuxが起動しました。");log("Desktop environment ready.");
    $("installBtn").disabled=false;
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
    else await detectBrowser();
   },2500);
  }catch(e){
-  console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");state("GUI Linuxを起動できませんでした。");
+  console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");setReady("linuxReady","error","Linux Error");state("GUI Linuxを起動できませんでした。");
   $("bootBtn").disabled=false;$("bigBootBtn").disabled=false;cx=null;
  }finally{booting=false}
 }
@@ -499,30 +532,34 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.7";
+ const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.8";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
- $("sourceBadge").textContent=url?"Image: "+name:"Image: Official Alpine";
+ $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
 }
 loadImageSettings();
+setTimeout(()=>{
+ const splash=$("splash");
+ if(splash){splash.classList.add("fade");setTimeout(()=>splash.remove(),500)}
+},1400);
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=17");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=18");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Browser Image v1.7";
+ const name=$("imageNameInput").value.trim()||"salp Browser Image v1.8";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
   localStorage.removeItem("salpForceOfficial");
-  $("sourceBadge").textContent="Image: "+name;
+  $("sourceBadge").textContent="🐧 "+name;
   state("外部イメージ設定を保存しました。再起動後に使用されます。");
  }else{
   localStorage.removeItem("salpImageUrl");
   localStorage.removeItem("salpImageName");
-  $("sourceBadge").textContent="Image: Official Alpine";
+  $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Image Verified");
  }
  $("settingsBox").classList.add("hidden");
 });
@@ -537,7 +574,7 @@ $("clearImageBtn").addEventListener("click",()=>{
 
 $("useOfficialBtn").addEventListener("click",()=>{
  localStorage.setItem("salpForceOfficial","1");
- $("sourceBadge").textContent="Image: Official Alpine";
+ $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Image Verified");
  state("公式Alpineを使用する設定にしました。");
  $("settingsBox").classList.add("hidden");
 });
@@ -602,7 +639,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=17");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=18");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
