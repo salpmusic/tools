@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux Image Builder v1.8</title>
+<title>salp Linux Image Builder v1.9</title>
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
@@ -20,7 +20,7 @@ footer{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:9px;p
 </style>
 </head>
 <body>
-<header><div class="logo">🏗️</div><div class="title"><strong>salp Linux Image Builder</strong><small>v1.8 / GitHub Actions image generator</small></div></header>
+<header><div class="logo">🏗️</div><div class="title"><strong>salp Linux Image Builder</strong><small>v1.9 / GitHub Actions image generator</small></div></header>
 <main>
 <section class="card"><h2>🌐 Browser</h2><div class="body grid">
 <label class="option"><input type="radio" name="browser" value="netsurf" checked><span><b>NetSurf</b><small>軽量・第一候補</small></span></label>
@@ -51,11 +51,11 @@ footer{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:9px;p
 </main>
 <footer><button id="backBtn">← Browser OS</button><button id="saveBtn" class="warn">端末へ設定保存</button></footer>
 <script>
-const APP_VERSION="1.7";
+const APP_VERSION="1.9";
 const $=id=>document.getElementById(id);
 function getConfig(){return{version:APP_VERSION,browser:document.querySelector('input[name="browser"]:checked').value,packages:[...document.querySelectorAll('#packageGrid input:checked')].map(x=>x.value),homeUrl:$("homeUrl").value.trim()||"https://example.com",imageSizeMB:Number($("imageSize").value)||1400,imageName:$("imageName").value.trim()||"salp-browser.ext2",autoStart:$("autoStart").checked}}
 function dockerSnippet(c){const packages=[c.browser,...c.packages].join(" ");return `# salp Linux v${APP_VERSION} browser layer\nRUN apk add --no-cache ${packages}\n\nRUN cat > /usr/local/bin/salp-browser <<'EOF'\n#!/bin/sh\nURL="\${1:-${c.homeUrl}}"\nif command -v netsurf-gtk3 >/dev/null 2>&1; then exec netsurf-gtk3 "$URL";\nelif command -v netsurf >/dev/null 2>&1; then exec netsurf "$URL";\nelif command -v dillo >/dev/null 2>&1; then exec dillo "$URL";\nelif command -v chromium-browser >/dev/null 2>&1; then exec chromium-browser --no-sandbox --disable-gpu "$URL";\nelif command -v chromium >/dev/null 2>&1; then exec chromium --no-sandbox --disable-gpu "$URL";\nelif command -v firefox >/dev/null 2>&1; then exec firefox "$URL";\nelse xmessage "salp Browser is not installed"; fi\nEOF\nRUN chmod +x /usr/local/bin/salp-browser\n${c.autoStart?`RUN mkdir -p /home/user/.config/autostart && cat > /home/user/.config/autostart/salp-browser.desktop <<'EOF'\n[Desktop Entry]\nType=Application\nName=salp Browser\nExec=/usr/local/bin/salp-browser\nTerminal=false\nEOF\n`:""}`}
-function workflowText(c){return `name: Build salp Linux v${APP_VERSION} Browser Image\n\non:\n  workflow_dispatch:\n\njobs:\n  build:\n    runs-on: ubuntu-24.04\n    timeout-minutes: 90\n    steps:\n      - uses: actions/checkout@v4\n      - run: |\n          sudo apt-get update\n          sudo apt-get install -y buildah e2fsprogs git python3\n      - run: |\n          sudo -E bash image/build-image.sh "$RUNNER_TEMP/salp-build" "$GITHUB_WORKSPACE/${c.imageName}"\n        env:\n          IMAGE_SIZE: ${c.imageSizeMB}M\n      - uses: actions/upload-artifact@v4\n        with:\n          name: salp-browser-v1.8-ext2\n          path: ${c.imageName}\n          compression-level: 0`}
+function workflowText(c){return `name: Build salp Linux v${APP_VERSION} Browser Image\n\non:\n  workflow_dispatch:\n\njobs:\n  build:\n    runs-on: ubuntu-24.04\n    timeout-minutes: 90\n    steps:\n      - uses: actions/checkout@v4\n      - run: |\n          sudo apt-get update\n          sudo apt-get install -y buildah e2fsprogs git python3\n      - run: |\n          sudo -E bash image/build-image.sh "$RUNNER_TEMP/salp-build" "$GITHUB_WORKSPACE/${c.imageName}"\n        env:\n          IMAGE_SIZE: ${c.imageSizeMB}M\n      - uses: actions/upload-artifact@v4\n        with:\n          name: salp-browser-v1.9-ext2\n          path: ${c.imageName}\n          compression-level: 0`}
 function preview(){const c=getConfig();$("preview").textContent=`BUILD CONFIG\n${JSON.stringify(c,null,2)}\n\nDOCKERFILE ADDITION\n${dockerSnippet(c)}\n\nGITHUB WORKFLOW\n${workflowText(c)}`;return c}
 function download(name,text,type="text/plain"){const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function restore(){try{const s=JSON.parse(localStorage.getItem("salpBuilderConfig")||"null");if(!s)return;const r=document.querySelector(`input[name="browser"][value="${s.browser}"]`);if(r)r.checked=true;document.querySelectorAll('#packageGrid input').forEach(x=>x.checked=Array.isArray(s.packages)&&s.packages.includes(x.value));$("homeUrl").value=s.homeUrl||"https://example.com";$("imageSize").value=s.imageSizeMB||1400;$("imageName").value=s.imageName||"salp-browser.ext2";$("autoStart").checked=s.autoStart!==false}catch(error){console.warn("設定復元失敗",error)}}
@@ -64,7 +64,7 @@ $("downloadConfigBtn").addEventListener("click",()=>{const c=preview();download(
 $("downloadDockerBtn").addEventListener("click",()=>{const c=preview();download("Dockerfile.addition.txt",dockerSnippet(c))});
 $("downloadWorkflowBtn").addEventListener("click",()=>{const c=preview();download("build-salp-image.yml",workflowText(c))});
 $("saveBtn").addEventListener("click",()=>{const c=getConfig();localStorage.setItem("salpBuilderConfig",JSON.stringify(c));$("preview").textContent="設定を端末へ保存しました。\n\n"+JSON.stringify(c,null,2)});
-$("backBtn").addEventListener("click",()=>location.href="./salp-browser.html?v=18");
+$("backBtn").addEventListener("click",()=>location.href="./salp-browser.html?v=19");
 restore();
 </script>
 </body>
