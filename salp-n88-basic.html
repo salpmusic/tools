@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Studio Crystal FM Edition v0.9.1 Alpha 1</title>
+<title>salp PC-8801MH Studio Crystal FM Edition v0.9.2 Alpha 2</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -219,7 +219,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">Crystal FM Edition / N88-BASIC Compatible · Rev.3</div></div></div><div class="version">v0.9.1 CRYSTAL α1</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">Crystal FM Edition / N88-BASIC Compatible · Rev.3</div></div></div><div class="version">v0.9.2 CRYSTAL α2</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -579,8 +579,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.9.1 Crystal FM Alpha 1：</b>
-4オペレータ風Crystal FM合成を強化し、@14 Harp・@15 Brass・@16 Organ・@17 Choir・@18 Pad・@19 Bassを追加。ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
+<div class="help"><b>v0.9.2 Crystal FM Alpha 2：</b>
+FM音源部分だけを再設計。音色別オペレータ包絡、時間変化するモジュレーション指数、微細デチューン、ビブラート、トレモロ、倍音減衰、明るさ変化、4タップ空間処理、音量制御を強化。既存のBASIC・画面・コントローラーは変更していません。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
 CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
 MML音色のAuto・Glock/Bell・Piano・Harp・Brass・Organ・Choir・Pad・Bass・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
 CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
@@ -696,68 +696,69 @@ function stopMml(){
 function mmlInstrumentPreset(n){
  if(instrumentOverride!=="auto")n=Number(instrumentOverride);
  const presets={
-  2:{
-   name:"Strings",gain:.050,attack:.075,decay:.42,sustain:.62,release:.78,
-   filter:5200,wet:.19,
-   ops:[
-    {wave:"sawtooth",ratio:1,level:.54,modRatio:1.003,index:10},
-    {wave:"triangle",ratio:1.003,level:.34,modRatio:2,index:18},
-    {wave:"sine",ratio:2,level:.09,modRatio:3.01,index:12}
-   ]
-  },
-  11:{
-   name:"Harpsichord",gain:.052,attack:.0025,decay:.19,sustain:.10,release:.26,
-   filter:7200,wet:.12,
-   ops:[
-    {wave:"square",ratio:1,level:.42,modRatio:2,index:58},
-    {wave:"triangle",ratio:2,level:.24,modRatio:3,index:42},
-    {wave:"sine",ratio:4,level:.10,modRatio:5,index:24}
-   ]
-  },
-  12:{
-   name:"Crystal Glock",gain:.058,attack:.002,decay:.82,sustain:.055,release:1.55,
-   filter:10800,wet:.34,
-   ops:[
-    {wave:"sine",ratio:1,level:.48,modRatio:2.71,index:250},
-    {wave:"sine",ratio:2.01,level:.25,modRatio:4.10,index:180},
-    {wave:"sine",ratio:3.99,level:.13,modRatio:6.82,index:105},
-    {wave:"sine",ratio:.5,level:.12,modRatio:1.41,index:42}
-   ]
-  },
-  13:{
-   name:"Fantasy Piano",gain:.055,attack:.004,decay:.40,sustain:.25,release:.72,
-   filter:7600,wet:.20,
-   ops:[
-    {wave:"triangle",ratio:1,level:.50,modRatio:2,index:62},
-    {wave:"sine",ratio:2,level:.20,modRatio:3,index:46},
-    {wave:"sine",ratio:3.01,level:.10,modRatio:5,index:30}
-   ]
-  },
-  14:{name:"Crystal Harp",gain:.052,attack:.003,decay:.48,sustain:.16,release:1.20,filter:9200,wet:.31,ops:[
-   {wave:"triangle",ratio:1,level:.48,modRatio:2.01,index:88},{wave:"sine",ratio:2,level:.21,modRatio:3.01,index:62},{wave:"sine",ratio:4,level:.09,modRatio:5.02,index:36}]},
-  15:{name:"Bright Brass",gain:.058,attack:.028,decay:.24,sustain:.68,release:.34,filter:6800,wet:.12,ops:[
-   {wave:"sawtooth",ratio:1,level:.48,modRatio:1,index:28},{wave:"square",ratio:1.01,level:.24,modRatio:2,index:34},{wave:"sine",ratio:2,level:.08,modRatio:3,index:18}]},
-  16:{name:"Drawbar Organ",gain:.050,attack:.012,decay:.12,sustain:.90,release:.30,filter:8400,wet:.18,ops:[
-   {wave:"sine",ratio:1,level:.42,modRatio:2,index:12},{wave:"sine",ratio:2,level:.22,modRatio:3,index:9},{wave:"sine",ratio:3,level:.13,modRatio:4,index:7},{wave:"sine",ratio:4,level:.07,modRatio:5,index:5}]},
-  17:{name:"Air Choir",gain:.047,attack:.20,decay:.55,sustain:.74,release:1.10,filter:5600,wet:.34,ops:[
-   {wave:"sine",ratio:1,level:.46,modRatio:1.5,index:16},{wave:"triangle",ratio:1.002,level:.25,modRatio:2.01,index:14},{wave:"sine",ratio:2,level:.10,modRatio:3,index:11}]},
-  18:{name:"Dream Pad",gain:.043,attack:.42,decay:.80,sustain:.78,release:1.65,filter:4700,wet:.40,ops:[
-   {wave:"sawtooth",ratio:1,level:.34,modRatio:.5,index:9},{wave:"triangle",ratio:1.004,level:.30,modRatio:1.5,index:13},{wave:"sine",ratio:2,level:.10,modRatio:2.5,index:8}]},
-  19:{name:"FM Bass",gain:.064,attack:.006,decay:.30,sustain:.48,release:.28,filter:3200,wet:.08,ops:[
-   {wave:"square",ratio:1,level:.54,modRatio:1,index:42},{wave:"sine",ratio:.5,level:.26,modRatio:2,index:36},{wave:"triangle",ratio:2,level:.08,modRatio:3,index:20}]}
+  2:{name:"Silky Strings",gain:.043,attack:.085,decay:.48,sustain:.66,release:.92,filter:5400,wet:.20,feedback:.16,vibrato:.10,vibratoRate:5.0,tremolo:.025,detune:7,brightnessDrop:.48,ops:[
+   {wave:"sawtooth",ratio:1,level:.46,modRatio:1.003,index:13,indexEnd:3.2,attack:.06,decay:.50,sustain:.62,release:.84},
+   {wave:"triangle",ratio:1.003,level:.31,modRatio:2,index:21,indexEnd:5.4,attack:.08,decay:.55,sustain:.58,release:.90},
+   {wave:"sine",ratio:2,level:.10,modRatio:3.01,index:14,indexEnd:3.0,attack:.05,decay:.42,sustain:.42,release:.72}
+  ]},
+  11:{name:"Sharp Harpsichord",gain:.046,attack:.0018,decay:.17,sustain:.07,release:.20,filter:7600,wet:.10,feedback:.32,vibrato:0,vibratoRate:0,tremolo:0,detune:2,brightnessDrop:.16,ops:[
+   {wave:"square",ratio:1,level:.38,modRatio:2,index:72,indexEnd:7,attack:.001,decay:.14,sustain:.06,release:.16},
+   {wave:"triangle",ratio:2,level:.22,modRatio:3,index:49,indexEnd:4,attack:.001,decay:.12,sustain:.04,release:.14},
+   {wave:"sine",ratio:4,level:.09,modRatio:5,index:28,indexEnd:2,attack:.001,decay:.10,sustain:.02,release:.12}
+  ]},
+  12:{name:"Crystal Glock",gain:.050,attack:.0015,decay:.72,sustain:.035,release:1.62,filter:11200,wet:.34,feedback:.12,vibrato:.025,vibratoRate:6.1,tremolo:.018,detune:3,brightnessDrop:.24,ops:[
+   {wave:"sine",ratio:1,level:.43,modRatio:2.71,index:310,indexEnd:18,attack:.001,decay:.58,sustain:.035,release:1.55},
+   {wave:"sine",ratio:2.01,level:.22,modRatio:4.10,index:210,indexEnd:11,attack:.001,decay:.48,sustain:.025,release:1.28},
+   {wave:"sine",ratio:3.99,level:.12,modRatio:6.82,index:124,indexEnd:6,attack:.001,decay:.42,sustain:.018,release:1.05},
+   {wave:"sine",ratio:.5,level:.10,modRatio:1.41,index:52,indexEnd:5,attack:.001,decay:.66,sustain:.030,release:1.45}
+  ]},
+  13:{name:"Warm FM Piano",gain:.049,attack:.003,decay:.34,sustain:.22,release:.62,filter:7900,wet:.17,feedback:.19,vibrato:.015,vibratoRate:5.4,tremolo:.012,detune:4,brightnessDrop:.31,ops:[
+   {wave:"triangle",ratio:1,level:.46,modRatio:2,index:78,indexEnd:8,attack:.002,decay:.31,sustain:.18,release:.58},
+   {wave:"sine",ratio:2,level:.18,modRatio:3,index:55,indexEnd:5,attack:.002,decay:.27,sustain:.12,release:.48},
+   {wave:"sine",ratio:3.01,level:.09,modRatio:5,index:35,indexEnd:3,attack:.001,decay:.22,sustain:.08,release:.40}
+  ]},
+  14:{name:"Crystal Harp",gain:.047,attack:.002,decay:.42,sustain:.11,release:1.18,filter:9400,wet:.27,feedback:.14,vibrato:.018,vibratoRate:5.8,tremolo:.012,detune:5,brightnessDrop:.28,ops:[
+   {wave:"triangle",ratio:1,level:.43,modRatio:2.01,index:112,indexEnd:8,attack:.001,decay:.36,sustain:.09,release:1.08},
+   {wave:"sine",ratio:2,level:.20,modRatio:3.01,index:76,indexEnd:5,attack:.001,decay:.31,sustain:.06,release:.91},
+   {wave:"sine",ratio:4,level:.08,modRatio:5.02,index:44,indexEnd:3,attack:.001,decay:.25,sustain:.04,release:.72}
+  ]},
+  15:{name:"Resonant Brass",gain:.050,attack:.018,decay:.22,sustain:.70,release:.30,filter:7200,wet:.10,feedback:.30,vibrato:.16,vibratoRate:5.6,tremolo:.025,detune:5,brightnessDrop:.58,ops:[
+   {wave:"sawtooth",ratio:1,level:.43,modRatio:1,index:44,indexEnd:15,attack:.012,decay:.20,sustain:.69,release:.28},
+   {wave:"square",ratio:1.01,level:.20,modRatio:2,index:48,indexEnd:13,attack:.018,decay:.24,sustain:.63,release:.30},
+   {wave:"sine",ratio:2,level:.08,modRatio:3,index:25,indexEnd:7,attack:.015,decay:.19,sustain:.51,release:.26}
+  ]},
+  16:{name:"Cathedral Organ",gain:.043,attack:.009,decay:.10,sustain:.94,release:.38,filter:8600,wet:.24,feedback:.08,vibrato:.07,vibratoRate:6.0,tremolo:.045,detune:4,brightnessDrop:.80,ops:[
+   {wave:"sine",ratio:1,level:.39,modRatio:2,index:15,indexEnd:10,attack:.008,decay:.10,sustain:.94,release:.36},
+   {wave:"sine",ratio:2,level:.21,modRatio:3,index:11,indexEnd:7,attack:.008,decay:.10,sustain:.92,release:.34},
+   {wave:"sine",ratio:3,level:.12,modRatio:4,index:8,indexEnd:5,attack:.008,decay:.10,sustain:.90,release:.32},
+   {wave:"sine",ratio:4,level:.065,modRatio:5,index:6,indexEnd:4,attack:.008,decay:.10,sustain:.88,release:.30}
+  ]},
+  17:{name:"Air Choir",gain:.040,attack:.18,decay:.48,sustain:.77,release:1.16,filter:5800,wet:.34,feedback:.10,vibrato:.17,vibratoRate:4.8,tremolo:.052,detune:9,brightnessDrop:.70,ops:[
+   {wave:"sine",ratio:1,level:.42,modRatio:1.5,index:20,indexEnd:7,attack:.16,decay:.48,sustain:.75,release:1.10},
+   {wave:"triangle",ratio:1.002,level:.23,modRatio:2.01,index:17,indexEnd:5,attack:.20,decay:.52,sustain:.69,release:1.15},
+   {wave:"sine",ratio:2,level:.09,modRatio:3,index:13,indexEnd:4,attack:.16,decay:.44,sustain:.60,release:.98}
+  ]},
+  18:{name:"Dream Pad",gain:.037,attack:.36,decay:.70,sustain:.82,release:1.72,filter:5000,wet:.42,feedback:.12,vibrato:.14,vibratoRate:4.4,tremolo:.040,detune:11,brightnessDrop:.76,ops:[
+   {wave:"sawtooth",ratio:1,level:.31,modRatio:.5,index:12,indexEnd:4,attack:.34,decay:.72,sustain:.80,release:1.70},
+   {wave:"triangle",ratio:1.004,level:.28,modRatio:1.5,index:16,indexEnd:5,attack:.40,decay:.78,sustain:.77,release:1.74},
+   {wave:"sine",ratio:2,level:.095,modRatio:2.5,index:10,indexEnd:3,attack:.30,decay:.66,sustain:.64,release:1.45}
+  ]},
+  19:{name:"Punch FM Bass",gain:.057,attack:.003,decay:.25,sustain:.46,release:.24,filter:3500,wet:.055,feedback:.36,vibrato:.015,vibratoRate:5.2,tremolo:.010,detune:2,brightnessDrop:.22,ops:[
+   {wave:"square",ratio:1,level:.49,modRatio:1,index:58,indexEnd:11,attack:.002,decay:.23,sustain:.43,release:.22},
+   {wave:"sine",ratio:.5,level:.24,modRatio:2,index:44,indexEnd:8,attack:.002,decay:.25,sustain:.38,release:.23},
+   {wave:"triangle",ratio:2,level:.075,modRatio:3,index:24,indexEnd:4,attack:.001,decay:.18,sustain:.18,release:.18}
+  ]}
  };
  const p=structuredClone(presets[n]||presets[13]);
  if(soundMode==="enhanced"){
-  p.gain*=1.12;p.release*=1.25;p.wet=Math.min(.42,p.wet*1.25);
-  p.ops.forEach(op=>op.index*=1.08);
+  p.gain*=1.08;p.release*=1.20;p.wet=Math.min(.46,p.wet*1.18);p.feedback=Math.min(.48,p.feedback*1.15);p.detune*=1.15;
+  p.ops.forEach(op=>{op.index*=1.10;op.indexEnd*=1.08});
  }else if(soundMode==="real"){
-  p.gain*=.82;p.release*=.68;p.wet*=.38;
-  p.ops=p.ops.slice(0,2);
+  p.gain*=.86;p.release*=.72;p.wet*=.34;p.detune*=.45;p.feedback*=.72;p.vibrato*=.55;p.tremolo*=.45;
+  p.ops=p.ops.slice(0,Math.min(3,p.ops.length));
  }else if(soundMode==="crystal"){
-  p.release*=1.18;p.wet=Math.max(.25,p.wet);
-  if(n===12||instrumentOverride==="12"){
-   p.ops.forEach((op,i)=>{op.index*=1+(i*.055)});
-  }
+  p.release*=1.14;p.wet=Math.max(.22,p.wet);p.detune*=1.08;
+  if(n===12||instrumentOverride==="12")p.ops.forEach((op,i)=>{op.index*=1+(i*.05)});
  }
  return p
 }
@@ -809,98 +810,79 @@ function parseMml(source){
 }
 function createCrystalOutput(ac,session){
  const input=ac.createGain(),dry=ac.createGain(),wet=ac.createGain();
- const compressor=ac.createDynamicsCompressor();
- compressor.threshold.value=-18;
- compressor.knee.value=16;
- compressor.ratio.value=3.2;
- compressor.attack.value=.004;
- compressor.release.value=.22;
- dry.gain.value=.88;
- wet.gain.value=soundMode==="real"?.12:soundMode==="enhanced"?.24:.30;
-
- const delayL=ac.createDelay(1),delayR=ac.createDelay(1);
- const feedbackL=ac.createGain(),feedbackR=ac.createGain();
- const panL=ac.createStereoPanner(),panR=ac.createStereoPanner();
- delayL.delayTime.value=.145;
- delayR.delayTime.value=.225;
- feedbackL.gain.value=.18;
- feedbackR.gain.value=.14;
- panL.pan.value=-.58;
- panR.pan.value=.58;
-
- input.connect(dry).connect(compressor);
+ const high=ac.createBiquadFilter(),low=ac.createBiquadFilter(),compressor=ac.createDynamicsCompressor();
+ high.type="highpass";high.frequency.value=28;high.Q.value=.4;
+ low.type="lowpass";low.frequency.value=soundMode==="real"?11800:14500;low.Q.value=.3;
+ compressor.threshold.value=-20;compressor.knee.value=18;compressor.ratio.value=2.8;compressor.attack.value=.003;compressor.release.value=.20;
+ dry.gain.value=soundMode==="real"?.94:.86;
+ wet.gain.value=soundMode==="real"?.07:soundMode==="enhanced"?.22:.27;
+ const taps=[
+  {time:.071,gain:.16,pan:-.50},{time:.113,gain:.12,pan:.46},
+  {time:.181,gain:.075,pan:-.22},{time:.257,gain:.052,pan:.28}
+ ];
+ input.connect(dry).connect(high).connect(low).connect(compressor);
  input.connect(wet);
- wet.connect(delayL);wet.connect(delayR);
- delayL.connect(feedbackL).connect(delayR);
- delayR.connect(feedbackR).connect(delayL);
- delayL.connect(panL).connect(compressor);
- delayR.connect(panR).connect(compressor);
+ taps.forEach(t=>{
+  const delay=ac.createDelay(.6),gain=ac.createGain(),pan=ac.createStereoPanner();
+  delay.delayTime.value=t.time;gain.gain.value=t.gain;pan.pan.value=t.pan;
+  wet.connect(delay).connect(gain).connect(pan).connect(high);
+  session.nodes.push(delay,gain,pan)
+ });
  compressor.connect(ac.destination);
- session.nodes.push(input,dry,wet,compressor,delayL,delayR,feedbackL,feedbackR,panL,panR);
+ session.nodes.push(input,dry,wet,high,low,compressor);
  return input
 }
 async function scheduleFmNote(ac,start,freq,duration,preset,session,event){
  if(soundMode==="silent")return;
  const meter=$("soundMeterBar");
- if(meter){
-  meter.style.width=Math.min(100,24+freq/20)+"%";
-  setTimeout(()=>meter.style.width="18%",150)
- }
- const noteBus=ac.createGain();
- const filter=ac.createBiquadFilter();
- const panner=ac.createStereoPanner();
- filter.type="lowpass";
- filter.frequency.setValueAtTime(Math.min(14000,preset.filter+freq*1.6),start);
- filter.Q.value=.55;
- const spread=[-.42,.18,.44,-.16,.31,-.34];
- panner.pan.setValueAtTime(spread[event.index%spread.length],start);
- noteBus.connect(filter).connect(panner).connect(session.output);
+ if(meter){meter.style.width=Math.min(100,22+freq/18)+"%";setTimeout(()=>meter.style.width="18%",150)}
+ const noteBus=ac.createGain(),toneFilter=ac.createBiquadFilter(),presence=ac.createBiquadFilter(),panner=ac.createStereoPanner();
+ toneFilter.type="lowpass";
+ toneFilter.frequency.setValueAtTime(Math.min(15000,preset.filter+freq*1.45),start);
+ toneFilter.frequency.exponentialRampToValueAtTime(Math.max(800,Math.min(15000,(preset.filter+freq)*preset.brightnessDrop)),start+Math.max(.08,preset.decay*.9));
+ toneFilter.Q.value=.62;
+ presence.type="peaking";presence.frequency.value=Math.min(4200,Math.max(650,freq*3.2));presence.Q.value=.85;presence.gain.value=preset.feedback*5.5;
+ const spread=[-.38,.16,.34,-.12,.27,-.30];panner.pan.setValueAtTime(spread[event.index%spread.length],start);
+ noteBus.connect(toneFilter).connect(presence).connect(panner).connect(session.output);
+ const a=Math.max(.0012,preset.attack),d=Math.max(.015,preset.decay),musicalLength=Math.max(.045,duration*event.gate),tail=Math.max(.07,preset.release),noteEnd=start+musicalLength+tail;
+ const peak=Math.max(.0008,preset.gain*event.velocity);
+ noteBus.gain.setValueAtTime(.0001,start);noteBus.gain.exponentialRampToValueAtTime(peak,start+a);noteBus.gain.exponentialRampToValueAtTime(Math.max(.0007,peak*preset.sustain),start+a+d);noteBus.gain.exponentialRampToValueAtTime(.0001,noteEnd);
 
- const a=Math.max(.0015,preset.attack);
- const d=Math.max(.018,preset.decay);
- const musicalLength=Math.max(.04,duration*event.gate);
- const tail=Math.max(.08,preset.release);
- const noteEnd=start+musicalLength+tail;
- const peak=preset.gain*event.velocity;
- noteBus.gain.setValueAtTime(.0001,start);
- noteBus.gain.exponentialRampToValueAtTime(Math.max(.001,peak),start+a);
- noteBus.gain.exponentialRampToValueAtTime(Math.max(.0008,peak*preset.sustain),start+a+d);
- noteBus.gain.exponentialRampToValueAtTime(.0001,noteEnd);
+ const vib=ac.createOscillator(),vibDepth=ac.createGain();
+ vib.type="sine";vib.frequency.value=Math.max(.1,preset.vibratoRate||5);
+ vibDepth.gain.setValueAtTime(0,start);vibDepth.gain.linearRampToValueAtTime((preset.vibrato||0)*Math.max(1,freq/440),start+Math.min(.34,musicalLength*.55));
+ vib.start(start);vib.stop(noteEnd+.03);session.nodes.push(vib,vibDepth);
+
+ const trem=ac.createOscillator(),tremDepth=ac.createGain();
+ trem.type="sine";trem.frequency.value=Math.max(.1,(preset.vibratoRate||5)*.78);
+ tremDepth.gain.value=Math.min(.18,preset.tremolo||0);
+ trem.connect(tremDepth).connect(noteBus.gain);trem.start(start);trem.stop(noteEnd+.03);session.nodes.push(trem,tremDepth);
 
  preset.ops.forEach((op,opIndex)=>{
-  const carrier=ac.createOscillator();
-  const mod=ac.createOscillator();
-  const modGain=ac.createGain();
-  const opGain=ac.createGain();
-  carrier.type=op.wave;
-  mod.type="sine";
-  const tinyDetune=(opIndex-1.5)*1.7;
-  carrier.frequency.setValueAtTime(freq*op.ratio,start);
-  carrier.detune.setValueAtTime(tinyDetune,start);
+  const carrier=ac.createOscillator(),mod=ac.createOscillator(),modGain=ac.createGain(),opGain=ac.createGain();
+  carrier.type=op.wave;mod.type="sine";
+  const det=(opIndex-(preset.ops.length-1)/2)*(preset.detune||0);
+  carrier.frequency.setValueAtTime(freq*op.ratio,start);carrier.detune.setValueAtTime(det,start);
   mod.frequency.setValueAtTime(freq*op.modRatio,start);
-  modGain.gain.setValueAtTime(op.index,start);
-  modGain.gain.exponentialRampToValueAtTime(Math.max(.3,op.index*.12),start+Math.max(.12,d*.9));
-  opGain.gain.setValueAtTime(Math.max(.001,op.level),start);
-  opGain.gain.exponentialRampToValueAtTime(Math.max(.0004,op.level*.20),noteEnd);
-  mod.connect(modGain).connect(carrier.frequency);
-  carrier.connect(opGain).connect(noteBus);
-  carrier.start(start);mod.start(start);
-  carrier.stop(noteEnd+.04);mod.stop(noteEnd+.04);
+  const oa=Math.max(.001,op.attack??a),od=Math.max(.012,op.decay??d),os=Math.max(.001,op.sustain??preset.sustain),or=Math.max(.05,op.release??tail);
+  const opEnd=Math.max(start+oa+od+.02,start+musicalLength+or);
+  modGain.gain.setValueAtTime(Math.max(.2,op.index*.18),start);
+  modGain.gain.exponentialRampToValueAtTime(Math.max(.3,op.index),start+Math.min(.025,oa+.003));
+  modGain.gain.exponentialRampToValueAtTime(Math.max(.15,op.indexEnd??op.index*.13),start+oa+od);
+  modGain.gain.exponentialRampToValueAtTime(.08,opEnd);
+  opGain.gain.setValueAtTime(.0001,start);opGain.gain.exponentialRampToValueAtTime(Math.max(.001,op.level),start+oa);opGain.gain.exponentialRampToValueAtTime(Math.max(.0005,op.level*os),start+oa+od);opGain.gain.exponentialRampToValueAtTime(.0001,opEnd);
+  vib.connect(vibDepth);vibDepth.connect(carrier.frequency);
+  mod.connect(modGain).connect(carrier.frequency);carrier.connect(opGain).connect(noteBus);
+  carrier.start(start);mod.start(start);carrier.stop(opEnd+.04);mod.stop(opEnd+.04);
   session.nodes.push(carrier,mod,modGain,opGain)
  });
 
- // Soft octave shimmer for the crystal preset.
  if((preset.name.includes("Crystal")||soundMode==="crystal")&&freq>0){
-  const shimmer=ac.createOscillator(),sg=ac.createGain();
-  shimmer.type="sine";
-  shimmer.frequency.setValueAtTime(freq*2.005,start);
-  sg.gain.setValueAtTime(Math.max(.0001,peak*.055),start);
-  sg.gain.exponentialRampToValueAtTime(.0001,noteEnd*1.0);
-  shimmer.connect(sg).connect(noteBus);
-  shimmer.start(start);shimmer.stop(noteEnd+.03);
-  session.nodes.push(shimmer,sg)
+  const shimmer=ac.createOscillator(),sg=ac.createGain();shimmer.type="sine";shimmer.frequency.setValueAtTime(freq*2.005,start);
+  sg.gain.setValueAtTime(Math.max(.0001,peak*.042),start);sg.gain.exponentialRampToValueAtTime(.0001,noteEnd);
+  shimmer.connect(sg).connect(noteBus);shimmer.start(start);shimmer.stop(noteEnd+.03);session.nodes.push(shimmer,sg)
  }
- session.nodes.push(noteBus,filter,panner)
+ session.nodes.push(noteBus,toneFilter,presence,panner)
 }
 async function playMml(source,{background=false}={}){
  const mml=String(source||"");
@@ -1131,7 +1113,7 @@ $("gameBtn").onclick=()=>{
 870 END`;
   toast?.("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
 };
-$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.9.1
+$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.9.2
 20 NEW CMD
 30 CLS
 40 PRINT "SALP CRYSTAL FM SUITE"
