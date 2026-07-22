@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Studio Crystal FM Edition v0.9.2 Alpha 2</title>
+<title>salp Retro BASIC Studio Crystal FM Edition v0.9.2 Alpha 2</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -219,12 +219,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">Crystal FM Edition / N88-BASIC Compatible · Rev.3</div></div></div><div class="version">v0.9.2 CRYSTAL α2</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp Retro BASIC Studio</h1><div class="sub">Crystal FM Edition / 80s-style BASIC · Rev.3</div></div></div><div class="version">v0.9.2 CRYSTAL α2</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
-<button id="bootBtn">⏻ MH BOOT</button>
-<button id="settingsBtn">⚙ MH SETTINGS</button>
+<button id="bootBtn">⏻ RETRO BOOT</button>
+<button id="settingsBtn">⚙ RETRO SETTINGS</button>
 <button id="stopBtn">■ STOP</button>
 <button id="listBtn">LIST</button>
 <button id="newBtn">NEW</button>
@@ -245,8 +245,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <section class="machinePanel" id="machinePanel">
   <div class="machineSummary">
     <div>
-      <div class="machineName"><span class="mhLed"></span>NEC PC-8801MH</div>
-      <div class="sub">Browser-compatible recreation mode</div>
+      <div class="machineName"><span class="mhLed"></span>salp Retro Computer</div>
+      <div class="sub">Original browser retro-computer mode</div>
     </div>
     <div class="machineBadges">
       <span class="machineBadge" id="clockBadge">8MHz</span>
@@ -278,7 +278,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
     <div class="settingBox">
       <label>FM SOUND</label>
       <select id="soundMode">
-        <option value="real">MH Hardware Style</option>
+        <option value="real">Classic Hardware Style</option>
         <option value="enhanced">salp Enhanced</option>
         <option value="crystal" selected>Crystal Fantasy FM</option>
         <option value="silent">Silent</option>
@@ -343,7 +343,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 90 PRINT N(I);
 100 NEXT I
 110 PRINT
-120 A$="SALP N88-BASIC"
+120 A$="SALP RETRO BASIC"
 130 PRINT LEFT$(A$,4);" / ";RIGHT$(A$,5)
 140 ON 2 GOSUB 200,300
 150 PRINT "BACK FROM GOSUB"
@@ -358,7 +358,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 </section>
 
 <section class="panel">
-<div class="panelHead"><span>N88 SCREEN 640×400</span><span id="status">Ready</span></div>
+<div class="panelHead"><span>RETRO SCREEN 640×400</span><span id="status">Ready</span></div>
 <div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div id="bootOverlay" class="bootOverlay"></div><div id="touchMarker" class="touchMarker"></div><div class="scanlines"></div></div></div>
 <div class="statusbar"><span id="cursorInfo">LOCATE 0,0</span><span class="touchHint">Touch screen → mouse coordinates</span></div>
 </section>
@@ -581,10 +581,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 <div class="help"><b>v0.9.2 Crystal FM Alpha 2：</b>
 FM音源部分だけを再設計。音色別オペレータ包絡、時間変化するモジュレーション指数、微細デチューン、ビブラート、トレモロ、倍音減衰、明るさ変化、4タップ空間処理、音量制御を強化。既存のBASIC・画面・コントローラーは変更していません。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
-CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
-MML音色のAuto・Glock/Bell・Piano・Harp・Brass・Organ・Choir・Pad・Bass・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
+CRTスキャンライン・発光・曲面表示、Classic FM／Enhanced／Silent、
+MML音色のAuto・Glock/Bell・Piano・Harp・Brass・Organ・Choir・Pad・Bass・Strings・Harpsichord切替、レトロ起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
 CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
-実機ROMや実機回路を使う完全エミュレーターではなく、N88-BASIC互換環境として再現しています。
+実機ROMや実機回路を使う完全エミュレーターではなく、1980年代風BASIC環境として独自に実装しています。
 </div>
 </div>
 
@@ -1020,7 +1020,7 @@ $("compatBtn").onclick=()=>editor.value=`10 CLS
 90 PRINT A(I);
 100 NEXT I
 110 PRINT
-120 S$="N88-BASIC"
+120 S$="RETRO BASIC"
 130 PRINT LEFT$(S$,3)
 140 PRINT RIGHT$(S$,5)
 150 PRINT MID$(S$,5,5)
@@ -1040,7 +1040,7 @@ $("graphicsBtn").onclick=()=>editor.value=`10 CLS
 70 PAINT (320,200),1
 80 COLOR 7
 90 LOCATE 25,12
-100 PRINT "SALP N88-BASIC"
+100 PRINT "SALP RETRO BASIC"
 110 PLAY "CDEFGAB"
 120 END`;
 $("gameBtn").onclick=()=>{
@@ -1175,7 +1175,7 @@ function applyMachineSettings(){
  soundMode=$("soundMode").value;
  instrumentOverride=$("instrumentMode").value;
  $("clockBadge").textContent=cpuClock+"MHz";
- $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="crystal"?"CRYSTAL FM":soundMode==="enhanced"?"ENHANCED":"MH FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
+ $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="crystal"?"CRYSTAL FM":soundMode==="enhanced"?"ENHANCED":"CLASSIC FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
  localStorage.setItem("salpMHSettings",JSON.stringify({
   cpuClock,displayMode:$("displayMode").value,soundMode,instrumentOverride,
   scan:$("scanToggle").checked,glow:$("glowToggle").checked,curve:$("curveToggle").checked
@@ -1200,7 +1200,7 @@ function restoreMachineSettings(){
 });
 $("settingsBtn").onclick=()=>{
  $("settingsGrid").classList.toggle("keyHidden");
- $("settingsBtn").textContent=$("settingsGrid").classList.contains("keyHidden")?"⚙ MH SETTINGS":"⚙ CLOSE SETTINGS"
+ $("settingsBtn").textContent=$("settingsGrid").classList.contains("keyHidden")?"⚙ RETRO SETTINGS":"⚙ CLOSE SETTINGS"
 };
 $("soundLabBtn").onclick=()=>$('soundLab').classList.toggle("keyHidden");
 $("soundLabClose").onclick=()=>$('soundLab').classList.add("keyHidden");
@@ -1223,14 +1223,14 @@ async function bootMH(){
  stopped=true;stopMml();
  const o=$("bootOverlay");
  o.classList.add("show");
- o.textContent="NEC\n\nPC-8801MH\n\nsalp Browser Edition";
+ o.textContent="salp\n\nRETRO BASIC STUDIO\n\nCrystal FM Edition";
  await new Promise(r=>setTimeout(r,850));
  o.textContent=`CPU CLOCK ${cpuClock}MHz\nFM SOUND ${soundMode==="silent"?"OFF":"READY"}\nMEMORY CHECK... OK`;
  await new Promise(r=>setTimeout(r,850));
  o.classList.remove("show");
  resetScreen();
- printText("N88-BASIC Compatible Mode");
- printText("PC-8801MH  "+cpuClock+"MHz");
+ printText("Retro BASIC Mode");
+ printText("salp Retro Computer  "+cpuClock+"MHz");
  printText("");
  printText("How many files(0-15)?");
  printText("Ok");
@@ -1334,7 +1334,7 @@ setInterval(phoenixTrackProgrammaticChange,250);
 phoenixRestoreWorkspace();phoenixLastValue=editor.value;phoenixUpdateEditorInfo();phoenixUpdateButtons();
 /* ===== end Phoenix editor workspace ===== */
 
-resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / Crystal FM");printText("");printText("Ok");
+resetScreen();printText("salp Retro BASIC Studio");printText("80s-style BASIC / Crystal FM");printText("");printText("Ok");
 </script>
 </body>
 </html>
