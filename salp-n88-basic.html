@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp PC-8801MH Browser Edition v0.9.0 Alpha 1</title>
+<title>salp PC-8801MH Studio Crystal FM Edition v0.9.1 Alpha 1</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -219,7 +219,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.9.0 PHOENIX α1</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">Crystal FM Edition / N88-BASIC Compatible · Rev.3</div></div></div><div class="version">v0.9.1 CRYSTAL α1</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -292,6 +292,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
         <option value="auto" selected>Auto（MMLの@指定）</option>
         <option value="12">Glock / Bell</option>
         <option value="13">Piano</option>
+        <option value="14">Harp</option>
+        <option value="15">Brass</option>
+        <option value="16">Organ</option>
+        <option value="17">Choir</option>
+        <option value="18">Pad</option>
+        <option value="19">Bass</option>
         <option value="2">Strings</option>
         <option value="11">Harpsichord</option>
       </select>
@@ -311,7 +317,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <div class="soundLabButtons">
     <button id="beepTest">BEEP TEST</button><button id="scaleTest">8 NOTE SCALE</button>
     <button id="bellTest">CRYSTAL BELL</button><button id="pianoTest">FM PIANO</button>
-    <button id="stringsTest">FM STRINGS</button><button id="stereoTest">STEREO ARPEGGIO</button>
+    <button id="stringsTest">FM STRINGS</button><button id="harpTest">FM HARP</button>
+    <button id="brassTest">FM BRASS</button><button id="organTest">FM ORGAN</button>
+    <button id="choirTest">FM CHOIR</button><button id="padTest">FM PAD</button>
+    <button id="bassTest">FM BASS</button><button id="stereoTest">STEREO ARPEGGIO</button>
     <button id="soundStop" class="dangerButton">■ STOP SOUND</button>
   </div>
   <div id="soundLabStatus" class="soundLabStatus">Audio ready after first tap.</div>
@@ -547,10 +556,19 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
   // Public hook used when GAME SAMPLE automatically selects game mode.
   window.__salpSetPadMode=mode=>{
+    const aliases={GAME:"game",FULL:"full",CURSORENTER:"cursorEnter",CURSOR:"cursor",ZX:"zx",CUSTOM:"custom"};
+    mode=aliases[String(mode).toUpperCase()]||mode;
+    if(![...modeSelect.options].some(o=>o.value===mode))mode="game";
     modeSelect.value=mode;
     body.hidden=false;
     toggle.textContent="キーパッドを隠す";
     render(mode);
+    save();
+  };
+  window.__salpSetPadVisible=visible=>{
+    body.hidden=!visible;
+    toggle.textContent=body.hidden?"キーパッドを表示":"キーパッドを隠す";
+    if(visible)render(modeSelect.value);
     save();
   };
 })();
@@ -561,10 +579,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.9.0 Phoenix Alpha 1：</b>
-4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
+<div class="help"><b>v0.9.1 Crystal FM Alpha 1：</b>
+4オペレータ風Crystal FM合成を強化し、@14 Harp・@15 Brass・@16 Organ・@17 Choir・@18 Pad・@19 Bassを追加。ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
 CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
-MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
+MML音色のAuto・Glock/Bell・Piano・Harp・Brass・Organ・Choir・Pad・Bass・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
 CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
 実機ROMや実機回路を使う完全エミュレーターではなく、N88-BASIC互換環境として再現しています。
 </div>
@@ -602,7 +620,7 @@ function tokens(expr){const a=[],r=/\s*(?:(\d+(?:\.\d*)?|\.\d+)|("([^"]|"")*")|(
 function arrayKey(args){return args.map(v=>Math.floor(Number(v)||0)).join(",")}
 function evaluate(expr,state){
  const vars=state.vars,arrays=state.arrays,t=tokens(expr);let p=0,peek=()=>t[p],take=()=>t[p++];
- const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","INKEY$","STICK","STRIG","MOUSEX","MOUSEY","MOUSEB"]);
+ const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","HEX$","OCT$","BIN$","UCASE$","LCASE$","TRIM$","INSTR","TAB","POS","TIMER","INKEY$","STICK","STRIG","MOUSEX","MOUSEY","MOUSEB"]);
  function fn(n,a){
   switch(n){
    case"INT":return Math.floor(+a[0]||0);case"FIX":return Math.trunc(+a[0]||0);case"ABS":return Math.abs(+a[0]||0);case"SGN":return Math.sign(+a[0]||0);
@@ -614,6 +632,10 @@ function evaluate(expr,state){
    case"RIGHT$":{const s=String(a[0]??"");return s.slice(Math.max(0,s.length-(+a[1]||0)))}
    case"MID$":return String(a[0]??"").substr(Math.max(0,(+a[1]||1)-1),a[2]==null?undefined:Math.max(0,+a[2]||0));
    case"SPACE$":return " ".repeat(Math.max(0,+a[0]||0));case"STRING$":return String.fromCharCode(+a[1]||32).repeat(Math.max(0,+a[0]||0));
+   case"HEX$":return Math.trunc(+a[0]||0).toString(16).toUpperCase();case"OCT$":return Math.trunc(+a[0]||0).toString(8);case"BIN$":return Math.trunc(+a[0]||0).toString(2);
+   case"UCASE$":return String(a[0]??"").toUpperCase();case"LCASE$":return String(a[0]??"").toLowerCase();case"TRIM$":return String(a[0]??"").trim();
+   case"INSTR":{const start=a.length>=3?Math.max(0,(+a[0]||1)-1):0,hay=String(a.length>=3?a[1]:a[0]??""),needle=String(a.length>=3?a[2]:a[1]??"");const p=hay.indexOf(needle,start);return p<0?0:p+1}
+   case"TAB":return " ".repeat(Math.max(0,(+a[0]||0)-cursorX));case"POS":return cursorX;case"TIMER":return performance.now()/1000;
    case"INKEY$":{const k=keyQueue.length?keyQueue.shift():"";lastKey=k;return k}
    case"STICK":{const u=heldKeys.has("UP"),d=heldKeys.has("DOWN"),l=heldKeys.has("LEFT"),r=heldKeys.has("RIGHT");if(u&&r)return 2;if(r&&d)return 4;if(d&&l)return 6;if(l&&u)return 8;if(u)return 1;if(r)return 3;if(d)return 5;if(l)return 7;return 0}
    case"STRIG":return (heldKeys.has("Z")||heldKeys.has("SPACE"))?-1:0;
@@ -710,7 +732,19 @@ function mmlInstrumentPreset(n){
     {wave:"sine",ratio:2,level:.20,modRatio:3,index:46},
     {wave:"sine",ratio:3.01,level:.10,modRatio:5,index:30}
    ]
-  }
+  },
+  14:{name:"Crystal Harp",gain:.052,attack:.003,decay:.48,sustain:.16,release:1.20,filter:9200,wet:.31,ops:[
+   {wave:"triangle",ratio:1,level:.48,modRatio:2.01,index:88},{wave:"sine",ratio:2,level:.21,modRatio:3.01,index:62},{wave:"sine",ratio:4,level:.09,modRatio:5.02,index:36}]},
+  15:{name:"Bright Brass",gain:.058,attack:.028,decay:.24,sustain:.68,release:.34,filter:6800,wet:.12,ops:[
+   {wave:"sawtooth",ratio:1,level:.48,modRatio:1,index:28},{wave:"square",ratio:1.01,level:.24,modRatio:2,index:34},{wave:"sine",ratio:2,level:.08,modRatio:3,index:18}]},
+  16:{name:"Drawbar Organ",gain:.050,attack:.012,decay:.12,sustain:.90,release:.30,filter:8400,wet:.18,ops:[
+   {wave:"sine",ratio:1,level:.42,modRatio:2,index:12},{wave:"sine",ratio:2,level:.22,modRatio:3,index:9},{wave:"sine",ratio:3,level:.13,modRatio:4,index:7},{wave:"sine",ratio:4,level:.07,modRatio:5,index:5}]},
+  17:{name:"Air Choir",gain:.047,attack:.20,decay:.55,sustain:.74,release:1.10,filter:5600,wet:.34,ops:[
+   {wave:"sine",ratio:1,level:.46,modRatio:1.5,index:16},{wave:"triangle",ratio:1.002,level:.25,modRatio:2.01,index:14},{wave:"sine",ratio:2,level:.10,modRatio:3,index:11}]},
+  18:{name:"Dream Pad",gain:.043,attack:.42,decay:.80,sustain:.78,release:1.65,filter:4700,wet:.40,ops:[
+   {wave:"sawtooth",ratio:1,level:.34,modRatio:.5,index:9},{wave:"triangle",ratio:1.004,level:.30,modRatio:1.5,index:13},{wave:"sine",ratio:2,level:.10,modRatio:2.5,index:8}]},
+  19:{name:"FM Bass",gain:.064,attack:.006,decay:.30,sustain:.48,release:.28,filter:3200,wet:.08,ops:[
+   {wave:"square",ratio:1,level:.54,modRatio:1,index:42},{wave:"sine",ratio:.5,level:.26,modRatio:2,index:36},{wave:"triangle",ratio:2,level:.08,modRatio:3,index:20}]}
  };
  const p=structuredClone(presets[n]||presets[13]);
  if(soundMode==="enhanced"){
@@ -929,8 +963,12 @@ async function execStmt(s,state,idx){
  if((m=s.match(/^CMD\s+BGM(?:\s+(.+))?$/i))){mmlBgm=m[1]==null?true:!!evaluate(m[1],state);return{}}
  if((m=s.match(/^CMD\s+PLAY\s+(.+)$/i))){const src=String(evaluate(m[1],state));await playMml(src,{background:mmlBgm});return{}}
  if(/^CMD\s+STOPM$/i.test(s)){stopMml();return{}}
- if(u==="CLS"){resetScreen();return{}}
+ if(u==="CLS"||u==="PCLS"){resetScreen();return{}}
  if(u==="CLEAR"){state.vars={};state.arrays={};state.forStack=[];state.gosub=[];return{}}
+ if(/^KEY\s+OFF$/i.test(s)){window.__salpSetPadVisible?.(false);return{}}
+ if(/^KEY\s+ON$/i.test(s)){window.__salpSetPadVisible?.(true);return{}}
+ if((m=s.match(/^KEY\s+MODE\s+([A-Za-z]+)$/i))){window.__salpSetPadMode?.(m[1]);return{}}
+ if((m=s.match(/^WAIT\s+(.+)$/i))){await sleep(Math.max(0,+evaluate(m[1],state)));return{}}
  if(/^DEF(?:INT|SNG|DBL|STR)\b/i.test(s))return{};
  if((m=s.match(/^SCREEN\s+(.+)$/i)))return{};
  if((m=s.match(/^WIDTH\s+(.+)$/i)))return{};
@@ -945,6 +983,9 @@ async function execStmt(s,state,idx){
  if((m=s.match(/^LINE\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+?))?(?:\s*,\s*(B|BF))?$/i))){const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg,mode=(m[4]||"").toUpperCase();ctx.strokeStyle=color(c);ctx.fillStyle=color(c);if(mode==="BF")ctx.fillRect(x1,y1,x2-x1,y2-y1);else if(mode==="B")ctx.strokeRect(x1,y1,x2-x1,y2-y1);else{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}renderText();return{}}
  if((m=s.match(/^CIRCLE\s*(\(.+?\))\s*,\s*(.+?)(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),r=+evaluate(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg;ctx.strokeStyle=color(c);ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();renderText();return{}}
  if((m=s.match(/^PAINT\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),c=m[2]!=null?evaluate(m[2],state):fg;floodFill(x,y,color(c));renderText();return{}}
+ if((m=s.match(/^BOX\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg;ctx.strokeStyle=color(c);ctx.strokeRect(x1,y1,x2-x1,y2-y1);renderText();return{}}
+ if((m=s.match(/^FILL\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg;ctx.fillStyle=color(c);ctx.fillRect(x1,y1,x2-x1,y2-y1);renderText();return{}}
+ if((m=s.match(/^POINT\s*(\(.+?\))$/i))){const[x,y]=coords(m[1],state),d=ctx.getImageData(Math.max(0,Math.min(639,Math.round(x))),Math.max(0,Math.min(399,Math.round(y))),1,1).data;let best=0,bd=1e9;palette.forEach((hex,i)=>{const c=document.createElement("canvas").getContext("2d");c.fillStyle=hex;c.fillRect(0,0,1,1);const q=c.getImageData(0,0,1,1).data,dist=(q[0]-d[0])**2+(q[1]-d[1])**2+(q[2]-d[2])**2;if(dist<bd){bd=dist;best=i}});state.vars.POINT=best;return{}}
  if(/^BEEP$/i.test(s)){await tone();return{}}
  if((m=s.match(/^SOUND\s+(.+?)\s*,\s*(.+)$/i))){await tone(Math.max(20,+evaluate(m[1],state)),Math.max(.02,+evaluate(m[2],state)/18.2/100));return{}}
  if((m=s.match(/^PLAY\s+(.+)$/i))){await playMml(String(evaluate(m[1],state)),{background:false});return{}}
@@ -1090,33 +1131,31 @@ $("gameBtn").onclick=()=>{
 870 END`;
   toast?.("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
 };
-$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.8
+$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.9.1
 20 NEW CMD
 30 CLS
-40 PRINT "SALP FM SOUND SUITE"
-50 PRINT "BELL / PIANO / STRINGS / HARPSICHORD"
-60 PRINT
-70 CMD BGM 0
-80 PRINT "1. CRYSTAL BELL"
+40 PRINT "SALP CRYSTAL FM SUITE"
+50 PRINT "@12 BELL @13 PIANO @14 HARP"
+60 PRINT "@15 BRASS @16 ORGAN @17 CHOIR"
+70 PRINT "@18 PAD @19 BASS"
+80 CMD BGM 0
 90 PLAY "T132 O5 L8 V13 Q7 @12 CEG>C<GEC"
-100 PRINT "2. FM PIANO"
-110 PLAY "T116 O4 L8 V12 Q6 @13 CEG>C<GEC"
-120 PRINT "3. STRINGS"
-130 PLAY "T96 O3 L4 V11 Q8 @2 CEG>C"
-140 PRINT "4. HARPSICHORD"
-150 PLAY "T144 O4 L16 V12 Q5 @11 CDEFGAB>C"
-160 PRINT
-170 PRINT "STEREO CRYSTAL ARPEGGIO"
-180 CMD BGM 1
-190 A$="T112 O4 L16 V13 Q7 @12 CEG>C<GEC EGC>EC<G "
-200 A$=A$+"ACE>A<ECA FAC>F<CAF GBD>G<DBG "
-210 A$=A$+"EGB>E<GBE DFA>D<FAD CEG>C<GEC >C4"
-220 CMD PLAY A$
-230 PRINT "PRESS ANY KEY TO STOP"
-240 IF INKEY$="" THEN 240
-250 CMD STOPM
-260 PRINT "SOUND TEST END"
-270 END`;editor.dispatchEvent(new Event("input",{bubbles:true}))};
+100 PLAY "T116 O4 L8 V12 Q6 @13 CEG>C<GEC"
+110 PLAY "T112 O5 L8 V13 Q7 @14 CEG>C<GEC"
+120 PLAY "T118 O4 L8 V12 Q7 @15 CEG>C"
+130 PLAY "T108 O4 L4 V11 Q8 @16 CEG>C"
+140 PLAY "T82 O4 L4 V10 Q8 @17 CEG>C"
+150 PLAY "T74 O3 L2 V10 Q8 @18 CEG>C"
+160 PLAY "T106 O2 L8 V13 Q6 @19 CEG>C<G"
+170 CMD BGM 1
+180 A$="T112 O4 L16 V13 Q7 @14 CEG>C<GEC EGC>EC<G "
+190 A$=A$+"@17 ACE>A<ECA @18 FAC>F<CAF @12 GBD>G<DBG "
+200 CMD PLAY A$
+210 PRINT "PRESS ANY KEY TO STOP"
+220 IF INKEY$="" THEN 220
+230 CMD STOPM
+240 PRINT "SOUND TEST END"
+250 END`;editor.dispatchEvent(new Event("input",{bubbles:true}))};
 $("saveBtn").onclick=()=>{const b=new Blob([editor.value],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="PROGRAM.BAS";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $("loadBtn").onclick=()=>$("fileInput").click();
 $("fileInput").onchange=async e=>{const f=e.target.files[0];if(f)editor.value=await f.text();e.target.value=""};
@@ -1189,6 +1228,12 @@ $("scaleTest").onclick=async()=>{soundMessage("8 NOTE SCALE");for(const f of [26
 $("bellTest").onclick=async()=>{soundMessage("Crystal Bell @12");await playMml("T120 O5 L8 V13 Q7 @12 CEG>C<GEC",{background:false})};
 $("pianoTest").onclick=async()=>{soundMessage("FM Piano @13");await playMml("T112 O4 L8 V12 Q6 @13 CEG>C<GEC",{background:false})};
 $("stringsTest").onclick=async()=>{soundMessage("FM Strings @2");await playMml("T92 O3 L4 V11 Q8 @2 CEG>C",{background:false})};
+$("harpTest").onclick=async()=>{soundMessage("Crystal Harp @14");await playMml("T112 O5 L8 V13 Q7 @14 CEG>C<GEC",{background:false})};
+$("brassTest").onclick=async()=>{soundMessage("Bright Brass @15");await playMml("T118 O4 L8 V12 Q7 @15 CEG>C",{background:false})};
+$("organTest").onclick=async()=>{soundMessage("Drawbar Organ @16");await playMml("T108 O4 L4 V11 Q8 @16 CEG>C",{background:false})};
+$("choirTest").onclick=async()=>{soundMessage("Air Choir @17");await playMml("T82 O4 L4 V10 Q8 @17 CEG>C",{background:false})};
+$("padTest").onclick=async()=>{soundMessage("Dream Pad @18");await playMml("T74 O3 L2 V10 Q8 @18 CEG>C",{background:false})};
+$("bassTest").onclick=async()=>{soundMessage("FM Bass @19");await playMml("T106 O2 L8 V13 Q6 @19 CEG>C<G",{background:false})};
 $("stereoTest").onclick=async()=>{soundMessage("Stereo Crystal Arpeggio");await playMml("T118 O4 L16 V13 Q7 @12 CEG>C<GEC ACE>A<ECA FAC>F<CAF GBD>G<DBG >C4",{background:true})};
 $("soundStop").onclick=()=>{stopMml();soundMessage("Sound stopped")};
 
@@ -1244,17 +1289,7 @@ window.__salpPadPress=(name,button)=>pressGameKey(name,button);
 window.__salpPadRelease=(name,button)=>releaseGameKey(name,button);
 window.addEventListener("blur",releaseAllKeys);
 
-document.querySelectorAll("[data-vkey]").forEach(button=>{
-  const name=button.dataset.vkey;
-  const down=e=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);pressGameKey(name,button)};
-  const up=e=>{e.preventDefault();releaseGameKey(name,button)};
-  button.addEventListener("pointerdown",down);
-  button.addEventListener("pointerup",up);
-  button.addEventListener("pointercancel",up);
-  button.addEventListener("lostpointercapture",up);
-  button.addEventListener("pointerleave",e=>{if(e.buttons)up(e)});
-  button.addEventListener("contextmenu",e=>e.preventDefault());
-});
+/* Virtual-key pointer events are bound by the isolated controller renderer. */
 
 /* Controller UI is handled by the isolated v0.8.4 renderer above. */
 function updateControllerBadge(){
@@ -1286,7 +1321,7 @@ canvas.addEventListener("pointerup",e=>updateTouch(e,false));
 canvas.addEventListener("pointercancel",e=>{mouseButton=0});
 
 
-/* ===== v0.9.0 Phoenix Alpha 1: editor workspace ===== */
+/* ===== v0.9.1 Crystal FM Alpha 1: editor workspace ===== */
 const PHOENIX_STORAGE_KEY="salpN88PhoenixWorkspace_v090a1";
 const PHOENIX_HISTORY_LIMIT=100;
 let phoenixUndoStack=[];
