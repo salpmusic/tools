@@ -322,8 +322,39 @@ footer b{color:#dbe7f5}
   .logo{width:56px;height:56px;font-size:29px}
   .card{min-height:260px;padding:20px}
 }
+
+.pwaUpdate{
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:calc(env(safe-area-inset-bottom) + 12px);
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  max-width:720px;
+  margin:auto;
+  padding:14px 15px;
+  border:1px solid #48657f;
+  border-radius:16px;
+  background:rgba(11,17,32,.97);
+  box-shadow:0 16px 40px rgba(0,0,0,.4);
+  color:#eaf5ff;
+}
+.pwaUpdate.show{display:flex}
+.pwaUpdate button{
+  flex:0 0 auto;
+  min-height:42px;
+  padding:9px 14px;
+  border:0;
+  border-radius:11px;
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  color:#07111b;
+  font-weight:950;
+}
 </style>
-</head>
+<link href="./manifest.webmanifest" rel="manifest"/><link href="./icons/icon-192.png" rel="apple-touch-icon"/><meta content="salp Tools" name="application-name"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="salp Tools" name="apple-mobile-web-app-title"/><meta content="yes" name="mobile-web-app-capable"/></head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
 <header class="hero">
@@ -539,6 +570,56 @@ footer b{color:#dbe7f5}
 </div>
 </section>
 </main>
-<footer><b>Created by salp</b><div>Kanetomo Shioda（塩田 兼与）</div><div>Independent creator of salp Tools, salp Music, Retro BASIC Studio, BASIC Mini, Linux Lab and browser applications.</div><div>音楽・ブラウザアプリ・レトロBASIC・Linux・ゲームを制作しています。</div><div class="version">salp Tools Home v2.4.1</div></footer>
-</body>
+<footer><b>Created by salp</b><div>Kanetomo Shioda（塩田 兼与）</div><div>Independent creator of salp Tools, salp Music, Retro BASIC Studio, BASIC Mini, Linux Lab and browser applications.</div><div>音楽・ブラウザアプリ・レトロBASIC・Linux・ゲームを制作しています。</div><div class="version">salp Tools Home v2.5.0 — PWA Edition</div></footer>
+<div aria-live="polite" class="pwaUpdate" id="pwaUpdate" role="status"><span>新しいバージョンがあります。</span><button id="pwaReload" type="button">更新する</button></div><script>
+(() => {
+  if (!('serviceWorker' in navigator)) return;
+
+  let refreshing = false;
+  const updateBox = document.getElementById('pwaUpdate');
+  const reloadButton = document.getElementById('pwaReload');
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    location.reload();
+  });
+
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./sw.js', {
+        scope: './',
+        updateViaCache: 'none'
+      });
+
+      const showUpdate = worker => {
+        if (!worker) return;
+        updateBox?.classList.add('show');
+        reloadButton?.addEventListener('click', () => {
+          worker.postMessage({ type: 'SKIP_WAITING' });
+        }, { once: true });
+      };
+
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        showUpdate(registration.waiting);
+      }
+
+      registration.addEventListener('updatefound', () => {
+        const worker = registration.installing;
+        if (!worker) return;
+        worker.addEventListener('statechange', () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdate(worker);
+          }
+        });
+      });
+
+      // ホーム画面から開いた場合も、起動時に最新版を確認
+      await registration.update();
+    } catch (error) {
+      console.warn('PWA registration failed:', error);
+    }
+  });
+})();
+</script></body>
 </html>
