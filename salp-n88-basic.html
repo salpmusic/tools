@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>salp Retro BASIC Studio Crystal FM Edition v0.9.2 Alpha 2</title>
+<title>salp Retro BASIC Studio Crystal FM Edition v0.9.3 Alpha 3</title>
 <style>
 :root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
@@ -215,11 +215,73 @@ button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:760px){.soundLabButtons{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:420px){.soundLabButtons{grid-template-columns:1fr}}
 
+.fmEnvelopePanel{
+  margin:0 12px 12px;
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#080e19;
+}
+.fmEnvelopeTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:11px;
+  color:var(--text);
+  font-size:12px;
+  font-weight:950;
+}
+.fmEnvelopeGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(110px,1fr));
+  gap:10px;
+}
+.fmControl{
+  padding:9px;
+  border:1px solid #223149;
+  border-radius:11px;
+  background:#0b1321;
+}
+.fmControl label{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:900;
+}
+.fmControl output{color:var(--cyan)}
+.fmControl input[type="range"]{
+  width:100%;
+  accent-color:var(--cyan);
+}
+.fmEnvelopeActions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:11px;
+}
+.fmEnvelopeActions button{
+  min-height:36px;
+  padding:6px 10px;
+  font-size:11px;
+}
+.fmEnvelopeHint{
+  margin-top:10px;
+  color:var(--muted);
+  font:11px/1.5 ui-monospace,monospace;
+}
+@media(max-width:760px){.fmEnvelopeGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:430px){.fmEnvelopeGrid{grid-template-columns:1fr}}
+
+
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp Retro BASIC Studio</h1><div class="sub">Crystal FM Edition / 80s-style BASIC · Rev.3</div></div></div><div class="version">v0.9.2 CRYSTAL α2</div></header>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp Retro BASIC Studio</h1><div class="sub">Crystal FM Edition / 80s-style BASIC · Rev.4</div></div></div><div class="version">v0.9.3 CRYSTAL α3</div></header>
 
 <div class="toolbar">
 <button class="primary" id="runBtn">▶ RUN</button>
@@ -323,6 +385,32 @@ button:disabled{opacity:.45;cursor:not-allowed}
     <button id="bassTest">FM BASS</button><button id="stereoTest">STEREO ARPEGGIO</button>
     <button id="soundStop" class="dangerButton">■ STOP SOUND</button>
   </div>
+  
+  <div class="fmEnvelopePanel">
+    <div class="fmEnvelopeTitle">
+      <span>🎛 MASTER FM ENVELOPE</span>
+      <span id="fmEnvName">GLOBAL OFFSET</span>
+    </div>
+    <div class="fmEnvelopeGrid">
+      <div class="fmControl"><label>ATTACK <output id="fmAttackOut">0.00s</output></label><input id="fmAttack" type="range" min="-0.20" max="1.20" step="0.01" value="0"></div>
+      <div class="fmControl"><label>DECAY <output id="fmDecayOut">0.00s</output></label><input id="fmDecay" type="range" min="-0.50" max="2.00" step="0.01" value="0"></div>
+      <div class="fmControl"><label>SUSTAIN <output id="fmSustainOut">100%</output></label><input id="fmSustain" type="range" min="0.10" max="1.50" step="0.01" value="1"></div>
+      <div class="fmControl"><label>RELEASE <output id="fmReleaseOut">0.00s</output></label><input id="fmRelease" type="range" min="-0.80" max="3.00" step="0.01" value="0"></div>
+      <div class="fmControl"><label>MOD DEPTH <output id="fmModOut">100%</output></label><input id="fmModDepth" type="range" min="0.20" max="2.50" step="0.01" value="1"></div>
+      <div class="fmControl"><label>BRIGHTNESS <output id="fmBrightOut">100%</output></label><input id="fmBrightness" type="range" min="0.35" max="1.80" step="0.01" value="1"></div>
+      <div class="fmControl"><label>REVERB <output id="fmWetOut">100%</output></label><input id="fmWet" type="range" min="0" max="2.00" step="0.01" value="1"></div>
+      <div class="fmControl"><label>VELOCITY CURVE <output id="fmVelocityOut">1.35</output></label><input id="fmVelocityCurve" type="range" min="0.60" max="2.40" step="0.05" value="1.35"></div>
+    </div>
+    <div class="fmEnvelopeActions">
+      <button id="fmEnvSoft">SOFT PAD</button>
+      <button id="fmEnvPluck">PLUCK</button>
+      <button id="fmEnvPunch">PUNCH</button>
+      <button id="fmEnvCrystal">CRYSTAL</button>
+      <button id="fmEnvReset">RESET</button>
+    </div>
+    <div class="fmEnvelopeHint">BASIC: CMD ENV attack,decay,sustain,release / CMD FMDEPTH value / CMD BRIGHT value / CMD REVERB value / CMD ENVRESET</div>
+  </div>
+
   <div id="soundLabStatus" class="soundLabStatus">Audio ready after first tap.</div>
 </section>
 
@@ -579,8 +667,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
 </div>
 
-<div class="help"><b>v0.9.2 Crystal FM Alpha 2：</b>
-FM音源部分だけを再設計。音色別オペレータ包絡、時間変化するモジュレーション指数、微細デチューン、ビブラート、トレモロ、倍音減衰、明るさ変化、4タップ空間処理、音量制御を強化。既存のBASIC・画面・コントローラーは変更していません。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
+<div class="help"><b>v0.9.3 Crystal FM Alpha 3：</b>
+FM音源をさらに強化。マスターADSRエンベロープ、モジュレーション深度、ブライトネス、リバーブ量、ベロシティカーブをSound Labからリアルタイム調整できます。BASICからCMD ENV／CMD FMDEPTH／CMD BRIGHT／CMD REVERB／CMD ENVRESETも利用可能です。既存のBASIC・画面・コントローラーは維持しています。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
 CRTスキャンライン・発光・曲面表示、Classic FM／Enhanced／Silent、
 MML音色のAuto・Glock/Bell・Piano・Harp・Brass・Organ・Choir・Pad・Bass・Strings・Harpsichord切替、レトロ起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
 CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
@@ -594,7 +682,7 @@ const $=id=>document.getElementById(id);
 const editor=$("editor"),canvas=$("screen"),ctx=canvas.getContext("2d"),promptInput=$("prompt"),statusEl=$("status"),cursorInfo=$("cursorInfo");
 let palette=["#000000","#243cff","#ef3b43","#d23ee8","#30d85a","#35d9dd","#f0df48","#f4f4f4","#777777","#7190ff","#ff7d84","#f18cff","#83f49a","#88f2f2","#fff18b","#ffffff"];
 const COLS=80,ROWS=25,CW=8,CH=16;
-let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,mmlSession=null,mmlBgm=true,mmlLastSource="",cpuClock=8,displayMode="color",soundMode="real",instrumentOverride="auto",directVars={},directArrays={};
+let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,mmlSession=null,mmlBgm=true,mmlLastSource="",cpuClock=8,displayMode="color",soundMode="real",instrumentOverride="auto",directVars={},directArrays={},fmMaster={attack:0,decay:0,sustain:1,release:0,modDepth:1,brightness:1,wet:1,velocityCurve:1.35};
 
 function resetText(){textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" "));cursorX=0;cursorY=0}
 function resetScreen(){ctx.fillStyle=palette[bg];ctx.fillRect(0,0,640,400);resetText();renderText()}
@@ -750,6 +838,20 @@ function mmlInstrumentPreset(n){
   ]}
  };
  const p=structuredClone(presets[n]||presets[13]);
+ p.attack=Math.max(.001,p.attack+fmMaster.attack);
+ p.decay=Math.max(.012,p.decay+fmMaster.decay);
+ p.sustain=Math.max(.01,Math.min(1.35,p.sustain*fmMaster.sustain));
+ p.release=Math.max(.04,p.release+fmMaster.release);
+ p.filter=Math.max(700,Math.min(17000,p.filter*fmMaster.brightness));
+ p.wet=Math.max(0,Math.min(.80,p.wet*fmMaster.wet));
+ p.ops.forEach(op=>{
+  op.attack=Math.max(.001,(op.attack??p.attack)+fmMaster.attack);
+  op.decay=Math.max(.012,(op.decay??p.decay)+fmMaster.decay);
+  op.sustain=Math.max(.005,Math.min(1.35,(op.sustain??p.sustain)*fmMaster.sustain));
+  op.release=Math.max(.04,(op.release??p.release)+fmMaster.release);
+  op.index*=fmMaster.modDepth;
+  op.indexEnd*=fmMaster.modDepth;
+ });
  if(soundMode==="enhanced"){
   p.gain*=1.08;p.release*=1.20;p.wet=Math.min(.46,p.wet*1.18);p.feedback=Math.min(.48,p.feedback*1.15);p.detune*=1.15;
   p.ops.forEach(op=>{op.index*=1.10;op.indexEnd*=1.08});
@@ -799,7 +901,7 @@ function parseMml(source){
    }
    events.push({
     freq,seconds,instrument,
-    velocity:Math.pow(volume/15,1.35),
+    velocity:Math.pow(volume/15,fmMaster.velocityCurve),
     gate:gate/8,
     index:eventIndex++
    });
@@ -815,7 +917,7 @@ function createCrystalOutput(ac,session){
  low.type="lowpass";low.frequency.value=soundMode==="real"?11800:14500;low.Q.value=.3;
  compressor.threshold.value=-20;compressor.knee.value=18;compressor.ratio.value=2.8;compressor.attack.value=.003;compressor.release.value=.20;
  dry.gain.value=soundMode==="real"?.94:.86;
- wet.gain.value=soundMode==="real"?.07:soundMode==="enhanced"?.22:.27;
+ wet.gain.value=(soundMode==="real"?.07:soundMode==="enhanced"?.22:.27)*fmMaster.wet;
  const taps=[
   {time:.071,gain:.16,pan:-.50},{time:.113,gain:.12,pan:.46},
   {time:.181,gain:.075,pan:-.22},{time:.257,gain:.052,pan:.28}
@@ -945,6 +1047,17 @@ async function execStmt(s,state,idx){
  if((m=s.match(/^CMD\s+BGM(?:\s+(.+))?$/i))){mmlBgm=m[1]==null?true:!!evaluate(m[1],state);return{}}
  if((m=s.match(/^CMD\s+PLAY\s+(.+)$/i))){const src=String(evaluate(m[1],state));await playMml(src,{background:mmlBgm});return{}}
  if(/^CMD\s+STOPM$/i.test(s)){stopMml();return{}}
+ if((m=s.match(/^CMD\s+ENV\s+(.+?)\s*,\s*(.+?)\s*,\s*(.+?)\s*,\s*(.+)$/i))){
+  fmMaster.attack=Math.max(-.2,Math.min(1.2,+evaluate(m[1],state)));
+  fmMaster.decay=Math.max(-.5,Math.min(2,+evaluate(m[2],state)));
+  fmMaster.sustain=Math.max(.1,Math.min(1.5,+evaluate(m[3],state)));
+  fmMaster.release=Math.max(-.8,Math.min(3,+evaluate(m[4],state)));
+  syncFmEnvelopeUI?.();return{}
+ }
+ if((m=s.match(/^CMD\s+FMDEPTH\s+(.+)$/i))){fmMaster.modDepth=Math.max(.2,Math.min(2.5,+evaluate(m[1],state)));syncFmEnvelopeUI?.();return{}}
+ if((m=s.match(/^CMD\s+BRIGHT\s+(.+)$/i))){fmMaster.brightness=Math.max(.35,Math.min(1.8,+evaluate(m[1],state)));syncFmEnvelopeUI?.();return{}}
+ if((m=s.match(/^CMD\s+REVERB\s+(.+)$/i))){fmMaster.wet=Math.max(0,Math.min(2,+evaluate(m[1],state)));syncFmEnvelopeUI?.();return{}}
+ if(/^CMD\s+ENVRESET$/i.test(s)){resetFmEnvelope?.();return{}}
  if(u==="CLS"||u==="PCLS"){resetScreen();return{}}
  if(u==="CLEAR"){state.vars={};state.arrays={};state.forStack=[];state.gosub=[];return{}}
  if(/^KEY\s+OFF$/i.test(s)){window.__salpSetPadVisible?.(false);return{}}
@@ -1113,13 +1226,17 @@ $("gameBtn").onclick=()=>{
 870 END`;
   toast?.("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
 };
-$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.9.2
+$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.9.3
 20 NEW CMD
 30 CLS
-40 PRINT "SALP CRYSTAL FM SUITE"
+40 PRINT "SALP CRYSTAL FM SUITE A3"
 50 PRINT "@12 BELL @13 PIANO @14 HARP"
 60 PRINT "@15 BRASS @16 ORGAN @17 CHOIR"
 70 PRINT "@18 PAD @19 BASS"
+75 CMD ENV 0,0,1,0
+76 CMD FMDEPTH 1.15
+77 CMD BRIGHT 1.08
+78 CMD REVERB 1.2
 80 CMD BGM 0
 90 PLAY "T132 O5 L8 V13 Q7 @12 CEG>C<GEC"
 100 PLAY "T116 O4 L8 V12 Q6 @13 CEG>C<GEC"
@@ -1218,6 +1335,60 @@ $("padTest").onclick=async()=>{soundMessage("Dream Pad @18");await playMml("T74 
 $("bassTest").onclick=async()=>{soundMessage("FM Bass @19");await playMml("T106 O2 L8 V13 Q6 @19 CEG>C<G",{background:false})};
 $("stereoTest").onclick=async()=>{soundMessage("Stereo Crystal Arpeggio");await playMml("T118 O4 L16 V13 Q7 @12 CEG>C<GEC ACE>A<ECA FAC>F<CAF GBD>G<DBG >C4",{background:true})};
 $("soundStop").onclick=()=>{stopMml();soundMessage("Sound stopped")};
+
+
+const FM_ENV_STORAGE="salpCrystalFmEnvelope_v093";
+function fmClamp(v,min,max){return Math.max(min,Math.min(max,Number(v)))}
+function syncFmEnvelopeUI(){
+ const map={
+  fmAttack:["attack",v=>`${Number(v).toFixed(2)}s`],
+  fmDecay:["decay",v=>`${Number(v).toFixed(2)}s`],
+  fmSustain:["sustain",v=>`${Math.round(Number(v)*100)}%`],
+  fmRelease:["release",v=>`${Number(v).toFixed(2)}s`],
+  fmModDepth:["modDepth",v=>`${Math.round(Number(v)*100)}%`],
+  fmBrightness:["brightness",v=>`${Math.round(Number(v)*100)}%`],
+  fmWet:["wet",v=>`${Math.round(Number(v)*100)}%`],
+  fmVelocityCurve:["velocityCurve",v=>Number(v).toFixed(2)]
+ };
+ Object.entries(map).forEach(([id,[key,format]])=>{
+  const input=$(id),out=$(id+"Out");
+  if(input)input.value=String(fmMaster[key]);
+  if(out)out.textContent=format(fmMaster[key])
+ });
+ localStorage.setItem(FM_ENV_STORAGE,JSON.stringify(fmMaster))
+}
+function resetFmEnvelope(){
+ fmMaster={attack:0,decay:0,sustain:1,release:0,modDepth:1,brightness:1,wet:1,velocityCurve:1.35};
+ syncFmEnvelopeUI();
+ soundMessage?.("FM envelope reset")
+}
+function setFmEnvelopePreset(name){
+ const presets={
+  soft:{attack:.28,decay:.45,sustain:1.08,release:1.25,modDepth:.78,brightness:.82,wet:1.35,velocityCurve:1.1},
+  pluck:{attack:-.01,decay:-.18,sustain:.58,release:-.08,modDepth:1.28,brightness:1.16,wet:.82,velocityCurve:1.55},
+  punch:{attack:-.015,decay:-.10,sustain:1.12,release:-.10,modDepth:1.42,brightness:1.22,wet:.62,velocityCurve:1.7},
+  crystal:{attack:-.005,decay:.08,sustain:.82,release:.72,modDepth:1.55,brightness:1.28,wet:1.48,velocityCurve:1.25}
+ };
+ Object.assign(fmMaster,presets[name]||{});
+ syncFmEnvelopeUI();
+ soundMessage?.(`Envelope preset: ${name.toUpperCase()}`)
+}
+(function initFmEnvelope(){
+ try{Object.assign(fmMaster,JSON.parse(localStorage.getItem(FM_ENV_STORAGE)||"{}"))}catch{}
+ const bindings={
+  fmAttack:["attack",-0.2,1.2],fmDecay:["decay",-0.5,2],fmSustain:["sustain",.1,1.5],fmRelease:["release",-0.8,3],
+  fmModDepth:["modDepth",.2,2.5],fmBrightness:["brightness",.35,1.8],fmWet:["wet",0,2],fmVelocityCurve:["velocityCurve",.6,2.4]
+ };
+ Object.entries(bindings).forEach(([id,[key,min,max]])=>{
+  $(id)?.addEventListener("input",e=>{fmMaster[key]=fmClamp(e.target.value,min,max);syncFmEnvelopeUI()})
+ });
+ $("fmEnvSoft").onclick=()=>setFmEnvelopePreset("soft");
+ $("fmEnvPluck").onclick=()=>setFmEnvelopePreset("pluck");
+ $("fmEnvPunch").onclick=()=>setFmEnvelopePreset("punch");
+ $("fmEnvCrystal").onclick=()=>setFmEnvelopePreset("crystal");
+ $("fmEnvReset").onclick=resetFmEnvelope;
+ syncFmEnvelopeUI()
+})();
 
 async function bootMH(){
  stopped=true;stopMml();
@@ -1334,7 +1505,7 @@ setInterval(phoenixTrackProgrammaticChange,250);
 phoenixRestoreWorkspace();phoenixLastValue=editor.value;phoenixUpdateEditorInfo();phoenixUpdateButtons();
 /* ===== end Phoenix editor workspace ===== */
 
-resetScreen();printText("salp Retro BASIC Studio");printText("80s-style BASIC / Crystal FM");printText("");printText("Ok");
+resetScreen();printText("salp Retro BASIC Studio");printText("80s-style BASIC / Crystal FM A3");printText("");printText("Ok");
 </script>
 </body>
 </html>
