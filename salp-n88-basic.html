@@ -48,14 +48,14 @@ input,select,textarea{
 }
 .app{
   display:grid;
-  grid-template-rows:52px 1fr;
+  grid-template-rows:90px 1fr;
   height:100vh;height:100dvh;
   max-width:1600px;margin:0 auto;
 }
 
 /* ===== TOP BAR ===== */
 .topbar{
-  display:flex;align-items:center;gap:12px;
+  display:block;
   padding:0 14px;border-bottom:1px solid var(--line);
   background:linear-gradient(180deg,#141c2c,#0f1522);
 }
@@ -303,30 +303,36 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
 <body>
 <div class="app">
   <!-- TOP BAR -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">⌨️</div>
-      <div>
-        <h1>salp N88 BASIC Studio</h1>
-        <div class="sub">PC-8801MH Compatible · BASIC Studio</div>
-      </div>
-    </div>
-    <div class="version">v1.0.1</div>
-    <div class="topActions">
-<div class="runArea">
-<button class="runMain" id="runBtn">▶ RUN (F5)</button>
+  
+<header class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:20px">
+<div style="display:flex;flex-direction:column;gap:6px;min-width:340px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="runMain" id="runBtn">▶ RUN</button>
 <button class="stopMain" id="stopBtn">■ STOP</button>
-</div>
-<div class="toolArea">
 <button id="bootBtn">⏻ BOOT</button>
-<button id="newProjectBtn">📁 NEW PROJECT</button>
-<button id="saveProjectBtn">💾 SAVE PROJECT</button>
-<button id="exportBasBtn">⬇ .BAS</button>
-<button id="loadBtn">LOAD</button>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button id="newProjectBtn">📁 NEW</button>
+<button id="saveProjectBtn">💾 SAVE</button>
+<button id="loadBtn">📂 LOAD</button>
+<button id="exportBasBtn">⬇ BAS</button>
 </div>
 <input id="fileInput" type="file" accept=".bas,.txt,text/plain,.json" hidden>
 </div>
-  </header>
+
+<div class="brand" style="margin:auto">
+<div class="logo">⌨️</div>
+<div>
+<h1>salp N88 BASIC Studio</h1>
+<div class="sub">PC-8801MH Compatible · BASIC Studio</div>
+</div>
+</div>
+
+<div class="version">v1.2</div>
+</div>
+</header>
+
 
   <!-- IDE -->
   <div class="ide">
