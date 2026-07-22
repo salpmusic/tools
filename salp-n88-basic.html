@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e17">
-<title>salp N88 BASIC Studio v1.1.0</title>
+<title>salp N88 BASIC Studio v1.1.1</title>
 <style>
 :root{
   --bg:#0a0e17;
@@ -299,7 +299,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
   margin-right:4px;background:#50fa7b;box-shadow:0 0 6px #50fa7b;
 }
 
-/* ===== v1.1.0 PHOENIX LAYOUT =====
+/* ===== v1.1.1 PHOENIX LAYOUT =====
    v0.9系の「上部ツールバー＋エディタ/CRT横並び」へ回帰
 */
 html,body{
@@ -507,6 +507,52 @@ body{
   }
 }
 
+
+.keypadTop{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.keypadTop label{
+  font-size:11px;
+  font-weight:800;
+  color:var(--muted);
+}
+.keypadTop select{
+  flex:1;
+  min-width:170px;
+  min-height:32px;
+  font-size:11px;
+}
+.keypadTop button{
+  min-height:32px;
+  font-size:11px;
+}
+.keyCustom{
+  display:none;
+  margin-top:8px;
+}
+.keyChecks{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.keyChecks label{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 7px;
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:#0a101a;
+  font-size:11px;
+}
+.actionKeys .vkey[data-vkey="SPACE"],
+.actionKeys .vkey[data-vkey="ENTER"]{
+  min-width:72px;
+}
+
 </style>
 </head>
 <body>
@@ -520,7 +566,7 @@ body{
         <div class="sub">PC-8801MH Compatible · BASIC Studio</div>
       </div>
     </div>
-    <div class="version">v1.1.0</div>
+    <div class="version">v1.1.1</div>
     <div class="topActions">
 <div class="runArea">
 <button class="runMain" id="runBtn">▶ RUN (F5)</button>
@@ -657,22 +703,51 @@ body{
         </div>
       </div>
 
-      <details class="keypadPanel" open>
-        <summary>🎮 GAME KEYPAD</summary>
-        <div class="keypadBody">
-          <div class="dpad">
-            <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
-            <button type="button" class="vkey" data-vkey="LEFT">←</button>
-            <span></span>
-            <button type="button" class="vkey" data-vkey="RIGHT">→</button>
-            <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
+      <div class="keypadPanel">
+        <div class="keypadTop">
+          <label for="keyMode">🎮 GAME KEYPAD</label>
+          <select id="keyMode">
+            <option value="game" selected>カーソル＋Z/X</option>
+            <option value="full">カーソル＋Z/X＋SPACE＋ENTER</option>
+            <option value="cursorEnter">カーソル＋ENTER</option>
+            <option value="cursor">カーソルのみ</option>
+            <option value="zx">Z/Xのみ</option>
+            <option value="custom">カスタム選択</option>
+          </select>
+          <button id="keyToggle" type="button">キーパッドを隠す</button>
+        </div>
+
+        <div id="keypadBody" class="keypadBody">
+          <div id="padMount">
+            <div class="dpad">
+              <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
+              <button type="button" class="vkey" data-vkey="LEFT">←</button>
+              <span></span>
+              <button type="button" class="vkey" data-vkey="RIGHT">→</button>
+              <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
+            </div>
+            <div class="actionKeys">
+              <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
+              <button type="button" class="vkey xkey" data-vkey="X">X</button>
+              <button type="button" class="vkey" data-vkey="SPACE">SPACE</button>
+              <button type="button" class="vkey" data-vkey="ENTER">ENTER</button>
+            </div>
           </div>
-          <div class="actionKeys">
-            <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
-            <button type="button" class="vkey xkey" data-vkey="X">X</button>
+
+          <div id="keyCustom" class="keyCustom">
+            <div class="keyChecks">
+              <label><input type="checkbox" value="UP" checked>↑</label>
+              <label><input type="checkbox" value="DOWN" checked>↓</label>
+              <label><input type="checkbox" value="LEFT" checked>←</label>
+              <label><input type="checkbox" value="RIGHT" checked>→</label>
+              <label><input type="checkbox" value="Z" checked>Z</label>
+              <label><input type="checkbox" value="X" checked>X</label>
+              <label><input type="checkbox" value="SPACE" checked>SPACE</label>
+              <label><input type="checkbox" value="ENTER" checked>ENTER</label>
+            </div>
           </div>
         </div>
-      </details>
+      </div>
     </aside>
   </div>
 </div>
@@ -1541,6 +1616,62 @@ document.addEventListener("keydown", e=>{
   else if(key==="g"){ e.preventDefault(); $("gotoBtn").click(); }
   else if(key===" "||key==="space"){ if(document.activeElement===editor){ e.preventDefault(); showCompletion(); } }
 });
+
+
+// ---------- Keypad mode switching ----------
+const keyModeEl = $("keyMode");
+const keyToggleEl = $("keyToggle");
+const keypadBodyEl = $("keypadBody");
+const keyCustomEl = $("keyCustom");
+
+function setVisibleKeys(names){
+  document.querySelectorAll("[data-vkey]").forEach(btn=>{
+    btn.style.display = names.includes(btn.dataset.vkey) ? "" : "none";
+  });
+}
+
+function applyKeyMode(){
+  const mode = keyModeEl.value;
+  keyCustomEl.style.display = mode === "custom" ? "block" : "none";
+
+  if(mode === "game") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X"]);
+  else if(mode === "full") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
+  else if(mode === "cursorEnter") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","ENTER"]);
+  else if(mode === "cursor") setVisibleKeys(["UP","DOWN","LEFT","RIGHT"]);
+  else if(mode === "zx") setVisibleKeys(["Z","X"]);
+  else {
+    const selected = [...document.querySelectorAll("#keyCustom input:checked")].map(x=>x.value);
+    setVisibleKeys(selected);
+  }
+
+  localStorage.setItem("salpN88KeyMode", mode);
+}
+
+keyModeEl.onchange = applyKeyMode;
+
+document.querySelectorAll("#keyCustom input").forEach(cb=>{
+  cb.onchange = ()=>{
+    if(keyModeEl.value === "custom") applyKeyMode();
+  };
+});
+
+keyToggleEl.onclick = ()=>{
+  const hidden = keypadBodyEl.style.display === "none";
+  keypadBodyEl.style.display = hidden ? "" : "none";
+  keyToggleEl.textContent = hidden ? "キーパッドを隠す" : "キーパッドを表示";
+  localStorage.setItem("salpN88KeypadHidden", hidden ? "0" : "1");
+};
+
+const savedKeyMode = localStorage.getItem("salpN88KeyMode");
+if(savedKeyMode && [...keyModeEl.options].some(o=>o.value===savedKeyMode)){
+  keyModeEl.value = savedKeyMode;
+}
+if(localStorage.getItem("salpN88KeypadHidden")==="1"){
+  keypadBodyEl.style.display="none";
+  keyToggleEl.textContent="キーパッドを表示";
+}
+applyKeyMode();
+
 
 // ---------- Boot ----------
 if(!loadProjectFromStorage()){
