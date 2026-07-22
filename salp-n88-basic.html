@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e17">
-<title>salp N88 BASIC Studio v1.0.0</title>
+<title>salp N88 BASIC Studio v1.0.1</title>
 <style>
 :root{
   --bg:#0a0e17;
@@ -71,8 +71,13 @@ input,select,textarea{
   padding:3px 8px;border:1px solid var(--line);border-radius:999px;
   color:var(--cyan);font-size:10px;font-weight:800;flex-shrink:0;
 }
-.topActions{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;align-items:center}
-.topActions button{min-height:32px;font-size:12px;padding:5px 10px}
+.topActions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-left:auto}
+.runArea{display:flex;gap:10px}
+.toolArea{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.runMain{min-height:48px;min-width:170px;font-size:18px;font-weight:900;border:none;border-radius:12px;color:#08130b;background:linear-gradient(180deg,#5cff8b,#27d85f);box-shadow:0 0 18px rgba(0,255,100,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+.runMain:hover{transform:scale(1.05)}
+.stopMain{min-height:48px;min-width:120px;font-size:17px;font-weight:900;border:none;border-radius:12px;color:#fff;background:linear-gradient(180deg,#ff7373,#d93a3a)}
+.toolArea button{min-height:32px;font-size:12px;padding:5px 10px}
 
 /* ===== MAIN IDE GRID ===== */
 .ide{
@@ -306,17 +311,21 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
         <div class="sub">PC-8801MH Compatible · BASIC Studio</div>
       </div>
     </div>
-    <div class="version">v1.0.0</div>
+    <div class="version">v1.0.1</div>
     <div class="topActions">
-      <button class="primary" id="runBtn">▶ RUN</button>
-      <button id="stopBtn">■ STOP</button>
-      <button id="bootBtn">⏻ BOOT</button>
-      <button id="newProjectBtn">📁 NEW PROJECT</button>
-      <button id="saveProjectBtn">💾 SAVE PROJECT</button>
-      <button id="exportBasBtn">⬇ .BAS</button>
-      <button id="loadBtn">LOAD</button>
-      <input id="fileInput" type="file" accept=".bas,.txt,text/plain,.json" hidden>
-    </div>
+<div class="runArea">
+<button class="runMain" id="runBtn">▶ RUN (F5)</button>
+<button class="stopMain" id="stopBtn">■ STOP</button>
+</div>
+<div class="toolArea">
+<button id="bootBtn">⏻ BOOT</button>
+<button id="newProjectBtn">📁 NEW PROJECT</button>
+<button id="saveProjectBtn">💾 SAVE PROJECT</button>
+<button id="exportBasBtn">⬇ .BAS</button>
+<button id="loadBtn">LOAD</button>
+</div>
+<input id="fileInput" type="file" accept=".bas,.txt,text/plain,.json" hidden>
+</div>
   </header>
 
   <!-- IDE -->
