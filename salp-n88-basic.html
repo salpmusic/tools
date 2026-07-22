@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e17">
-<title>salp N88 BASIC Studio v1.1.1</title>
+<title>salp N88 BASIC Studio v1.5</title>
 <style>
 :root{
   --bg:#0a0e17;
@@ -48,18 +48,62 @@ input,select,textarea{
 }
 .app{
   display:grid;
-  grid-template-rows:52px 1fr;
+  grid-template-rows:92px 1fr;
   height:100vh;height:100dvh;
   max-width:1600px;margin:0 auto;
 }
 
 /* ===== TOP BAR ===== */
 .topbar{
-  display:flex;align-items:center;gap:12px;
-  padding:0 14px;border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:minmax(330px,auto) 1fr minmax(330px,auto);
+  grid-template-rows:44px 40px;
+  align-items:center;
+  gap:4px 14px;
+  padding:4px 12px;
+  border-bottom:1px solid var(--line);
   background:linear-gradient(180deg,#141c2c,#0f1522);
 }
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.runArea{
+  grid-column:1;
+  grid-row:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.runMain{
+  min-width:118px;
+  min-height:38px;
+  border:1px solid #2c7b49!important;
+  background:linear-gradient(180deg,#234f34,#183824)!important;
+  color:#8cffad!important;
+  font-size:14px!important;
+  box-shadow:0 0 0 1px #0b2114 inset;
+}
+.runMain:hover{filter:brightness(1.15)}
+.stopMain{
+  min-width:104px;
+  min-height:38px;
+  border:1px solid #7a3340!important;
+  background:linear-gradient(180deg,#4b2029,#32171e)!important;
+  color:#ff9aaa!important;
+  font-size:14px!important;
+}
+.bootMain{
+  min-width:94px;
+  min-height:38px;
+  font-size:13px!important;
+}
+.brand{
+  grid-column:2;
+  grid-row:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-width:0;
+  text-align:center;
+}
 .logo{
   width:34px;height:34px;border-radius:10px;
   background:var(--accent);display:grid;place-items:center;
@@ -68,16 +112,40 @@ input,select,textarea{
 .brand h1{margin:0;font-size:15px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
 .brand .sub{font-size:10px;color:var(--muted);margin-top:1px}
 .version{
+  grid-column:3;
+  grid-row:1;
+  justify-self:end;
   padding:3px 8px;border:1px solid var(--line);border-radius:999px;
-  color:var(--cyan);font-size:10px;font-weight:800;flex-shrink:0;
+  color:var(--cyan);font-size:10px;font-weight:800;
 }
-.topActions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-left:auto}
-.runArea{display:flex;gap:10px}
-.toolArea{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.runMain{min-height:48px;min-width:170px;font-size:18px;font-weight:900;border:none;border-radius:12px;color:#08130b;background:linear-gradient(180deg,#5cff8b,#27d85f);box-shadow:0 0 18px rgba(0,255,100,.45),inset 0 1px 0 rgba(255,255,255,.35)}
-.runMain:hover{transform:scale(1.05)}
-.stopMain{min-height:48px;min-width:120px;font-size:17px;font-weight:900;border:none;border-radius:12px;color:#fff;background:linear-gradient(180deg,#ff7373,#d93a3a)}
-.toolArea button{min-height:32px;font-size:12px;padding:5px 10px}
+.topActions{
+  grid-column:1 / 4;
+  grid-row:2;
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  scrollbar-width:thin;
+}
+.topActions button{min-height:32px;font-size:12px;padding:5px 10px;white-space:nowrap}
+.runArea.running .runMain{opacity:.65}
+.runArea.running .stopMain{
+  box-shadow:0 0 12px rgba(255,107,129,.35);
+}
+@media(max-width:900px){
+  .topbar{
+    grid-template-columns:1fr auto;
+    grid-template-rows:44px 40px;
+    padding:4px 8px;
+  }
+  .runArea{grid-column:1;grid-row:1}
+  .brand{display:none}
+  .version{grid-column:2;grid-row:1}
+  .topActions{grid-column:1/3;grid-row:2}
+  .runMain{min-width:102px}
+  .stopMain{min-width:88px}
+}
 
 /* ===== MAIN IDE GRID ===== */
 .ide{
@@ -298,267 +366,18 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
   display:inline-block;width:7px;height:7px;border-radius:50%;
   margin-right:4px;background:#50fa7b;box-shadow:0 0 6px #50fa7b;
 }
-
-/* ===== v1.1.1 PHOENIX LAYOUT =====
-   v0.9系の「上部ツールバー＋エディタ/CRT横並び」へ回帰
-*/
-html,body{
-  min-height:100%;
-  height:auto;
-}
-body{
-  overflow:auto;
-}
-.app{
-  display:block;
-  width:min(100%,1180px);
-  max-width:none;
-  height:auto;
-  min-height:100vh;
-  margin:0 auto;
-  padding:calc(env(safe-area-inset-top) + 12px) 12px
-          calc(env(safe-area-inset-bottom) + 22px);
-}
-
-/* タイトルの直下に、左揃えの操作バー */
-.topbar{
-  display:flex;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:10px 12px;
-  min-height:0;
-  padding:0;
-  margin-bottom:10px;
-  border:0;
-  background:transparent;
-}
-.brand{
-  order:1;
-}
-.version{
-  order:2;
-  margin-left:auto;
-}
-.topActions{
-  order:3;
-  width:100%;
-  margin-left:0;
-  align-items:flex-start;
-  gap:7px;
-}
-.runArea,
-.toolArea{
-  justify-content:flex-start;
-}
-.runMain{
-  min-width:150px;
-  min-height:48px;
-  font-size:18px;
-}
-.stopMain{
-  min-width:108px;
-  min-height:48px;
-  font-size:16px;
-}
-.toolArea button{
-  min-height:42px;
-  padding:7px 12px;
-}
-
-/* PROJECTは横長のコンパクトバー */
-.ide{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(360px,1.05fr);
-  grid-template-rows:auto auto;
-  gap:10px;
-  height:auto;
-  min-height:0;
-}
-.sidebar{
-  grid-column:1 / -1;
-  grid-row:1;
-  min-height:0;
-  border:1px solid var(--line);
-  border-radius:16px;
-  overflow:hidden;
-  display:grid;
-  grid-template-columns:auto minmax(130px,220px) 1fr auto;
-  align-items:center;
-  background:var(--panel);
-}
-.sideHead{
-  border:0;
-  border-right:1px solid var(--line);
-  height:100%;
-}
-.projectName{
-  border:0;
-  border-right:1px solid var(--line);
-}
-.fileList{
-  display:flex;
-  gap:5px;
-  overflow-x:auto;
-  overflow-y:hidden;
-  padding:6px 8px;
-}
-.fileItem{
-  flex:0 0 auto;
-  min-width:110px;
-}
-.sideFoot{
-  border:0;
-  border-left:1px solid var(--line);
-  flex-wrap:nowrap;
-}
-.sideFoot button{
-  flex:0 0 auto;
-}
-
-/* v0.9同様、エディタ左・CRT右 */
-.center{
-  grid-column:1;
-  grid-row:2;
-  min-height:670px;
-  height:670px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  overflow:hidden;
-  grid-template-rows:auto minmax(0,1fr) auto 180px;
-  background:var(--panel2);
-}
-.rightPanel{
-  grid-column:2;
-  grid-row:2;
-  min-height:670px;
-  height:670px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  overflow:auto;
-}
-#editor{
-  min-height:300px;
-}
-.editorToolbar{
-  position:sticky;
-  top:0;
-  z-index:5;
-}
-
-/* タブレット・スマホ */
-@media(max-width:900px){
-  .app{
-    width:100%;
-  }
-  .ide{
-    grid-template-columns:1fr;
-    grid-template-rows:auto auto auto;
-  }
-  .sidebar{
-    grid-column:1;
-    grid-row:1;
-    grid-template-columns:1fr;
-  }
-  .sideHead,
-  .projectName,
-  .sideFoot{
-    border-left:0;
-    border-right:0;
-    border-bottom:1px solid var(--line);
-  }
-  .sideFoot{
-    display:flex;
-  }
-  .center{
-    grid-column:1;
-    grid-row:2;
-    min-height:620px;
-    height:620px;
-  }
-  .rightPanel{
-    grid-column:1;
-    grid-row:3;
-    min-height:0;
-    height:auto;
-    max-height:none;
-  }
-}
-@media(max-width:520px){
-  .brand h1{
-    font-size:14px;
-  }
-  .brand .sub{
-    display:none;
-  }
-  .runArea{
-    width:100%;
-  }
-  .runMain,
-  .stopMain{
-    flex:1;
-    min-width:0;
-  }
-  .toolArea{
-    width:100%;
-  }
-  .toolArea button{
-    flex:1 1 calc(33.333% - 6px);
-    min-width:90px;
-  }
-}
-
-
-.keypadTop{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  flex-wrap:wrap;
-}
-.keypadTop label{
-  font-size:11px;
-  font-weight:800;
-  color:var(--muted);
-}
-.keypadTop select{
-  flex:1;
-  min-width:170px;
-  min-height:32px;
-  font-size:11px;
-}
-.keypadTop button{
-  min-height:32px;
-  font-size:11px;
-}
-.keyCustom{
-  display:none;
-  margin-top:8px;
-}
-.keyChecks{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-}
-.keyChecks label{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  padding:4px 7px;
-  border:1px solid var(--line);
-  border-radius:7px;
-  background:#0a101a;
-  font-size:11px;
-}
-.actionKeys .vkey[data-vkey="SPACE"],
-.actionKeys .vkey[data-vkey="ENTER"]{
-  min-width:72px;
-}
-
 </style>
 </head>
 <body>
 <div class="app">
   <!-- TOP BAR -->
   <header class="topbar">
+    <div class="runArea" id="runArea">
+      <button class="runMain" id="runBtn">▶ RUN (F5)</button>
+      <button class="stopMain" id="stopBtn">■ STOP</button>
+      <button class="bootMain" id="bootBtn">⏻ BOOT</button>
+    </div>
+
     <div class="brand">
       <div class="logo">⌨️</div>
       <div>
@@ -566,21 +385,16 @@ body{
         <div class="sub">PC-8801MH Compatible · BASIC Studio</div>
       </div>
     </div>
-    <div class="version">v1.1.1</div>
+
+    <div class="version">v1.5</div>
+
     <div class="topActions">
-<div class="runArea">
-<button class="runMain" id="runBtn">▶ RUN (F5)</button>
-<button class="stopMain" id="stopBtn">■ STOP</button>
-</div>
-<div class="toolArea">
-<button id="bootBtn">⏻ BOOT</button>
-<button id="newProjectBtn">📁 NEW PROJECT</button>
-<button id="saveProjectBtn">💾 SAVE PROJECT</button>
-<button id="exportBasBtn">⬇ .BAS</button>
-<button id="loadBtn">LOAD</button>
-</div>
-<input id="fileInput" type="file" accept=".bas,.txt,text/plain,.json" hidden>
-</div>
+      <button id="newProjectBtn">📁 NEW PROJECT</button>
+      <button id="saveProjectBtn">💾 SAVE PROJECT</button>
+      <button id="loadBtn">📂 LOAD</button>
+      <button id="exportBasBtn">⬇ .BAS</button>
+      <input id="fileInput" type="file" accept=".bas,.txt,text/plain,.json" hidden>
+    </div>
   </header>
 
   <!-- IDE -->
@@ -703,51 +517,22 @@ body{
         </div>
       </div>
 
-      <div class="keypadPanel">
-        <div class="keypadTop">
-          <label for="keyMode">🎮 GAME KEYPAD</label>
-          <select id="keyMode">
-            <option value="game" selected>カーソル＋Z/X</option>
-            <option value="full">カーソル＋Z/X＋SPACE＋ENTER</option>
-            <option value="cursorEnter">カーソル＋ENTER</option>
-            <option value="cursor">カーソルのみ</option>
-            <option value="zx">Z/Xのみ</option>
-            <option value="custom">カスタム選択</option>
-          </select>
-          <button id="keyToggle" type="button">キーパッドを隠す</button>
-        </div>
-
-        <div id="keypadBody" class="keypadBody">
-          <div id="padMount">
-            <div class="dpad">
-              <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
-              <button type="button" class="vkey" data-vkey="LEFT">←</button>
-              <span></span>
-              <button type="button" class="vkey" data-vkey="RIGHT">→</button>
-              <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
-            </div>
-            <div class="actionKeys">
-              <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
-              <button type="button" class="vkey xkey" data-vkey="X">X</button>
-              <button type="button" class="vkey" data-vkey="SPACE">SPACE</button>
-              <button type="button" class="vkey" data-vkey="ENTER">ENTER</button>
-            </div>
+      <details class="keypadPanel" open>
+        <summary>🎮 GAME KEYPAD</summary>
+        <div class="keypadBody">
+          <div class="dpad">
+            <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
+            <button type="button" class="vkey" data-vkey="LEFT">←</button>
+            <span></span>
+            <button type="button" class="vkey" data-vkey="RIGHT">→</button>
+            <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
           </div>
-
-          <div id="keyCustom" class="keyCustom">
-            <div class="keyChecks">
-              <label><input type="checkbox" value="UP" checked>↑</label>
-              <label><input type="checkbox" value="DOWN" checked>↓</label>
-              <label><input type="checkbox" value="LEFT" checked>←</label>
-              <label><input type="checkbox" value="RIGHT" checked>→</label>
-              <label><input type="checkbox" value="Z" checked>Z</label>
-              <label><input type="checkbox" value="X" checked>X</label>
-              <label><input type="checkbox" value="SPACE" checked>SPACE</label>
-              <label><input type="checkbox" value="ENTER" checked>ENTER</label>
-            </div>
+          <div class="actionKeys">
+            <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
+            <button type="button" class="vkey xkey" data-vkey="X">X</button>
           </div>
         </div>
-      </div>
+      </details>
     </aside>
   </div>
 </div>
@@ -755,7 +540,7 @@ body{
 <script>
 "use strict";
 /* =========================================================
-   salp N88 BASIC Studio v1.0.0 — BASIC Studio
+   salp N88 BASIC Studio v1.5 — BASIC Studio
    Core: Project system + IDE layout + Console + CRT
    Interpreter & FM engine carried from Phoenix lineage
    ========================================================= */
@@ -769,18 +554,17 @@ const statusEl = $("status");
 const consoleOut = $("consoleOut");
 
 // ---------- Project Model ----------
-const PROJECT_KEY = "salpN88Studio_v100";
+const PROJECT_KEY = "salpN88Studio_v150";
 let project = {
   name: "Untitled Project",
   files: {
     "MAIN.BAS": `10 CLS
-20 PRINT "SALP N88 BASIC STUDIO v1.0"
-30 PRINT "Project Explorer + Console ready"
+20 PRINT "SALP N88 BASIC STUDIO v1.5"
+30 PRINT "FM SOUND TEST"
 40 PRINT
-50 FOR I=1 TO 5
-60 PRINT "HELLO ";I
-70 NEXT I
-80 END`
+50 PLAY "T120 O5 L8 @12 C E G > C"
+60 PRINT "FM TEST COMPLETE"
+70 END`
   },
   active: "MAIN.BAS"
 };
@@ -866,6 +650,7 @@ function deleteFile() {
   delete project.files[project.active];
   project.active = Object.keys(project.files)[0];
   openFile(project.active);
+setRunUi(false);
   saveProjectToStorage();
 }
 function newProject() {
@@ -1094,7 +879,7 @@ function coords(s,state){
 }
 function color(n){ return palette[Math.max(0,Math.min(15,Math.floor(+n||0)))]; }
 
-// Audio (lightweight)
+// ===== Crystal FM Engine (from Phoenix, upgraded for Studio v1.5) =====
 async function ensureAudio(){
   audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state==="suspended") await audioCtx.resume();
@@ -1108,23 +893,247 @@ async function tone(freq=880,dur=.12){
   o.connect(g).connect(ac.destination); o.start(now); o.stop(now+dur);
 }
 function stopMml(){
-  if(!mmlSession) return;
-  mmlSession.cancelled=true;
-  for(const node of mmlSession.nodes){ try{node.stop()}catch{} try{node.disconnect()}catch{} }
-  mmlSession=null; mmlLastSource="";
-  setStatus(stopped?"Stopped":"Ready");
+ if(!mmlSession)return;
+ mmlSession.cancelled=true;
+ for(const node of mmlSession.nodes){
+  try{node.stop()}catch{}
+  try{node.disconnect()}catch{}
+ }
+ mmlSession=null;mmlLastSource="";
+ setStatus(stopped?"Stopped":"Ready")
+}
+function mmlInstrumentPreset(n){
+ if(instrumentOverride!=="auto")n=Number(instrumentOverride);
+ const presets={
+  2:{
+   name:"Strings",gain:.050,attack:.075,decay:.42,sustain:.62,release:.78,
+   filter:5200,wet:.19,
+   ops:[
+    {wave:"sawtooth",ratio:1,level:.54,modRatio:1.003,index:10},
+    {wave:"triangle",ratio:1.003,level:.34,modRatio:2,index:18},
+    {wave:"sine",ratio:2,level:.09,modRatio:3.01,index:12}
+   ]
+  },
+  11:{
+   name:"Harpsichord",gain:.052,attack:.0025,decay:.19,sustain:.10,release:.26,
+   filter:7200,wet:.12,
+   ops:[
+    {wave:"square",ratio:1,level:.42,modRatio:2,index:58},
+    {wave:"triangle",ratio:2,level:.24,modRatio:3,index:42},
+    {wave:"sine",ratio:4,level:.10,modRatio:5,index:24}
+   ]
+  },
+  12:{
+   name:"Crystal Glock",gain:.058,attack:.002,decay:.82,sustain:.055,release:1.55,
+   filter:10800,wet:.34,
+   ops:[
+    {wave:"sine",ratio:1,level:.48,modRatio:2.71,index:250},
+    {wave:"sine",ratio:2.01,level:.25,modRatio:4.10,index:180},
+    {wave:"sine",ratio:3.99,level:.13,modRatio:6.82,index:105},
+    {wave:"sine",ratio:.5,level:.12,modRatio:1.41,index:42}
+   ]
+  },
+  13:{
+   name:"Fantasy Piano",gain:.055,attack:.004,decay:.40,sustain:.25,release:.72,
+   filter:7600,wet:.20,
+   ops:[
+    {wave:"triangle",ratio:1,level:.50,modRatio:2,index:62},
+    {wave:"sine",ratio:2,level:.20,modRatio:3,index:46},
+    {wave:"sine",ratio:3.01,level:.10,modRatio:5,index:30}
+   ]
+  }
+ };
+ const p=JSON.parse(JSON.stringify(presets[n]||presets[13]));
+ if(soundMode==="enhanced"){
+  p.gain*=1.12;p.release*=1.25;p.wet=Math.min(.42,p.wet*1.25);
+  p.ops.forEach(op=>op.index*=1.08);
+ }else if(soundMode==="real"){
+  p.gain*=.82;p.release*=.68;p.wet*=.38;
+  p.ops=p.ops.slice(0,2);
+ }else if(soundMode==="crystal"){
+  p.release*=1.18;p.wet=Math.max(.25,p.wet);
+  if(n===12||instrumentOverride==="12"){
+   p.ops.forEach((op,i)=>{op.index*=1+(i*.055)});
+  }
+ }
+ return p
+}
+function parseMml(source){
+ const s=String(source||"").toUpperCase();
+ let i=0,tempo=120,octave=4,defaultLength=4,instrument=13,volume=12,gate=8,eventIndex=0;
+ const events=[];
+ const noteIndex={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+ const readNumber=()=>{
+  let z="";while(i<s.length&&/\d/.test(s[i]))z+=s[i++];
+  return z?Number(z):null
+ };
+ while(i<s.length){
+  const c=s[i++];
+  if(/\s|,/.test(c))continue;
+  if(c==="T"){const n=readNumber();if(n)tempo=Math.max(20,Math.min(400,n));continue}
+  if(c==="O"){const n=readNumber();if(n!=null)octave=Math.max(0,Math.min(8,n));continue}
+  if(c==="L"){const n=readNumber();if(n)defaultLength=Math.max(1,Math.min(128,n));continue}
+  if(c==="@"){const n=readNumber();if(n!=null)instrument=n;continue}
+  if(c==="V"){const n=readNumber();if(n!=null)volume=Math.max(0,Math.min(15,n));continue}
+  if(c==="Q"){const n=readNumber();if(n!=null)gate=Math.max(1,Math.min(8,n));continue}
+  if(c===">"){octave=Math.min(8,octave+1);continue}
+  if(c==="<"){octave=Math.max(0,octave-1);continue}
+  if(c==="R"||Object.hasOwn(noteIndex,c)){
+   let accidental=0;
+   if(s[i]==="+"||s[i]==="#"){accidental=1;i++}
+   else if(s[i]==="-"){accidental=-1;i++}
+   const length=readNumber()||defaultLength;
+   let dotted=false;
+   if(s[i]==="."){dotted=true;i++}
+   let beats=4/length;
+   if(dotted)beats*=1.5;
+   const seconds=beats*60/tempo;
+   let freq=0;
+   if(c!=="R"){
+    const midi=12*(octave+1)+noteIndex[c]+accidental;
+    freq=440*Math.pow(2,(midi-69)/12)
+   }
+   events.push({
+    freq,seconds,instrument,
+    velocity:Math.pow(volume/15,1.35),
+    gate:gate/8,
+    index:eventIndex++
+   });
+   continue
+  }
+ }
+ return events
+}
+function createCrystalOutput(ac,session){
+ const input=ac.createGain(),dry=ac.createGain(),wet=ac.createGain();
+ const compressor=ac.createDynamicsCompressor();
+ compressor.threshold.value=-18;
+ compressor.knee.value=16;
+ compressor.ratio.value=3.2;
+ compressor.attack.value=.004;
+ compressor.release.value=.22;
+ dry.gain.value=.88;
+ wet.gain.value=soundMode==="real"?.12:soundMode==="enhanced"?.24:.30;
+
+ const delayL=ac.createDelay(1),delayR=ac.createDelay(1);
+ const feedbackL=ac.createGain(),feedbackR=ac.createGain();
+ const panL=ac.createStereoPanner(),panR=ac.createStereoPanner();
+ delayL.delayTime.value=.145;
+ delayR.delayTime.value=.225;
+ feedbackL.gain.value=.18;
+ feedbackR.gain.value=.14;
+ panL.pan.value=-.58;
+ panR.pan.value=.58;
+
+ input.connect(dry).connect(compressor);
+ input.connect(wet);
+ wet.connect(delayL);wet.connect(delayR);
+ delayL.connect(feedbackL).connect(delayR);
+ delayR.connect(feedbackR).connect(delayL);
+ delayL.connect(panL).connect(compressor);
+ delayR.connect(panR).connect(compressor);
+ compressor.connect(ac.destination);
+ session.nodes.push(input,dry,wet,compressor,delayL,delayR,feedbackL,feedbackR,panL,panR);
+ return input
+}
+async function scheduleFmNote(ac,start,freq,duration,preset,session,event){
+ if(soundMode==="silent")return;
+ const meter=$("soundMeterBar");
+ if(meter){
+  meter.style.width=Math.min(100,24+freq/20)+"%";
+  setTimeout(()=>meter.style.width="18%",150)
+ }
+ const noteBus=ac.createGain();
+ const filter=ac.createBiquadFilter();
+ const panner=ac.createStereoPanner();
+ filter.type="lowpass";
+ filter.frequency.setValueAtTime(Math.min(14000,preset.filter+freq*1.6),start);
+ filter.Q.value=.55;
+ const spread=[-.42,.18,.44,-.16,.31,-.34];
+ panner.pan.setValueAtTime(spread[event.index%spread.length],start);
+ noteBus.connect(filter).connect(panner).connect(session.output);
+
+ const a=Math.max(.0015,preset.attack);
+ const d=Math.max(.018,preset.decay);
+ const musicalLength=Math.max(.04,duration*event.gate);
+ const tail=Math.max(.08,preset.release);
+ const noteEnd=start+musicalLength+tail;
+ const peak=preset.gain*event.velocity;
+ noteBus.gain.setValueAtTime(.0001,start);
+ noteBus.gain.exponentialRampToValueAtTime(Math.max(.001,peak),start+a);
+ noteBus.gain.exponentialRampToValueAtTime(Math.max(.0008,peak*preset.sustain),start+a+d);
+ noteBus.gain.exponentialRampToValueAtTime(.0001,noteEnd);
+
+ preset.ops.forEach((op,opIndex)=>{
+  const carrier=ac.createOscillator();
+  const mod=ac.createOscillator();
+  const modGain=ac.createGain();
+  const opGain=ac.createGain();
+  carrier.type=op.wave;
+  mod.type="sine";
+  const tinyDetune=(opIndex-1.5)*1.7;
+  carrier.frequency.setValueAtTime(freq*op.ratio,start);
+  carrier.detune.setValueAtTime(tinyDetune,start);
+  mod.frequency.setValueAtTime(freq*op.modRatio,start);
+  modGain.gain.setValueAtTime(op.index,start);
+  modGain.gain.exponentialRampToValueAtTime(Math.max(.3,op.index*.12),start+Math.max(.12,d*.9));
+  opGain.gain.setValueAtTime(Math.max(.001,op.level),start);
+  opGain.gain.exponentialRampToValueAtTime(Math.max(.0004,op.level*.20),noteEnd);
+  mod.connect(modGain).connect(carrier.frequency);
+  carrier.connect(opGain).connect(noteBus);
+  carrier.start(start);mod.start(start);
+  carrier.stop(noteEnd+.04);mod.stop(noteEnd+.04);
+  session.nodes.push(carrier,mod,modGain,opGain)
+ });
+
+ // Soft octave shimmer for the crystal preset.
+ if((preset.name.includes("Crystal")||soundMode==="crystal")&&freq>0){
+  const shimmer=ac.createOscillator(),sg=ac.createGain();
+  shimmer.type="sine";
+  shimmer.frequency.setValueAtTime(freq*2.005,start);
+  sg.gain.setValueAtTime(Math.max(.0001,peak*.055),start);
+  sg.gain.exponentialRampToValueAtTime(.0001,noteEnd);
+  shimmer.connect(sg).connect(noteBus);
+  shimmer.start(start);shimmer.stop(noteEnd+.03);
+  session.nodes.push(shimmer,sg)
+ }
+ session.nodes.push(noteBus,filter,panner)
 }
 async function playMml(source,{background=false}={}){
-  // simplified: just play a few beeps as placeholder for full FM (full engine can be re-ported later)
-  const notes = String(source||"").toUpperCase().match(/[A-G]/\d]+/g) || [];
-  await ensureAudio();
-  for(const n of notes.slice(0,12)){
-    if(stopped) break;
-    const f = 220 + (n.charCodeAt(0)%20)*30;
-    await tone(f, 0.09);
-    await sleep(70);
+ const mml=String(source||"");
+ if(mmlSession&&!mmlSession.cancelled){
+  if(mmlLastSource===mml)return mmlSession.promise;
+  stopMml()
+ }
+ const events=parseMml(mml);
+ if(!events.length)return;
+ const ac=await ensureAudio(),session={cancelled:false,nodes:[],promise:null,output:null};
+ session.output=createCrystalOutput(ac,session);
+ mmlSession=session;mmlLastSource=mml;
+ const begin=ac.currentTime+.04;
+ let cursor=begin;
+ for(const ev of events){
+  if(ev.freq>0){
+   const preset=mmlInstrumentPreset(ev.instrument);
+   await scheduleFmNote(ac,cursor,ev.freq,Math.max(.035,ev.seconds*.92),preset,session,ev)
   }
+  cursor+=ev.seconds
+ }
+ const longestTail=Math.max(...events.map(e=>mmlInstrumentPreset(e.instrument).release),.3);
+ const totalMs=Math.max(0,(cursor+longestTail-ac.currentTime)*1000);
+ session.promise=new Promise(resolve=>setTimeout(()=>{
+  if(mmlSession===session){
+   for(const n of session.nodes){try{n.disconnect()}catch{}}
+   mmlSession=null;mmlLastSource="";
+   setStatus(stopped?"Stopped":"Ready")
+  }
+  resolve()
+ },totalMs+80));
+ setStatus("Crystal FM Playing");
+ if(!background)await session.promise;
+ return session.promise
 }
+
 
 function setVariable(target,value,state){
   const m=target.match(/^([A-Za-z][A-Za-z0-9]*\$?)\s*(?:\((.*)\))?$/);
@@ -1293,8 +1302,14 @@ async function inputValue(msg){
   });
 }
 
+function setRunUi(isRunning){
+  const area=$("runArea");
+  if(area) area.classList.toggle("running", !!isRunning);
+  $("runBtn").disabled=!!isRunning;
+  $("stopBtn").disabled=!isRunning;
+}
 async function runProgram(){
-  stopped=false; setStatus(`Running ${cpuClock}MHz`);
+  stopped=false; setRunUi(true); setStatus(`Running ${cpuClock}MHz`);
   let lines;
   try{ lines=parseProgram(); } catch(e){ e.basicLine=null; throw e; }
   const state={vars:{},arrays:{},gosub:[],forStack:[],data:collectData(lines),dataPtr:0};
@@ -1323,6 +1338,7 @@ async function runProgram(){
     if(!moved) i++;
   }
   setStatus(stopped?"Stopped":"Ready");
+  setRunUi(false);
   if(!stopped){ printText("Ok"); consola("Ok"); }
 }
 
@@ -1343,8 +1359,8 @@ async function direct(raw){
   if(u==="LIST"){ consola(editor.value); return; }
   if(u==="NEW"){ editor.value=""; resetScreen(); directVars={}; directArrays={}; return; }
   if(u.startsWith("RENUM")){
-    // simple renumber omitted for brevity in v1.0
-    consola("RENUM not fully ported in v1.0 yet");
+    // simple renumber omitted for brevity in v1.1
+    consola("RENUM not fully ported in v1.1 yet");
     return;
   }
   const state={vars:directVars,arrays:directArrays,gosub:[],forStack:[],data:[],dataPtr:0};
@@ -1356,6 +1372,7 @@ async function direct(raw){
 async function safe(fn){
   try{ await fn(); }
   catch(e){
+    setRunUi(false);
     setStatus("Error");
     consola("? "+e.message);
     if(e.basicLine!=null) jumpToBasicLine(e.basicLine, true);
@@ -1527,16 +1544,20 @@ function applyDisplayMode(){
 }
 $("cpuClock").onchange=()=>{ cpuClock=Number($("cpuClock").value); $("clockBadge").textContent=cpuClock+"MHz"; };
 $("displayMode").onchange=applyDisplayMode;
-$("soundMode").onchange=()=>{ soundMode=$("soundMode").value; $("soundBadge").textContent=soundMode.toUpperCase(); };
+$("soundMode").onchange=()=>{
+  soundMode=$("soundMode").value;
+  const labels={crystal:"CRYSTAL FM",enhanced:"ENHANCED FM",real:"MH FM",silent:"SILENT"};
+  $("soundBadge").textContent=labels[soundMode]||soundMode.toUpperCase();
+};
 
 // ---------- Wire UI ----------
 $("runBtn").onclick=()=>safe(async()=>{ await ensureAudio(); await runProgram(); });
-$("stopBtn").onclick=()=>{ stopped=true; stopMml(); if(waitingInput){ waitingInput.resolve(""); waitingInput=null; } setStatus("Stopped"); };
+$("stopBtn").onclick=()=>{ stopped=true; stopMml(); if(waitingInput){ waitingInput.resolve(""); waitingInput=null; } setRunUi(false); setStatus("Stopped"); };
 $("bootBtn").onclick=async()=>{
   stopped=true; stopMml();
   resetScreen();
   printText("N88-BASIC Compatible Mode");
-  printText("salp N88 BASIC Studio v1.0.0");
+  printText("salp N88 BASIC Studio v1.5");
   printText(""); printText("Ok");
   consola("MH BOOT complete");
   stopped=false; setStatus("Ready");
@@ -1618,60 +1639,14 @@ document.addEventListener("keydown", e=>{
 });
 
 
-// ---------- Keypad mode switching ----------
-const keyModeEl = $("keyMode");
-const keyToggleEl = $("keyToggle");
-const keypadBodyEl = $("keypadBody");
-const keyCustomEl = $("keyCustom");
-
-function setVisibleKeys(names){
-  document.querySelectorAll("[data-vkey]").forEach(btn=>{
-    btn.style.display = names.includes(btn.dataset.vkey) ? "" : "none";
-  });
-}
-
-function applyKeyMode(){
-  const mode = keyModeEl.value;
-  keyCustomEl.style.display = mode === "custom" ? "block" : "none";
-
-  if(mode === "game") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X"]);
-  else if(mode === "full") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
-  else if(mode === "cursorEnter") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","ENTER"]);
-  else if(mode === "cursor") setVisibleKeys(["UP","DOWN","LEFT","RIGHT"]);
-  else if(mode === "zx") setVisibleKeys(["Z","X"]);
-  else {
-    const selected = [...document.querySelectorAll("#keyCustom input:checked")].map(x=>x.value);
-    setVisibleKeys(selected);
+// F5 = RUN / Shift+F5 = STOP
+document.addEventListener("keydown", e=>{
+  if(e.key==="F5"){
+    e.preventDefault();
+    if(e.shiftKey) $("stopBtn").click();
+    else if(!$("runBtn").disabled) $("runBtn").click();
   }
-
-  localStorage.setItem("salpN88KeyMode", mode);
-}
-
-keyModeEl.onchange = applyKeyMode;
-
-document.querySelectorAll("#keyCustom input").forEach(cb=>{
-  cb.onchange = ()=>{
-    if(keyModeEl.value === "custom") applyKeyMode();
-  };
 });
-
-keyToggleEl.onclick = ()=>{
-  const hidden = keypadBodyEl.style.display === "none";
-  keypadBodyEl.style.display = hidden ? "" : "none";
-  keyToggleEl.textContent = hidden ? "キーパッドを隠す" : "キーパッドを表示";
-  localStorage.setItem("salpN88KeypadHidden", hidden ? "0" : "1");
-};
-
-const savedKeyMode = localStorage.getItem("salpN88KeyMode");
-if(savedKeyMode && [...keyModeEl.options].some(o=>o.value===savedKeyMode)){
-  keyModeEl.value = savedKeyMode;
-}
-if(localStorage.getItem("salpN88KeypadHidden")==="1"){
-  keypadBodyEl.style.display="none";
-  keyToggleEl.textContent="キーパッドを表示";
-}
-applyKeyMode();
-
 
 // ---------- Boot ----------
 if(!loadProjectFromStorage()){
@@ -1680,12 +1655,13 @@ if(!loadProjectFromStorage()){
 openFile(project.active);
 applyDisplayMode();
 resetScreen();
-printText("salp N88 BASIC Studio v1.0.0");
-printText("BASIC Studio ready");
+printText("salp N88 BASIC Studio v1.5");
+printText("Crystal FM Engine restored");
 printText("");
 printText("Ok");
-consola("=== salp N88 BASIC Studio v1.0.0 ===");
+consola("=== salp N88 BASIC Studio v1.5 ===");
 consola("Project Explorer · Console · CRT · Multi-file");
+consola("Crystal FM (4-op style) · Stereo delay · MML ready");
 consola("Ready.");
 updateEditorInfo();
 </script>
