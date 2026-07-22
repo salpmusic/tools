@@ -3,1146 +3,663 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a0e17">
-<title>salp N88 BASIC Studio v1.5.2.1</title>
+<meta name="theme-color" content="#080d18">
+<title>salp PC-8801MH Browser Edition v0.9.0 Alpha 1</title>
 <style>
-:root{
-  --bg:#0a0e17;
-  --panel:#121826;
-  --panel2:#0c111b;
-  --line:#1e2a3d;
-  --text:#e8eef7;
-  --muted:#7d8da6;
-  --green:#6ef2a0;
-  --cyan:#5ee7f0;
-  --pink:#ff7eb3;
-  --accent:linear-gradient(135deg,#5ee7f0,#ff7eb3);
-  --danger:#ff6b81;
-  --warning:#ffd166;
-}
+:root{--bg:#080d18;--panel:#111827;--panel2:#070b13;--line:#263247;--text:#edf3fa;--muted:#94a3b8;--green:#7ff2a8;--cyan:#6ee7f2;--pink:#ff8fbd}
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{
-  background:radial-gradient(ellipse at 10% 0%,#152238 0%,transparent 50%),
-             radial-gradient(ellipse at 90% 0%,#2a1530 0%,transparent 45%),
-             var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Segoe UI",sans-serif;
-  overflow:hidden;
-}
-button,input,textarea,select{font:inherit;color:inherit}
-button{
-  min-height:34px;border:1px solid var(--line);border-radius:8px;
-  padding:6px 12px;background:#1a2336;color:var(--text);
-  font-weight:700;cursor:pointer;transition:background .15s,border-color .15s;
-}
-button:hover{background:#243049;border-color:#3a4d6e}
-button.primary{border:0;background:var(--accent);color:#0a1018}
-button.primary:hover{filter:brightness(1.08)}
-button:disabled{opacity:.4;cursor:not-allowed}
-button.ghost{background:transparent}
-button.danger{border-color:#5a2a35;background:#2a1520;color:#ffb3c1}
-input,select,textarea{
-  border:1px solid var(--line);border-radius:8px;
-  background:#0b101a;color:var(--text);padding:7px 10px;
-}
-.app{
-  display:grid;
-  grid-template-rows:92px 1fr;
-  height:100vh;height:100dvh;
-  max-width:1600px;margin:0 auto;
-}
-
-/* ===== TOP BAR ===== */
-.topbar{
-  display:grid;
-  grid-template-columns:minmax(330px,auto) 1fr minmax(330px,auto);
-  grid-template-rows:44px 40px;
-  align-items:center;
-  gap:4px 14px;
-  padding:4px 12px;
-  border-bottom:1px solid var(--line);
-  background:linear-gradient(180deg,#141c2c,#0f1522);
-}
-.runArea{
-  grid-column:1;
-  grid-row:1;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.runMain{
-  min-width:118px;
-  min-height:38px;
-  border:1px solid #2c7b49!important;
-  background:linear-gradient(180deg,#234f34,#183824)!important;
-  color:#8cffad!important;
-  font-size:14px!important;
-  box-shadow:0 0 0 1px #0b2114 inset;
-}
-.runMain:hover{filter:brightness(1.15)}
-.stopMain{
-  min-width:104px;
-  min-height:38px;
-  border:1px solid #7a3340!important;
-  background:linear-gradient(180deg,#4b2029,#32171e)!important;
-  color:#ff9aaa!important;
-  font-size:14px!important;
-}
-.bootMain{
-  min-width:94px;
-  min-height:38px;
-  font-size:13px!important;
-}
-.brand{
-  grid-column:2;
-  grid-row:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  min-width:0;
-  text-align:center;
-}
-.logo{
-  width:34px;height:34px;border-radius:10px;
-  background:var(--accent);display:grid;place-items:center;
-  font-size:18px;color:#0a1018;flex-shrink:0;
-}
-.brand h1{margin:0;font-size:15px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
-.brand .sub{font-size:10px;color:var(--muted);margin-top:1px}
-.version{
-  grid-column:3;
-  grid-row:1;
-  justify-self:end;
-  padding:3px 8px;border:1px solid var(--line);border-radius:999px;
-  color:var(--cyan);font-size:10px;font-weight:800;
-}
-.topActions{
-  grid-column:1 / 4;
-  grid-row:2;
-  display:flex;
-  gap:6px;
-  align-items:center;
-  flex-wrap:nowrap;
-  overflow-x:auto;
-  scrollbar-width:thin;
-}
-.topActions button{min-height:32px;font-size:12px;padding:5px 10px;white-space:nowrap}
-.runArea.running .runMain{opacity:.65}
-.runArea.running .stopMain{
-  box-shadow:0 0 12px rgba(255,107,129,.35);
-}
-@media(max-width:900px){
-  .topbar{
-    grid-template-columns:1fr auto;
-    grid-template-rows:44px 40px;
-    padding:4px 8px;
-  }
-  .runArea{grid-column:1;grid-row:1}
-  .brand{display:none}
-  .version{grid-column:2;grid-row:1}
-  .topActions{grid-column:1/3;grid-row:2}
-  .runMain{min-width:102px}
-  .stopMain{min-width:88px}
-}
-
-
-/* ===== MOBILE VIEW SWITCHER ===== */
-.mobileViewTabs{
-  display:none;
-  gap:6px;
-  padding:7px 8px;
-  border-bottom:1px solid var(--line);
-  background:#0b111c;
-}
-.mobileViewTabs button{
-  flex:1;
-  min-height:38px;
-  font-size:12px;
-  padding:5px 6px;
-}
-.mobileViewTabs button.active{
-  border-color:#4fa9ba;
-  background:#183044;
-  color:var(--cyan);
-}
-.keypadToggleBtn{
-  min-height:28px;
-  padding:3px 8px;
-  font-size:10px;
-}
-
-/* ===== MAIN IDE GRID ===== */
-.ide{
-  display:grid;
-  grid-template-columns:220px 1fr 340px;
-  grid-template-rows:1fr;
-  min-height:0;height:100%;
-  gap:0;
-}
-@media(max-width:1100px){
-  .ide{grid-template-columns:200px 1fr 300px}
-}
-@media(max-width:900px){
-  body{overflow:hidden}
-  .app{grid-template-rows:92px 44px 1fr}
-  .mobileViewTabs{display:flex}
-  .ide{
-    grid-template-columns:1fr;
-    grid-template-rows:1fr;
-    min-height:0;
-    overflow:hidden;
-  }
-  .sidebar,.center,.rightPanel{
-    grid-column:1;
-    grid-row:1;
-    width:100%;
-    height:100%;
-    min-height:0;
-    max-height:none;
-    border-left:0;
-    border-right:0;
-    display:none;
-  }
-  .ide[data-mobile-view="project"] .sidebar{display:flex}
-  .ide[data-mobile-view="editor"] .center{display:grid}
-  .ide[data-mobile-view="screen"] .rightPanel{display:flex}
-  .center{grid-template-rows:auto 1fr auto 140px}
-  #editor{
-    min-height:0;
-    font-size:15px;
-    line-height:1.55;
-    padding:12px;
-  }
-  .editorToolbar{
-    overflow-x:auto;
-    flex-wrap:nowrap;
-  }
-  .editorToolbar button{white-space:nowrap}
-  .consolePanel{min-height:120px}
-  .rightPanel{overflow:auto;background:#0b111c}
-  .displayWrap{padding:8px 8px 4px}
-  .displayFrame{
-    width:100%;
-    max-height:none;
-    aspect-ratio:8/5;
-  }
-  .screenHead{position:sticky;top:0;z-index:5;background:#111a2a}
-  .machineMini{grid-template-columns:1fr 1fr}
-  .keypadPanel{padding:10px}
-  .keypadBody{padding-bottom:12px}
-  .dpad{
-    grid-template-columns:58px 58px 58px;
-    grid-template-rows:50px 50px 50px;
-    gap:7px;
-  }
-  .vkey{min-width:54px;min-height:48px;font-size:17px}
-  .sideFoot{position:sticky;bottom:0;background:var(--panel)}
-}
-@media(max-width:520px){
-  .topbar{
-    grid-template-columns:1fr auto;
-    grid-template-rows:44px 40px;
-  }
-  .runArea{gap:5px}
-  .runMain{min-width:92px;padding:4px 7px!important;font-size:12px!important}
-  .stopMain{min-width:78px;padding:4px 7px!important;font-size:12px!important}
-  .bootMain{min-width:70px;padding:4px 7px!important;font-size:11px!important}
-  .topActions button{font-size:11px;padding:4px 8px}
-  .machineMini{grid-template-columns:1fr}
-  .screenStatus{font-size:10px}
-}
-
-/* ===== LEFT: Project Explorer ===== */
-.sidebar{
-  border-right:1px solid var(--line);
-  background:var(--panel);
-  display:flex;flex-direction:column;min-height:0;
-}
-.sideHead{
-  padding:10px 12px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.06em;
-}
-.sideHead .tools{display:flex;gap:4px}
-.sideHead button{min-height:26px;padding:3px 7px;font-size:11px}
-.projectName{
-  padding:8px 12px;font-size:13px;font-weight:800;
-  color:var(--cyan);border-bottom:1px solid var(--line);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.fileList{flex:1;overflow:auto;padding:6px}
-.fileItem{
-  display:flex;align-items:center;gap:8px;
-  padding:7px 10px;border-radius:8px;cursor:pointer;
-  font:13px ui-monospace,Menlo,Consolas,monospace;
-  color:var(--muted);
-}
-.fileItem:hover{background:#1a2438;color:var(--text)}
-.fileItem.active{background:#1e2d48;color:var(--green);font-weight:700}
-.fileItem .icon{font-size:14px;opacity:.8}
-.fileItem .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.sideFoot{
-  padding:8px;border-top:1px solid var(--line);
-  display:flex;gap:6px;flex-wrap:wrap;
-}
-.sideFoot button{flex:1;min-height:30px;font-size:11px}
-
-/* ===== CENTER: Editor + Console ===== */
-.center{
-  display:grid;
-  grid-template-rows:auto 1fr auto 180px;
-  min-height:0;min-width:0;
-  background:var(--panel2);
-}
-.editorTabs{
-  display:flex;align-items:center;gap:0;
-  border-bottom:1px solid var(--line);
-  background:#0e1522;padding:0 6px;min-height:36px;
-}
-.tab{
-  padding:8px 14px;font-size:12px;font-weight:700;
-  color:var(--muted);border-bottom:2px solid transparent;
-  cursor:pointer;display:flex;align-items:center;gap:6px;
-}
-.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
-.tab .close{opacity:.5;font-size:11px}
-.tab .close:hover{opacity:1;color:var(--danger)}
-.editorArea{position:relative;min-height:0;display:flex;flex-direction:column}
-.editorToolbar{
-  display:flex;gap:6px;align-items:center;flex-wrap:wrap;
-  padding:6px 10px;border-bottom:1px solid var(--line);
-  background:#0f1624;
-}
-.editorToolbar button{min-height:28px;padding:4px 9px;font-size:11px}
-.editorWrap{position:relative;flex:1;min-height:0}
-#editor{
-  width:100%;height:100%;min-height:200px;
-  border:0;outline:0;resize:none;padding:12px 14px;
-  background:transparent;color:var(--green);
-  font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  tab-size:2;
-}
-.currentLineHighlight{
-  position:absolute;left:0;right:0;height:21px;
-  background:rgba(94,231,240,0.06);pointer-events:none;z-index:1;
-  border-left:3px solid var(--cyan);display:none;
-}
-.currentLineHighlight.errorLine{
-  background:rgba(255,80,80,0.16);border-left-color:#ff6b6b;
-}
-.editorStatus{
-  display:flex;justify-content:space-between;gap:10px;
-  padding:5px 12px;border-top:1px solid var(--line);
-  background:#0a101c;font:11px ui-monospace,monospace;color:var(--muted);
-}
-#editorSaveState.modified{color:var(--warning)}
+body{margin:0;background:radial-gradient(circle at 0 0,#12304455,transparent 30%),radial-gradient(circle at 100% 0,#44233a55,transparent 30%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
+button,input,textarea{font:inherit}.app{width:min(100%,1180px);margin:auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 22px)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.brand{display:flex;align-items:center;gap:11px}.logo{width:50px;height:50px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#071018;font-size:26px}h1{margin:0;font-size:21px}.sub{color:var(--muted);font-size:11px}.version{padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);font-size:10px;font-weight:900}
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}button{min-height:42px;border:1px solid var(--line);border-radius:11px;padding:8px 13px;background:#182236;color:var(--text);font-weight:850;cursor:pointer}button.primary{border:0;background:linear-gradient(135deg,var(--cyan),var(--pink));color:#081018}.workspace{display:grid;grid-template-columns:.95fr 1.05fr;gap:10px}.panel{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 12px 32px #0004}.panelHead{display:flex;justify-content:space-between;padding:10px 13px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:800}
+.editor{width:100%;min-height:600px;display:block;resize:vertical;border:0;outline:0;padding:14px;background:var(--panel2);color:var(--green);font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:2}
+.displayWrap{padding:10px;background:#03060c}.displayFrame{position:relative;width:100%;aspect-ratio:8/5;overflow:hidden;border:2px solid #344158;border-radius:8px;background:#000;box-shadow:inset 0 0 30px #000}canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,#0002 3px);mix-blend-mode:multiply}
+.statusbar{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;color:var(--muted);font:11px ui-monospace,monospace}.promptWrap{margin-top:10px;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--panel)}.promptLabel{padding:8px 12px 0;color:var(--cyan);font:11px ui-monospace,monospace}.promptRow{display:flex;align-items:center;gap:8px;padding:8px 10px 11px}.promptMark{color:var(--green);font:bold 17px ui-monospace,monospace}#prompt{flex:1;min-width:0;border:0;outline:0;padding:10px 11px;border-radius:10px;background:#070c17;color:var(--green);font:15px ui-monospace,monospace}.help{margin-top:10px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#111827aa;color:var(--muted);font-size:12px}.help b{color:var(--text)}
+@media(max-width:800px){.workspace{grid-template-columns:1fr}.editor{min-height:400px}.displayFrame{aspect-ratio:8/5}}
+.editorPanelHead{align-items:center;gap:8px}
+#editorDocStatus{color:var(--cyan)}
+.editorStatusbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);background:#0a101c;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+#editorSaveState.modified{color:#ffd166}
+#editorSaveState.saving{color:var(--cyan)}
 #editorSaveState.saved{color:var(--green)}
-#editorSaveState.error{color:var(--danger)}
+#editorSaveState.error{color:#ff8f8f}
+button:disabled{opacity:.45;cursor:not-allowed}
 
-/* Console */
-.consolePanel{
-  border-top:1px solid var(--line);
-  display:flex;flex-direction:column;min-height:0;
-  background:#080d16;
-}
-.consoleHead{
-  padding:6px 12px;font-size:11px;font-weight:800;color:var(--muted);
-  border-bottom:1px solid var(--line);display:flex;justify-content:space-between;
-}
-#consoleOut{
-  flex:1;overflow:auto;padding:8px 12px;
-  font:12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;
-  color:var(--green);white-space:pre-wrap;word-break:break-all;
-}
-.consolePrompt{
-  display:flex;align-items:center;gap:8px;
-  padding:6px 10px;border-top:1px solid var(--line);
-}
-.consolePrompt .mark{color:var(--green);font-weight:800;font-family:ui-monospace,monospace}
-#prompt{
-  flex:1;min-width:0;border:0;outline:0;background:transparent;
-  color:var(--green);font:13px ui-monospace,monospace;padding:4px 0;
-}
 
-/* ===== RIGHT: Screen + Machine ===== */
-.rightPanel{
-  border-left:1px solid var(--line);
-  background:var(--panel);
-  display:flex;flex-direction:column;min-height:0;overflow:auto;
-}
-.screenHead{
-  padding:8px 12px;border-bottom:1px solid var(--line);
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:11px;font-weight:800;color:var(--muted);
-}
-.displayWrap{padding:8px;background:#03060c}
-.displayFrame{
-  position:relative;width:100%;aspect-ratio:8/5;
-  overflow:hidden;border:2px solid #2a364c;border-radius:6px;
-  background:#000;box-shadow:inset 0 0 24px #000;
-}
-canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
-.scanlines{
-  position:absolute;inset:0;pointer-events:none;
-  background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,#0002 3px);
-  mix-blend-mode:multiply;
-}
-.screenStatus{
-  padding:6px 10px;font:11px ui-monospace,monospace;color:var(--muted);
-  display:flex;justify-content:space-between;
-}
-
-/* Machine mini panel */
-.machineMini{
-  padding:10px;border-top:1px solid var(--line);
-  display:grid;gap:8px;
-}
-.machineMini label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.05em}
-.machineMini select{width:100%;min-height:32px;font-size:12px}
-.machineBadges{display:flex;gap:5px;flex-wrap:wrap}
-.machineBadge{
-  padding:3px 7px;border:1px solid var(--line);border-radius:999px;
-  background:#0a101a;color:var(--cyan);font-size:10px;font-weight:800;
-}
-
-/* Keypad (collapsible) */
-.keypadPanel{border-top:1px solid var(--line);padding:8px}
-.keypadPanel summary{
-  cursor:pointer;font-size:11px;font-weight:800;color:var(--muted);
-  list-style:none;padding:4px 0;
-}
-.keypadBody{padding-top:8px}
-.dpad{
-  display:grid;grid-template-columns:48px 48px 48px;
-  grid-template-rows:42px 42px 42px;gap:5px;justify-content:center;
-}
-.vkey{
-  min-width:44px;min-height:40px;border:1px solid #3a4d6e;border-radius:10px;
-  background:linear-gradient(180deg,#2a3854,#172135);color:#fff;
-  font-size:14px;font-weight:900;box-shadow:0 3px 0 #080d18;
-  touch-action:none;user-select:none;
-}
-.vkey:active,.vkey.pressed{transform:translateY(2px);box-shadow:0 1px 0 #080d18;background:#38527c}
-.actionKeys{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.keypadPanel{margin-top:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.keypadTop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.keypadTop label{color:var(--muted);font-size:12px;font-weight:850}
+.keypadTop select{flex:1;min-width:190px;min-height:42px;border:1px solid var(--line);border-radius:11px;padding:8px 11px;background:#07101e;color:var(--text);font-weight:800}
+.keypadBody{padding:14px}
+.gameKeys{display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap}
+.dpad{display:grid;grid-template-columns:64px 64px 64px;grid-template-rows:56px 56px 56px;gap:7px}
+.vkey{min-width:60px;min-height:52px;padding:7px;border:1px solid #475978;border-radius:15px;background:linear-gradient(180deg,#2a3854,#172135);color:#fff;font-size:18px;font-weight:950;box-shadow:0 5px 0 #080d18;touch-action:none;user-select:none}
+.vkey:active,.vkey.pressed{transform:translateY(3px);box-shadow:0 2px 0 #080d18;background:#38527c}
+.vkey.blank{visibility:hidden}
+.actionKeys{display:grid;grid-template-columns:repeat(2,minmax(92px,130px));gap:9px}
 .vkey.zkey{background:linear-gradient(180deg,#315078,#1a2b44)}
 .vkey.xkey{background:linear-gradient(180deg,#71425d,#3b2332)}
+.vkey.enterkey{background:linear-gradient(180deg,#37624e,#1e382c)}
+.vkey.spacekey{background:linear-gradient(180deg,#695e35,#3b351e)}
+.keyCustom{display:none;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.keyChecks{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.keyChecks label{display:flex;align-items:center;gap:7px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#080e19;color:var(--muted);font-size:12px;font-weight:800}
+.keyChecks input{accent-color:var(--cyan)}
+.keyLog{margin-top:11px;padding:9px 11px;border-radius:10px;background:#060b13;color:var(--green);font:12px ui-monospace,monospace}
+.touchMarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--pink);border-radius:50%;background:#ff8fbd44;display:none;pointer-events:none}
+.touchHint{color:var(--cyan)}
+.keyHidden,[hidden]{display:none!important}
+/* モードごとに完全に別のキーパッドを表示 */
+.padMode{display:none;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap}
+.padMode.active{display:flex}
+.padMode.actionsOnly{min-height:120px}
+.actionKeys.compact{grid-template-columns:repeat(2,minmax(120px,190px))}
+.customButtons{display:grid;grid-template-columns:repeat(4,minmax(72px,1fr));gap:9px;width:100%}
+.customButtons .vkey{min-width:0}
 
-/* Completion popup */
-.completionPopup{
-  position:absolute;z-index:50;min-width:160px;max-height:200px;overflow-y:auto;
-  border:1px solid var(--line);border-radius:8px;background:#0d1524;
-  box-shadow:0 10px 28px #000a;display:none;font:12.5px ui-monospace,Menlo,Consolas,monospace;
-}
-.completionPopup.show{display:block}
-.completionPopup .item{padding:6px 10px;color:var(--green);cursor:pointer}
-.completionPopup .item:hover,.completionPopup .item.active{
-  background:#1a2a44;color:var(--cyan)
-}
-.completionPopup .item .hint{color:var(--muted);font-size:10px;margin-left:6px}
-
-/* Find bar */
-.findBar{
-  display:none;align-items:center;gap:6px;flex-wrap:wrap;
-  padding:6px 10px;border-bottom:1px solid var(--line);background:#121c2e;
-}
-.findBar.show{display:flex}
-.findBar input{min-height:28px;flex:1;min-width:100px;font-size:12px}
-.findBar button{min-height:28px;padding:3px 8px;font-size:11px}
-
-
-.keypadControls{
-  display:grid;
-  gap:7px;
-  padding:8px 0 4px;
-}
-.keypadControls select,
-.keypadControls button{
-  width:100%;
-  min-height:34px;
-}
-.keyCustom{
-  display:none;
-  padding:6px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:#0a101a;
-}
-.keyCustom.show{display:block}
-.keyChecks{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:6px;
-}
-.keyChecks label{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  font-size:11px;
-  color:var(--muted);
-}
-.keyChecks input{width:auto}
-.vkey.keyHidden{display:none!important}
-.sampleMenu{
-  display:grid;
-  gap:6px;
-  padding:8px;
-  border-top:1px solid var(--line);
-}
-.sampleMenu button{
-  width:100%;
-  text-align:left;
-  font-size:11px;
+@media(max-width:520px){
+ .keypadTop{align-items:stretch}
+ .keypadTop label{width:100%}
+ .keypadTop select{width:100%;min-width:0}
+ .controllerTools{display:grid;grid-template-columns:1fr 1fr;width:100%}
+ .controllerTools .keyStateBadge{grid-column:1/-1;text-align:center}
+ .gameKeys{gap:14px}
+ .dpad{grid-template-columns:57px 57px 57px;grid-template-rows:51px 51px 51px}
+ .actionKeys{width:100%;grid-template-columns:repeat(2,1fr)}
+ .keyChecks{grid-template-columns:repeat(2,1fr)}
 }
 
-/* Utility */
-.hidden{display:none!important}
+
+:root{
+ --crt-fg:#7ef2a8;
+ --crt-glow:#7ef2a8;
+ --crt-bg:#000000;
+ --crt-filter:none;
+}
+.machinePanel{
+ margin-bottom:10px;
+ border:1px solid var(--line);
+ border-radius:16px;
+ background:linear-gradient(180deg,#151e31,#0d1423);
+ overflow:hidden;
+}
+.machineSummary{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ flex-wrap:wrap;
+ padding:11px 13px;
+}
+.machineName{font-weight:950;letter-spacing:.04em}
+.machineBadges{display:flex;gap:7px;flex-wrap:wrap}
+.machineBadge{
+ padding:5px 9px;
+ border:1px solid var(--line);
+ border-radius:999px;
+ background:#090f1a;
+ color:var(--cyan);
+ font-size:11px;
+ font-weight:900;
+}
+.settingsGrid{
+ display:grid;
+ grid-template-columns:repeat(5,minmax(120px,1fr));
+ gap:9px;
+ padding:0 13px 13px;
+}
+.settingBox{
+ padding:10px;
+ border:1px solid var(--line);
+ border-radius:12px;
+ background:#080e19;
+}
+.settingBox label{
+ display:block;
+ margin-bottom:6px;
+ color:var(--muted);
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.08em;
+}
+.settingBox select,.settingBox input{
+ width:100%;
+ min-height:39px;
+ border:1px solid var(--line);
+ border-radius:9px;
+ padding:7px 8px;
+ background:#121b2c;
+ color:var(--text);
+ font-weight:800;
+}
+.switchLine{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ color:var(--text);
+ font-size:12px;
+ font-weight:800;
+}
+.switchLine input{width:auto;accent-color:var(--cyan)}
+.displayFrame{
+ background:var(--crt-bg)!important;
+ filter:var(--crt-filter);
+ transition:filter .2s,box-shadow .2s,background .2s;
+}
+.displayFrame.crtGlow{
+ box-shadow:inset 0 0 35px #000,0 0 22px color-mix(in srgb,var(--crt-glow) 35%,transparent);
+}
+.displayFrame.crtCurve{
+ border-radius:20px/13px;
+ transform:perspective(900px) rotateX(.15deg);
+}
+.displayFrame.crtCurve::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ border-radius:inherit;
+ box-shadow:inset 0 0 24px #000b;
+}
+.scanlines.off{display:none}
+.bootOverlay{
+ position:absolute;
+ inset:0;
+ z-index:20;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ background:#000;
+ color:var(--crt-fg);
+ text-shadow:0 0 9px var(--crt-glow);
+ font:700 20px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ text-align:center;
+ white-space:pre-line;
+}
+.bootOverlay.show{display:flex}
 .mhLed{
-  display:inline-block;width:7px;height:7px;border-radius:50%;
-  margin-right:4px;background:#50fa7b;box-shadow:0 0 6px #50fa7b;
+ display:inline-block;
+ width:8px;height:8px;
+ border-radius:50%;
+ margin-right:5px;
+ background:#50fa7b;
+ box-shadow:0 0 8px #50fa7b;
 }
+.soundMeter{
+ height:5px;
+ margin-top:7px;
+ border-radius:999px;
+ background:#172238;
+ overflow:hidden;
+}
+.soundMeter span{
+ display:block;
+ height:100%;
+ width:40%;
+ border-radius:inherit;
+ background:linear-gradient(90deg,var(--cyan),var(--pink));
+ transition:width .12s;
+}
+@media(max-width:850px){.settingsGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.settingsGrid{grid-template-columns:1fr}.machineSummary{align-items:flex-start}}
+
+.soundLab{margin-bottom:10px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#151e31,#0b1220);overflow:hidden}
+.soundLabHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.soundLabButtons{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;padding:12px}
+.soundLabStatus{margin:0 12px 12px;padding:9px 11px;border-radius:10px;background:#060b13;color:var(--green);font:12px ui-monospace,monospace}
+.dangerButton{border-color:#713541;background:#351923;color:#ffdce1}
+.controllerTools{display:flex;gap:7px;flex-wrap:wrap;width:100%}
+.controllerTools button{min-height:36px;padding:6px 10px;font-size:11px}
+.keyStateBadge{display:inline-flex;align-items:center;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:#07101e;color:var(--cyan);font-size:11px;font-weight:900}
+@media(max-width:760px){.soundLabButtons{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:420px){.soundLabButtons{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- TOP BAR -->
-  <header class="topbar">
-    <div class="runArea" id="runArea">
-      <button class="runMain" id="runBtn">▶ RUN (F5)</button>
-      <button class="stopMain" id="stopBtn">■ STOP</button>
-      <button class="bootMain" id="bootBtn">⏻ BOOT</button>
+<header><div class="brand"><div class="logo">⌨️</div><div><h1>salp PC-8801MH</h1><div class="sub">PC-8801MH Browser Edition / N88-BASIC Compatible · Rev.2</div></div></div><div class="version">v0.9.0 PHOENIX α1</div></header>
+
+<div class="toolbar">
+<button class="primary" id="runBtn">▶ RUN</button>
+<button id="bootBtn">⏻ MH BOOT</button>
+<button id="settingsBtn">⚙ MH SETTINGS</button>
+<button id="stopBtn">■ STOP</button>
+<button id="listBtn">LIST</button>
+<button id="newBtn">NEW</button>
+<button id="undoBtn" title="Undo / Ctrl+Z">↶ UNDO</button>
+<button id="redoBtn" title="Redo / Ctrl+Y">↷ REDO</button>
+<button id="saveLocalBtn" title="Save workspace / Ctrl+S">💾 SAVE WORK</button>
+<button id="compatBtn">COMPAT SAMPLE</button>
+<button id="graphicsBtn">GRAPHICS</button>
+<button id="gameBtn">GAME SAMPLE</button>
+<button id="fmBtn">FM SUITE</button>
+<button id="soundLabBtn">🔊 SOUND LAB</button>
+<button id="saveBtn">SAVE .BAS</button>
+<button id="loadBtn">LOAD</button>
+<input id="fileInput" type="file" accept=".bas,.txt,text/plain" hidden>
+</div>
+
+
+<section class="machinePanel" id="machinePanel">
+  <div class="machineSummary">
+    <div>
+      <div class="machineName"><span class="mhLed"></span>NEC PC-8801MH</div>
+      <div class="sub">Browser-compatible recreation mode</div>
     </div>
-
-    <div class="brand">
-      <div class="logo">⌨️</div>
-      <div>
-        <h1>salp N88 BASIC Studio</h1>
-        <div class="sub">PC-8801MH Compatible · BASIC Studio</div>
-      </div>
+    <div class="machineBadges">
+      <span class="machineBadge" id="clockBadge">8MHz</span>
+      <span class="machineBadge" id="displayBadge">COLOR CRT</span>
+      <span class="machineBadge" id="soundBadge">FM AUTO</span>
     </div>
-
-    <div class="version">v1.5.2</div>
-
-    <div class="topActions">
-      <button id="newProjectBtn">📁 NEW PROJECT</button>
-      <button id="saveProjectBtn">💾 SAVE PROJECT</button>
-      <button id="loadBtn">📂 LOAD</button>
-      <button id="exportBasBtn">⬇ .BAS</button>
-      <input id="fileInput" type="file" accept=".bas,.txt,text/plain,.json" hidden>
-    </div>
-  </header>
-
-  <nav class="mobileViewTabs" id="mobileViewTabs" aria-label="Mobile view">
-    <button type="button" data-mobile-view="editor" class="active">✍️ EDITOR</button>
-    <button type="button" data-mobile-view="screen">🖥 CRT</button>
-    <button type="button" data-mobile-view="project">📁 PROJECT</button>
-  </nav>
-
-  <!-- IDE -->
-  <div class="ide" id="ide" data-mobile-view="editor">
-    <!-- LEFT: Project Explorer -->
-    <aside class="sidebar">
-      <div class="sideHead">
-        <span>PROJECT</span>
-        <div class="tools">
-          <button id="addFileBtn" title="Add file">＋</button>
-          <button id="renameFileBtn" title="Rename">✎</button>
-          <button id="deleteFileBtn" title="Delete" class="danger">✕</button>
-        </div>
-      </div>
-      <div class="projectName" id="projectName">Untitled Project</div>
-      <div class="fileList" id="fileList"></div>
-      <div class="sampleMenu">
-        <button id="arpeggioSampleBtn">🎹 アルペジオ</button>
-        <button id="toccataSampleBtn">⛪ トッカータ風</button>
-        <button id="gameSampleBtn">🎮 ゲーム</button>
-      </div>
-      <div class="sideFoot">
-        <button id="sampleProjectBtn">📦 SAMPLE</button>
-        <button id="clearConsoleBtn">CLR CONSOLE</button>
-      </div>
-    </aside>
-
-    <!-- CENTER: Editor + Console -->
-    <main class="center">
-      <div class="editorTabs" id="editorTabs"></div>
-      <div class="editorArea">
-        <div class="editorToolbar">
-          <button id="findBtn">🔍 FIND</button>
-          <button id="replaceBtn">🔁 REPLACE</button>
-          <button id="gotoBtn">⤵ GOTO</button>
-          <button id="undoBtn">↶</button>
-          <button id="redoBtn">↷</button>
-          <button id="saveLocalBtn">💾</button>
-          <span style="flex:1"></span>
-          <span id="editorDocStatus" style="font-size:11px;color:var(--cyan)">Ready</span>
-        </div>
-        <div id="findBar" class="findBar">
-          <input type="text" id="findInput" placeholder="検索…">
-          <input type="text" id="replaceInput" placeholder="置換後…" style="display:none">
-          <button id="findPrevBtn">↑</button>
-          <button id="findNextBtn">↓</button>
-          <button id="replaceOneBtn" style="display:none">Replace</button>
-          <button id="replaceAllBtn" style="display:none">All</button>
-          <button id="closeFindBtn">✕</button>
-          <span id="findStatus" style="font-size:11px;color:var(--muted)"></span>
-        </div>
-        <div class="editorWrap">
-          <div id="currentLineHighlight" class="currentLineHighlight"></div>
-          <textarea id="editor" spellcheck="false"></textarea>
-          <div id="completionPopup" class="completionPopup"></div>
-        </div>
-        <div class="editorStatus">
-          <span id="editorCursor">Ln 1 · Col 1</span>
-          <span id="editorStats">Lines 1 · Chars 0</span>
-          <span id="editorSaveState">Saved</span>
-        </div>
-      </div>
-
-      <!-- Console -->
-      <div class="consolePanel">
-        <div class="consoleHead">
-          <span>CONSOLE</span>
-          <span id="status">Ready</span>
-        </div>
-        <div id="consoleOut"></div>
-        <div class="consolePrompt">
-          <span class="mark">Ok</span>
-          <input id="prompt" autocomplete="off" spellcheck="false" placeholder='PRINT "HELLO"  or  RUN'>
-          <button id="enterBtn" style="min-height:28px;padding:3px 10px;font-size:11px">ENTER</button>
-        </div>
-      </div>
-    </main>
-
-    <!-- RIGHT: CRT + Settings -->
-    <aside class="rightPanel">
-      <div class="screenHead">
-        <span><span class="mhLed"></span>N88 SCREEN 640×400</span>
-        <span style="display:flex;gap:6px;align-items:center">
-          <button type="button" id="keypadToggleBtn" class="keypadToggleBtn">🎮 KEYPAD</button>
-          <span id="clockBadge" class="machineBadge">8MHz</span>
-        </span>
-      </div>
-      <div class="displayWrap">
-        <div class="displayFrame" id="displayFrame">
-          <canvas id="screen" width="640" height="400"></canvas>
-          <div class="scanlines" id="scanlines"></div>
-        </div>
-      </div>
-      <div class="screenStatus">
-        <span id="cursorInfo">LOCATE 0,0</span>
-        <span id="displayBadge">COLOR</span>
-      </div>
-
-      <div class="machineMini">
-        <div>
-          <label>CPU CLOCK</label>
-          <select id="cpuClock">
-            <option value="8" selected>8 MHz</option>
-            <option value="4">4 MHz</option>
-          </select>
-        </div>
-        <div>
-          <label>DISPLAY</label>
-          <select id="displayMode">
-            <option value="color" selected>Color CRT</option>
-            <option value="green">Green CRT</option>
-            <option value="amber">Amber CRT</option>
-            <option value="white">White CRT</option>
-            <option value="lcd">LCD</option>
-          </select>
-        </div>
-        <div>
-          <label>FM SOUND</label>
-          <select id="soundMode">
-            <option value="crystal" selected>Crystal Fantasy</option>
-            <option value="enhanced">Enhanced</option>
-            <option value="real">MH Hardware</option>
-            <option value="silent">Silent</option>
-          </select>
-        </div>
-        <div class="machineBadges">
-          <span class="machineBadge" id="soundBadge">CRYSTAL FM</span>
-        </div>
-      </div>
-
-      <details class="keypadPanel" id="keypadPanel" open>
-        <summary>🎮 GAME KEYPAD</summary>
-
-        <div class="keypadControls">
-          <select id="keyMode">
-            <option value="game">ゲーム（方向＋Z/X）</option>
-            <option value="full">全部表示</option>
-            <option value="cursorEnter">方向＋ENTER</option>
-            <option value="cursor">方向キーのみ</option>
-            <option value="zx">Z/Xのみ</option>
-            <option value="custom">カスタム</option>
-          </select>
-          <button type="button" id="keyToggle">キーパッドを隠す</button>
-        </div>
-
-        <div class="keypadBody" id="keypadBody">
-          <div id="padMount">
-            <div class="dpad">
-              <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
-              <button type="button" class="vkey" data-vkey="LEFT">←</button>
-              <span></span>
-              <button type="button" class="vkey" data-vkey="RIGHT">→</button>
-              <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
-            </div>
-            <div class="actionKeys">
-              <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
-              <button type="button" class="vkey xkey" data-vkey="X">X</button>
-              <button type="button" class="vkey" data-vkey="SPACE">SPACE</button>
-              <button type="button" class="vkey" data-vkey="ENTER">ENTER</button>
-            </div>
-          </div>
-
-          <div id="keyCustom" class="keyCustom">
-            <div class="keyChecks">
-              <label><input type="checkbox" value="UP" checked>↑</label>
-              <label><input type="checkbox" value="DOWN" checked>↓</label>
-              <label><input type="checkbox" value="LEFT" checked>←</label>
-              <label><input type="checkbox" value="RIGHT" checked>→</label>
-              <label><input type="checkbox" value="Z" checked>Z</label>
-              <label><input type="checkbox" value="X" checked>X</label>
-              <label><input type="checkbox" value="SPACE" checked>SPACE</label>
-              <label><input type="checkbox" value="ENTER" checked>ENTER</label>
-            </div>
-          </div>
-        </div>
-      </details>
-    </aside>
   </div>
+
+  <div class="settingsGrid" id="settingsGrid">
+    <div class="settingBox">
+      <label>CPU CLOCK</label>
+      <select id="cpuClock">
+        <option value="8" selected>8 MHz（高速）</option>
+        <option value="4">4 MHz（標準）</option>
+      </select>
+    </div>
+
+    <div class="settingBox">
+      <label>DISPLAY</label>
+      <select id="displayMode">
+        <option value="color" selected>Color Monitor</option>
+        <option value="green">Green CRT</option>
+        <option value="amber">Amber CRT</option>
+        <option value="white">White CRT</option>
+        <option value="lcd">Modern LCD</option>
+      </select>
+    </div>
+
+    <div class="settingBox">
+      <label>FM SOUND</label>
+      <select id="soundMode">
+        <option value="real">MH Hardware Style</option>
+        <option value="enhanced">salp Enhanced</option>
+        <option value="crystal" selected>Crystal Fantasy FM</option>
+        <option value="silent">Silent</option>
+      </select>
+      <div class="soundMeter"><span id="soundMeterBar"></span></div>
+    </div>
+
+    <div class="settingBox">
+      <label>INSTRUMENT OVERRIDE</label>
+      <select id="instrumentMode">
+        <option value="auto" selected>Auto（MMLの@指定）</option>
+        <option value="12">Glock / Bell</option>
+        <option value="13">Piano</option>
+        <option value="2">Strings</option>
+        <option value="11">Harpsichord</option>
+      </select>
+    </div>
+
+    <div class="settingBox">
+      <label>CRT EFFECTS</label>
+      <div class="switchLine"><span>Scanlines</span><input id="scanToggle" type="checkbox" checked></div>
+      <div class="switchLine"><span>Glow</span><input id="glowToggle" type="checkbox" checked></div>
+      <div class="switchLine"><span>Curved glass</span><input id="curveToggle" type="checkbox"></div>
+    </div>
+  </div>
+</section>
+
+<section class="soundLab keyHidden" id="soundLab">
+  <div class="soundLabHead"><div><b>🔊 SOUND LAB</b><div class="sub">BEEP・音階・FM音色を直接テスト</div></div><button id="soundLabClose">CLOSE</button></div>
+  <div class="soundLabButtons">
+    <button id="beepTest">BEEP TEST</button><button id="scaleTest">8 NOTE SCALE</button>
+    <button id="bellTest">CRYSTAL BELL</button><button id="pianoTest">FM PIANO</button>
+    <button id="stringsTest">FM STRINGS</button><button id="stereoTest">STEREO ARPEGGIO</button>
+    <button id="soundStop" class="dangerButton">■ STOP SOUND</button>
+  </div>
+  <div id="soundLabStatus" class="soundLabStatus">Audio ready after first tap.</div>
+</section>
+
+<div class="workspace">
+<section class="panel">
+<div class="panelHead editorPanelHead">
+  <span>PROGRAM EDITOR</span>
+  <span id="editorDocStatus">Saved · AutoSave ON</span>
+</div>
+<textarea id="editor" class="editor" spellcheck="false">10 CLS
+20 DIM N(5)
+30 DATA 10,20,30,40,50
+40 FOR I=1 TO 5
+50 READ N(I)
+60 NEXT I
+70 PRINT "DATA:";
+80 FOR I=1 TO 5
+90 PRINT N(I);
+100 NEXT I
+110 PRINT
+120 A$="SALP N88-BASIC"
+130 PRINT LEFT$(A$,4);" / ";RIGHT$(A$,5)
+140 ON 2 GOSUB 200,300
+150 PRINT "BACK FROM GOSUB"
+160 END
+200 PRINT "FIRST":RETURN
+300 PRINT "SECOND":RETURN</textarea>
+<div class="editorStatusbar">
+  <span id="editorCursor">Ln 1 · Col 1</span>
+  <span id="editorStats">Lines 1 · Chars 0</span>
+  <span id="editorSaveState">Saved</span>
+</div>
+</section>
+
+<section class="panel">
+<div class="panelHead"><span>N88 SCREEN 640×400</span><span id="status">Ready</span></div>
+<div class="displayWrap"><div class="displayFrame"><canvas id="screen" width="640" height="400"></canvas><div id="bootOverlay" class="bootOverlay"></div><div id="touchMarker" class="touchMarker"></div><div class="scanlines"></div></div></div>
+<div class="statusbar"><span id="cursorInfo">LOCATE 0,0</span><span class="touchHint">Touch screen → mouse coordinates</span></div>
+</section>
+</div>
+
+<div class="keypadPanel">
+  <div class="keypadTop">
+    <label for="keyMode">ゲームキーパッド</label>
+    <select id="keyMode">
+      <option value="game">カーソル＋Z/X</option>
+      <option value="full">カーソル＋Z/X＋SPACE＋ENTER</option>
+      <option value="cursorEnter">カーソル＋ENTER</option>
+      <option value="cursor">カーソルのみ</option>
+      <option value="zx">Z/Xのみ</option>
+      <option value="custom">カスタム選択</option>
+    </select>
+    <button id="keyToggle">キーパッドを隠す</button>
+    <div class="controllerTools"><button id="controllerTest">🎮 INPUT TEST</button><button id="controllerReset">RESET SETTINGS</button><span id="keyStateBadge" class="keyStateBadge">NO KEY</span></div>
+  </div>
+
+  <div id="keypadBody" class="keypadBody">
+    <div id="padMount"></div>
+    <div id="keyCustom" class="keyCustom">
+      <div class="keyChecks">
+        <label><input type="checkbox" value="UP" checked>↑</label>
+        <label><input type="checkbox" value="DOWN" checked>↓</label>
+        <label><input type="checkbox" value="LEFT" checked>←</label>
+        <label><input type="checkbox" value="RIGHT" checked>→</label>
+        <label><input type="checkbox" value="Z" checked>Z</label>
+        <label><input type="checkbox" value="X" checked>X</label>
+        <label><input type="checkbox" value="SPACE" checked>SPACE</label>
+        <label><input type="checkbox" value="ENTER" checked>ENTER</label>
+      </div>
+    </div>
+    <div id="keyLog" class="keyLog">INKEY$：待機中 / TOUCH：未入力</div>
+  </div>
+</div>
+
+
+<script>
+/*
+  v0.8.4 isolated controller renderer
+  This runs independently from the BASIC interpreter so the visual mode
+  remains correct even if another part of the application reports an error.
+*/
+(()=>{
+  "use strict";
+
+  const byId=id=>document.getElementById(id);
+  const modeSelect=byId("keyMode");
+  const mount=byId("padMount");
+  const body=byId("keypadBody");
+  const custom=byId("keyCustom");
+  const toggle=byId("keyToggle");
+  const reset=byId("controllerReset");
+  const test=byId("controllerTest");
+  const badge=byId("keyStateBadge");
+  const STORAGE="salpN88Controller_v084";
+
+  const dpad=(center="")=>`
+    <div class="dpad">
+      <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
+      <button type="button" class="vkey" data-vkey="LEFT">←</button>
+      ${center ? `<button type="button" class="vkey enterkey" data-vkey="${center}">●</button>` : `<span></span>`}
+      <button type="button" class="vkey" data-vkey="RIGHT">→</button>
+      <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
+    </div>`;
+
+  const actionButtons=names=>`
+    <div class="actionKeys compact">
+      ${names.map(name=>{
+        const cls=name==="Z"?"zkey":name==="X"?"xkey":name==="SPACE"?"spacekey":"enterkey";
+        return `<button type="button" class="vkey ${cls}" data-vkey="${name}">${name}</button>`;
+      }).join("")}
+    </div>`;
+
+  function selectedCustom(){
+    return [...custom.querySelectorAll("input:checked")].map(input=>input.value);
+  }
+
+  function render(mode=modeSelect.value){
+    let html="";
+    custom.style.display=mode==="custom"?"block":"none";
+
+    if(mode==="game"){
+      html=`<div class="gameKeys">${dpad()}${actionButtons(["Z","X"])}</div>`;
+    }else if(mode==="full"){
+      html=`<div class="gameKeys">${dpad()}${actionButtons(["Z","X","SPACE","ENTER"])}</div>`;
+    }else if(mode==="cursorEnter"){
+      html=`<div class="gameKeys">${dpad("ENTER")}</div>`;
+    }else if(mode==="cursor"){
+      html=`<div class="gameKeys">${dpad()}</div>`;
+    }else if(mode==="zx"){
+      html=`<div class="gameKeys">${actionButtons(["Z","X"])}</div>`;
+    }else{
+      const names=selectedCustom();
+      const arrows=names.filter(name=>["UP","DOWN","LEFT","RIGHT"].includes(name));
+      const actions=names.filter(name=>!["UP","DOWN","LEFT","RIGHT"].includes(name));
+      let parts=[];
+      if(arrows.length){
+        parts.push(`<div class="customButtons">${arrows.map(name=>`<button type="button" class="vkey" data-vkey="${name}">${({UP:"↑",DOWN:"↓",LEFT:"←",RIGHT:"→"})[name]}</button>`).join("")}</div>`);
+      }
+      if(actions.length)parts.push(actionButtons(actions));
+      html=`<div class="gameKeys">${parts.join("")||"<span>キーが選択されていません</span>"}</div>`;
+    }
+
+    // replaceChildren equivalent: old controls are physically removed.
+    mount.innerHTML=html;
+    bindKeys();
+    body.dataset.mode=mode;
+    const log=byId("keyLog");
+    if(log) log.textContent=`MODE: ${mode.toUpperCase()} / INKEY$: 待機中`;
+  }
+
+  function bindKeys(){
+    mount.querySelectorAll("[data-vkey]").forEach(button=>{
+      const key=button.dataset.vkey;
+      const down=event=>{
+        event.preventDefault();
+        button.classList.add("pressed");
+        if(badge)badge.textContent=key;
+        if(typeof window.__salpPadPress==="function")window.__salpPadPress(key,button);
+      };
+      const up=event=>{
+        event.preventDefault();
+        button.classList.remove("pressed");
+        if(badge)badge.textContent="NO KEY";
+        if(typeof window.__salpPadRelease==="function")window.__salpPadRelease(key,button);
+      };
+      button.addEventListener("pointerdown",down);
+      button.addEventListener("pointerup",up);
+      button.addEventListener("pointercancel",up);
+      button.addEventListener("lostpointercapture",up);
+      button.addEventListener("contextmenu",event=>event.preventDefault());
+    });
+  }
+
+  function save(){
+    localStorage.setItem(STORAGE,JSON.stringify({
+      mode:modeSelect.value,
+      hidden:body.hidden,
+      custom:selectedCustom()
+    }));
+  }
+
+  function restore(){
+    try{
+      const state=JSON.parse(localStorage.getItem(STORAGE)||"{}");
+      if(state.mode)modeSelect.value=state.mode;
+      if(Array.isArray(state.custom)){
+        custom.querySelectorAll("input").forEach(input=>{
+          input.checked=state.custom.includes(input.value);
+        });
+      }
+      body.hidden=Boolean(state.hidden);
+      toggle.textContent=body.hidden?"キーパッドを表示":"キーパッドを隠す";
+    }catch{}
+  }
+
+  modeSelect.addEventListener("change",()=>{
+    render(modeSelect.value);
+    save();
+  });
+
+  custom.addEventListener("change",()=>{
+    if(modeSelect.value==="custom")render("custom");
+    save();
+  });
+
+  toggle.addEventListener("click",()=>{
+    body.hidden=!body.hidden;
+    toggle.textContent=body.hidden?"キーパッドを表示":"キーパッドを隠す";
+    save();
+  });
+
+  reset.addEventListener("click",()=>{
+    localStorage.removeItem(STORAGE);
+    modeSelect.value="game";
+    custom.querySelectorAll("input").forEach(input=>input.checked=true);
+    body.hidden=false;
+    toggle.textContent="キーパッドを隠す";
+    render("game");
+    save();
+  });
+
+  test.addEventListener("click",()=>{
+    body.hidden=false;
+    toggle.textContent="キーパッドを隠す";
+    render(modeSelect.value);
+    save();
+  });
+
+  restore();
+  render(modeSelect.value);
+
+  // Public hook used when GAME SAMPLE automatically selects game mode.
+  window.__salpSetPadMode=mode=>{
+    modeSelect.value=mode;
+    body.hidden=false;
+    toggle.textContent="キーパッドを隠す";
+    render(mode);
+    save();
+  };
+})();
+</script>
+
+<div class="promptWrap">
+<div class="promptLabel">DIRECT MODE — RUN / LIST / RENUM / DELETE / PRINT / LINE / CIRCLE など</div>
+<div class="promptRow"><span class="promptMark">Ok</span><input id="prompt" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder='PRINT LEFT$("SALP",2)'><button id="enterBtn">ENTER</button></div>
+</div>
+
+<div class="help"><b>v0.9.0 Phoenix Alpha 1：</b>
+4オペレータ風FM合成、ステレオ・アルペジオ、ディレイ空間、V音量・Qゲート対応。<br>4MHz／8MHzクロック切替、Color・Green・Amber・White・LCD表示、
+CRTスキャンライン・発光・曲面表示、MH風FM／Enhanced／Silent、
+MML音色のAuto・Glock/Bell・Piano・Strings・Harpsichord切替、MH起動演出、設定保存式コントローラー、強化ゲーム、SOUND LABを追加。<br>
+CPUクロックはブラウザ処理の実行ペースを疑似的に切り替えます。
+実機ROMや実機回路を使う完全エミュレーターではなく、N88-BASIC互換環境として再現しています。
+</div>
 </div>
 
 <script>
 "use strict";
-/* =========================================================
-   salp N88 BASIC Studio v1.5.2.1 — BASIC Studio
-   Core: Project system + IDE layout + Console + CRT
-   Interpreter & FM engine carried from Phoenix lineage
-   ========================================================= */
+const $=id=>document.getElementById(id);
+const editor=$("editor"),canvas=$("screen"),ctx=canvas.getContext("2d"),promptInput=$("prompt"),statusEl=$("status"),cursorInfo=$("cursorInfo");
+let palette=["#000000","#243cff","#ef3b43","#d23ee8","#30d85a","#35d9dd","#f0df48","#f4f4f4","#777777","#7190ff","#ff7d84","#f18cff","#83f49a","#88f2f2","#fff18b","#ffffff"];
+const COLS=80,ROWS=25,CW=8,CH=16;
+let textGrid=[],cursorX=0,cursorY=0,fg=7,bg=0,stopped=false,waitingInput=null,lastKey="",keyQueue=[],heldKeys=new Set(),mouseX=0,mouseY=0,mouseButton=0,history=[],historyIndex=0,audioCtx=null,mmlSession=null,mmlBgm=true,mmlLastSource="",cpuClock=8,displayMode="color",soundMode="real",instrumentOverride="auto",directVars={},directArrays={};
 
-const $ = id => document.getElementById(id);
-const editor = $("editor");
-const canvas = $("screen");
-const ctx = canvas.getContext("2d");
-const promptInput = $("prompt");
-const statusEl = $("status");
-const consoleOut = $("consoleOut");
-
-// ---------- Project Model ----------
-const PROJECT_KEY = "salpN88Studio_v150";
-let project = {
-  name: "Untitled Project",
-  files: {
-    "MAIN.BAS": `10 CLS
-20 PRINT "SALP N88 BASIC STUDIO v1.5.2"
-30 PRINT "FM SOUND TEST"
-40 PRINT
-50 PLAY "T120 O5 L8 @12 C E G > C"
-60 PRINT "FM TEST COMPLETE"
-70 END`
-  },
-  active: "MAIN.BAS"
-};
-let fileDirty = false;
-
-function saveProjectToStorage() {
-  // sync current editor content
-  if (project.active) project.files[project.active] = editor.value;
-  localStorage.setItem(PROJECT_KEY, JSON.stringify(project));
-  fileDirty = false;
-  setSaveState("saved", "Saved");
-  return true;
-}
-function loadProjectFromStorage() {
-  try {
-    const raw = localStorage.getItem(PROJECT_KEY);
-    if (!raw) return false;
-    const p = JSON.parse(raw);
-    if (!p || !p.files) return false;
-    project = p;
-    if (!project.active || !project.files[project.active]) {
-      project.active = Object.keys(project.files)[0];
-    }
-    return true;
-  } catch { return false; }
-}
-function renderFileList() {
-  const list = $("fileList");
-  list.innerHTML = "";
-  Object.keys(project.files).sort().forEach(name => {
-    const div = document.createElement("div");
-    div.className = "fileItem" + (name === project.active ? " active" : "");
-    div.innerHTML = `<span class="icon">📄</span><span class="name">${name}</span>`;
-    div.onclick = () => openFile(name);
-    list.appendChild(div);
-  });
-  $("projectName").textContent = project.name;
-  renderTabs();
-}
-function renderTabs() {
-  const tabs = $("editorTabs");
-  tabs.innerHTML = "";
-  const tab = document.createElement("div");
-  tab.className = "tab active";
-  tab.innerHTML = `<span>📄 ${project.active || "—"}</span>`;
-  tabs.appendChild(tab);
-}
-function openFile(name) {
-  if (project.active) project.files[project.active] = editor.value;
-  project.active = name;
-  editor.value = project.files[name] || "";
-  fileDirty = false;
-  setSaveState("saved", "Saved");
-  renderFileList();
-  updateEditorInfo();
-  editor.focus();
-}
-function addFile() {
-  const name = prompt("新しいファイル名（例: TITLE.BAS）", "NEW.BAS");
-  if (!name) return;
-  const n = name.toUpperCase().endsWith(".BAS") ? name.toUpperCase() : name.toUpperCase() + ".BAS";
-  if (project.files[n]) { alert("同名ファイルが既にあります"); return; }
-  project.files[n] = `10 REM ${n}\n20 PRINT "${n}"\n30 END`;
-  openFile(n);
-  saveProjectToStorage();
-}
-function renameFile() {
-  if (!project.active) return;
-  const name = prompt("新しい名前", project.active);
-  if (!name || name === project.active) return;
-  const n = name.toUpperCase().endsWith(".BAS") ? name.toUpperCase() : name.toUpperCase() + ".BAS";
-  if (project.files[n]) { alert("同名ファイルが既にあります"); return; }
-  project.files[n] = project.files[project.active];
-  delete project.files[project.active];
-  project.active = n;
-  renderFileList();
-  saveProjectToStorage();
-}
-function deleteFile() {
-  if (!project.active) return;
-  if (Object.keys(project.files).length <= 1) { alert("最後のファイルは削除できません"); return; }
-  if (!confirm(`${project.active} を削除しますか？`)) return;
-  delete project.files[project.active];
-  project.active = Object.keys(project.files)[0];
-  openFile(project.active);
-setRunUi(false);
-setupKeypadControls();
-  saveProjectToStorage();
-}
-function newProject() {
-  if (!confirm("新しいプロジェクトを作成しますか？（現在の内容は保存してください）")) return;
-  const name = prompt("プロジェクト名", "My Game");
-  project = {
-    name: name || "Untitled Project",
-    files: { "MAIN.BAS": "10 CLS\n20 PRINT \"NEW PROJECT\"\n30 END" },
-    active: "MAIN.BAS"
-  };
-  openFile("MAIN.BAS");
-  saveProjectToStorage();
-  consola("New project created: " + project.name);
-}
-function loadSampleProject() {
-  project = {
-    name: "Catch Game Demo",
-    files: {
-      "MAIN.BAS": `10 ' SALP CATCH GAME
-20 CLS
-30 RANDOMIZE
-40 PX=320:PY=340
-50 TX=80+INT(RND(1)*480)
-60 TY=80+INT(RND(1)*220)
-70 SCORE=0:TIME=900:C=6
-80 CLS
-90 COLOR 7
-100 LOCATE 1,1:PRINT "CATCH  SCORE";SCORE;" TIME";INT(TIME/60)
-110 COLOR 3:CIRCLE (TX,TY),10,3:PAINT (TX,TY),3
-120 COLOR C:LINE (PX-12,PY-8)-(PX+12,PY+8),C,BF
-130 K$=INKEY$:S=STICK(0)
-140 IF S=1 THEN PY=PY-6
-150 IF S=3 THEN PX=PX+6
-160 IF S=5 THEN PY=PY+6
-170 IF S=7 THEN PX=PX-6
-180 IF K$="Z" THEN CIRCLE (PX,PY),20,7:BEEP
-190 IF K$="X" THEN C=C+1:IF C>7 THEN C=1
-200 IF PX<15 THEN PX=15
-210 IF PX>625 THEN PX=625
-220 IF PY<40 THEN PY=40
-230 IF PY>380 THEN PY=380
-240 IF (PX-TX)*(PX-TX)+(PY-TY)*(PY-TY)<400 THEN SCORE=SCORE+10:BEEP:TX=80+INT(RND(1)*480):TY=80+INT(RND(1)*200)
-250 TIME=TIME-1:IF TIME<=0 THEN GOTO 300
-260 GOTO 80
-300 CLS:LOCATE 26,11:PRINT "TIME UP  SCORE";SCORE
-310 PLAY "CDEG":END`,
-      "TITLE.BAS": `10 CLS
-20 COLOR 6
-30 LOCATE 28,8:PRINT "SALP CATCH"
-40 COLOR 7
-50 LOCATE 22,12:PRINT "PRESS Z TO START"
-60 IF INKEY$="" THEN 60
-70 RUN "MAIN.BAS"
-80 END`
-    },
-    active: "MAIN.BAS"
-  };
-  openFile("MAIN.BAS");
-  saveProjectToStorage();
-  consola("Sample project loaded: Catch Game Demo");
-}
-
-
-function loadProgramIntoEditor(code, label){
-  editor.value = code;
-  if(project.active) project.files[project.active] = code;
-  fileDirty = true;
-  setSaveState("modified","Modified");
-  updateEditorInfo();
-  consola(label + " loaded");
-  if(window.matchMedia("(max-width:900px)").matches) setMobileView("editor");
-}
-
-const ARPEGGIO_SAMPLE = `10 CLS
-20 PRINT "BEAUTIFUL ARPEGGIO"
-30 PRINT "FM SOUND TEST"
-40 PRINT
-50 A$="T105 O4 L16 V13 Q7 @12 "
-60 A$=A$+"CEG>C<GEC "
-70 A$=A$+"EG>CEC<G "
-80 A$=A$+"CEG>C<GEC "
-90 A$=A$+"EG>CEC<G "
-100 A$=A$+"G>B<D>G<D<B<G "
-110 A$=A$+"F>A<C>F<C<A<F "
-120 PLAY A$
-130 PRINT
-140 PRINT "ARPEGGIO COMPLETE"
-150 END`;
-
-const TOCCATA_SAMPLE = `10 CLS
-20 PRINT "TOCCATA STYLE"
-30 PRINT
-40 A$="T132 O3 L16 V13 Q7 @11 "
-50 A$=A$+"D<A>D F>D<F G>D<G A>D<A "
-60 A$=A$+"D<A>D F>D<F C<G>C A<E>A "
-70 A$=A$+"DFA>DFA CEG>CEG BDF>BDF ACE>ACE "
-80 A$=A$+"D16R16D16R16 F16R16F16R16 "
-90 A$=A$+"G16R16A16R16 B16R16C6R16 "
-100 PLAY A$
-110 PRINT
-120 PRINT "END"
-130 END`;
-
-const GAME_SAMPLE = `10 CLS
-20 RANDOMIZE
-30 PX=320:PY=340
-40 TX=80+INT(RND(1)*480)
-50 TY=80+INT(RND(1)*220)
-60 SCORE=0:TIME=900:C=6
-70 CLS
-80 COLOR 7
-90 LOCATE 1,1:PRINT "CATCH SCORE";SCORE;" TIME";INT(TIME/60)
-100 COLOR 3:CIRCLE (TX,TY),10,3:PAINT (TX,TY),3
-110 COLOR C:LINE (PX-12,PY-8)-(PX+12,PY+8),C,BF
-120 K$=INKEY$:S=STICK(0)
-130 IF S=1 THEN PY=PY-6
-140 IF S=3 THEN PX=PX+6
-150 IF S=5 THEN PY=PY+6
-160 IF S=7 THEN PX=PX-6
-170 IF K$="Z" THEN CIRCLE (PX,PY),20,7:BEEP
-180 IF K$="X" THEN C=C+1:IF C>7 THEN C=1
-190 IF PX<15 THEN PX=15
-200 IF PX>625 THEN PX=625
-210 IF PY<40 THEN PY=40
-220 IF PY>380 THEN PY=380
-230 IF (PX-TX)*(PX-TX)+(PY-TY)*(PY-TY)<400 THEN SCORE=SCORE+10:BEEP:TX=80+INT(RND(1)*480):TY=80+INT(RND(1)*200)
-240 TIME=TIME-1:IF TIME<=0 THEN GOTO 280
-250 GOTO 70
-280 CLS:LOCATE 26,11:PRINT "TIME UP SCORE";SCORE
-290 PLAY "CDEG"
-300 END`;
-
-
-// ---------- Console helpers ----------
-function consola(...args) {
-  const line = args.map(a => String(a)).join(" ");
-  consoleOut.textContent += line + "\n";
-  consoleOut.scrollTop = consoleOut.scrollHeight;
-}
-function clearConsole() { consoleOut.textContent = ""; }
-function setStatus(s) { statusEl.textContent = s; }
-function setSaveState(cls, label) {
-  const el = $("editorSaveState");
-  el.className = cls;
-  el.textContent = label;
-  $("editorDocStatus").textContent = label;
-}
-
-// ---------- BASIC Core (simplified port of Phoenix engine) ----------
-let palette = ["#000000","#243cff","#ef3b43","#d23ee8","#30d85a","#35d9dd","#f0df48","#f4f4f4",
-               "#777777","#7190ff","#ff7d84","#f18cff","#83f49a","#88f2f2","#fff18b","#ffffff"];
-const COLS=80, ROWS=25, CW=8, CH=16;
-let textGrid=[], cursorX=0, cursorY=0, fg=7, bg=0;
-let stopped=false, waitingInput=null, lastKey="", keyQueue=[], heldKeys=new Set();
-let mouseX=0, mouseY=0, mouseButton=0;
-let history=[], historyIndex=0;
-let audioCtx=null, mmlSession=null, mmlBgm=true, mmlLastSource="";
-let cpuClock=8, displayMode="color", soundMode="crystal", instrumentOverride="auto";
-let directVars={}, directArrays={};
-
-function resetText(){ textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" ")); cursorX=0; cursorY=0; }
-function resetScreen(){ ctx.fillStyle=palette[bg]; ctx.fillRect(0,0,640,400); resetText(); renderText(); }
-function renderText(){
-  ctx.save(); ctx.font="15px ui-monospace,Menlo,Consolas,monospace"; ctx.textBaseline="top";
-  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
-    const ch=textGrid[y][x]; if(ch!==" "){ ctx.fillStyle=palette[fg]; ctx.fillText(ch,x*CW,y*CH+1); }
-  }
-  ctx.restore();
-  $("cursorInfo").textContent=`LOCATE ${cursorX},${cursorY}`;
-}
-function scrollText(){ textGrid.shift(); textGrid.push(Array(COLS).fill(" ")); cursorY=ROWS-1; }
-function putChar(ch){
-  if(ch==="\n"){ cursorX=0; cursorY++; if(cursorY>=ROWS) scrollText(); return; }
-  if(ch==="\r") return;
-  textGrid[cursorY][cursorX]=ch; cursorX++;
-  if(cursorX>=COLS){ cursorX=0; cursorY++; if(cursorY>=ROWS) scrollText(); }
-}
-function printText(s="", newline=true){
-  for(const c of String(s)) putChar(c);
-  if(newline) putChar("\n");
-  renderText();
-  // also mirror important output to console
-  if(s) consola(s);
-}
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-function splitOutside(text,delimiter){
-  const out=[]; let b="",q=false,d=0;
-  for(let i=0;i<text.length;i++){
-    const c=text[i]; if(c==='"') q=!q;
-    if(!q){ if(c==="(")d++; if(c===")")d--;
-      if(d===0 && text.slice(i,i+delimiter.length).toUpperCase()===delimiter.toUpperCase()){
-        out.push(b); b=""; i+=delimiter.length-1; continue;
-      }
-    }
-    b+=c;
-  }
-  out.push(b); return out;
-}
-function splitStatements(s){ return splitOutside(s,":").map(x=>x.trim()).filter(Boolean); }
+function resetText(){textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" "));cursorX=0;cursorY=0}
+function resetScreen(){ctx.fillStyle=palette[bg];ctx.fillRect(0,0,640,400);resetText();renderText()}
+function renderText(){ctx.save();ctx.font="14px ui-monospace,Menlo,Consolas,monospace";ctx.textBaseline="top";for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const ch=textGrid[y][x];if(ch!==" "){ctx.fillStyle=palette[fg];ctx.fillText(ch,x*CW,y*CH+1)}}ctx.restore();cursorInfo.textContent=`LOCATE ${cursorX},${cursorY}  COLOR ${fg},${bg}`}
+function scrollText(){textGrid.shift();textGrid.push(Array(COLS).fill(" "));cursorY=ROWS-1}
+function putChar(ch){if(ch==="\n"){cursorX=0;cursorY++;if(cursorY>=ROWS)scrollText();return}if(ch==="\r")return;textGrid[cursorY][cursorX]=ch;cursorX++;if(cursorX>=COLS){cursorX=0;cursorY++;if(cursorY>=ROWS)scrollText()}}
+function printText(s="",newline=true){for(const c of String(s))putChar(c);if(newline)putChar("\n");renderText()}
+function setStatus(s){statusEl.textContent=s}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function splitOutside(text,delimiter){const out=[];let b="",q=false,d=0;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"')q=!q;if(!q){if(c==="(")d++;if(c===")")d--;if(d===0&&text.slice(i,i+delimiter.length).toUpperCase()===delimiter.toUpperCase()){out.push(b);b="";i+=delimiter.length-1;continue}}b+=c}out.push(b);return out}
+function splitStatements(s){return splitOutside(s,":").map(x=>x.trim()).filter(Boolean)}
 function stripBasicComment(s){
-  let q=false;
-  for(let i=0;i<s.length;i++){
-    if(s[i]==='"') q=!q;
-    else if(!q && s[i]==="'") return s.slice(0,i).trim();
-  }
-  return s.trim();
+ let q=false;
+ for(let i=0;i<s.length;i++){
+  if(s[i]==='"')q=!q;
+  else if(!q&&s[i]==="'")return s.slice(0,i).trim();
+ }
+ return s.trim()
 }
-function splitCSV(s){ return splitOutside(s,",").map(x=>x.trim()); }
-function tokens(expr){
-  const a=[], r=/\s*(?:(\d+(?:\.\d*)?|\.\d+)|("([^"]|"")*")|([A-Za-z][A-Za-z0-9]*\$?)|(<=|>=|<>|=|<|>|\+|-|\*|\/|\^|\(|\)|,))\s*/gy;
-  let p=0,m;
-  while(p<expr.length){
-    r.lastIndex=p; m=r.exec(expr);
-    if(!m) throw Error("Syntax error near "+expr.slice(p));
-    p=r.lastIndex;
-    if(m[1]) a.push({t:"n",v:+m[1]});
-    else if(m[2]) a.push({t:"s",v:m[2].slice(1,-1).replace(/""/g,'"')});
-    else if(m[4]) a.push({t:"i",v:m[4].toUpperCase()});
-    else a.push({t:"o",v:m[5]});
-  }
-  return a;
-}
-function arrayKey(args){ return args.map(v=>Math.floor(Number(v)||0)).join(","); }
-function evaluate(expr,state){
-  const vars=state.vars, arrays=state.arrays, t=tokens(expr);
-  let p=0, peek=()=>t[p], take=()=>t[p++];
-  const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","INKEY$","STICK","STRIG","MOUSEX","MOUSEY","MOUSEB"]);
-  function fn(n,a){
-    switch(n){
-      case"INT":return Math.floor(+a[0]||0); case"FIX":return Math.trunc(+a[0]||0);
-      case"ABS":return Math.abs(+a[0]||0); case"SGN":return Math.sign(+a[0]||0);
-      case"SQR":return Math.sqrt(+a[0]||0); case"RND":return Math.random();
-      case"LEN":return String(a[0]??"").length; case"STR$":return String(a[0]??"");
-      case"VAL":return Number(a[0]||0); case"CHR$":return String.fromCharCode(+a[0]||0);
-      case"ASC":return String(a[0]??"").charCodeAt(0)||0;
-      case"SIN":return Math.sin(+a[0]||0); case"COS":return Math.cos(+a[0]||0);
-      case"TAN":return Math.tan(+a[0]||0); case"ATN":return Math.atan(+a[0]||0);
-      case"LOG":return Math.log(+a[0]||0); case"EXP":return Math.exp(+a[0]||0);
-      case"LEFT$":return String(a[0]??"").slice(0,Math.max(0,+a[1]||0));
-      case"RIGHT$":{const s=String(a[0]??""); return s.slice(Math.max(0,s.length-(+a[1]||0)));}
-      case"MID$":return String(a[0]??"").substr(Math.max(0,(+a[1]||1)-1), a[2]==null?undefined:Math.max(0,+a[2]||0));
-      case"SPACE$":return " ".repeat(Math.max(0,+a[0]||0));
-      case"STRING$":return String.fromCharCode(+a[1]||32).repeat(Math.max(0,+a[0]||0));
-      case"INKEY$":{const k=keyQueue.length?keyQueue.shift():""; lastKey=k; return k;}
-      case"STICK":{
-        const u=heldKeys.has("UP"),d=heldKeys.has("DOWN"),l=heldKeys.has("LEFT"),r=heldKeys.has("RIGHT");
-        if(u&&r)return 2; if(r&&d)return 4; if(d&&l)return 6; if(l&&u)return 8;
-        if(u)return 1; if(r)return 3; if(d)return 5; if(l)return 7; return 0;
-      }
-      case"STRIG":return (heldKeys.has("Z")||heldKeys.has("SPACE"))?-1:0;
-      case"MOUSEX":return mouseX; case"MOUSEY":return mouseY; case"MOUSEB":return mouseButton;
-      default: throw Error("Unknown function "+n);
-    }
-  }
-  function pri(){
-    const x=take(); if(!x) throw Error("Missing expression");
-    if(x.t==="n"||x.t==="s") return x.v;
-    if(x.t==="i"){
-      if(x.v==="NOT") return ~Math.trunc(+pri());
-      if(x.v==="INKEY$") return fn("INKEY$",[]);
-      if(peek()?.v==="("){
-        take(); const a=[];
-        if(peek()?.v!==")"){ a.push(logic()); while(peek()?.v===","){ take(); a.push(logic()); } }
-        if(take()?.v!==")") throw Error("Missing )");
-        if(knownFns.has(x.v)) return fn(x.v,a);
-        const arr=arrays[x.v];
-        return arr?.values[arrayKey(a)] ?? (x.v.endsWith("$")?"":0);
-      }
-      return Object.hasOwn(vars,x.v) ? vars[x.v] : (x.v.endsWith("$")?"":0);
-    }
-    if(x.v==="("){ const v=logic(); if(take()?.v!==")") throw Error("Missing )"); return v; }
-    if(x.v==="+") return +pri(); if(x.v==="-") return -pri();
-    throw Error("Invalid expression");
-  }
-  function pow(){ let v=pri(); while(peek()?.v==="^"){ take(); v=Math.pow(+v,+pri()); } return v; }
-  function mul(){ let v=pow(); while(["*","/"].includes(peek()?.v)||peek()?.v==="MOD"){ const o=take().v, r=pow(); v=o==="*"?+v*+r:o==="/"?+v/+r:Math.trunc(+v)%Math.trunc(+r); } return v; }
-  function add(){ let v=mul(); while(["+","-"].includes(peek()?.v)){ const o=take().v, r=mul(); v=o==="+"?(typeof v==="string"||typeof r==="string"?String(v)+String(r):+v+ +r):+v- +r; } return v; }
-  function cmp(){ let v=add(); if(["=","<>","<",">","<=",">="].includes(peek()?.v)){ const o=take().v, r=add(); const z=o==="="?v==r:o==="<>"?v!=r:o==="<"?v<r:o===">"?v>r:o==="<="?v<=r:v>=r; return z?-1:0; } return v; }
-  function logic(){ let v=cmp(); while(["AND","OR"].includes(peek()?.v)){ const o=take().v, r=cmp(); v=o==="AND"?(Math.trunc(+v)&Math.trunc(+r)):(Math.trunc(+v)|Math.trunc(+r)); } return v; }
-  const v=logic(); if(p<t.length) throw Error("Extra expression"); return v;
-}
-function parseProgram(){
-  const m=new Map();
-  for(const raw of editor.value.replace(/\r/g,"").split("\n")){
-    if(!raw.trim()) continue;
-    const x=raw.match(/^\s*(\d+)\s*(.*)$/);
-    if(!x) throw Error("Line number required: "+raw);
-    m.set(+x[1], x[2]);
-  }
-  return [...m.entries()].sort((a,b)=>a[0]-b[0]).map(([number,text])=>({number,text}));
-}
-function lineIndex(lines,n){ return lines.findIndex(x=>x.number===+n); }
-function coords(s,state){
-  const m=s.match(/^\(\s*(.+?)\s*,\s*(.+?)\s*\)$/);
-  if(!m) throw Error("Coordinate syntax");
-  return [+evaluate(m[1],state), +evaluate(m[2],state)];
-}
-function color(n){ return palette[Math.max(0,Math.min(15,Math.floor(+n||0)))]; }
+function splitCSV(s){return splitOutside(s,",").map(x=>x.trim())}
+function tokens(expr){const a=[],r=/\s*(?:(\d+(?:\.\d*)?|\.\d+)|("([^"]|"")*")|([A-Za-z][A-Za-z0-9]*\$?)|(<=|>=|<>|=|<|>|\+|-|\*|\/|\^|\(|\)|,))\s*/gy;let p=0,m;while(p<expr.length){r.lastIndex=p;m=r.exec(expr);if(!m)throw Error("Syntax error near "+expr.slice(p));p=r.lastIndex;if(m[1])a.push({t:"n",v:+m[1]});else if(m[2])a.push({t:"s",v:m[2].slice(1,-1).replace(/""/g,'"')});else if(m[4])a.push({t:"i",v:m[4].toUpperCase()});else a.push({t:"o",v:m[5]})}return a}
 
-// ===== Crystal FM Engine (from Phoenix, upgraded for Studio v1.5.2) =====
+function arrayKey(args){return args.map(v=>Math.floor(Number(v)||0)).join(",")}
+function evaluate(expr,state){
+ const vars=state.vars,arrays=state.arrays,t=tokens(expr);let p=0,peek=()=>t[p],take=()=>t[p++];
+ const knownFns=new Set(["INT","FIX","ABS","SGN","SQR","RND","LEN","STR$","VAL","CHR$","ASC","SIN","COS","TAN","ATN","LOG","EXP","LEFT$","RIGHT$","MID$","SPACE$","STRING$","INKEY$","STICK","STRIG","MOUSEX","MOUSEY","MOUSEB"]);
+ function fn(n,a){
+  switch(n){
+   case"INT":return Math.floor(+a[0]||0);case"FIX":return Math.trunc(+a[0]||0);case"ABS":return Math.abs(+a[0]||0);case"SGN":return Math.sign(+a[0]||0);
+   case"SQR":return Math.sqrt(+a[0]||0);case"RND":return Math.random();case"LEN":return String(a[0]??"").length;case"STR$":return String(a[0]??"");
+   case"VAL":return Number(a[0]||0);case"CHR$":return String.fromCharCode(+a[0]||0);case"ASC":return String(a[0]??"").charCodeAt(0)||0;
+   case"SIN":return Math.sin(+a[0]||0);case"COS":return Math.cos(+a[0]||0);case"TAN":return Math.tan(+a[0]||0);case"ATN":return Math.atan(+a[0]||0);
+   case"LOG":return Math.log(+a[0]||0);case"EXP":return Math.exp(+a[0]||0);
+   case"LEFT$":return String(a[0]??"").slice(0,Math.max(0,+a[1]||0));
+   case"RIGHT$":{const s=String(a[0]??"");return s.slice(Math.max(0,s.length-(+a[1]||0)))}
+   case"MID$":return String(a[0]??"").substr(Math.max(0,(+a[1]||1)-1),a[2]==null?undefined:Math.max(0,+a[2]||0));
+   case"SPACE$":return " ".repeat(Math.max(0,+a[0]||0));case"STRING$":return String.fromCharCode(+a[1]||32).repeat(Math.max(0,+a[0]||0));
+   case"INKEY$":{const k=keyQueue.length?keyQueue.shift():"";lastKey=k;return k}
+   case"STICK":{const u=heldKeys.has("UP"),d=heldKeys.has("DOWN"),l=heldKeys.has("LEFT"),r=heldKeys.has("RIGHT");if(u&&r)return 2;if(r&&d)return 4;if(d&&l)return 6;if(l&&u)return 8;if(u)return 1;if(r)return 3;if(d)return 5;if(l)return 7;return 0}
+   case"STRIG":return (heldKeys.has("Z")||heldKeys.has("SPACE"))?-1:0;
+   case"MOUSEX":return mouseX;case"MOUSEY":return mouseY;case"MOUSEB":return mouseButton
+   default:throw Error("Unknown function "+n)
+  }
+ }
+ function pri(){
+  const x=take();if(!x)throw Error("Missing expression");
+  if(x.t==="n"||x.t==="s")return x.v;
+  if(x.t==="i"){
+   if(x.v==="NOT")return ~Math.trunc(+pri());if(x.v==="INKEY$")return fn("INKEY$",[]);
+   if(peek()?.v==="("){
+    take();const a=[];if(peek()?.v!==")"){a.push(logic());while(peek()?.v===","){take();a.push(logic())}}if(take()?.v!==")")throw Error("Missing )");
+    if(knownFns.has(x.v))return fn(x.v,a);
+    const arr=arrays[x.v];return arr?.values[arrayKey(a)]??(x.v.endsWith("$")?"":0)
+   }
+   return Object.hasOwn(vars,x.v)?vars[x.v]:(x.v.endsWith("$")?"":0)
+  }
+  if(x.v==="("){const v=logic();if(take()?.v!==")")throw Error("Missing )");return v}
+  if(x.v==="+")return +pri();if(x.v==="-")return -pri();throw Error("Invalid expression")
+ }
+ function pow(){let v=pri();while(peek()?.v==="^"){take();v=Math.pow(+v,+pri())}return v}
+ function mul(){let v=pow();while(["*","/"].includes(peek()?.v)||peek()?.v==="MOD"){const o=take().v,r=pow();v=o==="*"?+v*+r:o==="/"?+v/+r:Math.trunc(+v)%Math.trunc(+r)}return v}
+ function add(){let v=mul();while(["+","-"].includes(peek()?.v)){const o=take().v,r=mul();v=o==="+"?(typeof v==="string"||typeof r==="string"?String(v)+String(r):+v+ +r):+v- +r}return v}
+ function cmp(){let v=add();if(["=","<>","<",">","<=",">="].includes(peek()?.v)){const o=take().v,r=add(),z=o==="="?v==r:o==="<>"?v!=r:o==="<"?v<r:o===">"?v>r:o==="<="?v<=r:v>=r;return z?-1:0}return v}
+ function logic(){let v=cmp();while(["AND","OR"].includes(peek()?.v)){const o=take().v,r=cmp();v=o==="AND"?(Math.trunc(+v)&Math.trunc(+r)):(Math.trunc(+v)|Math.trunc(+r))}return v}
+ const v=logic();if(p<t.length)throw Error("Extra expression");return v
+}
+
+function parseProgram(){const m=new Map();for(const raw of editor.value.replace(/\r/g,"").split("\n")){if(!raw.trim())continue;const x=raw.match(/^\s*(\d+)\s*(.*)$/);if(!x)throw Error("Line number required: "+raw);m.set(+x[1],x[2])}return[...m.entries()].sort((a,b)=>a[0]-b[0]).map(([number,text])=>({number,text}))}
+function lineIndex(lines,n){return lines.findIndex(x=>x.number===+n)}
+function coords(s,state){const m=s.match(/^\(\s*(.+?)\s*,\s*(.+?)\s*\)$/);if(!m)throw Error("Coordinate syntax");return[+evaluate(m[1],state),+evaluate(m[2],state)]}
+function color(n){return palette[Math.max(0,Math.min(15,Math.floor(+n||0)))]}
 async function ensureAudio(){
-  audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state==="suspended") await audioCtx.resume();
-  return audioCtx;
+ audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+ if(audioCtx.state==="suspended")await audioCtx.resume();
+ return audioCtx
 }
 async function tone(freq=880,dur=.12){
-  const ac=await ensureAudio(), now=ac.currentTime;
-  const o=ac.createOscillator(), g=ac.createGain();
-  o.frequency.value=freq; o.type="square";
-  g.gain.setValueAtTime(.06,now); g.gain.exponentialRampToValueAtTime(.001,now+dur);
-  o.connect(g).connect(ac.destination); o.start(now); o.stop(now+dur);
+ const ac=await ensureAudio(),now=ac.currentTime;
+ const o=ac.createOscillator(),g=ac.createGain();
+ o.frequency.value=freq;o.type="square";
+ g.gain.setValueAtTime(.06,now);
+ g.gain.exponentialRampToValueAtTime(.001,now+dur);
+ o.connect(g).connect(ac.destination);o.start(now);o.stop(now+dur)
 }
 function stopMml(){
  if(!mmlSession)return;
@@ -1195,7 +712,7 @@ function mmlInstrumentPreset(n){
    ]
   }
  };
- const p=JSON.parse(JSON.stringify(presets[n]||presets[13]));
+ const p=structuredClone(presets[n]||presets[13]);
  if(soundMode==="enhanced"){
   p.gain*=1.12;p.release*=1.25;p.wet=Math.min(.42,p.wet*1.25);
   p.ops.forEach(op=>op.index*=1.08);
@@ -1344,7 +861,7 @@ async function scheduleFmNote(ac,start,freq,duration,preset,session,event){
   shimmer.type="sine";
   shimmer.frequency.setValueAtTime(freq*2.005,start);
   sg.gain.setValueAtTime(Math.max(.0001,peak*.055),start);
-  sg.gain.exponentialRampToValueAtTime(.0001,noteEnd);
+  sg.gain.exponentialRampToValueAtTime(.0001,noteEnd*1.0);
   shimmer.connect(sg).connect(noteBus);
   shimmer.start(start);shimmer.stop(noteEnd+.03);
   session.nodes.push(shimmer,sg)
@@ -1385,631 +902,422 @@ async function playMml(source,{background=false}={}){
  if(!background)await session.promise;
  return session.promise
 }
-
-
+async function inputValue(msg){return new Promise(resolve=>{waitingInput={resolve};setStatus("Input");promptInput.placeholder=msg||"?";promptInput.focus()})}
 function setVariable(target,value,state){
-  const m=target.match(/^([A-Za-z][A-Za-z0-9]*\$?)\s*(?:\((.*)\))?$/);
-  if(!m) throw Error("Invalid variable "+target);
-  const name=m[1].toUpperCase();
-  if(m[2]!=null){
-    const args=splitCSV(m[2]).map(x=>evaluate(x,state));
-    state.arrays[name] ||= {dims:[],values:{}};
-    state.arrays[name].values[arrayKey(args)] = name.endsWith("$")?String(value):Number(value);
-  } else {
-    state.vars[name] = name.endsWith("$")?String(value):Number(value);
-  }
+ const m=target.match(/^([A-Za-z][A-Za-z0-9]*\$?)\s*(?:\((.*)\))?$/);if(!m)throw Error("Invalid variable "+target);
+ const name=m[1].toUpperCase();
+ if(m[2]!=null){const args=splitCSV(m[2]).map(x=>evaluate(x,state));state.arrays[name] ||= {dims:[],values:{}};state.arrays[name].values[arrayKey(args)]=name.endsWith("$")?String(value):Number(value)}
+ else state.vars[name]=name.endsWith("$")?String(value):Number(value)
 }
 function collectData(lines){
-  const data=[];
-  for(const line of lines) for(const s of splitStatements(line.text)){
-    const m=s.match(/^DATA\s*(.*)$/i);
-    if(m) for(const item of splitCSV(m[1])){
-      if(/^".*"$/.test(item)) data.push(item.slice(1,-1).replace(/""/g,'"'));
-      else data.push(Number(item));
-    }
-  }
-  return data;
+ const data=[];for(const line of lines)for(const s of splitStatements(line.text)){const m=s.match(/^DATA\s*(.*)$/i);if(m)for(const item of splitCSV(m[1])){if(/^".*"$/.test(item))data.push(item.slice(1,-1).replace(/""/g,'"'));else data.push(Number(item))}}
+ return data
 }
 function floodFill(x,y,newColor){
-  x=Math.floor(x); y=Math.floor(y);
-  if(x<0||x>=640||y<0||y>=400) return;
-  const img=ctx.getImageData(0,0,640,400), d=img.data;
-  const idx=(x,y)=>(y*640+x)*4;
-  const start=idx(x,y), target=[d[start],d[start+1],d[start+2],d[start+3]];
-  const tmp=document.createElement("canvas").getContext("2d");
-  tmp.fillStyle=newColor; tmp.fillRect(0,0,1,1);
-  const nc=tmp.getImageData(0,0,1,1).data;
-  if(target[0]===nc[0]&&target[1]===nc[1]&&target[2]===nc[2]) return;
-  const q=[[x,y]];
-  while(q.length){
-    const [px,py]=q.pop();
-    if(px<0||px>=640||py<0||py>=400) continue;
-    const i=idx(px,py);
-    if(d[i]!==target[0]||d[i+1]!==target[1]||d[i+2]!==target[2]) continue;
-    d[i]=nc[0]; d[i+1]=nc[1]; d[i+2]=nc[2]; d[i+3]=255;
-    q.push([px+1,py],[px-1,py],[px,py+1],[px,py-1]);
-    if(q.length>200000) break;
-  }
-  ctx.putImageData(img,0,0);
+ x=Math.floor(x);y=Math.floor(y);if(x<0||x>=640||y<0||y>=400)return;
+ const img=ctx.getImageData(0,0,640,400),d=img.data,idx=(x,y)=>(y*640+x)*4;
+ const start=idx(x,y),target=[d[start],d[start+1],d[start+2],d[start+3]];
+ const tmp=document.createElement("canvas").getContext("2d");tmp.fillStyle=newColor;tmp.fillRect(0,0,1,1);const nc=tmp.getImageData(0,0,1,1).data;
+ if(target[0]===nc[0]&&target[1]===nc[1]&&target[2]===nc[2])return;
+ const q=[[x,y]];while(q.length){const [px,py]=q.pop();if(px<0||px>=640||py<0||py>=400)continue;const i=idx(px,py);if(d[i]!==target[0]||d[i+1]!==target[1]||d[i+2]!==target[2])continue;d[i]=nc[0];d[i+1]=nc[1];d[i+2]=nc[2];d[i+3]=255;q.push([px+1,py],[px-1,py],[px,py+1],[px,py-1]);if(q.length>200000)break}
+ ctx.putImageData(img,0,0)
 }
 
 async function execStmt(s,state,idx){
-  s=stripBasicComment(s); const u=s.toUpperCase();
-  if(!s||u.startsWith("REM")||s.startsWith("'")||u.startsWith("DATA")) return {};
-  if(u==="END"||u==="STOP") return {end:true};
-  let m;
-  if(u==="CLS"){ resetScreen(); return {}; }
-  if(u==="CLEAR"){ state.vars={}; state.arrays={}; state.forStack=[]; state.gosub=[]; return {}; }
-  if((m=s.match(/^COLOR\s+(.+?)(?:\s*,\s*(.+))?$/i))){
-    fg=Math.floor(evaluate(m[1],state))&15;
-    if(m[2]!=null) bg=Math.floor(evaluate(m[2],state))&15;
-    renderText(); return {};
-  }
-  if((m=s.match(/^LOCATE\s+(.+?)\s*,\s*(.+)$/i))){
-    cursorX=Math.max(0,Math.min(79,Math.floor(evaluate(m[1],state))));
-    cursorY=Math.max(0,Math.min(24,Math.floor(evaluate(m[2],state))));
-    renderText(); return {};
-  }
-  if((m=s.match(/^DIM\s+(.+)$/i))){
-    for(const spec of splitCSV(m[1])){
-      const a=spec.match(/^([A-Za-z][A-Za-z0-9]*\$?)\((.*)\)$/);
-      if(!a) throw Error("Bad DIM");
-      const name=a[1].toUpperCase(), dims=splitCSV(a[2]).map(x=>Math.floor(evaluate(x,state)));
-      state.arrays[name]={dims,values:{}};
-    }
-    return {};
-  }
-  if((m=s.match(/^READ\s+(.+)$/i))){
-    for(const target of splitCSV(m[1])){
-      if(state.dataPtr>=state.data.length) throw Error("Out of DATA");
-      setVariable(target, state.data[state.dataPtr++], state);
-    }
-    return {};
-  }
-  if((m=s.match(/^PSET\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){
-    const[x,y]=coords(m[1],state), c=m[2]!=null?evaluate(m[2],state):fg;
-    ctx.fillStyle=color(c); ctx.fillRect(Math.round(x),Math.round(y),1,1); renderText(); return {};
-  }
-  if((m=s.match(/^LINE\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+?))?(?:\s*,\s*(B|BF))?$/i))){
-    const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state);
-    const c=m[3]!=null?evaluate(m[3],state):fg, mode=(m[4]||"").toUpperCase();
-    ctx.strokeStyle=color(c); ctx.fillStyle=color(c);
-    if(mode==="BF") ctx.fillRect(x1,y1,x2-x1,y2-y1);
-    else if(mode==="B") ctx.strokeRect(x1,y1,x2-x1,y2-y1);
-    else { ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
-    renderText(); return {};
-  }
-  if((m=s.match(/^CIRCLE\s*(\(.+?\))\s*,\s*(.+?)(?:\s*,\s*(.+))?$/i))){
-    const[x,y]=coords(m[1],state), r=+evaluate(m[2],state), c=m[3]!=null?evaluate(m[3],state):fg;
-    ctx.strokeStyle=color(c); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.stroke(); renderText(); return {};
-  }
-  if((m=s.match(/^PAINT\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){
-    const[x,y]=coords(m[1],state), c=m[2]!=null?evaluate(m[2],state):fg;
-    floodFill(x,y,color(c)); renderText(); return {};
-  }
-  if(/^BEEP$/i.test(s)){ await tone(); return {}; }
-  if((m=s.match(/^PLAY\s+(.+)$/i))){ await playMml(String(evaluate(m[1],state))); return {}; }
-  if((m=s.match(/^(?:PRINT|\?)\s*(.*)$/i))){
-    const b=m[1]; if(!b){ printText(); return {}; }
-    let out="", buf="", q=false, d=0; const parts=[];
-    for(let i=0;i<b.length;i++){
-      const c=b[i]; if(c==='"') q=!q;
-      if(!q){ if(c==="(")d++; if(c===")")d--;
-        if(d===0&&(c===";"||c===",")){ parts.push([buf.trim(),c]); buf=""; continue; }
-      }
-      buf+=c;
-    }
-    parts.push([buf.trim(),""]);
-    for(const[e,sep] of parts){ if(e) out+=String(evaluate(e,state)); if(sep===",") out+="        "; }
-    printText(out, !/[;,]\s*$/.test(b)); return {};
-  }
-  if((m=s.match(/^INPUT\s*(?:(["].*?["])\s*[,;])?\s*(.+)$/i))){
-    const msg=m[1]?m[1].slice(1,-1):"? ", targets=splitCSV(m[2]);
-    printText(msg, false);
-    const raw=await inputValue(msg), values=splitCSV(raw);
-    targets.forEach((t,i)=>setVariable(t, values[i]??"", state));
-    printText(raw); return {};
-  }
-  if((m=s.match(/^IF\s+(.+?)\s+THEN\s+(.+?)(?:\s+ELSE\s+(.+))?$/i))){
-    const chosen=evaluate(m[1],state)?m[2]:m[3];
-    if(chosen){ const t=chosen.trim(); if(/^\d+$/.test(t)) return {jump:+t}; return execStmt(t,state,idx); }
-    return {};
-  }
-  if((m=s.match(/^ON\s+(.+?)\s+GO(TO|SUB)\s+(.+)$/i))){
-    const n=Math.floor(evaluate(m[1],state)), targets=splitCSV(m[3]).map(Number);
-    if(n>=1&&n<=targets.length){
-      if(m[2].toUpperCase()==="SUB") state.gosub.push(idx+1);
-      return {jump:targets[n-1]};
-    }
-    return {};
-  }
-  if((m=s.match(/^GOTO\s+(\d+)$/i))) return {jump:+m[1]};
-  if((m=s.match(/^GOSUB\s+(\d+)$/i))){ state.gosub.push(idx+1); return {jump:+m[1]}; }
-  if(/^RETURN$/i.test(s)){ if(!state.gosub.length) throw Error("RETURN without GOSUB"); return {index:state.gosub.pop()}; }
-  if((m=s.match(/^FOR\s+([A-Za-z][A-Za-z0-9]*)\s*=\s*(.+?)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i))){
-    const n=m[1].toUpperCase();
-    state.vars[n]=+evaluate(m[2],state);
-    state.forStack.push({n, lim:+evaluate(m[3],state), step:m[4]?+evaluate(m[4],state):1, ret:idx});
-    return {};
-  }
-  if((m=s.match(/^NEXT(?:\s+([A-Za-z][A-Za-z0-9]*))?$/i))){
-    const f=state.forStack.at(-1); if(!f) throw Error("NEXT without FOR");
-    state.vars[f.n]+=f.step;
-    const again=f.step>=0 ? state.vars[f.n]<=f.lim : state.vars[f.n]>=f.lim;
-    if(again) return {index:f.ret+1};
-    state.forStack.pop(); return {};
-  }
-  if((m=s.match(/^(?:LET\s+)?([A-Za-z][A-Za-z0-9]*\$?(?:\s*\(.*\))?)\s*=\s*(.+)$/i))){
-    setVariable(m[1], evaluate(m[2],state), state); return {};
-  }
-  throw Error("Syntax error: "+s);
+ s=stripBasicComment(s);const u=s.toUpperCase();if(!s||u.startsWith("REM")||s.startsWith("'")||u.startsWith("DATA"))return{};if(u==="END"||u==="STOP")return{end:true};let m;
+ if(/^NEW\s+CMD$/i.test(s)){stopMml();mmlBgm=true;return{}}
+ if((m=s.match(/^CMD\s+BGM(?:\s+(.+))?$/i))){mmlBgm=m[1]==null?true:!!evaluate(m[1],state);return{}}
+ if((m=s.match(/^CMD\s+PLAY\s+(.+)$/i))){const src=String(evaluate(m[1],state));await playMml(src,{background:mmlBgm});return{}}
+ if(/^CMD\s+STOPM$/i.test(s)){stopMml();return{}}
+ if(u==="CLS"){resetScreen();return{}}
+ if(u==="CLEAR"){state.vars={};state.arrays={};state.forStack=[];state.gosub=[];return{}}
+ if(/^DEF(?:INT|SNG|DBL|STR)\b/i.test(s))return{};
+ if((m=s.match(/^SCREEN\s+(.+)$/i)))return{};
+ if((m=s.match(/^WIDTH\s+(.+)$/i)))return{};
+ if((m=s.match(/^COLOR\s+(.+?)(?:\s*,\s*(.+))?$/i))){fg=Math.floor(evaluate(m[1],state))&15;if(m[2]!=null)bg=Math.floor(evaluate(m[2],state))&15;renderText();return{}}
+ if((m=s.match(/^LOCATE\s+(.+?)\s*,\s*(.+)$/i))){cursorX=Math.max(0,Math.min(79,Math.floor(evaluate(m[1],state))));cursorY=Math.max(0,Math.min(24,Math.floor(evaluate(m[2],state))));renderText();return{}}
+ if((m=s.match(/^DIM\s+(.+)$/i))){for(const spec of splitCSV(m[1])){const a=spec.match(/^([A-Za-z][A-Za-z0-9]*\$?)\((.*)\)$/);if(!a)throw Error("Bad DIM");const name=a[1].toUpperCase(),dims=splitCSV(a[2]).map(x=>Math.floor(evaluate(x,state)));state.arrays[name]={dims,values:{}}}return{}}
+ if((m=s.match(/^READ\s+(.+)$/i))){for(const target of splitCSV(m[1])){if(state.dataPtr>=state.data.length)throw Error("Out of DATA");setVariable(target,state.data[state.dataPtr++],state)}return{}}
+ if((m=s.match(/^RESTORE(?:\s+\d+)?$/i))){state.dataPtr=0;return{}}
+ if((m=s.match(/^RANDOMIZE(?:\s+(.+))?$/i))){Math.random();return{}}
+ if((m=s.match(/^SWAP\s+(.+?)\s*,\s*(.+)$/i))){const a=m[1].trim(),b=m[2].trim(),va=evaluate(a,state),vb=evaluate(b,state);setVariable(a,vb,state);setVariable(b,va,state);return{}}
+ if((m=s.match(/^(?:PSET|PRESET)\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),c=u.startsWith("PRESET")?bg:(m[2]!=null?evaluate(m[2],state):fg);ctx.fillStyle=color(c);ctx.fillRect(Math.round(x),Math.round(y),1,1);renderText();return{}}
+ if((m=s.match(/^LINE\s*(\(.+?\))\s*-\s*(\(.+?\))(?:\s*,\s*(.+?))?(?:\s*,\s*(B|BF))?$/i))){const[x1,y1]=coords(m[1],state),[x2,y2]=coords(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg,mode=(m[4]||"").toUpperCase();ctx.strokeStyle=color(c);ctx.fillStyle=color(c);if(mode==="BF")ctx.fillRect(x1,y1,x2-x1,y2-y1);else if(mode==="B")ctx.strokeRect(x1,y1,x2-x1,y2-y1);else{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}renderText();return{}}
+ if((m=s.match(/^CIRCLE\s*(\(.+?\))\s*,\s*(.+?)(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),r=+evaluate(m[2],state),c=m[3]!=null?evaluate(m[3],state):fg;ctx.strokeStyle=color(c);ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();renderText();return{}}
+ if((m=s.match(/^PAINT\s*(\(.+?\))(?:\s*,\s*(.+))?$/i))){const[x,y]=coords(m[1],state),c=m[2]!=null?evaluate(m[2],state):fg;floodFill(x,y,color(c));renderText();return{}}
+ if(/^BEEP$/i.test(s)){await tone();return{}}
+ if((m=s.match(/^SOUND\s+(.+?)\s*,\s*(.+)$/i))){await tone(Math.max(20,+evaluate(m[1],state)),Math.max(.02,+evaluate(m[2],state)/18.2/100));return{}}
+ if((m=s.match(/^PLAY\s+(.+)$/i))){await playMml(String(evaluate(m[1],state)),{background:false});return{}}
+ if((m=s.match(/^SLEEP\s+(.+)$/i))){await sleep(Math.max(0,+evaluate(m[1],state)));return{}}
+ if((m=s.match(/^(?:PRINT|\?)\s*(.*)$/i))){const b=m[1];if(!b){printText();return{}}let out="",buf="",q=false,d=0;const parts=[];for(let i=0;i<b.length;i++){const c=b[i];if(c==='"')q=!q;if(!q){if(c==="(")d++;if(c===")")d--;if(d===0&&(c===";"||c===",")){parts.push([buf.trim(),c]);buf="";continue}}buf+=c}parts.push([buf.trim(),""]);for(const[e,sep]of parts){if(e)out+=String(evaluate(e,state));if(sep===",")out+="        "}printText(out,!/[;,]\s*$/.test(b));return{}}
+ if((m=s.match(/^INPUT\s*(?:(["].*?["])\s*[,;])?\s*(.+)$/i))){const msg=m[1]?m[1].slice(1,-1):"? ",targets=splitCSV(m[2]);printText(msg,false);const raw=await inputValue(msg),values=splitCSV(raw);targets.forEach((t,i)=>setVariable(t,values[i]??"",state));printText(raw);return{}}
+ if((m=s.match(/^IF\s+(.+?)\s+THEN\s+(.+?)(?:\s+ELSE\s+(.+))?$/i))){const chosen=evaluate(m[1],state)?m[2]:m[3];if(chosen){const t=chosen.trim();if(/^\d+$/.test(t))return{jump:+t};return execStmt(t,state,idx)}return{}}
+ if((m=s.match(/^ON\s+(.+?)\s+GO(TO|SUB)\s+(.+)$/i))){const n=Math.floor(evaluate(m[1],state)),targets=splitCSV(m[3]).map(Number);if(n>=1&&n<=targets.length){if(m[2].toUpperCase()==="SUB")state.gosub.push(idx+1);return{jump:targets[n-1]}}return{}}
+ if((m=s.match(/^GOTO\s+(\d+)$/i)))return{jump:+m[1]};
+ if((m=s.match(/^GOSUB\s+(\d+)$/i))){state.gosub.push(idx+1);return{jump:+m[1]}}
+ if(/^RETURN$/i.test(s)){if(!state.gosub.length)throw Error("RETURN without GOSUB");return{index:state.gosub.pop()}}
+ if((m=s.match(/^FOR\s+([A-Za-z][A-Za-z0-9]*)\s*=\s*(.+?)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i))){const n=m[1].toUpperCase();state.vars[n]=+evaluate(m[2],state);state.forStack.push({n,lim:+evaluate(m[3],state),step:m[4]?+evaluate(m[4],state):1,ret:idx});return{}}
+ if((m=s.match(/^NEXT(?:\s+([A-Za-z][A-Za-z0-9]*))?$/i))){const f=state.forStack.at(-1);if(!f)throw Error("NEXT without FOR");state.vars[f.n]+=f.step;const again=f.step>=0?state.vars[f.n]<=f.lim:state.vars[f.n]>=f.lim;if(again)return{index:f.ret+1};state.forStack.pop();return{}}
+ if((m=s.match(/^(?:LET\s+)?([A-Za-z][A-Za-z0-9]*\$?(?:\s*\(.*\))?)\s*=\s*(.+)$/i))){setVariable(m[1],evaluate(m[2],state),state);return{}}
+ throw Error("Syntax error: "+s)
 }
 
-async function inputValue(msg){
-  return new Promise(resolve=>{
-    waitingInput={resolve};
-    setStatus("Input");
-    promptInput.placeholder = msg || "?";
-    promptInput.focus();
-  });
-}
-
-function setRunUi(isRunning){
-  const area=$("runArea");
-  if(area) area.classList.toggle("running", !!isRunning);
-  $("runBtn").disabled=!!isRunning;
-  $("stopBtn").disabled=!isRunning;
-}
 async function runProgram(){
-  stopped=false; setRunUi(true); setStatus(`Running ${cpuClock}MHz`);
-  let lines;
-  try{ lines=parseProgram(); } catch(e){ e.basicLine=null; throw e; }
-  const state={vars:{},arrays:{},gosub:[],forStack:[],data:collectData(lines),dataPtr:0};
-  let i=0, ops=0;
-  const frameOps=cpuClock===4?55:150;
-  while(i<lines.length && !stopped){
-    let moved=false;
-    const currentBasicLine=lines[i].number;
-    try{
-      for(const s of splitStatements(lines[i].text)){
-        const r=await execStmt(s,state,i);
-        if(++ops%frameOps===0) await new Promise(requestAnimationFrame);
-        if(ops>500000){ const err=Error("Too many operations"); err.basicLine=currentBasicLine; throw err; }
-        if(r.end){ i=lines.length; moved=true; break; }
-        if(r.jump!=null){
-          const n=lineIndex(lines,r.jump);
-          if(n<0){ const err=Error("Undefined line "+r.jump); err.basicLine=currentBasicLine; throw err; }
-          i=n; moved=true; break;
-        }
-        if(r.index!=null){ i=r.index; moved=true; break; }
-      }
-    }catch(e){
-      if(e.basicLine==null) e.basicLine=currentBasicLine;
-      throw e;
-    }
-    if(!moved) i++;
-  }
-  setStatus(stopped?"Stopped":"Ready");
-  setRunUi(false);
-  if(!stopped){ printText("Ok"); consola("Ok"); }
+ stopped=false;setStatus(`Running ${cpuClock}MHz`);const lines=parseProgram(),state={vars:{},arrays:{},gosub:[],forStack:[],data:collectData(lines),dataPtr:0};let i=0,ops=0;
+ const frameOps=cpuClock===4?55:150;
+ while(i<lines.length&&!stopped){let moved=false;for(const s of splitStatements(lines[i].text)){const r=await execStmt(s,state,i);if(++ops%frameOps===0)await new Promise(requestAnimationFrame);if(ops>500000)throw Error("Too many operations");if(r.end){i=lines.length;moved=true;break}if(r.jump!=null){const n=lineIndex(lines,r.jump);if(n<0)throw Error("Undefined line "+r.jump);i=n;moved=true;break}if(r.index!=null){i=r.index;moved=true;break}}if(!moved)i++}
+ setStatus(stopped?"Stopped":"Ready");if(!stopped)printText("Ok")
 }
-
+function renumProgram(start=10,step=10){
+ const lines=parseProgram(),map=new Map();lines.forEach((l,i)=>map.set(l.number,start+i*step));
+ editor.value=lines.map((l,i)=>{let t=l.text.replace(/\b(GOTO|GOSUB|THEN|ELSE|RESTORE)\s+(\d+)\b/gi,(all,k,n)=>`${k} ${map.get(+n)??n}`);t=t.replace(/\b(ON\s+.+?\s+GO(?:TO|SUB)\s+)([\d,\s]+)/gi,(all,p,list)=>p+list.split(",").map(x=>map.get(+x.trim())??x.trim()).join(","));return`${start+i*step} ${t}`}).join("\n")
+}
 async function direct(raw){
-  raw=raw.trim(); if(!raw) return;
-  history.push(raw); historyIndex=history.length;
-  const n=raw.match(/^(\d+)\s*(.*)$/);
-  if(n){
-    const map=new Map();
-    try{ for(const x of parseProgram()) map.set(x.number,x.text); }catch{}
-    if(n[2].trim()) map.set(+n[1],n[2]); else map.delete(+n[1]);
-    editor.value=[...map].sort((a,b)=>a[0]-b[0]).map(x=>x[0]+" "+x[1]).join("\n");
-    fileDirty=true; setSaveState("modified","Modified");
-    return;
-  }
-  const u=raw.toUpperCase();
-  if(u==="RUN") return runProgram();
-  if(u==="LIST"){ consola(editor.value); return; }
-  if(u==="NEW"){ editor.value=""; resetScreen(); directVars={}; directArrays={}; return; }
-  if(u.startsWith("RENUM")){
-    // simple renumber omitted for brevity in v1.1
-    consola("RENUM not fully ported in v1.1 yet");
-    return;
-  }
-  const state={vars:directVars,arrays:directArrays,gosub:[],forStack:[],data:[],dataPtr:0};
-  await execStmt(raw,state,0);
-  directVars=state.vars; directArrays=state.arrays;
-  consola("Ok");
+ raw=raw.trim();if(!raw)return;history.push(raw);historyIndex=history.length;
+ const n=raw.match(/^(\d+)\s*(.*)$/);if(n){const map=new Map();try{for(const x of parseProgram())map.set(x.number,x.text)}catch{}if(n[2].trim())map.set(+n[1],n[2]);else map.delete(+n[1]);editor.value=[...map].sort((a,b)=>a[0]-b[0]).map(x=>x[0]+" "+x[1]).join("\n");return}
+ const u=raw.toUpperCase();if(u==="RUN")return runProgram();if(u==="LIST"){printText(editor.value);return printText("Ok")}if(u==="NEW"){editor.value="";resetScreen();directVars={};directArrays={};return}
+ if(u.startsWith("RENUM")){const a=raw.split(/\s+/).slice(1).join("").split(",").filter(Boolean).map(Number);renumProgram(a[0]||10,a[1]||10);printText("Ok");return}
+ if(u.startsWith("DELETE")){const r=raw.match(/^DELETE\s+(\d+)(?:-(\d+))?$/i);if(!r)throw Error("DELETE syntax");const a=+r[1],b=r[2]?+r[2]:a;editor.value=parseProgram().filter(l=>l.number<a||l.number>b).map(l=>l.number+" "+l.text).join("\n");printText("Ok");return}
+ const state={vars:directVars,arrays:directArrays,gosub:[],forStack:[],data:[],dataPtr:0};await execStmt(raw,state,0);directVars=state.vars;directArrays=state.arrays;printText("Ok")
 }
+async function safe(fn){try{await fn()}catch(e){setStatus("Error");printText("? "+e.message);printText("Ok")}}
 
-async function safe(fn){
-  try{ await fn(); }
-  catch(e){
-    setRunUi(false);
-    setStatus("Error");
-    consola("? "+e.message);
-    if(e.basicLine!=null) jumpToBasicLine(e.basicLine, true);
-  }
-}
+$("runBtn").onclick=()=>safe(async()=>{await ensureAudio();await runProgram()});
+$("stopBtn").onclick=()=>{stopped=true;stopMml();if(waitingInput){waitingInput.resolve("");waitingInput=null}setStatus("Stopped")};
+$("listBtn").onclick=()=>{printText(editor.value);printText("Ok")};
+$("newBtn").onclick=()=>{if(confirm("プログラムを消去しますか？")){editor.value="";resetScreen()}};
+$("compatBtn").onclick=()=>editor.value=`10 CLS
+20 DIM A(5)
+30 DATA 3,6,9,12,15
+40 FOR I=1 TO 5
+50 READ A(I)
+60 NEXT I
+70 PRINT "ARRAY:";
+80 FOR I=1 TO 5
+90 PRINT A(I);
+100 NEXT I
+110 PRINT
+120 S$="N88-BASIC"
+130 PRINT LEFT$(S$,3)
+140 PRINT RIGHT$(S$,5)
+150 PRINT MID$(S$,5,5)
+160 X=7
+170 IF X MOD 2=1 AND X>5 THEN PRINT "ODD AND LARGE"
+180 ON 2 GOSUB 300,400
+190 PRINT "RETURNED"
+200 END
+300 PRINT "GOSUB 1":RETURN
+400 PRINT "GOSUB 2":RETURN`;
+$("graphicsBtn").onclick=()=>editor.value=`10 CLS
+20 COLOR 7,0
+30 FOR I=0 TO 7
+40 LINE (40+I*15,40+I*10)-(600-I*15,360-I*10),I,B
+50 NEXT I
+60 CIRCLE (320,200),100,6
+70 PAINT (320,200),1
+80 COLOR 7
+90 LOCATE 25,12
+100 PRINT "SALP N88-BASIC"
+110 PLAY "CDEFGAB"
+120 END`;
+$("gameBtn").onclick=()=>{
+  window.__salpSetPadMode?.("game");
 
-// ---------- Editor helpers (Phoenix lineage simplified) ----------
-const EDITOR_LINE_HEIGHT=21, EDITOR_PADDING_TOP=12;
-let phoenixUndoStack=[], phoenixRedoStack=[], phoenixLastValue="";
-let findMatches=[], findIndex=-1;
-
-function updateEditorInfo(){
-  const before=editor.value.slice(0,editor.selectionStart);
-  const line=before.split("\n").length;
-  const lastBreak=before.lastIndexOf("\n");
-  const col=editor.selectionStart-(lastBreak+1)+1;
-  const lines=editor.value?editor.value.split("\n").length:1;
-  $("editorCursor").textContent=`Ln ${line} · Col ${col}`;
-  $("editorStats").textContent=`Lines ${lines} · Chars ${editor.value.length}`;
-  updateCurrentLineHighlight(line);
-}
-function updateCurrentLineHighlight(line,isError=false){
-  const hl=$("currentLineHighlight");
-  if(!hl) return;
-  const top=EDITOR_PADDING_TOP+(line-1)*EDITOR_LINE_HEIGHT-editor.scrollTop;
-  hl.style.display="block"; hl.style.top=top+"px"; hl.style.height=EDITOR_LINE_HEIGHT+"px";
-  hl.classList.toggle("errorLine",!!isError);
-}
-function jumpToBasicLine(basicLineNum,isError=false){
-  const lines=editor.value.split("\n");
-  let target=0, found=false;
-  for(let i=0;i<lines.length;i++){
-    const m=lines[i].match(/^\s*(\d+)/);
-    if(m && +m[1]===basicLineNum){ target=i; found=true; break; }
-  }
-  if(!found) target=Math.max(0,Math.min(lines.length-1,basicLineNum-1));
-  let pos=0; for(let i=0;i<target;i++) pos+=lines[i].length+1;
-  editor.focus();
-  editor.setSelectionRange(pos, pos+lines[target].length);
-  editor.scrollTop=Math.max(0, EDITOR_PADDING_TOP+target*EDITOR_LINE_HEIGHT-editor.clientHeight/3);
-  updateCurrentLineHighlight(target+1, isError);
-  updateEditorInfo();
-}
-
-// Find
-function openFindBar(mode="find"){
-  $("findBar").classList.add("show");
-  $("replaceInput").style.display=mode==="replace"?"block":"none";
-  $("replaceOneBtn").style.display=mode==="replace"?"":"none";
-  $("replaceAllBtn").style.display=mode==="replace"?"":"none";
-  $("findInput").focus();
-}
-function closeFindBar(){ $("findBar").classList.remove("show"); }
-function collectFindMatches(q){
-  findMatches=[]; if(!q) return;
-  let pos=0, text=editor.value;
-  while(true){ const i=text.indexOf(q,pos); if(i<0) break; findMatches.push(i); pos=i+Math.max(1,q.length); }
-}
-function runFind(fromStart=false){
-  const q=$("findInput").value; collectFindMatches(q);
-  if(!findMatches.length){ findIndex=-1; $("findStatus").textContent=q?"0/0":""; return; }
-  if(fromStart||findIndex<0){
-    const caret=editor.selectionStart;
-    findIndex=findMatches.findIndex(m=>m>=caret); if(findIndex<0) findIndex=0;
-  }
-  selectFindMatch();
-}
-function selectFindMatch(){
-  if(findIndex<0||!findMatches.length) return;
-  const start=findMatches[findIndex], end=start+$("findInput").value.length;
-  editor.focus(); editor.setSelectionRange(start,end);
-  $("findStatus").textContent=`${findIndex+1}/${findMatches.length}`;
-}
-function findNext(){ if(!findMatches.length){runFind(true);return;} findIndex=(findIndex+1)%findMatches.length; selectFindMatch(); }
-function findPrev(){ if(!findMatches.length){runFind(true);return;} findIndex=(findIndex-1+findMatches.length)%findMatches.length; selectFindMatch(); }
-
-// Completion
-const BASIC_KEYWORDS=[
-  {kw:"PRINT"},{kw:"INPUT"},{kw:"IF"},{kw:"THEN"},{kw:"ELSE"},{kw:"FOR"},{kw:"TO"},{kw:"NEXT"},
-  {kw:"GOTO"},{kw:"GOSUB"},{kw:"RETURN"},{kw:"END"},{kw:"CLS"},{kw:"LOCATE"},{kw:"COLOR"},
-  {kw:"LINE"},{kw:"CIRCLE"},{kw:"PAINT"},{kw:"PSET"},{kw:"BEEP"},{kw:"PLAY"},{kw:"DIM"},
-  {kw:"DATA"},{kw:"READ"},{kw:"INKEY$"},{kw:"STICK"},{kw:"LEFT$"},{kw:"RIGHT$"},{kw:"MID$"},
-  {kw:"INT"},{kw:"RND"},{kw:"ABS"},{kw:"AND"},{kw:"OR"}
-];
-let completionItems=[], completionIndex=0, completionActive=false;
-function getCurrentWord(){
-  const pos=editor.selectionStart, text=editor.value;
-  let start=pos; while(start>0 && /[A-Za-z0-9$]/.test(text[start-1])) start--;
-  return {word:text.slice(start,pos), start, end:pos};
-}
-function showCompletion(){
-  const {word,start}=getCurrentWord();
-  const q=word.toUpperCase();
-  completionItems=BASIC_KEYWORDS.filter(k=>k.kw.startsWith(q)&&k.kw!==q);
-  if(!completionItems.length){ hideCompletion(); return; }
-  completionIndex=0;
-  const popup=$("completionPopup");
-  popup.innerHTML=completionItems.map((item,i)=>
-    `<div class="item${i===0?" active":""}" data-idx="${i}"><span class="kw">${item.kw}</span></div>`
-  ).join("");
-  const before=editor.value.slice(0,start);
-  const line=before.split("\n").length;
-  const top=EDITOR_PADDING_TOP+(line-1)*EDITOR_LINE_HEIGHT-editor.scrollTop+EDITOR_LINE_HEIGHT+2;
-  popup.style.top=Math.max(4,top)+"px";
-  popup.style.left="20px";
-  popup.classList.add("show");
-  completionActive=true;
-  popup.querySelectorAll(".item").forEach(el=>{
-    el.onmousedown=e=>{ e.preventDefault(); applyCompletion(+el.dataset.idx); };
-  });
-}
-function hideCompletion(){ $("completionPopup").classList.remove("show"); completionActive=false; }
-function applyCompletion(idx){
-  if(idx<0||idx>=completionItems.length) return;
-  const item=completionItems[idx];
-  const {start,end}=getCurrentWord();
-  editor.setRangeText(item.kw, start, end, "end");
-  hideCompletion(); updateEditorInfo(); fileDirty=true; setSaveState("modified","Modified");
-}
-function moveCompletion(delta){
-  if(!completionActive||!completionItems.length) return;
-  completionIndex=(completionIndex+delta+completionItems.length)%completionItems.length;
-  $("completionPopup").querySelectorAll(".item").forEach((el,i)=>el.classList.toggle("active",i===completionIndex));
-}
+  editor.value=`10 ' SALP CATCH GAME v0.8.2
+20 CLS
+30 RANDOMIZE
+40 PX=320:PY=340
+50 TX=80+INT(RND(1)*480)
+60 TY=80+INT(RND(1)*220)
+70 SCORE=0
+80 TIME=1200
+90 C=6
+100 CLS
+110 COLOR 7
+120 LOCATE 1,1
+130 PRINT "SALP CATCH  SCORE";SCORE;" TIME";INT(TIME/60)
+140 COLOR 3
+150 CIRCLE (TX,TY),10,3
+160 PAINT (TX,TY),3
+170 COLOR C
+180 LINE (PX-12,PY-8)-(PX+12,PY+8),C,BF
+190 K$=INKEY$
+200 S=STICK(0)
+210 IF S=1 THEN PY=PY-6
+220 IF S=2 THEN PX=PX+5
+230 IF S=2 THEN PY=PY-5
+240 IF S=3 THEN PX=PX+6
+250 IF S=4 THEN PX=PX+5
+260 IF S=4 THEN PY=PY+5
+270 IF S=5 THEN PY=PY+6
+280 IF S=6 THEN PX=PX-5
+290 IF S=6 THEN PY=PY+5
+300 IF S=7 THEN PX=PX-6
+310 IF S=8 THEN PX=PX-5
+320 IF S=8 THEN PY=PY-5
+330 IF K$="Z" THEN GOSUB 600
+340 IF K$="X" THEN GOSUB 700
+350 IF PX<15 THEN PX=15
+360 IF PX>625 THEN PX=625
+370 IF PY<55 THEN PY=55
+380 IF PY>385 THEN PY=385
+390 DX=PX-TX
+400 DY=PY-TY
+410 D=DX*DX+DY*DY
+420 IF D<625 THEN GOSUB 500
+430 TIME=TIME-1
+440 IF TIME<=0 THEN GOTO 800
+450 GOTO 100
+500 SCORE=SCORE+10
+510 BEEP
+520 TX=80+INT(RND(1)*480)
+530 TY=80+INT(RND(1)*220)
+540 RETURN
+600 COLOR 7
+610 CIRCLE (PX,PY),25,7
+620 BEEP 1
+630 RETURN
+700 C=C+1
+710 IF C>7 THEN C=1
+720 RETURN
+800 CLS
+810 COLOR 7
+820 LOCATE 24,10
+830 PRINT "TIME UP!"
+840 LOCATE 22,12
+850 PRINT "SCORE";SCORE
+860 PLAY "CDEG"
+870 END`;
+  toast?.("GAME SAMPLE：方向キーで移動、Zで攻撃、Xで色変更");
+};
+$("fmBtn").onclick=()=>{editor.value=`10 ' SALP FM SOUND SUITE v0.8
+20 NEW CMD
+30 CLS
+40 PRINT "SALP FM SOUND SUITE"
+50 PRINT "BELL / PIANO / STRINGS / HARPSICHORD"
+60 PRINT
+70 CMD BGM 0
+80 PRINT "1. CRYSTAL BELL"
+90 PLAY "T132 O5 L8 V13 Q7 @12 CEG>C<GEC"
+100 PRINT "2. FM PIANO"
+110 PLAY "T116 O4 L8 V12 Q6 @13 CEG>C<GEC"
+120 PRINT "3. STRINGS"
+130 PLAY "T96 O3 L4 V11 Q8 @2 CEG>C"
+140 PRINT "4. HARPSICHORD"
+150 PLAY "T144 O4 L16 V12 Q5 @11 CDEFGAB>C"
+160 PRINT
+170 PRINT "STEREO CRYSTAL ARPEGGIO"
+180 CMD BGM 1
+190 A$="T112 O4 L16 V13 Q7 @12 CEG>C<GEC EGC>EC<G "
+200 A$=A$+"ACE>A<ECA FAC>F<CAF GBD>G<DBG "
+210 A$=A$+"EGB>E<GBE DFA>D<FAD CEG>C<GEC >C4"
+220 CMD PLAY A$
+230 PRINT "PRESS ANY KEY TO STOP"
+240 IF INKEY$="" THEN 240
+250 CMD STOPM
+260 PRINT "SOUND TEST END"
+270 END`;editor.dispatchEvent(new Event("input",{bubbles:true}))};
+$("saveBtn").onclick=()=>{const b=new Blob([editor.value],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="PROGRAM.BAS";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$("loadBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=async e=>{const f=e.target.files[0];if(f)editor.value=await f.text();e.target.value=""};
+$("enterBtn").onclick=()=>{const v=promptInput.value;promptInput.value="";if(waitingInput){const r=waitingInput.resolve;waitingInput=null;promptInput.placeholder='PRINT LEFT$("SALP",2)';r(v)}else safe(()=>direct(v))};
+promptInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();$("enterBtn").click()}else if(!waitingInput&&e.key==="ArrowUp"){e.preventDefault();if(historyIndex>0)promptInput.value=history[--historyIndex]||""}else if(!waitingInput&&e.key==="ArrowDown"){e.preventDefault();if(historyIndex<history.length-1)promptInput.value=history[++historyIndex]||"";else{historyIndex=history.length;promptInput.value=""}}};
 
 
-function setVisibleKeys(keys){
-  const allowed = new Set(keys);
-  document.querySelectorAll("[data-vkey]").forEach(btn=>{
-    btn.classList.toggle("keyHidden", !allowed.has(btn.dataset.vkey));
-  });
+const displayFrame=document.querySelector(".displayFrame");
+const scanlines=document.querySelector(".scanlines");
+function applyDisplayMode(){
+ displayMode=$("displayMode").value;
+ const themes={
+  color:{fg:"#f5f7fb",glow:"#66d9ff",bg:"#000000",palette:["#000000","#0046d5","#ef304f","#a834e3","#22bd68","#22c4d6","#f2dc3f","#f5f7fb"],filter:"none",label:"COLOR CRT"},
+  green:{fg:"#75ff98",glow:"#60ff88",bg:"#001407",palette:["#001407","#0b451d","#138833","#25b949","#53dd70","#70ed88","#9bf7aa","#d3ffdc"],filter:"sepia(.08) saturate(1.2)",label:"GREEN CRT"},
+  amber:{fg:"#ffc45f",glow:"#ffad36",bg:"#180c00",palette:["#180c00","#4b2400","#7c3f04","#a95b0b","#cf7c1d","#e89b34","#ffc467","#ffe0a5"],filter:"sepia(.2)",label:"AMBER CRT"},
+  white:{fg:"#f1f1f1",glow:"#ffffff",bg:"#050505",palette:["#050505","#222","#444","#666","#888","#aaa","#ccc","#f4f4f4"],filter:"grayscale(1)",label:"WHITE CRT"},
+  lcd:{fg:"#e9f1ff",glow:"#6cb8ff",bg:"#020814",palette:["#020814","#1645a7","#df3151","#9a42d2","#24ad61","#2bb7c7","#d5c64a","#e9f1ff"],filter:"contrast(1.04)",label:"LCD"}
+ };
+ const t=themes[displayMode];
+ palette=t.palette;
+ document.documentElement.style.setProperty("--crt-fg",t.fg);
+ document.documentElement.style.setProperty("--crt-glow",t.glow);
+ document.documentElement.style.setProperty("--crt-bg",t.bg);
+ document.documentElement.style.setProperty("--crt-filter",t.filter);
+ $("displayBadge").textContent=t.label;
+ renderText()
 }
-function applyKeyMode(){
-  const keyModeEl = $("keyMode");
-  if(!keyModeEl) return;
-  const mode = keyModeEl.value;
-  const custom = $("keyCustom");
-  custom?.classList.toggle("show", mode === "custom");
-
-  if(mode === "game") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X"]);
-  else if(mode === "full") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
-  else if(mode === "cursorEnter") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","ENTER"]);
-  else if(mode === "cursor") setVisibleKeys(["UP","DOWN","LEFT","RIGHT"]);
-  else if(mode === "zx") setVisibleKeys(["Z","X"]);
-  else {
-    const selected = [...document.querySelectorAll("#keyCustom input:checked")].map(x=>x.value);
-    setVisibleKeys(selected);
-  }
-  localStorage.setItem("salpN88KeyMode", mode);
+function applyEffects(){
+ scanlines.classList.toggle("off",!$("scanToggle").checked);
+ displayFrame.classList.toggle("crtGlow",$("glowToggle").checked);
+ displayFrame.classList.toggle("crtCurve",$("curveToggle").checked)
 }
-function setupKeypadControls(){
-  const keyModeEl = $("keyMode");
-  const keyToggleEl = $("keyToggle");
-  const keypadBodyEl = $("keypadBody");
-  if(!keyModeEl || !keyToggleEl || !keypadBodyEl) return;
-
-  const savedMode = localStorage.getItem("salpN88KeyMode");
-  if(savedMode && [...keyModeEl.options].some(o=>o.value===savedMode)){
-    keyModeEl.value = savedMode;
-  }
-  keyModeEl.onchange = applyKeyMode;
-
-  document.querySelectorAll("#keyCustom input").forEach(cb=>{
-    cb.onchange = ()=>{
-      if(keyModeEl.value === "custom") applyKeyMode();
-    };
-  });
-
-  keyToggleEl.onclick = ()=>{
-    const hidden = keypadBodyEl.style.display === "none";
-    keypadBodyEl.style.display = hidden ? "" : "none";
-    keyToggleEl.textContent = hidden ? "キーパッドを隠す" : "キーパッドを表示";
-    localStorage.setItem("salpN88KeypadHidden", hidden ? "0" : "1");
-  };
-
-  if(localStorage.getItem("salpN88KeypadHidden")==="1"){
-    keypadBodyEl.style.display="none";
-    keyToggleEl.textContent="キーパッドを表示";
-  }
-  applyKeyMode();
+function applyMachineSettings(){
+ cpuClock=Number($("cpuClock").value);
+ soundMode=$("soundMode").value;
+ instrumentOverride=$("instrumentMode").value;
+ $("clockBadge").textContent=cpuClock+"MHz";
+ $("soundBadge").textContent=soundMode==="silent"?"SILENT":`${soundMode==="crystal"?"CRYSTAL FM":soundMode==="enhanced"?"ENHANCED":"MH FM"} ${instrumentOverride==="auto"?"AUTO":$("instrumentMode").selectedOptions[0].text}`;
+ localStorage.setItem("salpMHSettings",JSON.stringify({
+  cpuClock,displayMode:$("displayMode").value,soundMode,instrumentOverride,
+  scan:$("scanToggle").checked,glow:$("glowToggle").checked,curve:$("curveToggle").checked
+ }));
+ applyDisplayMode();applyEffects()
 }
+function restoreMachineSettings(){
+ try{
+  const s=JSON.parse(localStorage.getItem("salpMHSettings")||"{}");
+  if(s.cpuClock)$("cpuClock").value=String(s.cpuClock);
+  if(s.displayMode)$("displayMode").value=s.displayMode;
+  if(s.soundMode)$("soundMode").value=s.soundMode;
+  if(s.instrumentOverride)$("instrumentMode").value=s.instrumentOverride;
+  if(typeof s.scan==="boolean")$("scanToggle").checked=s.scan;
+  if(typeof s.glow==="boolean")$("glowToggle").checked=s.glow;
+  if(typeof s.curve==="boolean")$("curveToggle").checked=s.curve
+ }catch{}
+ applyMachineSettings()
+}
+["cpuClock","displayMode","soundMode","instrumentMode","scanToggle","glowToggle","curveToggle"].forEach(id=>{
+ $(id).addEventListener("change",applyMachineSettings)
+});
+$("settingsBtn").onclick=()=>{
+ $("settingsGrid").classList.toggle("keyHidden");
+ $("settingsBtn").textContent=$("settingsGrid").classList.contains("keyHidden")?"⚙ MH SETTINGS":"⚙ CLOSE SETTINGS"
+};
+$("soundLabBtn").onclick=()=>$('soundLab').classList.toggle("keyHidden");
+$("soundLabClose").onclick=()=>$('soundLab').classList.add("keyHidden");
+function soundMessage(v){$("soundLabStatus").textContent=v}
+$("beepTest").onclick=async()=>{soundMessage("BEEP 440 / 660 / 880 Hz");await tone(440,.12);await sleep(140);await tone(660,.12);await sleep(140);await tone(880,.18)};
+$("scaleTest").onclick=async()=>{soundMessage("8 NOTE SCALE");for(const f of [261.63,293.66,329.63,349.23,392,440,493.88,523.25]){await tone(f,.11);await sleep(125)}};
+$("bellTest").onclick=async()=>{soundMessage("Crystal Bell @12");await playMml("T120 O5 L8 V13 Q7 @12 CEG>C<GEC",{background:false})};
+$("pianoTest").onclick=async()=>{soundMessage("FM Piano @13");await playMml("T112 O4 L8 V12 Q6 @13 CEG>C<GEC",{background:false})};
+$("stringsTest").onclick=async()=>{soundMessage("FM Strings @2");await playMml("T92 O3 L4 V11 Q8 @2 CEG>C",{background:false})};
+$("stereoTest").onclick=async()=>{soundMessage("Stereo Crystal Arpeggio");await playMml("T118 O4 L16 V13 Q7 @12 CEG>C<GEC ACE>A<ECA FAC>F<CAF GBD>G<DBG >C4",{background:true})};
+$("soundStop").onclick=()=>{stopMml();soundMessage("Sound stopped")};
 
+async function bootMH(){
+ stopped=true;stopMml();
+ const o=$("bootOverlay");
+ o.classList.add("show");
+ o.textContent="NEC\n\nPC-8801MH\n\nsalp Browser Edition";
+ await new Promise(r=>setTimeout(r,850));
+ o.textContent=`CPU CLOCK ${cpuClock}MHz\nFM SOUND ${soundMode==="silent"?"OFF":"READY"}\nMEMORY CHECK... OK`;
+ await new Promise(r=>setTimeout(r,850));
+ o.classList.remove("show");
+ resetScreen();
+ printText("N88-BASIC Compatible Mode");
+ printText("PC-8801MH  "+cpuClock+"MHz");
+ printText("");
+ printText("How many files(0-15)?");
+ printText("Ok");
+ stopped=false;setStatus("Ready")
+}
+$("bootBtn").onclick=bootMH;
+restoreMachineSettings();
 
-// ---------- Input / Keys ----------
-const virtualMap={UP:String.fromCharCode(30),DOWN:String.fromCharCode(31),LEFT:String.fromCharCode(28),RIGHT:String.fromCharCode(29),ENTER:"\r",SPACE:" ",Z:"Z",X:"X"};
+const virtualMap={
+  UP:String.fromCharCode(30),DOWN:String.fromCharCode(31),
+  LEFT:String.fromCharCode(28),RIGHT:String.fromCharCode(29),
+  ENTER:String.fromCharCode(13),SPACE:" ",Z:"Z",X:"X"
+};
+const physicalName=e=>{
+  if(e.key==="ArrowUp")return"UP";if(e.key==="ArrowDown")return"DOWN";
+  if(e.key==="ArrowLeft")return"LEFT";if(e.key==="ArrowRight")return"RIGHT";
+  if(e.key==="Enter")return"ENTER";if(e.key===" ")return"SPACE";
+  if(e.key.toUpperCase()==="Z")return"Z";if(e.key.toUpperCase()==="X")return"X";
+  return e.key.length===1?e.key.toUpperCase():e.key.toUpperCase()
+};
 function pushGameKey(name){
   const value=virtualMap[name]??name;
-  keyQueue.push(value); if(keyQueue.length>32) keyQueue.shift();
+  keyQueue.push(value);
+  if(keyQueue.length>32)keyQueue.shift();
   lastKey=value;
+  $("keyLog").textContent=`INKEY$：${name} / TOUCH：${mouseX},${mouseY} ${mouseButton?"DOWN":"UP"}`;
 }
-function pressGameKey(name,button){ heldKeys.add(name); pushGameKey(name); button?.classList.add("pressed"); }
-function releaseGameKey(name,button){ heldKeys.delete(name); button?.classList.remove("pressed"); }
+function pressGameKey(name,button){heldKeys.add(name);pushGameKey(name);button?.classList.add("pressed");updateControllerBadge()}
+function releaseGameKey(name,button){heldKeys.delete(name);button?.classList.remove("pressed");updateControllerBadge()}
 
-document.querySelectorAll("[data-vkey]").forEach(btn=>{
-  const name=btn.dataset.vkey;
-  btn.addEventListener("pointerdown", e=>{ e.preventDefault(); pressGameKey(name,btn); });
-  btn.addEventListener("pointerup", e=>{ e.preventDefault(); releaseGameKey(name,btn); });
-  btn.addEventListener("pointercancel", ()=>releaseGameKey(name,btn));
+window.addEventListener("keydown",e=>{
+  if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)&&document.activeElement!==canvas)return;
+  const name=physicalName(e);if(!heldKeys.has(name))pushGameKey(name);heldKeys.add(name);updateControllerBadge();
+  if(["UP","DOWN","LEFT","RIGHT","SPACE"].includes(name))e.preventDefault()
+});
+window.addEventListener("keyup",e=>{heldKeys.delete(physicalName(e));updateControllerBadge()});
+window.__salpPadPress=(name,button)=>pressGameKey(name,button);
+window.__salpPadRelease=(name,button)=>releaseGameKey(name,button);
+window.addEventListener("blur",releaseAllKeys);
+
+document.querySelectorAll("[data-vkey]").forEach(button=>{
+  const name=button.dataset.vkey;
+  const down=e=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);pressGameKey(name,button)};
+  const up=e=>{e.preventDefault();releaseGameKey(name,button)};
+  button.addEventListener("pointerdown",down);
+  button.addEventListener("pointerup",up);
+  button.addEventListener("pointercancel",up);
+  button.addEventListener("lostpointercapture",up);
+  button.addEventListener("pointerleave",e=>{if(e.buttons)up(e)});
+  button.addEventListener("contextmenu",e=>e.preventDefault());
 });
 
-window.addEventListener("keydown", e=>{
-  if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName) && document.activeElement!==canvas) return;
-  const name = e.key==="ArrowUp"?"UP":e.key==="ArrowDown"?"DOWN":e.key==="ArrowLeft"?"LEFT":e.key==="ArrowRight"?"RIGHT":
-               e.key==="Enter"?"ENTER":e.key===" "?"SPACE":e.key.toUpperCase()==="Z"?"Z":e.key.toUpperCase()==="X"?"X":null;
-  if(name){ if(!heldKeys.has(name)) pushGameKey(name); heldKeys.add(name); if(["UP","DOWN","LEFT","RIGHT","SPACE"].includes(name)) e.preventDefault(); }
-});
-window.addEventListener("keyup", e=>{
-  const name = e.key==="ArrowUp"?"UP":e.key==="ArrowDown"?"DOWN":e.key==="ArrowLeft"?"LEFT":e.key==="ArrowRight"?"RIGHT":
-               e.key==="Enter"?"ENTER":e.key===" "?"SPACE":e.key.toUpperCase()==="Z"?"Z":e.key.toUpperCase()==="X"?"X":null;
-  if(name) heldKeys.delete(name);
-});
-
-// Display modes
-function applyDisplayMode(){
-  displayMode=$("displayMode").value;
-  const themes={
-    color:{fg:"#f5f7fb",palette:["#000000","#0046d5","#ef304f","#a834e3","#22bd68","#22c4d6","#f2dc3f","#f5f7fb"],label:"COLOR"},
-    green:{fg:"#75ff98",palette:["#001407","#0b451d","#138833","#25b949","#53dd70","#70ed88","#9bf7aa","#d3ffdc"],label:"GREEN"},
-    amber:{fg:"#ffc45f",palette:["#180c00","#4b2400","#7c3f04","#a95b0b","#cf7c1d","#e89b34","#ffc467","#ffe0a5"],label:"AMBER"},
-    white:{fg:"#f1f1f1",palette:["#050505","#222","#444","#666","#888","#aaa","#ccc","#f4f4f4"],label:"WHITE"},
-    lcd:{fg:"#e9f1ff",palette:["#020814","#1645a7","#df3151","#9a42d2","#24ad61","#2bb7c7","#d5c64a","#e9f1ff"],label:"LCD"}
-  };
-  const t=themes[displayMode]||themes.color;
-  palette=t.palette;
-  $("displayBadge").textContent=t.label;
-  renderText();
+/* Controller UI is handled by the isolated v0.8.4 renderer above. */
+function updateControllerBadge(){
+  const element=document.getElementById("keyStateBadge");
+  if(element)element.textContent=heldKeys.size?[...heldKeys].join(" + "):"NO KEY";
 }
-$("cpuClock").onchange=()=>{ cpuClock=Number($("cpuClock").value); $("clockBadge").textContent=cpuClock+"MHz"; };
-$("displayMode").onchange=applyDisplayMode;
-$("soundMode").onchange=()=>{
-  soundMode=$("soundMode").value;
-  const labels={crystal:"CRYSTAL FM",enhanced:"ENHANCED FM",real:"MH FM",silent:"SILENT"};
-  $("soundBadge").textContent=labels[soundMode]||soundMode.toUpperCase();
-};
-
-
-// ---------- Mobile layout / keypad ----------
-const ideEl = $("ide");
-const mobileTabs = [...document.querySelectorAll("[data-mobile-view]")];
-
-function setMobileView(view){
-  if(!ideEl) return;
-  ideEl.dataset.mobileView = view;
-  mobileTabs.forEach(btn=>btn.classList.toggle("active", btn.dataset.mobileView===view));
-  if(view==="screen"){
-    requestAnimationFrame(()=>renderText());
-  }
-}
-mobileTabs.forEach(btn=>{
-  btn.addEventListener("click", ()=>setMobileView(btn.dataset.mobileView));
-});
-
-const keypadPanel = $("keypadPanel");
-const keypadToggleBtn = $("keypadToggleBtn");
-function updateKeypadButton(){
-  if(!keypadPanel || !keypadToggleBtn) return;
-  keypadToggleBtn.textContent = keypadPanel.open ? "🎮 CLOSE" : "🎮 KEYPAD";
-}
-if(keypadToggleBtn && keypadPanel){
-  keypadToggleBtn.addEventListener("click", ()=>{
-    if(window.matchMedia("(max-width:900px)").matches) setMobileView("screen");
-    keypadPanel.open = true;
-    keypadPanel.scrollIntoView({behavior:"smooth",block:"nearest"});
-  });
-  keypadPanel.addEventListener("toggle", updateKeypadButton);
-  updateKeypadButton();
+function releaseAllKeys(){
+  heldKeys.clear();
+  document.querySelectorAll("[data-vkey].pressed").forEach(button=>button.classList.remove("pressed"));
+  updateControllerBadge();
 }
 
-// ---------- Wire UI ----------
-$("runBtn").onclick=()=>safe(async()=>{ await ensureAudio(); await runProgram(); });
-$("stopBtn").onclick=()=>{ stopped=true; stopMml(); if(waitingInput){ waitingInput.resolve(""); waitingInput=null; } setRunUi(false); setStatus("Stopped"); };
-$("bootBtn").onclick=async()=>{
-  stopped=true; stopMml();
-  resetScreen();
-  printText("N88-BASIC Compatible Mode");
-  printText("salp N88 BASIC Studio v1.5.2");
-  printText(""); printText("Ok");
-  consola("MH BOOT complete");
-  stopped=false; setStatus("Ready");
-};
-$("enterBtn").onclick=()=>{
-  const v=promptInput.value; promptInput.value="";
-  if(waitingInput){ const r=waitingInput.resolve; waitingInput=null; promptInput.placeholder='PRINT "HELLO"  or  RUN'; r(v); }
-  else safe(()=>direct(v));
-};
-promptInput.onkeydown=e=>{
-  if(e.key==="Enter"){ e.preventDefault(); $("enterBtn").click(); }
-  else if(!waitingInput && e.key==="ArrowUp"){ e.preventDefault(); if(historyIndex>0) promptInput.value=history[--historyIndex]||""; }
-  else if(!waitingInput && e.key==="ArrowDown"){ e.preventDefault(); if(historyIndex<history.length-1) promptInput.value=history[++historyIndex]||""; else { historyIndex=history.length; promptInput.value=""; } }
-};
 
-$("newProjectBtn").onclick=newProject;
-$("saveProjectBtn").onclick=()=>{ saveProjectToStorage(); consola("Project saved: "+project.name); };
-$("sampleProjectBtn").onclick=loadSampleProject;
-$("arpeggioSampleBtn").onclick=()=>loadProgramIntoEditor(ARPEGGIO_SAMPLE,"Arpeggio sample");
-$("toccataSampleBtn").onclick=()=>loadProgramIntoEditor(TOCCATA_SAMPLE,"Toccata sample");
-$("gameSampleBtn").onclick=()=>loadProgramIntoEditor(GAME_SAMPLE,"Game sample");
-$("addFileBtn").onclick=addFile;
-$("renameFileBtn").onclick=renameFile;
-$("deleteFileBtn").onclick=deleteFile;
-$("clearConsoleBtn").onclick=clearConsole;
-$("exportBasBtn").onclick=()=>{
-  const b=new Blob([editor.value],{type:"text/plain;charset=utf-8"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=project.active||"PROGRAM.BAS"; a.click();
-};
-$("loadBtn").onclick=()=>$("fileInput").click();
-$("fileInput").onchange=async e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const text=await f.text();
-  if(f.name.endsWith(".json")){
-    try{ project=JSON.parse(text); openFile(project.active||Object.keys(project.files)[0]); saveProjectToStorage(); consola("Project loaded from JSON"); }
-    catch{ consola("Invalid project JSON"); }
-  } else {
-    editor.value=text; fileDirty=true; setSaveState("modified","Modified");
-    if(project.active) project.files[project.active]=text;
-  }
-  e.target.value="";
-};
-
-$("findBtn").onclick=()=>openFindBar("find");
-$("replaceBtn").onclick=()=>openFindBar("replace");
-$("gotoBtn").onclick=()=>{
-  const lines=editor.value?editor.value.split("\n").length:1;
-  const n=parseInt(prompt(`行番号 (1〜${lines})`,""),10);
-  if(!isNaN(n)) jumpToBasicLine(n);
-};
-$("closeFindBtn").onclick=closeFindBar;
-$("findNextBtn").onclick=findNext;
-$("findPrevBtn").onclick=findPrev;
-$("findInput").oninput=()=>runFind(true);
-$("undoBtn").onclick=()=>{ /* simple: reload from project */ if(project.active) editor.value=project.files[project.active]||""; updateEditorInfo(); };
-$("redoBtn").onclick=()=>{};
-$("saveLocalBtn").onclick=()=>{ if(project.active) project.files[project.active]=editor.value; saveProjectToStorage(); };
-
-editor.addEventListener("input",()=>{
-  fileDirty=true; setSaveState("modified","Modified");
-  if(project.active) project.files[project.active]=editor.value;
-  updateEditorInfo();
-  if(completionActive) hideCompletion();
-});
-["keyup","click","select","scroll"].forEach(t=>editor.addEventListener(t, updateEditorInfo));
-
-document.addEventListener("keydown", e=>{
-  const ctrl=e.ctrlKey||e.metaKey;
-  if(completionActive && document.activeElement===editor){
-    if(e.key==="ArrowDown"){ e.preventDefault(); moveCompletion(1); return; }
-    if(e.key==="ArrowUp"){ e.preventDefault(); moveCompletion(-1); return; }
-    if(e.key==="Enter"||e.key==="Tab"){ e.preventDefault(); applyCompletion(completionIndex); return; }
-    if(e.key==="Escape"){ e.preventDefault(); hideCompletion(); return; }
-  }
-  if(!ctrl) return;
-  const key=e.key.toLowerCase();
-  if(key==="s"){ e.preventDefault(); saveProjectToStorage(); }
-  else if(key==="f"){ e.preventDefault(); openFindBar("find"); }
-  else if(key==="h"){ e.preventDefault(); openFindBar("replace"); }
-  else if(key==="g"){ e.preventDefault(); $("gotoBtn").click(); }
-  else if(key===" "||key==="space"){ if(document.activeElement===editor){ e.preventDefault(); showCompletion(); } }
-});
-
-
-// F5 = RUN / Shift+F5 = STOP
-document.addEventListener("keydown", e=>{
-  if(e.key==="F5"){
-    e.preventDefault();
-    if(e.shiftKey) $("stopBtn").click();
-    else if(!$("runBtn").disabled) $("runBtn").click();
-  }
-});
-
-// ---------- Boot ----------
-if(!loadProjectFromStorage()){
-  // first launch
+const touchMarker=$("touchMarker");
+function updateTouch(e,down){
+  const r=canvas.getBoundingClientRect();
+  mouseX=Math.max(0,Math.min(639,Math.round((e.clientX-r.left)/r.width*640)));
+  mouseY=Math.max(0,Math.min(399,Math.round((e.clientY-r.top)/r.height*400)));
+  mouseButton=down?1:0;
+  touchMarker.style.display="block";
+  touchMarker.style.left=((mouseX/640)*r.width)+"px";
+  touchMarker.style.top=((mouseY/400)*r.height)+"px";
+  $("keyLog").textContent=`INKEY$：${lastKey?JSON.stringify(lastKey):"待機中"} / TOUCH：${mouseX},${mouseY} ${mouseButton?"DOWN":"UP"}`;
 }
-openFile(project.active);
-applyDisplayMode();
-resetScreen();
-printText("salp N88 BASIC Studio v1.5.2");
-printText("Crystal FM Engine restored");
-printText("");
-printText("Ok");
-consola("=== salp N88 BASIC Studio v1.5.2 ===");
-consola("Project Explorer · Console · CRT · Multi-file");
-consola("Crystal FM (4-op style) · Stereo delay · MML ready");
-consola("Ready.");
-updateEditorInfo();
+canvas.tabIndex=0;
+canvas.addEventListener("pointerdown",e=>{e.preventDefault();canvas.focus();canvas.setPointerCapture?.(e.pointerId);updateTouch(e,true)});
+canvas.addEventListener("pointermove",e=>{if(e.buttons)updateTouch(e,true)});
+canvas.addEventListener("pointerup",e=>updateTouch(e,false));
+canvas.addEventListener("pointercancel",e=>{mouseButton=0});
+
+
+/* ===== v0.9.0 Phoenix Alpha 1: editor workspace ===== */
+const PHOENIX_STORAGE_KEY="salpN88PhoenixWorkspace_v090a1";
+const PHOENIX_HISTORY_LIMIT=100;
+let phoenixUndoStack=[];
+let phoenixRedoStack=[];
+let phoenixLastValue=editor.value;
+let phoenixModified=false;
+let phoenixAutosaveTimer=null;
+let phoenixApplyingHistory=false;
+function phoenixSnapshot(){return{code:editor.value,selectionStart:editor.selectionStart,selectionEnd:editor.selectionEnd,scrollTop:editor.scrollTop,savedAt:new Date().toISOString()}}
+function phoenixUpdateEditorInfo(){const before=editor.value.slice(0,editor.selectionStart),line=before.split("\n").length,lastBreak=before.lastIndexOf("\n"),col=editor.selectionStart-(lastBreak+1)+1,lines=editor.value?editor.value.split("\n").length:1;$("editorCursor").textContent=`Ln ${line} · Col ${col}`;$("editorStats").textContent=`Lines ${lines} · Chars ${editor.value.length}`}
+function phoenixSetSaveState(state,label){const stateEl=$("editorSaveState"),docEl=$("editorDocStatus");stateEl.className=state;stateEl.textContent=label;docEl.textContent=`${label} · AutoSave ON`}
+function phoenixUpdateButtons(){$("undoBtn").disabled=phoenixUndoStack.length===0;$("redoBtn").disabled=phoenixRedoStack.length===0}
+function phoenixPushUndo(value,selectionStart,selectionEnd,scrollTop){phoenixUndoStack.push({value,selectionStart,selectionEnd,scrollTop});if(phoenixUndoStack.length>PHOENIX_HISTORY_LIMIT)phoenixUndoStack.shift();phoenixUpdateButtons()}
+function phoenixApplyState(state){if(!state)return;phoenixApplyingHistory=true;editor.value=state.value;editor.focus();editor.setSelectionRange(Math.min(state.selectionStart??editor.value.length,editor.value.length),Math.min(state.selectionEnd??editor.value.length,editor.value.length));editor.scrollTop=state.scrollTop??0;phoenixLastValue=editor.value;phoenixApplyingHistory=false;phoenixModified=true;phoenixSetSaveState("modified","Modified");phoenixUpdateEditorInfo();phoenixScheduleAutosave()}
+function phoenixUndo(){if(!phoenixUndoStack.length)return;phoenixRedoStack.push({value:editor.value,selectionStart:editor.selectionStart,selectionEnd:editor.selectionEnd,scrollTop:editor.scrollTop});phoenixApplyState(phoenixUndoStack.pop());phoenixUpdateButtons()}
+function phoenixRedo(){if(!phoenixRedoStack.length)return;phoenixUndoStack.push({value:editor.value,selectionStart:editor.selectionStart,selectionEnd:editor.selectionEnd,scrollTop:editor.scrollTop});phoenixApplyState(phoenixRedoStack.pop());phoenixUpdateButtons()}
+function phoenixSaveWorkspace(){try{localStorage.setItem(PHOENIX_STORAGE_KEY,JSON.stringify(phoenixSnapshot()));phoenixModified=false;phoenixSetSaveState("saved","Saved");return true}catch(error){phoenixSetSaveState("error","Save Error");console.error(error);return false}}
+function phoenixScheduleAutosave(){clearTimeout(phoenixAutosaveTimer);phoenixSetSaveState("saving","Saving…");phoenixAutosaveTimer=setTimeout(phoenixSaveWorkspace,900)}
+function phoenixRestoreWorkspace(){try{const saved=JSON.parse(localStorage.getItem(PHOENIX_STORAGE_KEY)||"null");if(!saved||typeof saved.code!=="string")return false;editor.value=saved.code;const p=Math.min(Number(saved.selectionStart)||0,editor.value.length),e=Math.min(Number(saved.selectionEnd)||p,editor.value.length);editor.setSelectionRange(p,e);editor.scrollTop=Number(saved.scrollTop)||0;phoenixLastValue=editor.value;phoenixModified=false;phoenixSetSaveState("saved","Restored");phoenixUpdateEditorInfo();return true}catch(error){console.warn("Phoenix restore failed",error);return false}}
+function phoenixTrackProgrammaticChange(){if(editor.value===phoenixLastValue)return;phoenixPushUndo(phoenixLastValue,0,0,0);phoenixRedoStack.length=0;phoenixLastValue=editor.value;phoenixModified=true;phoenixSetSaveState("modified","Modified");phoenixUpdateEditorInfo();phoenixScheduleAutosave();phoenixUpdateButtons()}
+editor.addEventListener("beforeinput",()=>{if(phoenixApplyingHistory)return;phoenixPushUndo(editor.value,editor.selectionStart,editor.selectionEnd,editor.scrollTop);phoenixRedoStack.length=0;phoenixUpdateButtons()});
+editor.addEventListener("input",()=>{phoenixLastValue=editor.value;phoenixModified=true;phoenixSetSaveState("modified","Modified");phoenixUpdateEditorInfo();phoenixScheduleAutosave()});
+["keyup","click","select","scroll"].forEach(type=>editor.addEventListener(type,phoenixUpdateEditorInfo));
+$("undoBtn").onclick=phoenixUndo;$("redoBtn").onclick=phoenixRedo;$("saveLocalBtn").onclick=phoenixSaveWorkspace;
+document.addEventListener("keydown",event=>{const ctrl=event.ctrlKey||event.metaKey;if(!ctrl)return;const key=event.key.toLowerCase();if(key==="s"){event.preventDefault();phoenixSaveWorkspace()}else if(key==="z"&&!event.shiftKey){event.preventDefault();phoenixUndo()}else if(key==="y"||(key==="z"&&event.shiftKey)){event.preventDefault();phoenixRedo()}});
+window.addEventListener("beforeunload",()=>{if(phoenixModified)phoenixSaveWorkspace()});
+setInterval(phoenixTrackProgrammaticChange,250);
+phoenixRestoreWorkspace();phoenixLastValue=editor.value;phoenixUpdateEditorInfo();phoenixUpdateButtons();
+/* ===== end Phoenix editor workspace ===== */
+
+resetScreen();printText("salp PC-8801MH Browser Edition");printText("N88-BASIC compatible / Crystal FM");printText("");printText("Ok");
 </script>
 </body>
 </html>
