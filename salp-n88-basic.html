@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e17">
-<title>salp N88 BASIC Studio v1.5</title>
+<title>salp N88 BASIC Studio v1.5.2.1</title>
 <style>
 :root{
   --bg:#0a0e17;
@@ -147,6 +147,32 @@ input,select,textarea{
   .stopMain{min-width:88px}
 }
 
+
+/* ===== MOBILE VIEW SWITCHER ===== */
+.mobileViewTabs{
+  display:none;
+  gap:6px;
+  padding:7px 8px;
+  border-bottom:1px solid var(--line);
+  background:#0b111c;
+}
+.mobileViewTabs button{
+  flex:1;
+  min-height:38px;
+  font-size:12px;
+  padding:5px 6px;
+}
+.mobileViewTabs button.active{
+  border-color:#4fa9ba;
+  background:#183044;
+  color:var(--cyan);
+}
+.keypadToggleBtn{
+  min-height:28px;
+  padding:3px 8px;
+  font-size:10px;
+}
+
 /* ===== MAIN IDE GRID ===== */
 .ide{
   display:grid;
@@ -159,8 +185,73 @@ input,select,textarea{
   .ide{grid-template-columns:200px 1fr 300px}
 }
 @media(max-width:900px){
-  .ide{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
-  .sidebar,.rightPanel{max-height:220px}
+  body{overflow:hidden}
+  .app{grid-template-rows:92px 44px 1fr}
+  .mobileViewTabs{display:flex}
+  .ide{
+    grid-template-columns:1fr;
+    grid-template-rows:1fr;
+    min-height:0;
+    overflow:hidden;
+  }
+  .sidebar,.center,.rightPanel{
+    grid-column:1;
+    grid-row:1;
+    width:100%;
+    height:100%;
+    min-height:0;
+    max-height:none;
+    border-left:0;
+    border-right:0;
+    display:none;
+  }
+  .ide[data-mobile-view="project"] .sidebar{display:flex}
+  .ide[data-mobile-view="editor"] .center{display:grid}
+  .ide[data-mobile-view="screen"] .rightPanel{display:flex}
+  .center{grid-template-rows:auto 1fr auto 140px}
+  #editor{
+    min-height:0;
+    font-size:15px;
+    line-height:1.55;
+    padding:12px;
+  }
+  .editorToolbar{
+    overflow-x:auto;
+    flex-wrap:nowrap;
+  }
+  .editorToolbar button{white-space:nowrap}
+  .consolePanel{min-height:120px}
+  .rightPanel{overflow:auto;background:#0b111c}
+  .displayWrap{padding:8px 8px 4px}
+  .displayFrame{
+    width:100%;
+    max-height:none;
+    aspect-ratio:8/5;
+  }
+  .screenHead{position:sticky;top:0;z-index:5;background:#111a2a}
+  .machineMini{grid-template-columns:1fr 1fr}
+  .keypadPanel{padding:10px}
+  .keypadBody{padding-bottom:12px}
+  .dpad{
+    grid-template-columns:58px 58px 58px;
+    grid-template-rows:50px 50px 50px;
+    gap:7px;
+  }
+  .vkey{min-width:54px;min-height:48px;font-size:17px}
+  .sideFoot{position:sticky;bottom:0;background:var(--panel)}
+}
+@media(max-width:520px){
+  .topbar{
+    grid-template-columns:1fr auto;
+    grid-template-rows:44px 40px;
+  }
+  .runArea{gap:5px}
+  .runMain{min-width:92px;padding:4px 7px!important;font-size:12px!important}
+  .stopMain{min-width:78px;padding:4px 7px!important;font-size:12px!important}
+  .bootMain{min-width:70px;padding:4px 7px!important;font-size:11px!important}
+  .topActions button{font-size:11px;padding:4px 8px}
+  .machineMini{grid-template-columns:1fr}
+  .screenStatus{font-size:10px}
 }
 
 /* ===== LEFT: Project Explorer ===== */
@@ -360,6 +451,51 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
 .findBar input{min-height:28px;flex:1;min-width:100px;font-size:12px}
 .findBar button{min-height:28px;padding:3px 8px;font-size:11px}
 
+
+.keypadControls{
+  display:grid;
+  gap:7px;
+  padding:8px 0 4px;
+}
+.keypadControls select,
+.keypadControls button{
+  width:100%;
+  min-height:34px;
+}
+.keyCustom{
+  display:none;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#0a101a;
+}
+.keyCustom.show{display:block}
+.keyChecks{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+}
+.keyChecks label{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-size:11px;
+  color:var(--muted);
+}
+.keyChecks input{width:auto}
+.vkey.keyHidden{display:none!important}
+.sampleMenu{
+  display:grid;
+  gap:6px;
+  padding:8px;
+  border-top:1px solid var(--line);
+}
+.sampleMenu button{
+  width:100%;
+  text-align:left;
+  font-size:11px;
+}
+
 /* Utility */
 .hidden{display:none!important}
 .mhLed{
@@ -386,7 +522,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
       </div>
     </div>
 
-    <div class="version">v1.5</div>
+    <div class="version">v1.5.2</div>
 
     <div class="topActions">
       <button id="newProjectBtn">📁 NEW PROJECT</button>
@@ -397,8 +533,14 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
     </div>
   </header>
 
+  <nav class="mobileViewTabs" id="mobileViewTabs" aria-label="Mobile view">
+    <button type="button" data-mobile-view="editor" class="active">✍️ EDITOR</button>
+    <button type="button" data-mobile-view="screen">🖥 CRT</button>
+    <button type="button" data-mobile-view="project">📁 PROJECT</button>
+  </nav>
+
   <!-- IDE -->
-  <div class="ide">
+  <div class="ide" id="ide" data-mobile-view="editor">
     <!-- LEFT: Project Explorer -->
     <aside class="sidebar">
       <div class="sideHead">
@@ -411,6 +553,11 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
       </div>
       <div class="projectName" id="projectName">Untitled Project</div>
       <div class="fileList" id="fileList"></div>
+      <div class="sampleMenu">
+        <button id="arpeggioSampleBtn">🎹 アルペジオ</button>
+        <button id="toccataSampleBtn">⛪ トッカータ風</button>
+        <button id="gameSampleBtn">🎮 ゲーム</button>
+      </div>
       <div class="sideFoot">
         <button id="sampleProjectBtn">📦 SAMPLE</button>
         <button id="clearConsoleBtn">CLR CONSOLE</button>
@@ -472,7 +619,10 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
     <aside class="rightPanel">
       <div class="screenHead">
         <span><span class="mhLed"></span>N88 SCREEN 640×400</span>
-        <span id="clockBadge" class="machineBadge">8MHz</span>
+        <span style="display:flex;gap:6px;align-items:center">
+          <button type="button" id="keypadToggleBtn" class="keypadToggleBtn">🎮 KEYPAD</button>
+          <span id="clockBadge" class="machineBadge">8MHz</span>
+        </span>
       </div>
       <div class="displayWrap">
         <div class="displayFrame" id="displayFrame">
@@ -517,19 +667,49 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
         </div>
       </div>
 
-      <details class="keypadPanel" open>
+      <details class="keypadPanel" id="keypadPanel" open>
         <summary>🎮 GAME KEYPAD</summary>
-        <div class="keypadBody">
-          <div class="dpad">
-            <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
-            <button type="button" class="vkey" data-vkey="LEFT">←</button>
-            <span></span>
-            <button type="button" class="vkey" data-vkey="RIGHT">→</button>
-            <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
+
+        <div class="keypadControls">
+          <select id="keyMode">
+            <option value="game">ゲーム（方向＋Z/X）</option>
+            <option value="full">全部表示</option>
+            <option value="cursorEnter">方向＋ENTER</option>
+            <option value="cursor">方向キーのみ</option>
+            <option value="zx">Z/Xのみ</option>
+            <option value="custom">カスタム</option>
+          </select>
+          <button type="button" id="keyToggle">キーパッドを隠す</button>
+        </div>
+
+        <div class="keypadBody" id="keypadBody">
+          <div id="padMount">
+            <div class="dpad">
+              <span></span><button type="button" class="vkey" data-vkey="UP">↑</button><span></span>
+              <button type="button" class="vkey" data-vkey="LEFT">←</button>
+              <span></span>
+              <button type="button" class="vkey" data-vkey="RIGHT">→</button>
+              <span></span><button type="button" class="vkey" data-vkey="DOWN">↓</button><span></span>
+            </div>
+            <div class="actionKeys">
+              <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
+              <button type="button" class="vkey xkey" data-vkey="X">X</button>
+              <button type="button" class="vkey" data-vkey="SPACE">SPACE</button>
+              <button type="button" class="vkey" data-vkey="ENTER">ENTER</button>
+            </div>
           </div>
-          <div class="actionKeys">
-            <button type="button" class="vkey zkey" data-vkey="Z">Z</button>
-            <button type="button" class="vkey xkey" data-vkey="X">X</button>
+
+          <div id="keyCustom" class="keyCustom">
+            <div class="keyChecks">
+              <label><input type="checkbox" value="UP" checked>↑</label>
+              <label><input type="checkbox" value="DOWN" checked>↓</label>
+              <label><input type="checkbox" value="LEFT" checked>←</label>
+              <label><input type="checkbox" value="RIGHT" checked>→</label>
+              <label><input type="checkbox" value="Z" checked>Z</label>
+              <label><input type="checkbox" value="X" checked>X</label>
+              <label><input type="checkbox" value="SPACE" checked>SPACE</label>
+              <label><input type="checkbox" value="ENTER" checked>ENTER</label>
+            </div>
           </div>
         </div>
       </details>
@@ -540,7 +720,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
 <script>
 "use strict";
 /* =========================================================
-   salp N88 BASIC Studio v1.5 — BASIC Studio
+   salp N88 BASIC Studio v1.5.2.1 — BASIC Studio
    Core: Project system + IDE layout + Console + CRT
    Interpreter & FM engine carried from Phoenix lineage
    ========================================================= */
@@ -559,7 +739,7 @@ let project = {
   name: "Untitled Project",
   files: {
     "MAIN.BAS": `10 CLS
-20 PRINT "SALP N88 BASIC STUDIO v1.5"
+20 PRINT "SALP N88 BASIC STUDIO v1.5.2"
 30 PRINT "FM SOUND TEST"
 40 PRINT
 50 PLAY "T120 O5 L8 @12 C E G > C"
@@ -651,6 +831,7 @@ function deleteFile() {
   project.active = Object.keys(project.files)[0];
   openFile(project.active);
 setRunUi(false);
+setupKeypadControls();
   saveProjectToStorage();
 }
 function newProject() {
@@ -713,6 +894,77 @@ function loadSampleProject() {
   consola("Sample project loaded: Catch Game Demo");
 }
 
+
+function loadProgramIntoEditor(code, label){
+  editor.value = code;
+  if(project.active) project.files[project.active] = code;
+  fileDirty = true;
+  setSaveState("modified","Modified");
+  updateEditorInfo();
+  consola(label + " loaded");
+  if(window.matchMedia("(max-width:900px)").matches) setMobileView("editor");
+}
+
+const ARPEGGIO_SAMPLE = `10 CLS
+20 PRINT "BEAUTIFUL ARPEGGIO"
+30 PRINT "FM SOUND TEST"
+40 PRINT
+50 A$="T105 O4 L16 V13 Q7 @12 "
+60 A$=A$+"CEG>C<GEC "
+70 A$=A$+"EG>CEC<G "
+80 A$=A$+"CEG>C<GEC "
+90 A$=A$+"EG>CEC<G "
+100 A$=A$+"G>B<D>G<D<B<G "
+110 A$=A$+"F>A<C>F<C<A<F "
+120 PLAY A$
+130 PRINT
+140 PRINT "ARPEGGIO COMPLETE"
+150 END`;
+
+const TOCCATA_SAMPLE = `10 CLS
+20 PRINT "TOCCATA STYLE"
+30 PRINT
+40 A$="T132 O3 L16 V13 Q7 @11 "
+50 A$=A$+"D<A>D F>D<F G>D<G A>D<A "
+60 A$=A$+"D<A>D F>D<F C<G>C A<E>A "
+70 A$=A$+"DFA>DFA CEG>CEG BDF>BDF ACE>ACE "
+80 A$=A$+"D16R16D16R16 F16R16F16R16 "
+90 A$=A$+"G16R16A16R16 B16R16C6R16 "
+100 PLAY A$
+110 PRINT
+120 PRINT "END"
+130 END`;
+
+const GAME_SAMPLE = `10 CLS
+20 RANDOMIZE
+30 PX=320:PY=340
+40 TX=80+INT(RND(1)*480)
+50 TY=80+INT(RND(1)*220)
+60 SCORE=0:TIME=900:C=6
+70 CLS
+80 COLOR 7
+90 LOCATE 1,1:PRINT "CATCH SCORE";SCORE;" TIME";INT(TIME/60)
+100 COLOR 3:CIRCLE (TX,TY),10,3:PAINT (TX,TY),3
+110 COLOR C:LINE (PX-12,PY-8)-(PX+12,PY+8),C,BF
+120 K$=INKEY$:S=STICK(0)
+130 IF S=1 THEN PY=PY-6
+140 IF S=3 THEN PX=PX+6
+150 IF S=5 THEN PY=PY+6
+160 IF S=7 THEN PX=PX-6
+170 IF K$="Z" THEN CIRCLE (PX,PY),20,7:BEEP
+180 IF K$="X" THEN C=C+1:IF C>7 THEN C=1
+190 IF PX<15 THEN PX=15
+200 IF PX>625 THEN PX=625
+210 IF PY<40 THEN PY=40
+220 IF PY>380 THEN PY=380
+230 IF (PX-TX)*(PX-TX)+(PY-TY)*(PY-TY)<400 THEN SCORE=SCORE+10:BEEP:TX=80+INT(RND(1)*480):TY=80+INT(RND(1)*200)
+240 TIME=TIME-1:IF TIME<=0 THEN GOTO 280
+250 GOTO 70
+280 CLS:LOCATE 26,11:PRINT "TIME UP SCORE";SCORE
+290 PLAY "CDEG"
+300 END`;
+
+
 // ---------- Console helpers ----------
 function consola(...args) {
   const line = args.map(a => String(a)).join(" ");
@@ -743,7 +995,7 @@ let directVars={}, directArrays={};
 function resetText(){ textGrid=Array.from({length:ROWS},()=>Array(COLS).fill(" ")); cursorX=0; cursorY=0; }
 function resetScreen(){ ctx.fillStyle=palette[bg]; ctx.fillRect(0,0,640,400); resetText(); renderText(); }
 function renderText(){
-  ctx.save(); ctx.font="14px ui-monospace,Menlo,Consolas,monospace"; ctx.textBaseline="top";
+  ctx.save(); ctx.font="15px ui-monospace,Menlo,Consolas,monospace"; ctx.textBaseline="top";
   for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
     const ch=textGrid[y][x]; if(ch!==" "){ ctx.fillStyle=palette[fg]; ctx.fillText(ch,x*CW,y*CH+1); }
   }
@@ -879,7 +1131,7 @@ function coords(s,state){
 }
 function color(n){ return palette[Math.max(0,Math.min(15,Math.floor(+n||0)))]; }
 
-// ===== Crystal FM Engine (from Phoenix, upgraded for Studio v1.5) =====
+// ===== Crystal FM Engine (from Phoenix, upgraded for Studio v1.5.2) =====
 async function ensureAudio(){
   audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state==="suspended") await audioCtx.resume();
@@ -1498,6 +1750,64 @@ function moveCompletion(delta){
   $("completionPopup").querySelectorAll(".item").forEach((el,i)=>el.classList.toggle("active",i===completionIndex));
 }
 
+
+function setVisibleKeys(keys){
+  const allowed = new Set(keys);
+  document.querySelectorAll("[data-vkey]").forEach(btn=>{
+    btn.classList.toggle("keyHidden", !allowed.has(btn.dataset.vkey));
+  });
+}
+function applyKeyMode(){
+  const keyModeEl = $("keyMode");
+  if(!keyModeEl) return;
+  const mode = keyModeEl.value;
+  const custom = $("keyCustom");
+  custom?.classList.toggle("show", mode === "custom");
+
+  if(mode === "game") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X"]);
+  else if(mode === "full") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","Z","X","SPACE","ENTER"]);
+  else if(mode === "cursorEnter") setVisibleKeys(["UP","DOWN","LEFT","RIGHT","ENTER"]);
+  else if(mode === "cursor") setVisibleKeys(["UP","DOWN","LEFT","RIGHT"]);
+  else if(mode === "zx") setVisibleKeys(["Z","X"]);
+  else {
+    const selected = [...document.querySelectorAll("#keyCustom input:checked")].map(x=>x.value);
+    setVisibleKeys(selected);
+  }
+  localStorage.setItem("salpN88KeyMode", mode);
+}
+function setupKeypadControls(){
+  const keyModeEl = $("keyMode");
+  const keyToggleEl = $("keyToggle");
+  const keypadBodyEl = $("keypadBody");
+  if(!keyModeEl || !keyToggleEl || !keypadBodyEl) return;
+
+  const savedMode = localStorage.getItem("salpN88KeyMode");
+  if(savedMode && [...keyModeEl.options].some(o=>o.value===savedMode)){
+    keyModeEl.value = savedMode;
+  }
+  keyModeEl.onchange = applyKeyMode;
+
+  document.querySelectorAll("#keyCustom input").forEach(cb=>{
+    cb.onchange = ()=>{
+      if(keyModeEl.value === "custom") applyKeyMode();
+    };
+  });
+
+  keyToggleEl.onclick = ()=>{
+    const hidden = keypadBodyEl.style.display === "none";
+    keypadBodyEl.style.display = hidden ? "" : "none";
+    keyToggleEl.textContent = hidden ? "キーパッドを隠す" : "キーパッドを表示";
+    localStorage.setItem("salpN88KeypadHidden", hidden ? "0" : "1");
+  };
+
+  if(localStorage.getItem("salpN88KeypadHidden")==="1"){
+    keypadBodyEl.style.display="none";
+    keyToggleEl.textContent="キーパッドを表示";
+  }
+  applyKeyMode();
+}
+
+
 // ---------- Input / Keys ----------
 const virtualMap={UP:String.fromCharCode(30),DOWN:String.fromCharCode(31),LEFT:String.fromCharCode(28),RIGHT:String.fromCharCode(29),ENTER:"\r",SPACE:" ",Z:"Z",X:"X"};
 function pushGameKey(name){
@@ -1550,6 +1860,39 @@ $("soundMode").onchange=()=>{
   $("soundBadge").textContent=labels[soundMode]||soundMode.toUpperCase();
 };
 
+
+// ---------- Mobile layout / keypad ----------
+const ideEl = $("ide");
+const mobileTabs = [...document.querySelectorAll("[data-mobile-view]")];
+
+function setMobileView(view){
+  if(!ideEl) return;
+  ideEl.dataset.mobileView = view;
+  mobileTabs.forEach(btn=>btn.classList.toggle("active", btn.dataset.mobileView===view));
+  if(view==="screen"){
+    requestAnimationFrame(()=>renderText());
+  }
+}
+mobileTabs.forEach(btn=>{
+  btn.addEventListener("click", ()=>setMobileView(btn.dataset.mobileView));
+});
+
+const keypadPanel = $("keypadPanel");
+const keypadToggleBtn = $("keypadToggleBtn");
+function updateKeypadButton(){
+  if(!keypadPanel || !keypadToggleBtn) return;
+  keypadToggleBtn.textContent = keypadPanel.open ? "🎮 CLOSE" : "🎮 KEYPAD";
+}
+if(keypadToggleBtn && keypadPanel){
+  keypadToggleBtn.addEventListener("click", ()=>{
+    if(window.matchMedia("(max-width:900px)").matches) setMobileView("screen");
+    keypadPanel.open = true;
+    keypadPanel.scrollIntoView({behavior:"smooth",block:"nearest"});
+  });
+  keypadPanel.addEventListener("toggle", updateKeypadButton);
+  updateKeypadButton();
+}
+
 // ---------- Wire UI ----------
 $("runBtn").onclick=()=>safe(async()=>{ await ensureAudio(); await runProgram(); });
 $("stopBtn").onclick=()=>{ stopped=true; stopMml(); if(waitingInput){ waitingInput.resolve(""); waitingInput=null; } setRunUi(false); setStatus("Stopped"); };
@@ -1557,7 +1900,7 @@ $("bootBtn").onclick=async()=>{
   stopped=true; stopMml();
   resetScreen();
   printText("N88-BASIC Compatible Mode");
-  printText("salp N88 BASIC Studio v1.5");
+  printText("salp N88 BASIC Studio v1.5.2");
   printText(""); printText("Ok");
   consola("MH BOOT complete");
   stopped=false; setStatus("Ready");
@@ -1576,6 +1919,9 @@ promptInput.onkeydown=e=>{
 $("newProjectBtn").onclick=newProject;
 $("saveProjectBtn").onclick=()=>{ saveProjectToStorage(); consola("Project saved: "+project.name); };
 $("sampleProjectBtn").onclick=loadSampleProject;
+$("arpeggioSampleBtn").onclick=()=>loadProgramIntoEditor(ARPEGGIO_SAMPLE,"Arpeggio sample");
+$("toccataSampleBtn").onclick=()=>loadProgramIntoEditor(TOCCATA_SAMPLE,"Toccata sample");
+$("gameSampleBtn").onclick=()=>loadProgramIntoEditor(GAME_SAMPLE,"Game sample");
 $("addFileBtn").onclick=addFile;
 $("renameFileBtn").onclick=renameFile;
 $("deleteFileBtn").onclick=deleteFile;
@@ -1655,11 +2001,11 @@ if(!loadProjectFromStorage()){
 openFile(project.active);
 applyDisplayMode();
 resetScreen();
-printText("salp N88 BASIC Studio v1.5");
+printText("salp N88 BASIC Studio v1.5.2");
 printText("Crystal FM Engine restored");
 printText("");
 printText("Ok");
-consola("=== salp N88 BASIC Studio v1.5 ===");
+consola("=== salp N88 BASIC Studio v1.5.2 ===");
 consola("Project Explorer · Console · CRT · Multi-file");
 consola("Crystal FM (4-op style) · Stereo delay · MML ready");
 consola("Ready.");
