@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1120">
+<meta name="robots" content="index,follow">
+<title>salp Music｜音楽配信サービスを選ぶ</title>
+<meta name="description" content="salpの音楽をYouTube、Spotify、Apple Music、Amazon Musicで聴ける公式リンクページです。">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="salp Music">
+<style>
+:root{
+  --bg:#07101c;
+  --panel:#111827;
+  --line:#334155;
+  --text:#f8fafc;
+  --muted:#b5c0cf;
+  --cyan:#67e8f9;
+  --pink:#f9a8d4;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 0,rgba(249,168,212,.18),transparent 30%),
+    radial-gradient(circle at 90% 0,rgba(103,232,249,.15),transparent 30%),
+    linear-gradient(180deg,#0b1120,#070b13);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic",sans-serif;
+}
+.wrap{
+  width:min(100%,720px);
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 22px) 14px calc(env(safe-area-inset-bottom) + 38px);
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:20px;
+}
+.back{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#111827;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+}
+.largeBtn{
+  min-height:46px;
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#111827;
+  color:#fff;
+  font-weight:900;
+}
+.largeBtn.active{
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  color:#07111b;
+  border-color:transparent;
+}
+.hero{text-align:center;padding:18px 8px 24px}
+.logo{
+  width:78px;height:78px;
+  display:grid;place-items:center;
+  margin:auto;
+  border-radius:25px;
+  background:linear-gradient(135deg,var(--pink),var(--cyan));
+  color:#09111d;
+  font-size:40px;
+  box-shadow:0 16px 42px rgba(0,0,0,.35);
+}
+h1{margin:16px 0 0;font-size:clamp(38px,10vw,58px);line-height:1}
+.hero h2{margin:12px 0 0;font-size:clamp(23px,6vw,34px);line-height:1.25}
+.hero p{margin:11px auto 0;color:var(--muted);font-size:17px;line-height:1.7}
+.links{display:grid;gap:14px}
+.musicLink{
+  min-height:112px;
+  display:flex;
+  align-items:center;
+  gap:17px;
+  padding:20px;
+  border:2px solid transparent;
+  border-radius:22px;
+  text-decoration:none;
+  box-shadow:0 14px 34px rgba(0,0,0,.25);
+}
+.musicLink:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.icon{font-size:42px;flex:0 0 auto}
+.label{display:flex;flex-direction:column;gap:4px}
+.label strong{font-size:25px;line-height:1.2}
+.label small{font-size:15px;font-weight:900;opacity:.9}
+.label span{font-size:14px;line-height:1.45;opacity:.9}
+.youtube{background:linear-gradient(135deg,#ff8a8a,#ffb4b4);color:#2b0c0c}
+.spotify{background:linear-gradient(135deg,#86efac,#bbf7d0);color:#0d2415}
+.apple{background:linear-gradient(135deg,#d8dbe2,#ffffff);color:#111827}
+.amazon{background:linear-gradient(135deg,#7dd3fc,#fde68a);color:#10202a}
+.note{
+  margin-top:20px;
+  padding:16px 18px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(17,24,39,.82);
+  color:var(--muted);
+  text-align:center;
+  line-height:1.7;
+}
+footer{
+  margin-top:28px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  color:#8492a7;
+  text-align:center;
+  font-size:13px;
+}
+body.large .musicLink{min-height:132px}
+body.large .label strong{font-size:29px}
+body.large .label small,body.large .label span{font-size:17px}
+body.large .hero p{font-size:19px}
+@media(max-width:430px){
+  .musicLink{padding:18px 16px}
+  .icon{font-size:37px}
+  .label strong{font-size:23px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="topbar">
+    <a class="back" href="./index.html">← ホームへ戻る</a>
+    <button class="largeBtn" id="largeBtn" type="button">文字を大きく A+</button>
+  </div>
+
+  <section class="hero">
+    <div class="logo" aria-hidden="true">🎵</div>
+    <h1>salp Music</h1>
+    <h2>音楽配信サービスを選んでください</h2>
+    <p>Choose your favorite music service.</p>
+  </section>
+
+  <section class="links" aria-label="音楽サービス">
+    <a class="musicLink youtube" href="https://youtube.com/channel/UCHtyuDiaz25S9Pel5QYwQCg?si=m1F4-9kEsZCevAQ0" target="_blank" rel="noopener noreferrer">
+      <span class="icon" aria-hidden="true">▶️</span>
+      <span class="label">
+        <strong>YouTubeで聴く</strong>
+        <small>Listen on YouTube</small>
+        <span>salp YouTube Topic</span>
+      </span>
+    </a>
+
+    <a class="musicLink spotify" href="https://open.spotify.com/artist/61MNh254DBZ7lPirQ38wSU?si=3tHR0pmJQVWtQpk-IGtECQ&amp;utm_source=copy-link" target="_blank" rel="noopener noreferrer">
+      <span class="icon" aria-hidden="true">🎧</span>
+      <span class="label">
+        <strong>Spotifyで聴く</strong>
+        <small>Listen on Spotify</small>
+        <span>salp Artist Page</span>
+      </span>
+    </a>
+
+    <a class="musicLink apple" href="https://music.apple.com/jp/artist/salp/1891262177" target="_blank" rel="noopener noreferrer">
+      <span class="icon" aria-hidden="true">🍎</span>
+      <span class="label">
+        <strong>Apple Musicで聴く</strong>
+        <small>Listen on Apple Music</small>
+        <span>salp Artist Page</span>
+      </span>
+    </a>
+
+    <a class="musicLink amazon" href="https://music.amazon.co.jp/albums/B0H9H2Q5QW?ref=dm_sh_bzadiOdnoznrfJbgVT4ytDOV4&amp;referrer=dm_sh_line" target="_blank" rel="noopener noreferrer">
+      <span class="icon" aria-hidden="true">📦</span>
+      <span class="label">
+        <strong>Amazon Musicで聴く</strong>
+        <small>Listen on Amazon Music</small>
+        <span>Fluffy Diary, Vol. 10</span>
+      </span>
+    </a>
+  </section>
+
+  <div class="note">
+    4つの音楽サービスだけを、大きく見やすく表示しています。
+  </div>
+
+  <footer>
+    <b>salp Music</b><br>
+    Kanetomo Shioda（塩田 兼与）<br>
+    Music Gateway v1.0
+  </footer>
+</main>
+<script>
+(() => {
+  const KEY='salpMusicLargeView_v100';
+  const button=document.getElementById('largeBtn');
+  const apply=large=>{
+    document.body.classList.toggle('large',large);
+    button.classList.toggle('active',large);
+    button.textContent=large?'標準サイズへ戻す':'文字を大きく A+';
+    localStorage.setItem(KEY,large?'1':'0');
+  };
+  button.addEventListener('click',()=>apply(!document.body.classList.contains('large')));
+  apply(localStorage.getItem(KEY)==='1');
+})();
+</script>
+</body>
+</html>

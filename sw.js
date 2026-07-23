@@ -1,7 +1,8 @@
-const CACHE_VERSION = 'salp-tools-v2.6.0';
+const CACHE_VERSION = 'salp-tools-v2.7.0';
 const APP_SHELL = [
   './',
   './index.html',
+  './music.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
