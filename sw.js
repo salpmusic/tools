@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'salp-tools-v2.7.0';
+const CACHE_VERSION = 'salp-tools-v2.7.1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_VERSION)
       .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -43,18 +44,12 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // HTML / ページ移動は常にネット優先。更新済み index.html を最優先で取得する。
+  // HTMLは常にネットから取得。古いHTMLを保存しない。
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then(cache => cache.put(request, copy));
-          return response;
-        })
         .catch(async () =>
-          (await caches.match(request)) ||
-          (await caches.match('./index.html'))
+          (await caches.match(url.pathname.endsWith('/music.html') ? './music.html' : './index.html'))
         )
     );
     return;
