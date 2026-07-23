@@ -1,17 +1,9 @@
-salp Tools PWA v2.5.0
+salp Tools PWA v2.6.0 — Easy Home Edition
 
-GitHub Pages の /tools/ 直下へ、次の構成でアップロードしてください。
-
+/tools/直下へアップロード:
 index.html
 manifest.webmanifest
 sw.js
-icons/
-  icon-192.png
-  icon-512.png
-  icon-maskable-512.png
+icons/ は既存のまま使用
 
-重要:
-- sw.js と manifest.webmanifest は index.html と同じ階層です。
-- icons フォルダ名とファイル名は変更しないでください。
-- 最初の公開後、Safariでサイトを一度開き直してから「ホーム画面に追加」し直すと確実です。
-- 以後の更新では sw.js の CACHE_VERSION を変更してください。
+公開後、ホーム画面版で「新しいバージョンがあります」が出たら「更新する」を押してください。

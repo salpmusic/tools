@@ -6,8 +6,8 @@
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <meta content="#0f172a" name="theme-color"/>
 <meta content="index, follow, max-image-preview:large, max-snippet:-1" name="robots"/>
-<title>salp Tools｜無料ブラウザツール・音楽・開発・ゲーム</title>
-<meta content="salp Toolsは、広告なし・登録なしで使える無料ブラウザアプリ集です。Retro BASIC Studio、Linux Lab、動画編集、QRコード、画像リサイズ、ドット絵、HTML Runnerなどを公開しています。" name="description"/>
+<title>salp Tools｜音楽・BASIC・無料ブラウザツール</title>
+<meta content="salp Toolsは、音楽、レトロBASIC、Linux、画像・動画・QRコードなどを、大きなボタンから迷わず開ける無料ブラウザアプリ集です。" name="description"/>
 <meta content="salp" name="author"/>
 <link href="https://salpmusic.github.io/tools/" rel="canonical"/>
 <meta content="website" property="og:type"/>
@@ -353,9 +353,24 @@ footer b{color:#dbe7f5}
   color:#07111b;
   font-weight:950;
 }
+
+.accessBar{position:sticky;top:0;z-index:500;display:flex;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;background:rgba(7,11,19,.94);border-bottom:1px solid #334155;backdrop-filter:blur(14px)}
+.accessBar button{min-height:46px;padding:9px 14px;border:1px solid #52627c;border-radius:12px;background:#172033;color:#fff;font-weight:950}
+.accessBar button.active{background:linear-gradient(135deg,var(--cyan),var(--pink));color:#07111b;border-color:transparent}
+.quickStart{width:min(100%,1080px);margin:0 auto;padding:0 14px 42px}
+.quickStartHead{text-align:center;margin-bottom:16px}.quickStartHead h2{margin:0;font-size:clamp(28px,6vw,44px);line-height:1.2}.quickStartHead p{margin:8px 0 0;color:var(--muted);font-size:16px}
+.quickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.quickButton{min-height:180px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:7px;padding:24px;border-radius:24px;text-decoration:none;box-shadow:0 16px 36px rgba(0,0,0,.25)}
+.quickButton .quickIcon{font-size:42px;line-height:1}.quickButton strong{font-size:27px;line-height:1.2}.quickButton small{font-size:15px;font-weight:900;opacity:.9}.quickButton span{font-size:14px;line-height:1.55;opacity:.9}
+.quickMusic{background:linear-gradient(135deg,#fda4af,#f9a8d4);color:#28101d}.quickBasic{background:linear-gradient(135deg,#67e8f9,#93c5fd);color:#071724}.quickTools{background:linear-gradient(135deg,#86efac,#fde68a);color:#102114}
+.quickNote{margin-top:14px;text-align:center;color:#c8d3e0;font-size:14px;font-weight:850}
+.hero{padding-top:34px;padding-bottom:28px}.heroNav{display:none}.hero .lead{font-size:18px}
+body.easyView{font-size:19px}body.easyView .card p,body.easyView .sectionHead p,body.easyView .about p,body.easyView footer{font-size:17px}body.easyView .open{font-size:18px}body.easyView .quickButton strong{font-size:31px}body.easyView .quickButton span,body.easyView .quickButton small{font-size:17px}
+@media(max-width:820px){.quickGrid{grid-template-columns:1fr}.quickButton{min-height:145px}}
+@media(max-width:480px){.accessBar{justify-content:stretch}.accessBar button{flex:1;padding-left:8px;padding-right:8px;font-size:13px}.quickStart{padding-left:11px;padding-right:11px}.quickButton{padding:21px;min-height:138px}}
 </style>
 <link href="./manifest.webmanifest" rel="manifest"/><link href="./icons/icon-192.png" rel="apple-touch-icon"/><meta content="salp Tools" name="application-name"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="salp Tools" name="apple-mobile-web-app-title"/><meta content="yes" name="mobile-web-app-capable"/></head>
-<body>
+<body><div class="accessBar"><button class="active" id="viewNormal" type="button">標準</button><button id="viewLarge" type="button">文字を大きく A+</button><button id="backTop" type="button">上へ戻る ↑</button></div>
 <a class="skip" href="#main">本文へ移動</a>
 <header class="hero">
 <div class="brand">
@@ -363,10 +378,8 @@ footer b{color:#dbe7f5}
 <h1>salp Tools</h1>
 </div>
 <div class="kicker">100 FREE BROWSER TOOLS PROJECT</div>
-<h2>必要な機能だけを、<br/>ブラウザですぐに。</h2>
-<p class="lead">
-    QRコード作成、画像変換、動画編集、番号ぬりえ、開発ツール。広告なし・登録なし・インストール不要で使える無料ブラウザツール集です。
-  </p>
+<h2>音楽・BASIC・便利ツール。<br/>大きなボタンからすぐ開けます。</h2>
+<p class="lead">QRコードを読み込んだあと、下の大きなボタンを押してください。初めての方でも迷わず使える入口にしました。</p>
 <div aria-label="特徴" class="chips">
 <span>No Ads</span>
 <span>No Registration</span>
@@ -381,7 +394,14 @@ footer b{color:#dbe7f5}
 <a href="#games">ゲーム</a>
 <a href="https://linktr.ee/salp" rel="noopener noreferrer" target="_blank">salp Music</a>
 </nav>
-</header>
+</header><section class="quickStart">
+<div class="quickStartHead"><h2>何を開きますか？</h2><p>目的に合う大きなボタンを押してください。</p></div>
+<div class="quickGrid">
+<a class="quickButton quickMusic" href="https://linktr.ee/salp" rel="noopener noreferrer" target="_blank"><span class="quickIcon">🎵</span><strong>音楽を聴く</strong><small>Listen to Music</small><span>YouTube・Spotify・Apple Music・SNS</span></a>
+<a class="quickButton quickBasic" href="https://salpmusic.github.io/tools/salp-n88-basic.html"><span class="quickIcon">⌨️</span><strong>BASICを試す</strong><small>Try Retro BASIC</small><span>プログラミング・FM音源・グラフィックス</span></a>
+<a class="quickButton quickTools" href="#creative"><span class="quickIcon">🛠️</span><strong>無料ツールを使う</strong><small>Open Free Tools</small><span>QRコード・画像・動画・ドット絵</span></a>
+</div><div class="quickNote">文字が小さい場合は、画面上部の「文字を大きく A+」を押してください。</div>
+</section>
 <main id="main">
 <section class="section" id="featured">
 <div class="sectionHead">
@@ -400,7 +420,7 @@ footer b{color:#dbe7f5}
 </div>
 <p>YouTube、Spotify、Apple Music、Amazon Music、TikTok、Instagramなど、salpの音楽とSNSをまとめています。</p>
 <div class="tags"><span class="tag">Music</span><span class="tag">YouTube</span><span class="tag">Spotify</span></div>
-<a class="open" href="https://linktr.ee/salp" rel="noopener noreferrer" target="_blank">音楽リンクを開く</a>
+<a class="open" href="https://linktr.ee/salp" rel="noopener noreferrer" target="_blank">音楽を聴く</a>
 </article>
 <article class="card linux">
 <span class="status alpha">EXPERIMENTAL</span>
@@ -420,7 +440,7 @@ footer b{color:#dbe7f5}
 </div>
 <p>1980年代のレトロコンピューターに着想を得た、ブラウザで動作するオリジナルBASIC環境。FMサウンド、グラフィックス、ゲーム操作に対応しています。</p>
 <div class="tags"><span class="tag">Retro BASIC</span><span class="tag">FM Sound</span><span class="tag">Retro Computer</span></div>
-<a class="open" href="https://salpmusic.github.io/tools/salp-n88-basic.html">Retro BASICを起動</a>
+<a class="open" href="https://salpmusic.github.io/tools/salp-n88-basic.html">BASICを試す</a>
 </article>
 <article class="card basic">
 <span class="status">NEW</span>
@@ -434,7 +454,7 @@ footer b{color:#dbe7f5}
 <span class="tag">Mobile</span>
 <span class="tag">Retro</span>
 </div>
-<a class="open" href="https://salpmusic.github.io/tools/salp-basic-mini.html">BASIC Miniを起動</a>
+<a class="open" href="https://salpmusic.github.io/tools/salp-basic-mini.html">BASIC Miniを試す</a>
 </article>
 </div>
 </section>
@@ -452,21 +472,21 @@ footer b{color:#dbe7f5}
 <div class="cardTop"><div class="icon">🎬</div><h3>Simple Video</h3></div>
 <p>静止画と音声から動画を作成。動画への音声追加、音量調整、切り出しにも対応。</p>
 <div class="tags"><span class="tag">Video</span><span class="tag">Audio</span><span class="tag">Trim</span></div>
-<a class="open" href="https://salpmusic.github.io/tools/video.html">動画編集を開く</a>
+<a class="open" href="https://salpmusic.github.io/tools/video.html">動画ツールを使う</a>
 </article>
 <article class="card runner">
 <span class="status">STABLE</span>
 <div class="cardTop"><div class="icon">▶️</div><h3>HTML / JavaScript Runner</h3></div>
 <p>HTML、CSS、JavaScriptを貼り付け、その場で実行できるシンプルなコード実行環境。</p>
 <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
-<a class="open" href="https://salpmusic.github.io/tools/html-runner.html">Runnerを開く</a>
+<a class="open" href="https://salpmusic.github.io/tools/html-runner.html">コードを実行する</a>
 </article>
 <article class="card qr">
 <span class="status">STABLE</span>
 <div class="cardTop"><div class="icon">🔲</div><h3>QR Code Maker</h3></div>
 <p>URLや文章からQRコードを作成。色変更、中央画像、PNG保存に対応。</p>
 <div class="tags"><span class="tag">QR</span><span class="tag">Logo</span><span class="tag">PNG</span></div>
-<a class="open" href="https://salpmusic.github.io/tools/qrcode.html">QR Makerを開く</a>
+<a class="open" href="https://salpmusic.github.io/tools/qrcode.html">QRコードを作る</a>
 </article>
 <article class="card pixel">
 <span class="status">STABLE</span>
@@ -570,7 +590,7 @@ footer b{color:#dbe7f5}
 </div>
 </section>
 </main>
-<footer><b>Created by salp</b><div>Kanetomo Shioda（塩田 兼与）</div><div>Independent creator of salp Tools, salp Music, Retro BASIC Studio, BASIC Mini, Linux Lab and browser applications.</div><div>音楽・ブラウザアプリ・レトロBASIC・Linux・ゲームを制作しています。</div><div class="version">salp Tools Home v2.5.0 — PWA Edition</div></footer>
+<footer><b>Created by salp</b><div>Kanetomo Shioda（塩田 兼与）</div><div>Independent creator of salp Tools, salp Music, Retro BASIC Studio, BASIC Mini, Linux Lab and browser applications.</div><div>音楽・ブラウザアプリ・レトロBASIC・Linux・ゲームを制作しています。</div><div class="version">salp Tools Home v2.6.0 — Easy Home Edition</div></footer>
 <div aria-live="polite" class="pwaUpdate" id="pwaUpdate" role="status"><span>新しいバージョンがあります。</span><button id="pwaReload" type="button">更新する</button></div><script>
 (() => {
   if (!('serviceWorker' in navigator)) return;
@@ -621,5 +641,5 @@ footer b{color:#dbe7f5}
     }
   });
 })();
-</script></body>
+</script><script>(()=>{const K='salpToolsViewMode_v260',n=document.getElementById('viewNormal'),l=document.getElementById('viewLarge');const a=m=>{const x=m==='large';document.body.classList.toggle('easyView',x);n.classList.toggle('active',!x);l.classList.toggle('active',x);localStorage.setItem(K,m)};n.onclick=()=>a('normal');l.onclick=()=>a('large');document.getElementById('backTop').onclick=()=>scrollTo({top:0,behavior:'smooth'});a(localStorage.getItem(K)||'normal')})();</script></body>
 </html>
