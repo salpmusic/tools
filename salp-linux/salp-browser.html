@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.9.2</title>
+<title>salp Browser OS v1.9.3</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -59,7 +59,13 @@ button:disabled{opacity:.4}
 .dot{width:9px;height:9px;border-radius:50%;background:#667}
 .dot.busy{background:var(--yellow)}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}
 .screenWrap{position:relative;min-height:0;background:#000;overflow:hidden}
-#display{position:absolute;inset:0;width:100%;height:100%;background:#000;touch-action:none;outline:none}
+#display{position:absolute;inset:0;width:100%;height:100%;background:#000;touch-action:none;outline:none;transform-origin:center center;will-change:transform}
+.viewControls{position:absolute;right:8px;top:8px;z-index:12;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100% - 16px);padding:6px;border:1px solid #315f8c;border-radius:13px;background:rgba(5,13,19,.90);backdrop-filter:blur(5px)}
+.viewControls button{min-height:34px;padding:5px 9px;font-size:12px}
+.viewControls button.active{border-color:var(--yellow);background:#2a230b;color:var(--yellow)}
+.viewScale{display:inline-flex;align-items:center;justify-content:center;min-width:58px;padding:0 7px;color:var(--green);font:11px ui-monospace,monospace}
+.panHint{position:absolute;left:50%;top:60px;z-index:11;transform:translateX(-50%);padding:6px 10px;border:1px solid #75601f;border-radius:999px;background:rgba(39,32,9,.92);color:var(--yellow);font-size:11px;white-space:nowrap;pointer-events:none}
+@media(max-width:650px){.viewControls{top:6px;right:6px;left:6px;max-width:none;justify-content:center}.viewControls button{flex:1 1 auto;min-width:44px}.viewScale{order:10;width:100%;height:24px}.panHint{top:92px}}
 .boot{
  position:absolute;inset:0;display:grid;place-items:center;padding:22px;
  text-align:center;z-index:6;
@@ -131,7 +137,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.9.2</span>
+  <span class="splashVersion">VERSION 1.9.3</span>
  </div>
 </section>
 <div class="app">
@@ -180,6 +186,15 @@ footer{
 
 <main class="screenWrap" id="screenWrap">
  <canvas id="display" tabindex="0"></canvas>
+ <div class="viewControls" aria-label="画面表示操作">
+  <button id="zoomOutBtn" title="縮小">−</button>
+  <button id="zoomInBtn" title="拡大">＋</button>
+  <button id="fitViewBtn" title="全体表示">全体</button>
+  <button id="centerViewBtn" title="中央へ戻す">中央</button>
+  <button id="panModeBtn" title="ドラッグ移動">✋ 移動</button>
+  <span id="viewScale" class="viewScale">100%</span>
+ </div>
+ <div id="panHint" class="panHint hidden">指で画面を移動できます</div>
 
  <section id="loginBox" class="loginBox hidden">
   <h3>🔐 Tailscaleログイン</h3>
@@ -207,7 +222,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Browser Image v1.9.2">
+   <input id="imageNameInput" value="salp Browser Image v1.9.3">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -220,7 +235,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.9.2</h1>
+   <h1>salp Linux Desktop v1.9.3</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -241,7 +256,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.9.2：Browser Linux・Image Builder・Auto Browserを統合。
+ salp Linux Desktop v1.9.3：Browser Linux・Image Builder・Auto Browserを統合。
 </footer>
 </div>
 
@@ -249,7 +264,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=192");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=193");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -300,12 +315,65 @@ function appEnv(){
 }
 function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/sh","DISPLAY=:0","LANG=C.UTF-8"]}
 
+
+let viewScale=Number(localStorage.getItem("salpViewScale")||1);
+let viewX=Number(localStorage.getItem("salpViewX")||0);
+let viewY=Number(localStorage.getItem("salpViewY")||0);
+let panMode=false;
+let dragging=false,startX=0,startY=0,startViewX=0,startViewY=0;
+let pinchStartDistance=0,pinchStartScale=1;
+const activePointers=new Map();
+
+function clampView(){
+ viewScale=Math.max(.35,Math.min(2.5,viewScale));
+ const rect=$("screenWrap").getBoundingClientRect();
+ const maxX=Math.max(rect.width*.9,Math.abs(rect.width*(viewScale-1)/2)+rect.width*.55);
+ const maxY=Math.max(rect.height*.9,Math.abs(rect.height*(viewScale-1)/2)+rect.height*.55);
+ viewX=Math.max(-maxX,Math.min(maxX,viewX));
+ viewY=Math.max(-maxY,Math.min(maxY,viewY));
+}
+function applyView(save=true){
+ clampView();
+ const canvas=$("display");
+ canvas.style.transform=`translate(${viewX}px,${viewY}px) scale(${viewScale})`;
+ $("viewScale").textContent=Math.round(viewScale*100)+"%";
+ if(save){
+  localStorage.setItem("salpViewScale",String(viewScale));
+  localStorage.setItem("salpViewX",String(viewX));
+  localStorage.setItem("salpViewY",String(viewY));
+ }
+}
+function setViewScale(next,focusX=0,focusY=0){
+ const old=viewScale;
+ viewScale=Math.max(.35,Math.min(2.5,next));
+ if(old!==viewScale){
+  const ratio=viewScale/old;
+  viewX=focusX-(focusX-viewX)*ratio;
+  viewY=focusY-(focusY-viewY)*ratio;
+ }
+ applyView();
+}
+function resetView(scale=1){viewScale=scale;viewX=0;viewY=0;applyView()}
+function setPanMode(on){
+ panMode=on;
+ $("panModeBtn").classList.toggle("active",panMode);
+ $("panModeBtn").textContent=panMode?"✋ 移動中":"✋ 移動";
+ $("panHint").classList.toggle("hidden",!panMode);
+ $("display").style.cursor=panMode?"grab":"default";
+}
+function pointerDistance(){
+ const pts=[...activePointers.values()];
+ if(pts.length<2)return 0;
+ return Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+}
+
 function sizeCanvas(){
  const canvas=$("display"),rect=$("screenWrap").getBoundingClientRect();
  const dpr=Math.min(window.devicePixelRatio||1,1.5);
  const w=Math.max(640,Math.floor(rect.width*dpr)),h=Math.max(480,Math.floor(rect.height*dpr));
  canvas.width=w;canvas.height=h;canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
  if(cx)cx.setKmsCanvas(canvas,w,h);
+ applyView(false);
 }
 window.addEventListener("resize",()=>setTimeout(sizeCanvas,130));
 
@@ -448,7 +516,7 @@ async function boot(){
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.2";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.3";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -532,7 +600,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.2";
+ const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.3";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
@@ -543,13 +611,13 @@ setTimeout(()=>{
  if(splash){splash.classList.add("fade");setTimeout(()=>splash.remove(),500)}
 },1400);
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=192");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=193");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Browser Image v1.9.2";
+ const name=$("imageNameInput").value.trim()||"salp Browser Image v1.9.3";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -639,9 +707,49 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=192");
+
+$("zoomOutBtn").addEventListener("click",()=>setViewScale(viewScale-.15));
+$("zoomInBtn").addEventListener("click",()=>setViewScale(viewScale+.15));
+$("fitViewBtn").addEventListener("click",()=>resetView(.65));
+$("centerViewBtn").addEventListener("click",()=>resetView(1));
+$("panModeBtn").addEventListener("click",()=>setPanMode(!panMode));
+$("screenWrap").addEventListener("wheel",e=>{
+ if(!e.ctrlKey&&!panMode)return;
+ e.preventDefault();
+ const rect=$("screenWrap").getBoundingClientRect();
+ setViewScale(viewScale+(e.deltaY<0?.1:-.1),e.clientX-(rect.left+rect.width/2),e.clientY-(rect.top+rect.height/2));
+},{passive:false});
+$("display").addEventListener("pointerdown",e=>{
+ activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(activePointers.size===2){pinchStartDistance=pointerDistance();pinchStartScale=viewScale}
+ if(!panMode&&activePointers.size<2){$("display").focus();return}
+ e.preventDefault();e.stopPropagation();
+ dragging=true;startX=e.clientX;startY=e.clientY;startViewX=viewX;startViewY=viewY;
+ try{$("display").setPointerCapture(e.pointerId)}catch(_){}
+ $("display").style.cursor="grabbing";
+});
+$("display").addEventListener("pointermove",e=>{
+ if(activePointers.has(e.pointerId))activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(activePointers.size>=2&&pinchStartDistance>0){
+  e.preventDefault();e.stopPropagation();
+  setViewScale(pinchStartScale*(pointerDistance()/pinchStartDistance));
+  return;
+ }
+ if(!dragging||!panMode)return;
+ e.preventDefault();e.stopPropagation();
+ viewX=startViewX+(e.clientX-startX);viewY=startViewY+(e.clientY-startY);applyView(false);
+});
+function endViewPointer(e){
+ activePointers.delete(e.pointerId);
+ if(activePointers.size<2){pinchStartDistance=0;pinchStartScale=viewScale}
+ if(dragging){dragging=false;applyView(true);$("display").style.cursor=panMode?"grab":"default"}
+}
+$("display").addEventListener("pointerup",endViewPointer);
+$("display").addEventListener("pointercancel",endViewPointer);
+applyView(false);
+
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=193");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
-$("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>
 </body>
 </html>
