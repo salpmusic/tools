@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.9.1</title>
+<title>salp Browser OS v1.9.2</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -131,7 +131,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.9.1</span>
+  <span class="splashVersion">VERSION 1.9.2</span>
  </div>
 </section>
 <div class="app">
@@ -207,7 +207,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Browser Image v1.9.1">
+   <input id="imageNameInput" value="salp Browser Image v1.9.2">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -220,7 +220,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.9.1</h1>
+   <h1>salp Linux Desktop v1.9.2</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -241,7 +241,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.9.1：Browser Linux・Image Builder・Auto Browserを統合。
+ salp Linux Desktop v1.9.2：Browser Linux・Image Builder・Auto Browserを統合。
 </footer>
 </div>
 
@@ -249,7 +249,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=191");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=192");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -448,7 +448,7 @@ async function boot(){
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.1";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.2";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -532,7 +532,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.1";
+ const name=localStorage.getItem("salpImageName")||"salp Browser Image v1.9.2";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
@@ -543,13 +543,13 @@ setTimeout(()=>{
  if(splash){splash.classList.add("fade");setTimeout(()=>splash.remove(),500)}
 },1400);
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=191");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=192");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Browser Image v1.9.1";
+ const name=$("imageNameInput").value.trim()||"salp Browser Image v1.9.2";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -639,7 +639,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=191");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=192");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("display").addEventListener("pointerdown",()=>$("display").focus());
 </script>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v1.9.1.1</title>
+<title>salp Linux v1.9.2</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
@@ -111,7 +111,7 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 }
 .fileRow span:last-child{margin-left:auto;color:var(--muted)}
 .browserMock{
-  display:grid;grid-template-rows:auto auto 1fr;height:100%;
+  display:grid;grid-template-rows:auto auto auto auto 1fr;height:100%;
   border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#020403;
 }
 .browserBar{display:flex;gap:7px;padding:8px;background:#0d1911;align-items:center;overflow-x:auto}
@@ -121,6 +121,13 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
   background:#050a07;color:var(--text);padding:10px 12px;
   font:12px ui-monospace,monospace;
 }
+.browserTabs,.browserBookmarks{display:flex;align-items:center;gap:6px;padding:7px 8px;border-bottom:1px solid var(--line);background:#08110b;overflow-x:auto}
+.browserTab{min-height:32px!important;padding:5px 9px!important;max-width:190px;gap:7px;background:#0b1710!important;color:var(--muted)!important}
+.browserTab.active{border-color:#3d8050!important;background:#15301e!important;color:var(--text)!important}
+.browserTab .tabText{max-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.browserTab .tabClose{font-weight:900;color:var(--muted)}
+.browserBookmarks{padding-block:6px;background:#061009}.browserBookmarks button{min-height:30px;padding:4px 9px;font-size:10px}.browserBookmarks .spacer{flex:1}
+.browserMenu{position:absolute;right:10px;top:88px;z-index:12;width:min(330px,calc(100% - 20px));max-height:55%;overflow:auto;border:1px solid #315f8c;border-radius:12px;background:rgba(5,12,8,.98);box-shadow:0 18px 50px rgba(0,0,0,.5);padding:8px}
+.browserMenuHead{display:flex;align-items:center;gap:8px;padding:4px 4px 8px}.browserMenuHead b{flex:1}.browserMenuList{display:grid;gap:6px}.browserMenuItem{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:9px;background:#09130d}.browserMenuItem button{min-height:30px;padding:4px 8px}.browserMenuText{flex:1;min-width:0}.browserMenuText b,.browserMenuText small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.browserMenuText small{color:var(--muted);font-size:9px;margin-top:2px}
 .browserHint{display:flex;align-items:center;gap:8px;padding:7px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#09110c;color:var(--muted);font-size:10px;line-height:1.45}
 .browserHint .browserStatus{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .browserView{position:relative;min-height:0;background:#fff;overflow:hidden}
@@ -145,6 +152,7 @@ body.browserFullscreen #browserWindow .windowBody{height:100%}
  .browserBar input{grid-column:1/-2;grid-row:2;min-width:0}
  .browserBar #browserGoBtn{grid-column:-2;grid-row:2}
  .browserQuick{grid-template-columns:1fr 1fr}
+ .browserMenu{top:128px}
 }
 .pythonPanel textarea{
   width:100%;min-height:180px;border:1px solid var(--line);border-radius:12px;
@@ -168,8 +176,8 @@ body.browserFullscreen #browserWindow .windowBody{height:100%}
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Desktop 1.9.1 / Browser Upgrade</small></div>
-  <div class="badge">v1.9.1.1 BROWSER UPGRADE</div>
+  <div class="title"><strong>salp Linux</strong><small>Desktop 1.9.2 / Browser Plus</small></div>
+  <div class="badge">v1.9.2 BROWSER PLUS</div>
 </header>
 
 <div class="toolbar">
@@ -187,7 +195,7 @@ body.browserFullscreen #browserWindow .windowBody{height:100%}
 
   <section id="desktop" class="desktop hidden">
     <div class="desktopTop">
-      <strong>🐧 salp Linux Desktop 1.9.1</strong>
+      <strong>🐧 salp Linux Desktop 1.9.2</strong>
       <span id="desktopStatus" style="color:var(--green);font-size:10px">Linux Ready</span>
       <span id="desktopClock" class="desktopClock">--:--</span>
     </div>
@@ -293,7 +301,7 @@ for i in range(1, 6):
 
   <section id="browserWindow" class="window hidden">
     <div class="windowBar">
-      <span class="windowTitle">🌐 salp Browser 1.1</span><span class="spacer"></span>
+      <span class="windowTitle">🌐 salp Browser 1.2</span><span class="spacer"></span>
       <button id="browserZoomOutBtn" title="縮小">A−</button>
       <button id="browserZoomLabel" title="表示倍率">100%</button>
       <button id="browserZoomInBtn" title="拡大">A＋</button>
@@ -302,25 +310,34 @@ for i in range(1, 6):
       <button data-show-desktop="1">⌂</button>
       <button data-close-window="browserWindow">×</button>
     </div>
-    <div class="windowBody" style="padding:0">
+    <div class="windowBody" style="padding:0;position:relative">
       <div class="browserMock">
+        <div id="browserTabs" class="browserTabs"><button id="browserNewTabBtn" title="新しいタブ">＋</button></div>
         <div class="browserBar">
           <button id="browserBackBtn" title="戻る">←</button>
           <button id="browserForwardBtn" title="進む">→</button>
           <button id="browserReloadBtn" title="更新">↻</button>
-          <button id="browserHomeBtn" title="ホーム">⌂</button>
-          <input id="browserUrl" value="https://example.com" aria-label="URL" autocapitalize="none" autocomplete="off" spellcheck="false">
+          <button id="browserHomeBtn" title="新しいタブ">⌂</button>
+          <input id="browserUrl" value="" aria-label="URLまたは検索語" placeholder="URLまたは検索語" autocapitalize="none" autocomplete="off" spellcheck="false">
           <button id="browserGoBtn" class="primary">開く</button>
         </div>
-        <div class="browserHint"><span id="browserSecurity">🔒</span><span id="browserStatus" class="browserStatus">ホーム — URLまたは検索語を入力してください</span><button id="browserHelpBtn" style="min-height:28px;padding:3px 8px">表示ヘルプ</button></div>
+        <div class="browserBookmarks">
+          <button id="browserBookmarkBtn" title="現在のページをブックマーク">☆</button>
+          <button id="browserBookmarksBtn">★ ブックマーク</button>
+          <button id="browserHistoryBtn">↺ 履歴</button>
+          <button id="browserCopyBtn">⧉ URL</button>
+          <span class="spacer"></span>
+          <button data-browser-url="https://salpmusic.github.io/tools/">salp Tools</button>
+        </div>
+        <div class="browserHint"><span id="browserSecurity">○</span><span id="browserStatus" class="browserStatus">新しいタブ — URLまたは検索語を入力してください</span><button id="browserHelpBtn" style="min-height:28px;padding:3px 8px">表示ヘルプ</button></div>
         <div class="browserView" id="browserView">
           <div id="browserLoading" class="browserLoading hidden"></div>
           <iframe id="browserFrame" title="salp Browser web view" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; clipboard-read; clipboard-write" loading="eager"></iframe>
           <div id="browserEmpty" class="browserEmpty">
             <div>
               <div style="font-size:48px">🌐</div>
-              <h3>salp Browser 1.1</h3>
-              <p>URLまたは検索語を入力してください。全画面切り替え・表示倍率・読み込み状態表示を追加しました。</p>
+              <h3>salp Browser 1.2</h3>
+              <p>複数タブ、ブックマーク、履歴保存、URLコピーに対応しました。表示できないサイトは右上の ↗ からSafariなどで開けます。</p>
               <div class="browserQuick">
                 <button data-browser-url="https://example.com">🌐 Example</button>
                 <button data-browser-url="https://www.wikipedia.org">📚 Wikipedia</button>
@@ -330,6 +347,7 @@ for i in range(1, 6):
             </div>
           </div>
         </div>
+        <section id="browserMenu" class="browserMenu hidden"><div class="browserMenuHead"><b id="browserMenuTitle">Browser</b><button id="browserMenuClearBtn">消去</button><button id="browserMenuCloseBtn">×</button></div><div id="browserMenuList" class="browserMenuList"></div></section>
       </div>
     </div>
   </section>
@@ -338,7 +356,7 @@ for i in range(1, 6):
 
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v1.9.1.1</h1>
+      <h1>salp Linux v1.9.2</h1>
       <p>Linuxターミナルを内蔵した、最初のsalp Linuxデスクトップ。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
@@ -377,20 +395,20 @@ for i in range(1, 6):
 
 <div class="utilityBar">
   <button class="home" id="homeBtn">⌂ HOME</button>
-  <button class="saveTest" data-command="echo 'salp Linux v1.9.1' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
+  <button class="saveTest" data-command="echo 'salp Linux v1.9.2' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
   <button data-command="mkdir -p projects && cd projects && pwd">📁 projects</button>
   <button data-command="history | tail -10">↺ 履歴</button>
   <button data-command="clear">CLEAR</button>
   <button class="danger" data-command="exit">EXIT</button>
 </div>
-<footer>salp Linux Desktop 1.9.1：Terminal・Files・Python・Browserを一つのデスクトップへ統合。</footer>
+<footer>salp Linux Desktop 1.9.2：Tabs・Bookmarks・History対応のBrowser Plusを統合。</footer>
 </div>
 
 <script>
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=191");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=192");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -474,7 +492,7 @@ async function boot(){
 
   term.clear();
   term.writeln("\x1b[1;32msalp Virtual PC BIOS\x1b[0m");
-  term.writeln("CheerpX 1.2.8 / Debian / salp Desktop 1.9.1");
+  term.writeln("CheerpX 1.2.8 / Debian / salp Desktop 1.9.2");
   term.writeln("-----------------------------------------");
 
   try{
@@ -657,112 +675,76 @@ $("runPythonBtn").addEventListener("click",()=>{
 });
 
 
-const browserHistory=[];
-let browserHistoryIndex=-1;
-let currentBrowserUrl="https://example.com";
-let browserZoom=1;
+const browserStorage={
+  get(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v??fallback}catch(_){return fallback}},
+  set(key,value){localStorage.setItem(key,JSON.stringify(value))}
+};
+let browserTabs=browserStorage.get("salpBrowserTabs",[{id:Date.now(),title:"新しいタブ",url:"",history:[],index:-1}]);
+let activeBrowserTabId=browserStorage.get("salpBrowserActiveTab",browserTabs[0]?.id);
+let browserBookmarks=browserStorage.get("salpBrowserBookmarks",[]);
+let browserVisitHistory=browserStorage.get("salpBrowserVisitHistory",[]);
+let browserZoom=Number(localStorage.getItem("salpBrowserZoom"))||1;
 let browserLoadTimer=null;
 
+function activeBrowserTab(){return browserTabs.find(t=>t.id===activeBrowserTabId)||browserTabs[0]}
+function saveBrowserState(){browserStorage.set("salpBrowserTabs",browserTabs);browserStorage.set("salpBrowserActiveTab",activeBrowserTabId);browserStorage.set("salpBrowserBookmarks",browserBookmarks);browserStorage.set("salpBrowserVisitHistory",browserVisitHistory)}
 function normalizeBrowserUrl(value){
   const raw=(value||"").trim();
-  if(!raw)return "https://example.com";
+  if(!raw)return "";
   if(/^https?:\/\//i.test(raw))return raw;
   if(raw.includes(" "))return "https://duckduckgo.com/?q="+encodeURIComponent(raw);
   if(/^[\w.-]+\.[a-z]{2,}(?:[\/:?#].*)?$/i.test(raw))return "https://"+raw;
   return "https://duckduckgo.com/?q="+encodeURIComponent(raw);
 }
-
-function updateBrowserButtons(){
-  $("browserBackBtn").disabled=browserHistoryIndex<=0;
-  $("browserForwardBtn").disabled=browserHistoryIndex<0||browserHistoryIndex>=browserHistory.length-1;
+function browserTitleFromUrl(url){try{return new URL(url).hostname.replace(/^www\./,"")||"ページ"}catch(_){return "ページ"}}
+function setBrowserStatus(text,state="idle"){$("browserStatus").textContent=text;$("browserLoading").classList.toggle("hidden",state!=="loading");const url=activeBrowserTab()?.url||"";$("browserSecurity").textContent=url.startsWith("https://")?"🔒":url?"⚠️":"○"}
+function applyBrowserZoom(){const frame=$("browserFrame");frame.style.width=(100/browserZoom)+"%";frame.style.height=(100/browserZoom)+"%";frame.style.transform=`scale(${browserZoom})`;$("browserZoomLabel").textContent=Math.round(browserZoom*100)+"%";localStorage.setItem("salpBrowserZoom",String(browserZoom))}
+function updateBrowserButtons(){const tab=activeBrowserTab();$("browserBackBtn").disabled=!tab||tab.index<=0;$("browserForwardBtn").disabled=!tab||tab.index<0||tab.index>=tab.history.length-1;$("browserBookmarkBtn").textContent=tab?.url&&browserBookmarks.some(b=>b.url===tab.url)?"★":"☆"}
+function renderBrowserTabs(){
+ const wrap=$("browserTabs");wrap.querySelectorAll(".browserTab").forEach(n=>n.remove());
+ browserTabs.forEach(tab=>{const b=document.createElement("button");b.className="browserTab"+(tab.id===activeBrowserTabId?" active":"");b.innerHTML=`<span class="tabText">${tab.title||"新しいタブ"}</span><span class="tabClose">×</span>`;b.addEventListener("click",e=>{if(e.target.classList.contains("tabClose")){closeBrowserTab(tab.id);e.stopPropagation()}else switchBrowserTab(tab.id)});wrap.insertBefore(b,$("browserNewTabBtn"))});
 }
-
-function setBrowserStatus(text,state="idle"){
-  $("browserStatus").textContent=text;
-  $("browserLoading").classList.toggle("hidden",state!=="loading");
-  $("browserSecurity").textContent=currentBrowserUrl.startsWith("https://")?"🔒":"⚠️";
+function showBrowserTab(tab){
+ $("browserUrl").value=tab.url||"";
+ if(tab.url){$("browserEmpty").classList.add("hidden");$("browserFrame").src=tab.url;setBrowserStatus("表示中: "+tab.url)}
+ else{$("browserFrame").src="about:blank";$("browserEmpty").classList.remove("hidden");setBrowserStatus("新しいタブ — URLまたは検索語を入力してください")}
+ updateBrowserButtons();renderBrowserTabs();saveBrowserState();
 }
-
-function applyBrowserZoom(){
-  const frame=$("browserFrame");
-  frame.style.width=(100/browserZoom)+"%";
-  frame.style.height=(100/browserZoom)+"%";
-  frame.style.transform=`scale(${browserZoom})`;
-  $("browserZoomLabel").textContent=Math.round(browserZoom*100)+"%";
-  localStorage.setItem("salpBrowserZoom",String(browserZoom));
-}
-
+function newBrowserTab(){const tab={id:Date.now()+Math.random(),title:"新しいタブ",url:"",history:[],index:-1};browserTabs.push(tab);activeBrowserTabId=tab.id;showBrowserTab(tab);$("browserUrl").focus()}
+function closeBrowserTab(id){if(browserTabs.length===1){browserTabs=[{id:Date.now(),title:"新しいタブ",url:"",history:[],index:-1}];activeBrowserTabId=browserTabs[0].id}else{const i=browserTabs.findIndex(t=>t.id===id);browserTabs.splice(i,1);if(activeBrowserTabId===id)activeBrowserTabId=browserTabs[Math.max(0,i-1)].id}showBrowserTab(activeBrowserTab())}
+function switchBrowserTab(id){activeBrowserTabId=id;showBrowserTab(activeBrowserTab())}
 function navigateBrowser(value,{record=true}={}){
-  const url=normalizeBrowserUrl(value);
-  currentBrowserUrl=url;
-  $("browserUrl").value=url;
-  $("browserEmpty").classList.add("hidden");
-  setBrowserStatus("読み込み中: "+url,"loading");
-  $("browserFrame").src=url;
-  clearTimeout(browserLoadTimer);
-  browserLoadTimer=setTimeout(()=>{
-    setBrowserStatus("表示に時間がかかっています。表示されない場合は ↗ で外部ブラウザを使えます。","idle");
-  },7000);
-  if(record){
-    browserHistory.splice(browserHistoryIndex+1);
-    browserHistory.push(url);
-    browserHistoryIndex=browserHistory.length-1;
-  }
-  updateBrowserButtons();
-  localStorage.setItem("salpBrowserLastUrl",url);
+ const url=normalizeBrowserUrl(value);if(!url){showBrowserTab(activeBrowserTab());return}
+ const tab=activeBrowserTab();tab.url=url;tab.title=browserTitleFromUrl(url);$("browserUrl").value=url;$("browserEmpty").classList.add("hidden");setBrowserStatus("読み込み中: "+url,"loading");$("browserFrame").src=url;
+ clearTimeout(browserLoadTimer);browserLoadTimer=setTimeout(()=>setBrowserStatus("表示できない場合は右上の ↗ から外部ブラウザで開いてください。"),7000);
+ if(record){tab.history.splice(tab.index+1);tab.history.push(url);tab.index=tab.history.length-1;browserVisitHistory.unshift({url,title:tab.title,time:Date.now()});browserVisitHistory=browserVisitHistory.filter((v,i,a)=>a.findIndex(x=>x.url===v.url)===i).slice(0,100)}
+ updateBrowserButtons();renderBrowserTabs();saveBrowserState();
 }
-
-function setBrowserFullscreen(enabled){
-  document.body.classList.toggle("browserFullscreen",enabled);
-  $("browserRestoreBtn").classList.toggle("hidden",!enabled);
-  if(enabled)openWindow("browserWindow");
-  localStorage.setItem("salpBrowserFullscreen",enabled?"1":"0");
+function setBrowserFullscreen(enabled){document.body.classList.toggle("browserFullscreen",enabled);$("browserRestoreBtn").classList.toggle("hidden",!enabled);if(enabled)openWindow("browserWindow");localStorage.setItem("salpBrowserFullscreen",enabled?"1":"0")}
+function renderBrowserMenu(kind){
+ const list=$("browserMenuList");list.textContent="";$("browserMenuTitle").textContent=kind==="bookmarks"?"★ ブックマーク":"↺ 履歴";$("browserMenuClearBtn").dataset.kind=kind;
+ const items=kind==="bookmarks"?browserBookmarks:browserVisitHistory;
+ if(!items.length){list.innerHTML='<div class="browserMenuItem">まだ項目がありません。</div>'}
+ items.forEach((item,index)=>{const row=document.createElement("div");row.className="browserMenuItem";row.innerHTML=`<div class="browserMenuText"><b>${item.title||browserTitleFromUrl(item.url)}</b><small>${item.url}</small></div><button class="open">開く</button>${kind==="bookmarks"?'<button class="remove">削除</button>':''}`;row.querySelector(".open").onclick=()=>{navigateBrowser(item.url);$("browserMenu").classList.add("hidden")};if(kind==="bookmarks")row.querySelector(".remove").onclick=()=>{browserBookmarks.splice(index,1);saveBrowserState();renderBrowserMenu(kind);updateBrowserButtons()};list.appendChild(row)});
+ $("browserMenu").classList.remove("hidden");
 }
-
 $("browserGoBtn").addEventListener("click",()=>navigateBrowser($("browserUrl").value));
-$("browserUrl").addEventListener("keydown",event=>{
-  if(event.key==="Enter")navigateBrowser(event.currentTarget.value);
-});
-$("browserHomeBtn").addEventListener("click",()=>{
-  $("browserFrame").src="about:blank";
-  $("browserEmpty").classList.remove("hidden");
-  $("browserUrl").value="";
-  currentBrowserUrl="https://example.com";
-  setBrowserStatus("ホーム — URLまたは検索語を入力してください");
-});
-$("browserReloadBtn").addEventListener("click",()=>{
-  setBrowserStatus("再読み込み中: "+currentBrowserUrl,"loading");
-  $("browserFrame").src=currentBrowserUrl;
-});
-$("browserBackBtn").addEventListener("click",()=>{
-  if(browserHistoryIndex<=0)return;
-  browserHistoryIndex--;
-  navigateBrowser(browserHistory[browserHistoryIndex],{record:false});
-});
-$("browserForwardBtn").addEventListener("click",()=>{
-  if(browserHistoryIndex>=browserHistory.length-1)return;
-  browserHistoryIndex++;
-  navigateBrowser(browserHistory[browserHistoryIndex],{record:false});
-});
-$("browserExternalBtn").addEventListener("click",()=>window.open(currentBrowserUrl,"_blank","noopener,noreferrer"));
-$("browserFullscreenBtn").addEventListener("click",()=>setBrowserFullscreen(true));
-$("browserRestoreBtn").addEventListener("click",()=>setBrowserFullscreen(false));
-$("browserZoomOutBtn").addEventListener("click",()=>{browserZoom=Math.max(.6,Math.round((browserZoom-.1)*10)/10);applyBrowserZoom()});
-$("browserZoomInBtn").addEventListener("click",()=>{browserZoom=Math.min(1.6,Math.round((browserZoom+.1)*10)/10);applyBrowserZoom()});
-$("browserZoomLabel").addEventListener("click",()=>{browserZoom=1;applyBrowserZoom()});
-$("browserHelpBtn").addEventListener("click",()=>alert("サイト側のセキュリティ設定により、画面内表示できないページがあります。その場合は右上の ↗ でSafariなどの外部ブラウザに開いてください。\n\nA− / A＋で内部表示倍率を変更できます。⛶でブラウザだけの全画面表示になります。"));
+$("browserUrl").addEventListener("keydown",e=>{if(e.key==="Enter")navigateBrowser(e.currentTarget.value)});
+$("browserHomeBtn").addEventListener("click",newBrowserTab);$("browserNewTabBtn").addEventListener("click",newBrowserTab);
+$("browserReloadBtn").addEventListener("click",()=>{const tab=activeBrowserTab();if(tab?.url){setBrowserStatus("再読み込み中: "+tab.url,"loading");$("browserFrame").src=tab.url}});
+$("browserBackBtn").addEventListener("click",()=>{const tab=activeBrowserTab();if(tab.index>0){tab.index--;navigateBrowser(tab.history[tab.index],{record:false})}});
+$("browserForwardBtn").addEventListener("click",()=>{const tab=activeBrowserTab();if(tab.index<tab.history.length-1){tab.index++;navigateBrowser(tab.history[tab.index],{record:false})}});
+$("browserExternalBtn").addEventListener("click",()=>{const u=activeBrowserTab()?.url;if(u)window.open(u,"_blank","noopener,noreferrer")});
+$("browserFullscreenBtn").addEventListener("click",()=>setBrowserFullscreen(true));$("browserRestoreBtn").addEventListener("click",()=>setBrowserFullscreen(false));
+$("browserZoomOutBtn").addEventListener("click",()=>{browserZoom=Math.max(.6,Math.round((browserZoom-.1)*10)/10);applyBrowserZoom()});$("browserZoomInBtn").addEventListener("click",()=>{browserZoom=Math.min(1.6,Math.round((browserZoom+.1)*10)/10);applyBrowserZoom()});$("browserZoomLabel").addEventListener("click",()=>{browserZoom=1;applyBrowserZoom()});
+$("browserBookmarkBtn").addEventListener("click",()=>{const tab=activeBrowserTab();if(!tab?.url)return;const i=browserBookmarks.findIndex(b=>b.url===tab.url);if(i>=0)browserBookmarks.splice(i,1);else browserBookmarks.unshift({url:tab.url,title:tab.title});saveBrowserState();updateBrowserButtons()});
+$("browserBookmarksBtn").addEventListener("click",()=>renderBrowserMenu("bookmarks"));$("browserHistoryBtn").addEventListener("click",()=>renderBrowserMenu("history"));$("browserMenuCloseBtn").addEventListener("click",()=>$("browserMenu").classList.add("hidden"));
+$("browserMenuClearBtn").addEventListener("click",e=>{if(e.currentTarget.dataset.kind==="bookmarks")browserBookmarks=[];else browserVisitHistory=[];saveBrowserState();renderBrowserMenu(e.currentTarget.dataset.kind);updateBrowserButtons()});
+$("browserCopyBtn").addEventListener("click",async()=>{const u=activeBrowserTab()?.url;if(!u)return;try{await navigator.clipboard.writeText(u);setBrowserStatus("URLをコピーしました") }catch(_){$("browserUrl").select();document.execCommand("copy")}});
+$("browserHelpBtn").addEventListener("click",()=>alert("Webサイト側がiframe表示を禁止している場合、この画面内では表示できません。その場合は右上の ↗ を押してSafariなどの外部ブラウザで開いてください。\n\n＋で新規タブ、☆でブックマーク、↺で履歴、A− / A＋で表示倍率を変更できます。"));
 document.querySelectorAll("[data-browser-url]").forEach(btn=>btn.addEventListener("click",()=>navigateBrowser(btn.dataset.browserUrl)));
-$("browserFrame").addEventListener("load",()=>{
-  clearTimeout(browserLoadTimer);
-  setBrowserStatus("表示完了: "+currentBrowserUrl,"done");
-  setStatus("Browser Loaded","ok");
-});
-const savedBrowserUrl=localStorage.getItem("salpBrowserLastUrl");
-if(savedBrowserUrl)$("browserUrl").value=savedBrowserUrl;
-const savedZoom=Number(localStorage.getItem("salpBrowserZoom"));
-if(savedZoom>=.6&&savedZoom<=1.6)browserZoom=savedZoom;
-applyBrowserZoom();
-updateBrowserButtons();
+$("browserFrame").addEventListener("load",()=>{clearTimeout(browserLoadTimer);const tab=activeBrowserTab();setBrowserStatus(tab?.url?"表示完了: "+tab.url:"新しいタブ","done");setStatus("Browser Loaded","ok")});
+if(!browserTabs.length)browserTabs=[{id:Date.now(),title:"新しいタブ",url:"",history:[],index:-1}];if(!browserTabs.some(t=>t.id===activeBrowserTabId))activeBrowserTabId=browserTabs[0].id;applyBrowserZoom();showBrowserTab(activeBrowserTab());
 
 function updateDesktopClock(){
   const now=new Date();
@@ -774,7 +756,7 @@ setInterval(updateDesktopClock,30000);
 $("supportText").textContent=[
   crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation",
   typeof SharedArrayBuffer!=="undefined"?"✓ SharedArrayBuffer":"✗ SharedArrayBuffer",
-  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.9.1"
+  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.9.2"
 ].join("  ");
 </script>
 </body>
