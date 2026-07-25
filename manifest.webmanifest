@@ -5,7 +5,7 @@
   "description": "音楽・BASIC・無料ブラウザツールを、大きなボタンから迷わず開けるsalp Tools。更新時は自動で最新版へ切り替わります。",
   "lang": "ja",
   "dir": "ltr",
-  "start_url": "./?source=pwa&v=2.7.1",
+  "start_url": "./?source=pwa&v=2.7.2",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
@@ -41,7 +41,7 @@
     {
       "name": "Retro BASIC",
       "short_name": "Retro BASIC",
-      "url": "./salp-n88-basic.html",
+      "url": "./salp-s26-basic.html",
       "icons": [
         {
           "src": "./icons/icon-192.png",

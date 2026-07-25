@@ -1,24 +1,20 @@
-salp Tools PWA v2.7.1 — Auto Update Edition
+salp Tools v2.7.2 — S26 Complete Package
 
-更新時に古いページが残りにくいように改善しました。
+GitHub Pages の /tools/ フォルダーへ、このZIPの中身をアップロードしてください。
 
-主な変更:
-- 新しいService Workerを自動で有効化
-- 更新完了後にページを自動再読み込み
-- sw.jsのURLへバージョン番号を付けてキャッシュを回避
-- HTMLは常にネット優先で取得
-- 古いHTMLをService Workerへ保存しない
-- 起動直後と2.5秒後に更新を再確認
-- PWAキャッシュをv2.7.1へ更新
+主なファイル:
+- index.html
+- music.html
+- manifest.webmanifest
+- sw.js
+- salp-s26-basic.html（ホームから開く正式ファイル名）
+- s26basic.html（予備エイリアス）
+- s26basic-core.html
 
-/tools/直下へ上書き:
-index.html
-music.html
-manifest.webmanifest
-sw.js
+Service Worker改善:
+- HTMLはネット優先
+- 古いキャッシュを自動削除
+- ファイルが1つ欠けてもインストール全体が停止しない
+- skipWaiting / clients.claim で更新を早く反映
 
-icons/は既存のままです。
-
-初回だけ旧Service Workerが残ることがあります。
-その場合はSafariで https://salpmusic.github.io/tools/?v=271 を一度開けば、
-以後は新しい自動更新方式へ切り替わります。
+アップロード後、古いキャッシュが残る端末ではページを2回再読み込みしてください。
