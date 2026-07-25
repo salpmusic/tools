@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#d7d0bd">
+<title>salp BASIC Mini 説明書</title>
+<style>
+:root{--bg:#242724;--paper:#e9e2cf;--paper2:#d2c9b3;--ink:#252a25;--muted:#655f53;--line:#817967;--lcd:#b9c6a5;--accent:#8b302b;--blue:#31566e;--code:#202520;--codeink:#dce8d2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic",sans-serif;line-height:1.75}
+a{color:#244b64}.wrap{width:min(100% - 24px,980px);margin:18px auto 60px;background:linear-gradient(180deg,var(--paper),var(--paper2));border:2px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.38)}header{padding:28px 24px 22px;background:linear-gradient(145deg,rgba(255,255,255,.55),transparent 40%)}h1{margin:0;font-size:clamp(28px,6vw,48px);line-height:1.15}header p{margin:10px 0 0;color:var(--muted);font-weight:700}.badge{display:inline-block;margin-top:14px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#eee7d5;font-size:12px;font-weight:900}.toolbar{display:flex;gap:10px;flex-wrap:wrap;padding:12px 20px;background:#6e695c}.toolbar a{color:white;text-decoration:none;padding:9px 12px;border-radius:9px;background:#343934;font-weight:900;font-size:13px}.content{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;padding:24px}.toc{position:sticky;top:12px;align-self:start;padding:16px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.3)}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;padding:4px 0;text-decoration:none;font-size:13px}.doc{min-width:0}section{scroll-margin-top:12px;margin-bottom:36px}h2{padding-bottom:7px;border-bottom:2px solid #79715f;font-size:25px}h3{margin-top:27px;font-size:19px}.note,.warning{padding:13px 15px;border-radius:11px;margin:14px 0}.note{background:rgba(49,86,110,.12);border-left:5px solid var(--blue)}.warning{background:rgba(139,48,43,.12);border-left:5px solid var(--accent)}code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;padding:15px;border-radius:11px;background:var(--code);color:var(--codeink);font:700 14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.syntax{display:inline-block;padding:5px 8px;border-radius:6px;background:#c6cfb5;font-weight:900}.cmd{padding:17px;margin:18px 0;border:1px solid #887f6d;border-radius:13px;background:rgba(255,255,255,.28)}table{width:100%;border-collapse:collapse;display:block;overflow:auto}th,td{padding:9px 10px;border:1px solid #8e8572;text-align:left;white-space:nowrap}th{background:#c7bda6}footer{padding:18px;text-align:center;border-top:1px solid var(--line);color:var(--muted);font-size:12px}@media(max-width:760px){.wrap{width:100%;margin:0;border:0;border-radius:0}.content{grid-template-columns:1fr;padding:15px}.toc{position:static}.toolbar{position:sticky;top:0;z-index:5}.cmd{padding:13px}pre{font-size:13px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+<h1>salp BASIC Mini<br>リファレンスマニュアル＆プログラマーズガイド</h1>
+<p>BM-01 / Version 0.1.x 対応</p>
+<span class="badge">Original Pocket BASIC Environment</span>
+</header>
+<nav class="toolbar">
+<a href="salp-basic-mini-v0.1.1-with-manual.html">BASIC Miniへ戻る</a>
+<a href="#quickstart">最初のプログラム</a>
+<a href="#commands">命令一覧</a>
+<a href="#samples">サンプル</a>
+</nav>
+<div class="content">
+<aside class="toc">
+<strong>目次</strong>
+<a href="#about">1. 概要</a>
+<a href="#operation">2. 本体の操作</a>
+<a href="#quickstart">3. はじめてのプログラム</a>
+<a href="#rules">4. 記述ルール</a>
+<a href="#variables">5. 変数と式</a>
+<a href="#commands">6. 命令リファレンス</a>
+<a href="#errors">7. エラー</a>
+<a href="#samples">8. サンプル集</a>
+<a href="#limits">9. 現行版の制限</a>
+</aside>
+<article class="doc">
+<section id="about"><h2>1. 概要</h2>
+<p>salp BASIC Miniは、ブラウザだけで使える小型BASICプログラミング環境です。プログラムを行番号付きで入力し、<b>RUN</b>ボタンで実行します。インストールやユーザー登録は不要です。</p>
+<div class="note">プログラムの最大容量は4,096文字です。保存先は現在使用中のブラウザ内です。</div>
+</section>
+<section id="operation"><h2>2. 本体の操作</h2>
+<table><tr><th>ボタン</th><th>動作</th></tr><tr><td>RUN</td><td>エディタ内のプログラムを実行します。</td></tr><tr><td>LIST</td><td>入力中のプログラムを液晶画面に表示します。</td></tr><tr><td>NEW</td><td>確認後、入力中のプログラムを消去します。</td></tr><tr><td>CLS</td><td>液晶画面の表示だけを消去します。</td></tr><tr><td>SAVE</td><td>プログラムをブラウザのlocalStorageへ保存します。</td></tr><tr><td>LOAD</td><td>保存済みプログラムを読み込みます。</td></tr></table>
+<p>PRINT、FOR、NEXT、GOTOの小ボタンは、よく使う命令をエディタへ挿入する補助ボタンです。</p>
+</section>
+<section id="quickstart"><h2>3. はじめてのプログラム</h2>
+<p>下のプログラムを入力し、RUNを押してください。</p><pre>10 PRINT "HELLO FROM BASIC MINI"
+20 FOR I=1 TO 5
+30 PRINT I
+40 NEXT I
+50 END</pre>
+<p>実行すると、文字列と1から5までの数字が順番に表示されます。</p>
+</section>
+<section id="rules"><h2>4. プログラムの記述ルール</h2>
+<h3>行番号</h3><p>すべての実行行の先頭に行番号が必要です。行番号は数値で指定し、実行時には小さい順に並べ替えられます。</p><pre>10 PRINT "START"
+20 END</pre>
+<div class="warning">行番号のない行があると「line number required」エラーになります。</div>
+<h3>大文字と小文字</h3><p>命令名と変数名は大文字・小文字を区別しません。<code>print</code>、<code>Print</code>、<code>PRINT</code>は同じ命令として扱われます。</p>
+<h3>1行1命令</h3><p>現行版では、基本的に1つの行番号につき1つの命令を記述してください。コロンによる複数命令は未対応です。</p>
+<h3>文字列</h3><p>文字列は半角のダブルクォーテーションで囲みます。</p><pre>10 PRINT "SALP BASIC MINI"</pre>
+</section>
+<section id="variables"><h2>5. 変数と式</h2>
+<h3>数値変数</h3><p><code>A</code>、<code>I</code>、<code>COUNT</code>など、英字で始まる名前を使えます。</p><pre>10 A=10
+20 B=A+5
+30 PRINT B</pre>
+<h3>文字列変数</h3><p>末尾に<code>$</code>を付けた変数は、INPUTで文字列として扱われます。</p><pre>10 INPUT NAME$
+20 PRINT NAME$</pre>
+<h3>算術演算子</h3><table><tr><th>演算子</th><th>意味</th></tr><tr><td>+</td><td>加算</td></tr><tr><td>-</td><td>減算</td></tr><tr><td>*</td><td>乗算</td></tr><tr><td>/</td><td>除算</td></tr></table>
+<h3>比較・論理演算子</h3><table><tr><th>演算子</th><th>意味</th></tr><tr><td>=</td><td>等しい</td></tr><tr><td>&lt;&gt;</td><td>等しくない</td></tr><tr><td>&lt; &gt; &lt;= &gt;=</td><td>大小比較</td></tr><tr><td>AND</td><td>両方の条件が真</td></tr><tr><td>OR</td><td>どちらかの条件が真</td></tr><tr><td>NOT</td><td>条件を反転</td></tr></table>
+</section>
+<section id="commands"><h2>6. 命令リファレンス</h2>
+<div class="cmd"><h3>PRINT</h3><span class="syntax">PRINT 式 [, 式 ...]</span><p>文字列、数値、変数、計算結果を画面へ表示します。カンマ区切りの項目は空白を挟んで同じ行に表示されます。</p><pre>10 PRINT "SCORE",100
+20 PRINT 10+20</pre></div>
+<div class="cmd"><h3>LET / 代入</h3><span class="syntax">LET 変数=式</span><p>変数に値を代入します。LETは省略できます。</p><pre>10 LET A=25
+20 B=A*2
+30 PRINT B</pre></div>
+<div class="cmd"><h3>INPUT</h3><span class="syntax">INPUT 変数</span><p>ブラウザの入力ダイアログを表示して値を受け取ります。末尾が$の変数は文字列、それ以外は数値になります。</p><pre>10 INPUT AGE
+20 PRINT AGE</pre></div>
+<div class="cmd"><h3>IF ... THEN</h3><span class="syntax">IF 条件 THEN 行番号</span><p>条件が真のとき、指定した行番号へ移動します。THENの後ろには行番号だけを指定します。</p><pre>10 INPUT A
+20 IF A=10 THEN 50
+30 PRINT "NO"
+40 END
+50 PRINT "YES"</pre></div>
+<div class="cmd"><h3>GOTO</h3><span class="syntax">GOTO 行番号</span><p>指定行へ無条件に移動します。</p><pre>10 PRINT "LOOP"
+20 GOTO 10</pre><div class="warning">安全対策として、実行命令数が10,000回を超えると「BREAK: LOOP LIMIT」で停止します。</div></div>
+<div class="cmd"><h3>FOR ... TO ... STEP</h3><span class="syntax">FOR 変数=開始値 TO 終了値 [STEP 増分]</span><p>NEXTまでを繰り返します。STEPを省略した場合は1です。負のSTEPも使えます。</p><pre>10 FOR I=10 TO 0 STEP -2
+20 PRINT I
+30 NEXT I</pre></div>
+<div class="cmd"><h3>NEXT</h3><span class="syntax">NEXT [変数]</span><p>対応するFORへ戻ります。変数名は省略できます。</p><pre>10 FOR I=1 TO 3
+20 PRINT I
+30 NEXT</pre></div>
+<div class="cmd"><h3>CLS</h3><span class="syntax">CLS</span><p>プログラム実行中の出力画面を消去します。</p></div>
+<div class="cmd"><h3>END / STOP</h3><span class="syntax">END</span><p>プログラムの実行を終了します。STOPも同じ動作です。</p></div>
+<div class="cmd"><h3>REM / '</h3><span class="syntax">REM コメント</span><p>プログラム内に説明を記述します。行頭の命令部分がアポストロフィで始まる行もコメントとして扱われます。</p><pre>10 REM THIS IS A COMMENT
+20 ' ANOTHER COMMENT
+30 PRINT "OK"</pre></div>
+</section>
+<section id="errors"><h2>7. エラーメッセージ</h2>
+<table><tr><th>表示</th><th>原因</th></tr><tr><td>MEMORY FULL</td><td>プログラムが4,096文字を超えています。</td></tr><tr><td>line number required</td><td>行番号のない行があります。</td></tr><tr><td>?SYNTAX ERROR</td><td>対応していない命令、または文法の誤りです。</td></tr><tr><td>BAD EXPRESSION</td><td>式を正しく計算できません。</td></tr><tr><td>UNDEFINED LINE</td><td>GOTOまたはTHENの移動先が存在しません。</td></tr><tr><td>NEXT WITHOUT FOR</td><td>対応するFORがありません。</td></tr><tr><td>NEXT VARIABLE MISMATCH</td><td>FORとNEXTの変数名が一致していません。</td></tr><tr><td>BREAK: LOOP LIMIT</td><td>命令実行回数が安全上限を超えました。</td></tr></table>
+</section>
+<section id="samples"><h2>8. サンプルプログラム</h2>
+<h3>九九</h3><pre>10 FOR A=1 TO 9
+20 FOR B=1 TO 9
+30 PRINT A,B,A*B
+40 NEXT B
+50 NEXT A
+60 END</pre>
+<h3>簡単な判定</h3><pre>10 PRINT "NUMBER 1 TO 5"
+20 INPUT A
+30 IF A=3 THEN 70
+40 PRINT "MISS"
+50 GOTO 20
+70 PRINT "HIT!"
+80 END</pre>
+<h3>カウントダウン</h3><pre>10 CLS
+20 FOR I=10 TO 1 STEP -1
+30 PRINT I
+40 NEXT I
+50 PRINT "GO!"
+60 END</pre>
+</section>
+<section id="limits"><h2>9. 現行版の主な制限</h2>
+<ul><li>1行に複数命令を書くコロン記法は未対応です。</li><li>GOSUB、RETURN、DATA、READ、配列、組み込み数学関数は未対応です。</li><li>PRINTのセミコロン制御、整形表示、入力メッセージ指定は未対応です。</li><li>プログラム保存は1本分です。ブラウザや端末を変更すると共有されません。</li><li>ブラウザのデータを削除すると保存プログラムも消える場合があります。</li></ul>
+<div class="note">このマニュアルはsalp BASIC Mini v0.1.xの実装内容に合わせています。将来のバージョンでは命令や仕様が追加・変更される場合があります。</div>
+</section>
+</article>
+</div>
+<footer>salp BASIC Mini Manual — BM-01</footer>
+</main>
+</body>
+</html>
