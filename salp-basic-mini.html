@@ -218,6 +218,21 @@ button.list{background:linear-gradient(180deg,#436a82,#29495c)}
 button.save{background:linear-gradient(180deg,#6c6a3b,#4c4b27)}
 button.load{background:linear-gradient(180deg,#65527d,#463858)}
 button.wide{grid-column:1/-1}
+.manualLink{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:50px;
+  border-radius:11px;
+  text-decoration:none;
+  color:#f4f1e7;
+  background:linear-gradient(180deg,#4f6758,#33473c);
+  box-shadow:0 4px 0 #1d2922,inset 0 1px 0 rgba(255,255,255,.12);
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:.05em;
+}
+.manualLink:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2922}
 .quick{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -284,7 +299,7 @@ footer{
           <span id="clock">00:00</span>
         </div>
         <div id="screen" class="screen">salp BASIC Mini
-Version 0.1.0
+Version 0.1.1
 
 READY.</div>
       </div>
@@ -320,6 +335,8 @@ READY.</div>
         <button class="load" id="loadBtn">LOAD</button>
       </div>
 
+      <a class="manualLink" href="basicmini-manual.html" target="_blank" rel="noopener">説明書・命令リファレンス</a>
+
       <div class="quick">
         <button data-insert='PRINT "HELLO"'>PRINT</button>
         <button data-insert='FOR I=1 TO 10'>FOR</button>
@@ -334,7 +351,7 @@ READY.</div>
     </aside>
   </section>
 
-  <footer>salp BASIC Mini v0.1.0 — Original Pocket BASIC Environment</footer>
+  <footer>salp BASIC Mini v0.1.1 — Manual Link Edition</footer>
 </main>
 
 <script>
