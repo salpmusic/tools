@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.4</title>
+<title>salp Simple Video v3.5</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -131,7 +131,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.4</h1>
+  <h1>🎬 salp Simple Video v3.5</h1>
   <div class="sub">追加音声の使用開始位置と個別音量を調整</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
@@ -204,8 +204,10 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 
     <div class="grid2" style="margin-top:12px">
       <div>
-        <label for="videoAudioStart">音声ファイルの使用開始位置（秒）</label>
+        <label for="videoAudioStart">音声ファイルの切り出し開始位置（秒）</label>
         <input id="videoAudioStart" type="number" min="0" step="0.1" value="0">
+        <input id="videoAudioStartSlider" type="range" min="0" max="1" step="0.1" value="0" style="margin-top:8px">
+        <div class="note" style="margin-top:4px">例：26 → 音声の26秒地点を、映像の0秒から再生</div>
       </div>
       <div>
         <label for="videoAudioVolume">追加音声の音量</label>
@@ -218,8 +220,8 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 
     <div class="audioTimelineBox">
       <div class="audioTimelineHead">
-        <span>🎵 音声ファイル内の使用位置</span>
-        <span id="audioPositionLabel">音声の0.0秒地点から使用</span>
+        <span>🎵 音声の切り出し位置</span>
+        <span id="audioPositionLabel">音声26秒 → 映像0秒</span>
       </div>
 
       <div id="audioTimeline" class="audioTimeline">
@@ -259,7 +261,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.3では、追加音声の開始位置を数値入力しても、動画尺へ勝手に書き換えられないよう修正しました。</p>
+  <p class="note">v3.5では、追加音声の切り出し開始位置を数値またはスライダーで指定できます。指定地点の音声が映像の先頭から再生されます。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -346,6 +348,9 @@ $("videoAudioInput").onchange=async e=>{
         ?tempAudio.duration
         :0;
 
+      $("videoAudioStartSlider").max=Math.max(0,videoAudioDuration-0.1).toFixed(1);
+      $("videoAudioStart").max=Math.max(0,videoAudioDuration-0.1).toFixed(1);
+
       URL.revokeObjectURL(tempUrl);
     }catch(error){
       console.warn("追加音声の長さを取得できませんでした",error);
@@ -403,6 +408,7 @@ function clampAudioStart(value){
 function setAudioStart(value){
   const next=clampAudioStart(value);
   $("videoAudioStart").value=next.toFixed(1);
+  $("videoAudioStartSlider").value=next.toFixed(1);
   updateAudioTimeline();
 }
 
@@ -422,16 +428,25 @@ function updateAudioTimeline(){
     Math.max(3,Math.min(100-startPercent,widthPercent))+"%";
 
   $("audioPositionLabel").textContent=
-    "音声の"+requestedStart.toFixed(1)+"秒地点から使用"+
+    "音声 "+requestedStart.toFixed(1)+"秒 → 映像 0.0秒"+
     (videoAudioDuration&&requestedStart>=videoAudioDuration
       ?"（音声の長さを超えています）"
       :"");
+
+  $("videoAudioStartSlider").value=displayStart.toFixed(1);
 
   $("audioTimelineEnd").textContent=
     timelineDuration.toFixed(1)+"秒";
 }
 
-$("videoAudioStart").addEventListener("input",updateAudioTimeline);
+$("videoAudioStart").addEventListener("input",()=>{
+  const value=Math.max(0,Number($("videoAudioStart").value)||0);
+  $("videoAudioStartSlider").value=clampAudioStart(value).toFixed(1);
+  updateAudioTimeline();
+});
+$("videoAudioStartSlider").addEventListener("input",()=>{
+  setAudioStart($("videoAudioStartSlider").value);
+});
 $("trimStart").addEventListener("input",updateAudioTimeline);
 $("trimEnd").addEventListener("input",updateAudioTimeline);
 
