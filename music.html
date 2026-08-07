@@ -23,7 +23,9 @@
   --pink:#f9a8d4;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;touch-action:manipulation}
+button,a{-webkit-tap-highlight-color:transparent}
+
 body{
   margin:0;
   min-height:100vh;
@@ -99,6 +101,25 @@ h1{margin:16px 0 0;font-size:clamp(38px,10vw,58px);line-height:1}
   box-shadow:0 14px 34px rgba(0,0,0,.25);
 }
 .musicLink:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.musicLink.recommended{
+  position:relative;
+  border-color:#86efac;
+  box-shadow:0 0 0 2px rgba(134,239,172,.18),0 18px 42px rgba(0,0,0,.34);
+  transform:scale(1.015);
+}
+.recommendBadge{
+  position:absolute;
+  top:-10px;
+  right:16px;
+  padding:6px 11px;
+  border-radius:999px;
+  background:#f8fafc;
+  color:#0d2415;
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.03em;
+  box-shadow:0 8px 18px rgba(0,0,0,.22);
+}
 .icon{font-size:42px;flex:0 0 auto}
 .label{display:flex;flex-direction:column;gap:4px}
 .label strong{font-size:25px;line-height:1.2}
@@ -126,72 +147,296 @@ footer{
   text-align:center;
   font-size:13px;
 }
-body.large .musicLink{min-height:132px}
-body.large .label strong{font-size:29px}
-body.large .label small,body.large .label span{font-size:17px}
-body.large .hero p{font-size:19px}
+body.large .musicLink{
+  min-height:146px;
+  padding:24px 22px;
+  gap:20px;
+}
+body.large .icon{font-size:48px}
+body.large .label strong{font-size:31px}
+body.large .label small,body.large .label span{font-size:18px}
+body.large .hero h2{font-size:clamp(28px,7vw,40px)}
+body.large .hero p{font-size:20px}
+body.large .back,
+body.large .largeBtn,
+body.large .langBtn{
+  min-height:52px;
+  font-size:17px;
+}
+body.large .note{font-size:18px}
+
+
+.langBar{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:16px;
+}
+.langBtn{
+  min-height:42px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:#111827;
+  color:#fff;
+  font-weight:900;
+}
+.langBtn.active{
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  color:#07111b;
+  border-color:transparent;
+}
 @media(max-width:430px){
-  .musicLink{padding:18px 16px}
-  .icon{font-size:37px}
-  .label strong{font-size:23px}
+  .wrap{padding-left:10px;padding-right:10px}
+  .topbar{align-items:stretch}
+  .back,.largeBtn{
+    min-height:50px;
+    padding:11px 12px;
+    font-size:14px;
+  }
+  .musicLink{
+    min-height:118px;
+    padding:19px 16px;
+    gap:14px;
+  }
+  .icon{font-size:39px}
+  .label strong{font-size:24px}
+  .label small{font-size:15px}
+  .label span{font-size:14px}
+  .langBar{gap:6px}
+  .langBtn{
+    flex:1 1 calc(50% - 6px);
+    min-height:48px;
+    padding:10px 8px;
+    font-size:14px;
+  }
+
+  body.large .wrap{padding-left:8px;padding-right:8px}
+  body.large .musicLink{
+    min-height:158px;
+    padding:25px 18px;
+    gap:16px;
+    border-radius:24px;
+  }
+  body.large .icon{font-size:52px}
+  body.large .label strong{font-size:30px}
+  body.large .label small,
+  body.large .label span{font-size:18px;line-height:1.55}
+  body.large .hero h1{font-size:52px}
+  body.large .hero h2{font-size:31px}
+  body.large .hero p{font-size:20px}
+  body.large .back,
+  body.large .largeBtn{
+    min-height:56px;
+    font-size:16px;
+  }
+  body.large .langBtn{
+    min-height:54px;
+    font-size:16px;
+  }
+  body.large .note{
+    padding:20px 18px;
+    font-size:18px;
+    line-height:1.8;
+  }
 }
 </style>
 </head>
 <body>
 <main class="wrap">
+<div class="langBar" aria-label="Language selector">
+<button class="langBtn" data-lang="ja" type="button">日本語</button>
+<button class="langBtn" data-lang="en" type="button">English</button>
+<button class="langBtn" data-lang="vi" type="button">Tiếng Việt</button>
+<button class="langBtn" data-lang="tl" type="button">Tagalog</button>
+</div>
 <div class="topbar">
-<a class="back" href="./index.html">← ホームへ戻る</a>
-<button class="largeBtn" id="largeBtn" type="button">文字を大きく A+</button>
+<a class="back" href="./index.html" id="backHome">← ホームへ戻る</a>
+<button class="largeBtn" id="largeBtn" type="button" aria-pressed="false">大きく表示 A+</button>
 </div>
 <section class="hero">
 <div aria-hidden="true" class="logo">🎵</div>
 <h1>salp Music</h1>
-<h2>音楽配信サービスを選んでください</h2>
-<p>Choose your favorite music service.</p>
+<h2 id="heroTitle">まずはSpotifyがおすすめです</h2>
+<p id="heroSub">Spotify is our recommended music service.</p>
 </section>
 <section aria-label="音楽サービス" class="links">
+<a class="musicLink spotify recommended" href="https://open.spotify.com/artist/61MNh254DBZ7lPirQ38wSU?si=3tHR0pmJQVWtQpk-IGtECQ&amp;utm_source=copy-link" rel="noopener noreferrer" target="_blank">
+<span class="recommendBadge" id="recommendBadge">おすすめ / RECOMMENDED</span>
+<span aria-hidden="true" class="icon">🎧</span>
+<span class="label">
+<strong id="spotifyStrong">Spotifyで聴く</strong>
+<small id="spotifySmall">Listen on Spotify</small>
+<span id="spotifyDesc">最新の配信を探すならこちらがおすすめ</span>
+</span>
+</a>
 <a class="musicLink youtube" href="https://youtube.com/channel/UCHtyuDiaz25S9Pel5QYwQCg?si=m1F4-9kEsZCevAQ0" rel="noopener noreferrer" target="_blank">
 <span aria-hidden="true" class="icon">▶️</span>
 <span class="label">
-<strong>YouTubeで聴く</strong>
-<small>Listen on YouTube</small>
-<span>salp YouTube Topic</span>
-</span>
-</a>
-<a class="musicLink spotify" href="https://open.spotify.com/artist/61MNh254DBZ7lPirQ38wSU?si=3tHR0pmJQVWtQpk-IGtECQ&amp;utm_source=copy-link" rel="noopener noreferrer" target="_blank">
-<span aria-hidden="true" class="icon">🎧</span>
-<span class="label">
-<strong>Spotifyで聴く</strong>
-<small>Listen on Spotify</small>
-<span>salp Artist Page</span>
+<strong id="youtubeStrong">YouTubeで聴く</strong>
+<small id="youtubeSmall">Listen on YouTube</small>
+<span id="youtubeDesc">salp YouTube Topic｜反映に時間がかかる場合があります</span>
 </span>
 </a>
 <a class="musicLink apple" href="https://music.apple.com/jp/artist/salp/1891262177" rel="noopener noreferrer" target="_blank">
 <span aria-hidden="true" class="icon">🍎</span>
 <span class="label">
-<strong>Apple Musicで聴く</strong>
-<small>Listen on Apple Music</small>
-<span>salp Artist Page</span>
+<strong id="appleStrong">Apple Musicで聴く</strong>
+<small id="appleSmall">Listen on Apple Music</small>
+<span id="appleDesc">salp Artist Page</span>
 </span>
 </a>
 <a class="musicLink amazon" href="https://music.amazon.co.jp/albums/B0H9H2Q5QW?ref=dm_sh_bzadiOdnoznrfJbgVT4ytDOV4&amp;referrer=dm_sh_line" rel="noopener noreferrer" target="_blank">
 <span aria-hidden="true" class="icon">📦</span>
 <span class="label">
-<strong>Amazon Musicで聴く</strong>
-<small>Listen on Amazon Music</small>
-<span>Fluffy Diary, Vol. 10</span>
+<strong id="amazonStrong">Amazon Musicで聴く</strong>
+<small id="amazonSmall">Listen on Amazon Music</small>
+<span id="amazonDesc">Fluffy Diary, Vol. 10</span>
 </span>
 </a>
 </section>
-<div class="note">
-    4つの音楽サービスだけを、大きく見やすく表示しています。
-  </div>
+<div class="note" id="noteText">Spotifyをおすすめとして一番上に表示しています。YouTube Topicは配信反映に時間がかかる場合があります。</div>
 <footer>
 <b>salp Music</b><br/>
     Kanetomo Shioda（塩田 兼与）<br/>
-    Music Gateway v1.1 — Auto Update
+    Music Gateway v1.4 — Mobile Large View
   </footer>
 </main>
+
+<script>
+(() => {
+  const KEY='salpMusicLanguage_v130';
+
+  const dict={
+    ja:{
+      backHome:'← ホームへ戻る',
+      large:'大きく表示 A+',
+      largeOff:'標準表示へ戻す',
+      heroTitle:'まずはSpotifyがおすすめです',
+      heroSub:'Spotifyをおすすめの音楽サービスとして表示しています。',
+      recommendBadge:'おすすめ / RECOMMENDED',
+      spotifyStrong:'Spotifyで聴く',
+      spotifySmall:'Listen on Spotify',
+      spotifyDesc:'最新の配信を探すならこちらがおすすめ',
+      youtubeStrong:'YouTubeで聴く',
+      youtubeSmall:'Listen on YouTube',
+      youtubeDesc:'salp YouTube Topic｜反映に時間がかかる場合があります',
+      appleStrong:'Apple Musicで聴く',
+      appleSmall:'Listen on Apple Music',
+      appleDesc:'salp Artist Page',
+      amazonStrong:'Amazon Musicで聴く',
+      amazonSmall:'Listen on Amazon Music',
+      amazonDesc:'Fluffy Diary, Vol. 10',
+      noteText:'Spotifyをおすすめとして一番上に表示しています。YouTube Topicは配信反映に時間がかかる場合があります。'
+    },
+    en:{
+      backHome:'← Back to Home',
+      large:'Large View A+',
+      largeOff:'Standard View',
+      heroTitle:'Spotify is recommended',
+      heroSub:'Choose your favorite music service.',
+      recommendBadge:'RECOMMENDED',
+      spotifyStrong:'Listen on Spotify',
+      spotifySmall:'Recommended service',
+      spotifyDesc:'Recommended for finding the latest salp releases',
+      youtubeStrong:'Listen on YouTube',
+      youtubeSmall:'YouTube Topic',
+      youtubeDesc:'Updates may take some time to appear on YouTube Topic',
+      appleStrong:'Listen on Apple Music',
+      appleSmall:'Apple Music',
+      appleDesc:'salp Artist Page',
+      amazonStrong:'Listen on Amazon Music',
+      amazonSmall:'Amazon Music',
+      amazonDesc:'Fluffy Diary, Vol. 10',
+      noteText:'Spotify is shown first as our recommended service. YouTube Topic updates may take some time to appear.'
+    },
+    vi:{
+      backHome:'← Về trang chủ',
+      large:'Hiển thị lớn A+',
+      largeOff:'Hiển thị tiêu chuẩn',
+      heroTitle:'Spotify là lựa chọn được đề xuất',
+      heroSub:'Hãy chọn dịch vụ âm nhạc bạn yêu thích.',
+      recommendBadge:'ĐỀ XUẤT',
+      spotifyStrong:'Nghe trên Spotify',
+      spotifySmall:'Dịch vụ được đề xuất',
+      spotifyDesc:'Được đề xuất để tìm các bản phát hành salp mới nhất',
+      youtubeStrong:'Nghe trên YouTube',
+      youtubeSmall:'YouTube Topic',
+      youtubeDesc:'YouTube Topic có thể mất thời gian để cập nhật',
+      appleStrong:'Nghe trên Apple Music',
+      appleSmall:'Apple Music',
+      appleDesc:'Trang nghệ sĩ salp',
+      amazonStrong:'Nghe trên Amazon Music',
+      amazonSmall:'Amazon Music',
+      amazonDesc:'Fluffy Diary, Vol. 10',
+      noteText:'Spotify được hiển thị đầu tiên như dịch vụ được đề xuất. YouTube Topic có thể mất thời gian để cập nhật.'
+    },
+    tl:{
+      backHome:'← Bumalik sa Home',
+      large:'Malaking View A+',
+      largeOff:'Karaniwang View',
+      heroTitle:'Inirerekomenda ang Spotify',
+      heroSub:'Piliin ang paborito mong music service.',
+      recommendBadge:'INIREREKOMENDA',
+      spotifyStrong:'Makinig sa Spotify',
+      spotifySmall:'Inirerekomendang serbisyo',
+      spotifyDesc:'Inirerekomenda para makita ang pinakabagong salp releases',
+      youtubeStrong:'Makinig sa YouTube',
+      youtubeSmall:'YouTube Topic',
+      youtubeDesc:'Maaaring matagalan bago lumabas ang updates sa YouTube Topic',
+      appleStrong:'Makinig sa Apple Music',
+      appleSmall:'Apple Music',
+      appleDesc:'salp Artist Page',
+      amazonStrong:'Makinig sa Amazon Music',
+      amazonSmall:'Amazon Music',
+      amazonDesc:'Fluffy Diary, Vol. 10',
+      noteText:'Nasa itaas ang Spotify bilang inirerekomendang serbisyo. Maaaring matagalan bago lumabas ang updates sa YouTube Topic.'
+    }
+  };
+
+  const setText=(id,value)=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=value;
+  };
+
+  const applyLanguage=(lang,save=true)=>{
+    if(!dict[lang]) lang='en';
+    const t=dict[lang];
+    document.documentElement.lang=lang;
+    Object.keys(t).forEach(k=>setText(k,t[k]));
+    document.querySelectorAll('.langBtn').forEach(b=>{
+      b.classList.toggle('active',b.dataset.lang===lang);
+    });
+    if(save) localStorage.setItem(KEY,lang);
+    window.salpMusicLang=lang;
+  };
+
+  const autoLanguage=()=>{
+    const saved=localStorage.getItem(KEY);
+    if(saved && dict[saved]) return saved;
+
+    const langs=[...(navigator.languages||[]),navigator.language||'']
+      .filter(Boolean)
+      .map(x=>x.toLowerCase());
+
+    if(langs.some(x=>x.startsWith('ja'))) return 'ja';
+    if(langs.some(x=>x.startsWith('vi'))) return 'vi';
+    if(langs.some(x=>x.startsWith('tl') || x.startsWith('fil') || x==='en-ph')) return 'tl';
+    return 'en';
+  };
+
+  document.querySelectorAll('.langBtn').forEach(b=>{
+    b.addEventListener('click',()=>applyLanguage(b.dataset.lang,true));
+  });
+
+  applyLanguage(autoLanguage(),false);
+
+  window.salpApplyMusicLanguage=applyLanguage;
+  window.salpMusicDict=dict;
+})();
+</script>
+
 <script>
 (() => {
   const KEY='salpMusicLargeView_v100';
@@ -199,7 +444,10 @@ body.large .hero p{font-size:19px}
   const apply=large=>{
     document.body.classList.toggle('large',large);
     button.classList.toggle('active',large);
-    button.textContent=large?'標準サイズへ戻す':'文字を大きく A+';
+    button.setAttribute('aria-pressed',large?'true':'false');
+    const lang=window.salpMusicLang||'ja';
+    const t=(window.salpMusicDict&&window.salpMusicDict[lang])||window.salpMusicDict.ja;
+    button.textContent=large?t.largeOff:t.large;
     localStorage.setItem(KEY,large?'1':'0');
   };
   button.addEventListener('click',()=>apply(!document.body.classList.contains('large')));
