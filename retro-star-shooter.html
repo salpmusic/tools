@@ -22,10 +22,15 @@
   }
   .help{font-size:12px;opacity:.75;text-align:center;line-height:1.45}
   .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-  button{
+  button,.homeBtn{
     background:#111827;color:#dff;border:1px solid #6ff;padding:8px 12px;
     border-radius:8px;font:inherit
   }
+  .homeBtn{
+    display:inline-flex;align-items:center;justify-content:center;
+    text-decoration:none;
+  }
+  .homeBtn:hover,button:hover{background:#17243a}
 </style>
 </head>
 <body>
@@ -36,7 +41,10 @@
     <div id="hi">HI 000000</div>
   </div>
   <canvas id="game" width="360" height="480"></canvas>
-  <div class="btns"><button id="startBtn">START / RESTART</button></div>
+  <div class="btns">
+    <button id="startBtn">START / RESTART</button>
+    <a class="homeBtn" href="./index.html">← salp Tools HOME</a>
+  </div>
   <div class="help">PC: ← → / A D で移動・SPACEで連射　スマホ: 画面を指で動かすと自機移動＋自動射撃</div>
 </div>
 
