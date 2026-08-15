@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.6</title>
+<title>salp Simple Video v3.7</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -131,8 +131,8 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.6</h1>
-  <div class="sub">動画切り出し時の元音声を保持・追加音声もミックス</div>
+  <h1>🎬 salp Simple Video v3.7</h1>
+  <div class="sub">動画切り出し時間を厳密固定・元音声も保持</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -261,7 +261,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.6では、動画を切り出しても元動画の音声を保持します。追加音声の切り出し位置・音量も調整できます。</p>
+  <p class="note">v3.7では、指定した開始・終了時間だけを厳密に書き出します。元動画の音声も保持し、追加音声もミックスできます。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -848,13 +848,32 @@ async function exportTrimmedVideo(M){
     Number($("trimStart").value)||0
   );
 
-  const end=Math.max(
-    start+0.1,
-    Number($("trimEnd").value)||
-    sourceVideo.duration
-  );
+  const sourceDuration=
+    Number(sourceVideo.duration)||0;
+
+  let requestedEnd=Number($("trimEnd").value);
+
+  if(!Number.isFinite(requestedEnd)||requestedEnd<=start){
+    requestedEnd=sourceDuration||start+0.1;
+  }
+
+  const end=sourceDuration>0
+    ?Math.min(sourceDuration,requestedEnd)
+    :requestedEnd;
+
+  if(end<=start){
+    throw new Error(
+      "終了時間は開始時間より後にしてください"
+    );
+  }
 
   const duration=end-start;
+
+  $("status").textContent=
+    "切り出し範囲: "+
+    start.toFixed(1)+"秒 → "+
+    end.toFixed(1)+"秒（"+
+    duration.toFixed(1)+"秒）";
   const [width,height]=$("format")
     .value
     .split("x")
@@ -976,11 +995,47 @@ async function exportTrimmedVideo(M){
   const renderContext=
     renderCanvas.getContext("2d");
 
+  /*
+    v3.7:
+    出力側の 0〜duration 秒に必要な時刻だけを明示的に要求する。
+    trimEnd=15 なら、出力映像も約15秒で終了する。
+  */
+  const outputFrameRate=30;
+  const frameStep=1/outputFrameRate;
+  const totalFrames=Math.max(
+    1,
+    Math.ceil(duration*outputFrameRate)
+  );
+
+  async function* requestedSourceTimestamps(){
+    for(let frameIndex=0;frameIndex<totalFrames;frameIndex++){
+      const outputTime=frameIndex*frameStep;
+      if(outputTime>=duration)break;
+      yield start+outputTime;
+    }
+  }
+
   let frameCount=0;
 
   for await(
-    const sample of sink.samples(start,end)
+    const sample of sink.samplesAtTimestamps(
+      requestedSourceTimestamps()
+    )
   ){
+    if(frameCount>=totalFrames)break;
+
+    const outputTime=frameCount*frameStep;
+
+    if(outputTime>=duration){
+      if(sample)sample.close();
+      break;
+    }
+
+    if(!sample){
+      frameCount++;
+      continue;
+    }
+
     const frame=sample.toVideoFrame();
 
     renderContext.fillStyle=$("background").value;
@@ -1018,18 +1073,24 @@ async function exportTrimmedVideo(M){
       drawHeight
     );
 
-    const timestamp=Math.max(
+    const remaining=Math.max(
       0,
-      sample.timestamp-start
+      duration-outputTime
     );
 
-    const frameDuration=Math.max(
-      1/60,
-      sample.duration||1/30
+    const frameDuration=Math.min(
+      frameStep,
+      remaining
     );
+
+    if(frameDuration<=0){
+      frame.close();
+      sample.close();
+      break;
+    }
 
     await videoSource.add(
-      timestamp,
+      outputTime,
       frameDuration,
       {keyFrame:frameCount%60===0}
     );
@@ -1038,18 +1099,19 @@ async function exportTrimmedVideo(M){
     sample.close();
     frameCount++;
 
-    if(frameCount%15===0){
+    if(frameCount%15===0||frameCount===totalFrames){
       const progress=Math.min(
         1,
-        timestamp/Math.max(.001,duration)
+        outputTime/Math.max(.001,duration)
       );
 
       $("progressBar").style.width=
         (25+progress*55)+"%";
 
       $("status").textContent=
-        "映像を変換中… "+
-        Math.round(progress*100)+"%";
+        "映像を切り出し中… "+
+        Math.min(100,Math.round(progress*100))+
+        "% / "+duration.toFixed(1)+"秒";
     }
   }
 
