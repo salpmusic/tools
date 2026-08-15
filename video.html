@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.5</title>
+<title>salp Simple Video v3.6</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -131,8 +131,8 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.5</h1>
-  <div class="sub">追加音声の使用開始位置と個別音量を調整</div>
+  <h1>🎬 salp Simple Video v3.6</h1>
+  <div class="sub">動画切り出し時の元音声を保持・追加音声もミックス</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
 
@@ -261,7 +261,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.5では、追加音声の切り出し開始位置を数値またはスライダーで指定できます。指定地点の音声が映像の先頭から再生されます。</p>
+  <p class="note">v3.6では、動画を切り出しても元動画の音声を保持します。追加音声の切り出し位置・音量も調整できます。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -509,6 +509,125 @@ async function decodeAudioFile(file){
   }finally{
     await context.close();
   }
+}
+
+/*
+  v3.6:
+  動画ファイル全体を decodeAudioData() に渡すのではなく、
+  Mediabunny の音声トラック API から元動画の音声を直接取り出す。
+  iPhone / Safari で「切り出すと元音声が消える」問題を回避する。
+*/
+async function extractOriginalAudioFromVideo(M,file,start,end){
+  const {
+    Input,BlobSource,ALL_FORMATS,AudioSampleSink
+  }=M;
+
+  const input=new Input({
+    source:new BlobSource(file,{useStreamReader:false}),
+    formats:ALL_FORMATS
+  });
+
+  const audioTrack=await input.getPrimaryAudioTrack();
+
+  if(!audioTrack){
+    console.warn("元動画に音声トラックがありません");
+    return null;
+  }
+
+  const sink=new AudioSampleSink(audioTrack);
+  const chunks=[];
+
+  let sampleRate=0;
+  let channels=0;
+
+  for await(const sample of sink.samples(start,end)){
+    try{
+      const buffer=sample.toAudioBuffer();
+
+      sampleRate=Math.max(sampleRate,buffer.sampleRate);
+      channels=Math.max(channels,buffer.numberOfChannels);
+
+      chunks.push({
+        timestamp:sample.timestamp,
+        buffer
+      });
+    }finally{
+      sample.close();
+    }
+  }
+
+  if(!chunks.length){
+    console.warn("指定区間から元動画の音声を取得できませんでした");
+    return null;
+  }
+
+  sampleRate=sampleRate||48000;
+  channels=Math.max(1,channels||2);
+
+  const duration=Math.max(0,end-start);
+  const context=new AudioContext({sampleRate});
+  const output=context.createBuffer(
+    channels,
+    Math.max(1,Math.ceil(duration*sampleRate)),
+    sampleRate
+  );
+
+  for(const chunk of chunks){
+    const source=chunk.buffer;
+
+    // サンプルが trimStart より少し前から始まる場合も正しく切る
+    const chunkStart=chunk.timestamp-start;
+    const sourceStart=Math.max(0,-chunkStart);
+    const destinationStart=Math.max(0,chunkStart);
+
+    const maxDuration=Math.min(
+      source.duration-sourceStart,
+      duration-destinationStart
+    );
+
+    if(maxDuration<=0)continue;
+
+    const firstFrame=Math.max(
+      0,
+      Math.floor(destinationStart*sampleRate)
+    );
+
+    const lastFrame=Math.min(
+      output.length,
+      Math.ceil((destinationStart+maxDuration)*sampleRate)
+    );
+
+    for(let channel=0;channel<channels;channel++){
+      const destination=output.getChannelData(channel);
+      const sourceChannel=Math.min(
+        channel,
+        source.numberOfChannels-1
+      );
+      const sourceData=source.getChannelData(sourceChannel);
+
+      for(let frame=firstFrame;frame<lastFrame;frame++){
+        const outputTime=frame/sampleRate;
+        const sourceTime=
+          sourceStart+(outputTime-destinationStart);
+
+        if(sourceTime<0||sourceTime>=source.duration)continue;
+
+        const position=sourceTime*source.sampleRate;
+        const index=Math.floor(position);
+        const fraction=position-index;
+
+        const a=sourceData[index]||0;
+        const b=sourceData[
+          Math.min(index+1,sourceData.length-1)
+        ]||a;
+
+        destination[frame]=a+(b-a)*fraction;
+      }
+    }
+  }
+
+  await context.close();
+  return output;
 }
 
 function createSilentAudioBuffer(duration,sampleRate=44100,channels=2){
@@ -760,9 +879,19 @@ async function exportTrimmedVideo(M){
 
   if(originalVolume>0){
     try{
-      originalBuffer=await decodeAudioFile(videoFile);
+      $("status").textContent="元動画の音声を取り出し中…";
+      originalBuffer=await extractOriginalAudioFromVideo(
+        M,
+        videoFile,
+        start,
+        end
+      );
     }catch(error){
-      console.warn("元動画の音声を読めませんでした",error);
+      console.error("元動画の音声トラック取得に失敗",error);
+      throw new Error(
+        "元動画の音声を取り出せませんでした: "+
+        (error?.message||error)
+      );
     }
   }
 
@@ -775,7 +904,9 @@ async function exportTrimmedVideo(M){
   const mixedBuffer=mixAudioBuffers({
     duration,
     originalBuffer,
-    originalStart:start,
+    // extractOriginalAudioFromVideo() はすでに
+    // trimStart〜trimEnd を 0 秒起点にして返す
+    originalStart:0,
     originalVolume,
     extraBuffer,
     extraSourceStart,
