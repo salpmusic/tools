@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>SALP JIGSAW PUZZLE</title>
+  <style>
+    /* ============================================
+       リセット・ベース
+       ============================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a2e;
+      color: #eee;
+      font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ============================================
+       レイアウト
+       ============================================ */
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+      color: #e94560;
+      letter-spacing: 2px;
+    }
+
+    /* ============================================
+       コントロールパネル
+       ============================================ */
+    #control-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 8px;
+      z-index: 10;
+    }
+
+    .info-box {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.85rem;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .info-label {
+      font-size: 0.65rem;
+      color: #888;
+      display: block;
+    }
+
+    .info-value {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #e94560;
+    }
+
+    select, button {
+      background: #0f3460;
+      color: #eee;
+      border: 1px solid #e94560;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    button:active {
+      background: #e94560;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ============================================
+       ゲームボード
+       ============================================ */
+    #game-board {
+      position: relative;
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    /* 正解位置のガイド（背景に薄く表示） */
+    #guide-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    /* ピース用キャンバス */
+    #piece-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* ============================================
+       CLEAR オーバーレイ
+       ============================================ */
+    #clear-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    #clear-overlay.show {
+      display: flex;
+    }
+
+    #clear-text {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #e94560;
+      text-shadow: 0 0 20px #e94560;
+      animation: pulse 1s infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    #clear-stats {
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* ============================================
+       画像選択（後から機能追加しやすい構造）
+       ============================================ */
+    #image-input {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <h1>SALP JIGSAW PUZZLE</h1>
+
+  <div id="control-panel">
+    <div class="info-box">
+      <span class="info-label">TIME</span>
+      <span class="info-value" id="timer-display">00:00</span>
+    </div>
+    <div class="info-box">
+      <span class="info-label">MOVES</span>
+      <span class="info-value" id="moves-display">0</span>
+    </div>
+
+    <select id="difficulty-select">
+      <option value="3">3 × 3</option>
+      <option value="4" selected>4 × 4</option>
+      <option value="5">5 × 5</option>
+    </select>
+
+    <button id="start-btn">START</button>
+    <button id="restart-btn" disabled>RESTART</button>
+
+    <!-- 後から「自分の画像」を選べるようにするための隠しinput -->
+    <input type="file" id="image-input" accept="image/*">
+  </div>
+
+  <div id="game-board">
+    <canvas id="guide-canvas"></canvas>
+    <canvas id="piece-canvas"></canvas>
+  </div>
+</div>
+
+<div id="clear-overlay">
+  <div id="clear-text">CLEAR!</div>
+  <div id="clear-stats"></div>
+  <button id="play-again-btn">もう一度遊ぶ</button>
+</div>
+
+<script>
+/* ============================================================
+   SALP JIGSAW PUZZLE
+   1ファイル完結 / 外部ライブラリ不要 / タッチ＆マウス対応
+   ============================================================ */
+
+// ==========================================
+// 設定・定数
+// ==========================================
+const CONFIG = {
+  snapDistanceRatio: 0.4,   // ピースサイズの何割以内で吸着するか
+  boardMaxWidth: 600,       // ボード最大幅（PC）
+  boardMaxHeight: 600,      // ボード最大高さ
+  pieceMargin: 2,           // ピース間の隙間（px）
+};
+
+// ==========================================
+// グローバル状態
+// ==========================================
+let state = {
+  gridSize: 4,              // 3, 4, 5
+  isPlaying: false,
+  isCleared: false,
+  startTime: null,
+  timerInterval: null,
+  moveCount: 0,
+  pieces: [],               // { id, currentRow, currentCol, correctRow, correctCol, x, y, width, height, imgX, imgY }
+  draggedPiece: null,
+  dragOffsetX: 0,
+  dragOffsetY: 0,
+  boardWidth: 0,
+  boardHeight: 0,
+  pieceWidth: 0,
+  pieceHeight: 0,
+  puzzleImage: null,        // Image オブジェクト
+};
+
+// DOM 要素
+const els = {
+  gameBoard: document.getElementById('game-board'),
+  guideCanvas: document.getElementById('guide-canvas'),
+  pieceCanvas: document.getElementById('piece-canvas'),
+  timerDisplay: document.getElementById('timer-display'),
+  movesDisplay: document.getElementById('moves-display'),
+  difficultySelect: document.getElementById('difficulty-select'),
+  startBtn: document.getElementById('start-btn'),
+  restartBtn: document.getElementById('restart-btn'),
+  clearOverlay: document.getElementById('clear-overlay'),
+  clearStats: document.getElementById('clear-stats'),
+  playAgainBtn: document.getElementById('play-again-btn'),
+  imageInput: document.getElementById('image-input'),
+};
+
+const gCtx = els.guideCanvas.getContext('2d');
+const pCtx = els.pieceCanvas.getContext('2d');
+
+// ==========================================
+// 効果音（Web Audio API）
+// ==========================================
+const AudioSys = {
+  ctx: null,
+
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+
+  // ピックアップ音
+  playPickup() {
+    this._playTone(600, 0.05, 'sine');
+  },
+
+  // ドロップ音
+  playDrop() {
+    this._playTone(400, 0.08, 'sine');
+  },
+
+  // スナップ音
+  playSnap() {
+    this._playTone(800, 0.1, 'sine');
+    setTimeout(() => this._playTone(1000, 0.1, 'sine'), 80);
+  },
+
+  // クリア音
+  playClear() {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._playTone(freq, 0.2, 'sine'), i * 120);
+    });
+  },
+
+  _playTone(freq, duration, type) {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
+  },
+
+  // BGM用（後から追加しやすい構造）
+  // playBGM() { ... }
+  // stopBGM() { ... }
+};
+
+// ==========================================
+// 画像生成（デフォルト：Canvasで生成）
+// 後から「ユーザー画像」に差し替えやすい構造
+// ==========================================
+function generateDefaultImage(width, height) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  // 背景
+  ctx.fillStyle = '#0f3460';
+  ctx.fillRect(0, 0, width, height);
+
+  // カラフルな幾何学模様
+  const colors = ['#e94560', '#533483', '#f39422', '#16c79a', '#ef476f'];
+  const cellW = width / 6;
+  const cellH = height / 6;
+
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 6; col++) {
+      ctx.fillStyle = colors[(row + col) % colors.length];
+      const x = col * cellW;
+      const y = row * cellH;
+      ctx.fillRect(x + 4, y + 4, cellW - 8, cellH - 8);
+
+      // 円を重ねる
+      ctx.beginPath();
+      ctx.fillStyle = colors[(row + col + 2) % colors.length];
+      ctx.arc(x + cellW/2, y + cellH/2, cellW/4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // テキスト
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `bold ${Math.floor(width * 0.12)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SALP', width / 2, height * 0.4);
+  ctx.font = `${Math.floor(width * 0.06)}px sans-serif`;
+  ctx.fillText('JIGSAW', width / 2, height * 0.55);
+
+  return canvas.toDataURL('image/png');
+}
+
+// 画像を読み込む（Promise化）
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// ==========================================
+// ボードサイズ計算（画面サイズに合わせる）
+// ==========================================
+function calculateBoardSize() {
+  const panelHeight = document.getElementById('control-panel').offsetHeight + 40;
+  const availableW = Math.min(window.innerWidth - 16, CONFIG.boardMaxWidth);
+  const availableH = Math.min(window.innerHeight - panelHeight, CONFIG.boardMaxHeight);
+  const size = Math.min(availableW, availableH);
+  return { width: size, height: size };
+}
+
+// ==========================================
+// ピース作成
+// ==========================================
+function createPieces(gridSize, boardW, boardH) {
+  const pieces = [];
+  const pieceW = Math.floor(boardW / gridSize);
+  const pieceH = Math.floor(boardH / gridSize);
+
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
+      const id = row * gridSize + col;
+      pieces.push({
+        id: id,
+        correctRow: row,
+        correctCol: col,
+        currentRow: row,
+        currentCol: col,
+        width: pieceW,
+        height: pieceH,
+        imgX: col * pieceW,
+        imgY: row * pieceH,
+        x: 0,
+        y: 0,
+        isPlaced: false,
+      });
+    }
+  }
+
+  return pieces;
+}
+
+// ==========================================
+// ピースをランダム配置（ボード内に散らばる）
+// ==========================================
+function shufflePieces(pieces, boardW, boardH) {
+  const margin = 10;
+  pieces.forEach(p => {
+    // 正解位置からずらして配置
+    const maxX = boardW - p.width - margin;
+    const maxY = boardH - p.height - margin;
+    p.x = margin + Math.random() * maxX;
+    p.y = margin + Math.random() * maxY;
+    p.isPlaced = false;
+  });
+}
+
+// ==========================================
+// 描画
+// ==========================================
+function drawGuide() {
+  const { gridSize, boardWidth, boardHeight, pieceWidth, pieceHeight } = state;
+  gCtx.clearRect(0, 0, boardWidth, boardHeight);
+
+  // グリッド線
+  gCtx.strokeStyle = '#e94560';
+  gCtx.lineWidth = 1;
+  for (let i = 1; i < gridSize; i++) {
+    const x = i * pieceWidth;
+    const y = i * pieceHeight;
+    gCtx.beginPath();
+    gCtx.moveTo(x, 0);
+    gCtx.lineTo(x, boardHeight);
+    gCtx.stroke();
+    gCtx.beginPath();
+    gCtx.moveTo(0, y);
+    gCtx.lineTo(boardWidth, y);
+    gCtx.stroke();
+  }
+}
+
+function drawPieces() {
+  pCtx.clearRect(0, 0, state.boardWidth, state.boardHeight);
+
+  state.pieces.forEach(p => {
+    // ピース背景（枠）
+    pCtx.fillStyle = '#16213e';
+    pCtx.fillRect(p.x, p.y, p.width, p.height);
+
+    // 画像クリップ
+    pCtx.save();
+    pCtx.beginPath();
+    pCtx.rect(p.x, p.y, p.width, p.height);
+    pCtx.clip();
+    pCtx.drawImage(
+      state.puzzleImage,
+      p.imgX, p.imgY, p.width, p.height,
+      p.x, p.y, p.width, p.height
+    );
+    pCtx.restore();
+
+    // 枠線
+    pCtx.strokeStyle = p.isPlaced ? '#16c79a' : '#e94560';
+    pCtx.lineWidth = p.isPlaced ? 2 : 1;
+    pCtx.strokeRect(p.x, p.y, p.width, p.height);
+
+    // ドラッグ中は少し浮き上がる演出
+    if (state.draggedPiece === p) {
+      pCtx.shadowColor = 'rgba(0,0,0,0.5)';
+      pCtx.shadowBlur = 10;
+      pCtx.shadowOffsetX = 3;
+      pCtx.shadowOffsetY = 3;
+      pCtx.strokeRect(p.x, p.y, p.width, p.height);
+      pCtx.shadowColor = 'transparent';
+    }
+  });
+}
+
+// ==========================================
+// 吸着判定
+// ==========================================
+function trySnap(piece) {
+  const correctX = piece.correctCol * state.pieceWidth;
+  const correctY = piece.correctRow * state.pieceHeight;
+  const threshold = state.pieceWidth * CONFIG.snapDistanceRatio;
+
+  const dist = Math.hypot(piece.x - correctX, piece.y - correctY);
+
+  if (dist < threshold) {
+    piece.x = correctX;
+    piece.y = correctY;
+    if (!piece.isPlaced) {
+      piece.isPlaced = true;
+      AudioSys.playSnap();
+    }
+    return true;
+  }
+  return false;
+}
+
+// ==========================================
+// クリア判定
+// ==========================================
+function checkClear() {
+  const allPlaced = state.pieces.every(p => p.isPlaced);
+  if (allPlaced && !state.isCleared) {
+    state.isCleared = true;
+    state.isPlaying = false;
+    clearInterval(state.timerInterval);
+    AudioSys.playClear();
+
+    const timeStr = els.timerDisplay.textContent;
+    els.clearStats.innerHTML = `
+      難易度: ${state.gridSize} × ${state.gridSize}<br>
+      タイム: ${timeStr}<br>
+      移動回数: ${state.moveCount}
+    `;
+    els.clearOverlay.classList.add('show');
+  }
+}
+
+// ==========================================
+// タイマー
+// ==========================================
+function startTimer() {
+  state.startTime = Date.now();
+  state.timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    els.timerDisplay.textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+}
+
+function resetTimer() {
+  stopTimer();
+  els.timerDisplay.textContent = '00:00';
+}
+
+// ==========================================
+// 移動回数
+// ==========================================
+function incrementMoves() {
+  state.moveCount++;
+  els.movesDisplay.textContent = state.moveCount;
+}
+
+function resetMoves() {
+  state.moveCount = 0;
+  els.movesDisplay.textContent = '0';
+}
+
+// ==========================================
+// ゲーム初期化・開始
+// ==========================================
+async function initGame() {
+  const gridSize = parseInt(els.difficultySelect.value, 10);
+  state.gridSize = gridSize;
+
+  // ボードサイズ計算
+  const { width, height } = calculateBoardSize();
+  state.boardWidth = width;
+  state.boardHeight = height;
+  state.pieceWidth = Math.floor(width / gridSize);
+  state.pieceHeight = Math.floor(height / gridSize);
+
+  // Canvas サイズ設定
+  els.gameBoard.style.width = width + 'px';
+  els.gameBoard.style.height = height + 'px';
+  els.guideCanvas.width = width;
+  els.guideCanvas.height = height;
+  els.pieceCanvas.width = width;
+  els.pieceCanvas.height = height;
+
+  // 画像生成・読み込み
+  const imgSrc = generateDefaultImage(width, height);
+  state.puzzleImage = await loadImage(imgSrc);
+
+  // ピース作成＆シャッフル
+  state.pieces = createPieces(gridSize, width, height);
+  shufflePieces(state.pieces, width, height);
+
+  // 描画
+  drawGuide();
+  drawPieces();
+
+  // 状態リセット
+  state.isCleared = false;
+  state.isPlaying = true;
+  resetTimer();
+  resetMoves();
+  startTimer();
+
+  els.startBtn.disabled = true;
+  els.restartBtn.disabled = false;
+  els.clearOverlay.classList.remove('show');
+}
+
+function restartGame() {
+  if (!state.isPlaying && !state.isCleared) return;
+  shufflePieces(state.pieces, state.boardWidth, state.boardHeight);
+  state.pieces.forEach(p => p.isPlaced = false);
+  state.isCleared = false;
+  state.isPlaying = true;
+  resetTimer();
+  resetMoves();
+  startTimer();
+  drawPieces();
+  els.clearOverlay.classList.remove('show');
+}
+
+// ==========================================
+// 入力処理（マウス＆タッチ統合）
+// ==========================================
+function getPointerPos(e) {
+  const rect = els.pieceCanvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const scaleX = els.pieceCanvas.width / rect.width;
+  const scaleY = els.pieceCanvas.height / rect.height;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY,
+  };
+}
+
+function getPieceAt(x, y) {
+  // 上に重なっているピースから探す（逆順）
+  for (let i = state.pieces.length - 1; i >= 0; i--) {
+    const p = state.pieces[i];
+    if (x >= p.x && x <= p.x + p.width && y >= p.y && y <= p.y + p.height) {
+      return p;
+    }
+  }
+  return null;
+}
+
+function onPointerDown(e) {
+  if (!state.isPlaying) return;
+  e.preventDefault();
+
+  AudioSys.init();
+  AudioSys.playPickup();
+
+  const pos = getPointerPos(e);
+  const piece = getPieceAt(pos.x, pos.y);
+
+  if (piece) {
+    state.draggedPiece = piece;
+    state.dragOffsetX = pos.x - piece.x;
+    state.dragOffsetY = pos.y - piece.y;
+
+    // ドラッグ中のピースを最前面に
+    state.pieces = state.pieces.filter(p => p !== piece);
+    state.pieces.push(piece);
+
+    drawPieces();
+  }
+}
+
+function onPointerMove(e) {
+  if (!state.draggedPiece) return;
+  e.preventDefault();
+
+  const pos = getPointerPos(e);
+  let newX = pos.x - state.dragOffsetX;
+  let newY = pos.y - state.dragOffsetY;
+
+  // ボード内に収める
+  newX = Math.max(0, Math.min(newX, state.boardWidth - state.draggedPiece.width));
+  newY = Math.max(0, Math.min(newY, state.boardHeight - state.draggedPiece.height));
+
+  state.draggedPiece.x = newX;
+  state.draggedPiece.y = newY;
+  drawPieces();
+}
+
+function onPointerUp(e) {
+  if (!state.draggedPiece) return;
+  e.preventDefault();
+
+  AudioSys.playDrop();
+
+  // 吸着判定
+  const snapped = trySnap(state.draggedPiece);
+  if (!snapped) {
+    state.draggedPiece.isPlaced = false;
+  }
+
+  incrementMoves();
+  state.draggedPiece = null;
+  drawPieces();
+  checkClear();
+}
+
+// ==========================================
+// イベントリスナー登録
+// ==========================================
+els.pieceCanvas.addEventListener('mousedown', onPointerDown);
+window.addEventListener('mousemove', onPointerMove);
+window.addEventListener('mouseup', onPointerUp);
+
+els.pieceCanvas.addEventListener('touchstart', onPointerDown, { passive: false });
+window.addEventListener('touchmove', onPointerMove, { passive: false });
+window.addEventListener('touchend', onPointerUp, { passive: false });
+
+// ダブルタップズーム防止
+els.pieceCanvas.addEventListener('touchstart', (e) => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
+// ボタン
+els.startBtn.addEventListener('click', initGame);
+els.restartBtn.addEventListener('click', restartGame);
+els.playAgainBtn.addEventListener('click', () => {
+  els.clearOverlay.classList.remove('show');
+  initGame();
+});
+
+// 難易度変更時
+els.difficultySelect.addEventListener('change', () => {
+  if (state.isPlaying || state.isCleared) {
+    initGame();
+  }
+});
+
+// ウィンドウリサイズ
+window.addEventListener('resize', () => {
+  if (state.isPlaying || state.isCleared) {
+    initGame();
+  }
+});
+
+// ==========================================
+// 後から「ユーザー画像」機能を追加しやすい構造
+// ==========================================
+/*
+// 使用例：
+els.imageInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    state.puzzleImage = await loadImage(ev.target.result);
+    // 再描画
+    drawPieces();
+  };
+  reader.readAsDataURL(file);
+});
+*/
+
+// ==========================================
+// BGM追加しやすい構造（予約）
+// ==========================================
+/*
+const BGM = {
+  audio: null,
+  isPlaying: false,
+  init() { ... },
+  play() { ... },
+  stop() { ... },
+};
+*/
+
+// ==========================================
+// 初期表示
+// ==========================================
+drawGuide();
+</script>
+
+</body>
+</html>
