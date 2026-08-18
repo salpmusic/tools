@@ -32,6 +32,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 #guide-canvas{opacity:.18;pointer-events:none}
 #piece-canvas{touch-action:none}
 #hint{font-size:.7rem;color:#9aa7bf;text-align:center;line-height:1.2;min-height:1em}
+.rotate-btn{min-width:46px;font-size:1.15rem;font-weight:800;padding:5px 10px}
+.rotate-btn.ready{border-color:#ffd43b;box-shadow:0 0 0 1px rgba(255,212,59,.25) inset}
 #clear-overlay{position:fixed;inset:0;display:none;z-index:50;background:rgba(0,0,0,.86);align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center}
 #clear-overlay.show{display:flex}
 #clear-text{font-size:clamp(2.8rem,14vw,5rem);font-weight:900;color:#ff5d7a;text-shadow:0 0 22px #e94560;animation:pulse .95s infinite}
@@ -47,7 +49,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 </head>
 <body>
 <div id="app">
-  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v4</small></h1>
+  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v5</small></h1>
 
   <div id="toolbar">
     <div class="info"><small>TIME</small><b id="timer-display">00:00</b></div>
@@ -69,6 +71,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 
     <button id="start-btn">START</button>
     <button id="restart-btn" disabled>RESTART</button>
+    <button id="rotate-left-btn" class="rotate-btn" disabled aria-label="左に90度回転">↺</button>
+    <button id="rotate-right-btn" class="rotate-btn" disabled aria-label="右に90度回転">↻</button>
   </div>
 
   <div id="photo-strip" aria-label="内蔵写真">
@@ -109,7 +113,7 @@ const CONFIG = {
 
 const state = {
   gridSize:4,isPlaying:false,isCleared:false,startTime:0,timerInterval:null,moveCount:0,
-  pieces:[],draggedPiece:null,dragOffsetX:0,dragOffsetY:0,
+  pieces:[],draggedPiece:null,selectedPiece:null,dragOffsetX:0,dragOffsetY:0,
   boardWidth:0,boardHeight:0,pieceWidth:0,pieceHeight:0,
   puzzleImage:null,currentImageSrc:DEFAULT_PHOTOS[0],customImage:false
 };
@@ -124,6 +128,8 @@ const els = {
   diff:document.getElementById('difficulty-select'),
   start:document.getElementById('start-btn'),
   restart:document.getElementById('restart-btn'),
+  rotateLeft:document.getElementById('rotate-left-btn'),
+  rotateRight:document.getElementById('rotate-right-btn'),
   overlay:document.getElementById('clear-overlay'),
   stats:document.getElementById('clear-stats'),
   again:document.getElementById('play-again-btn'),
@@ -170,11 +176,31 @@ function randomEdgeProfile(){
 }
 
 function randomScatterAngle(){
-  const maxDeg=state.gridSize>=8?10:(state.gridSize>=6?13:18);
-  return (Math.random()*2-1)*(Math.PI/180)*maxDeg;
+  // 回転操作を分かりやすくするため、実物パズル同様に90度単位で散らす
+  return [0,Math.PI/2,Math.PI,Math.PI*1.5][Math.floor(Math.random()*4)];
 }
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function normalizeAngle(a){
+  const two=Math.PI*2;
+  a=((a%two)+two)%two;
+  return Math.abs(a-two)<1e-6?0:a;
+}
+function updateRotateButtons(){
+  const ok=!!state.selectedPiece && state.isPlaying;
+  els.rotateLeft.disabled=!ok; els.rotateRight.disabled=!ok;
+  els.rotateLeft.classList.toggle('ready',ok); els.rotateRight.classList.toggle('ready',ok);
+}
+function rotateSelected(dir=1){
+  const q=state.selectedPiece;
+  if(!q||!state.isPlaying)return;
+  q.isPlaced=false;
+  q.angle=normalizeAngle((q.angle||0)+dir*Math.PI/2);
+  state.pieces=state.pieces.filter(x=>x!==q);state.pieces.push(q);
+  AudioSys.pickup();
+  state.moveCount++;els.moves.textContent=state.moveCount;
+  drawPieces();
+}
 
 function makePieces(n,w,h,img){
   const out=[],pw=w/n,ph=h/n,crop=coverRect(img,w,h);
@@ -347,8 +373,8 @@ function drawPieces(){
 
     // outline + a faint inner highlight for a more real cut-piece look
     p.save();
-    p.lineWidth=pc.isPlaced?2.15:Math.max(1.15,2.25-state.gridSize*.055);
-    p.strokeStyle=pc.isPlaced?'#7bf0c1':'rgba(255,255,255,.72)';
+    p.lineWidth=pc===state.selectedPiece?3.0:(pc.isPlaced?2.15:Math.max(1.15,2.25-state.gridSize*.055));
+    p.strokeStyle=pc===state.selectedPiece?'#ffd43b':(pc.isPlaced?'#7bf0c1':'rgba(255,255,255,.72)');
     p.stroke(raw);
     p.lineWidth=Math.max(.65,1.15-state.gridSize*.03);
     p.strokeStyle='rgba(255,255,255,.22)';
@@ -362,7 +388,8 @@ function drawPieces(){
 function trySnap(pc){
   const tx=pc.correctCol*state.pieceWidth,ty=pc.correctRow*state.pieceHeight;
   const th=Math.min(state.pieceWidth,state.pieceHeight)*CONFIG.snapDistanceRatio;
-  if(Math.hypot(pc.x-tx,pc.y-ty)<th){
+  const angleOK=Math.abs(normalizeAngle(pc.angle||0))<0.001;
+  if(Math.hypot(pc.x-tx,pc.y-ty)<th && angleOK){
     pc.x=tx;pc.y=ty;pc.angle=0;
     if(!pc.isPlaced){pc.isPlaced=true;AudioSys.snap()}
     return true;
@@ -372,7 +399,7 @@ function trySnap(pc){
 
 function clearCheck(){
   if(!state.isCleared && state.pieces.every(x=>x.isPlaced)){
-    state.isCleared=true;state.isPlaying=false;clearInterval(state.timerInterval);AudioSys.clear();
+    state.isCleared=true;state.isPlaying=false;state.selectedPiece=null;updateRotateButtons();clearInterval(state.timerInterval);AudioSys.clear();
     els.stats.innerHTML=`${state.gridSize*state.gridSize}ピース<br>タイム: ${els.timer.textContent}<br>移動回数: ${state.moveCount}`;
     els.overlay.classList.add('show');
   }
@@ -399,12 +426,12 @@ async function initGame(){
   for(const c of [els.guide,els.piece]){c.width=width;c.height=height}
   state.pieces=makePieces(state.gridSize,width,height,state.puzzleImage);
   shuffle();resetStats();drawGuide();drawPieces();startTimer();
-  state.isCleared=false;state.isPlaying=true;els.start.disabled=true;els.restart.disabled=false;els.overlay.classList.remove('show');
+  state.isCleared=false;state.isPlaying=true;state.selectedPiece=null;updateRotateButtons();els.start.disabled=true;els.restart.disabled=false;els.overlay.classList.remove('show');
 }
 
 function restartGame(){
   if(!state.puzzleImage)return initGame();
-  AudioSys.init();shuffle();resetStats();state.isCleared=false;state.isPlaying=true;startTimer();drawGuide();drawPieces();els.overlay.classList.remove('show');
+  AudioSys.init();shuffle();resetStats();state.isCleared=false;state.isPlaying=true;state.selectedPiece=null;updateRotateButtons();startTimer();drawGuide();drawPieces();els.overlay.classList.remove('show');
 }
 
 function pos(e){
@@ -420,7 +447,8 @@ function pieceAt(x,y){
 }
 function down(e){
   if(!state.isPlaying)return;e.preventDefault();AudioSys.init();
-  const m=pos(e),q=pieceAt(m.x,m.y);if(!q)return;
+  const m=pos(e),q=pieceAt(m.x,m.y);if(!q){state.selectedPiece=null;updateRotateButtons();drawPieces();return;}
+  state.selectedPiece=q;updateRotateButtons();
   state.draggedPiece=q;state.dragOffsetX=m.x-q.x;state.dragOffsetY=m.y-q.y;
   q.isPlaced=false;state.pieces=state.pieces.filter(x=>x!==q);state.pieces.push(q);AudioSys.pickup();drawPieces();
 }
@@ -442,6 +470,20 @@ els.piece.addEventListener('contextmenu',e=>e.preventDefault());
 els.start.addEventListener('click',initGame);
 els.restart.addEventListener('click',restartGame);
 els.again.addEventListener('click',initGame);
+els.rotateLeft.addEventListener('click',()=>rotateSelected(-1));
+els.rotateRight.addEventListener('click',()=>rotateSelected(1));
+
+let lastTapTime=0,lastTapPiece=null;
+els.piece.addEventListener('pointerup',e=>{
+  if(!state.isPlaying)return;
+  const m=pos(e),q=pieceAt(m.x,m.y),now=Date.now();
+  if(q && q===lastTapPiece && now-lastTapTime<330){
+    state.selectedPiece=q;updateRotateButtons();rotateSelected(1);
+    lastTapTime=0;lastTapPiece=null;
+  }else{
+    lastTapTime=now;lastTapPiece=q;
+  }
+});
 
 els.diff.addEventListener('change',()=>{if(state.isPlaying||state.isCleared)initGame()});
 
