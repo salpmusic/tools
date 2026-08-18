@@ -157,18 +157,69 @@ function coverRect(img,bw,bh){
   return {sx,sy,sw,sh};
 }
 
+function randomEdgeProfile(){
+  return {
+    center:.46+Math.random()*.08,
+    width:.28+Math.random()*.07,
+    depth:.18+Math.random()*.07
+  };
+}
+
 function makePieces(n,w,h,img){
   const out=[],pw=w/n,ph=h/n,crop=coverRect(img,w,h);
+  const vertical=Array.from({length:n},()=>Array.from({length:Math.max(0,n-1)},()=>({sign:Math.random()<.5?-1:1,profile:randomEdgeProfile()})));
+  const horizontal=Array.from({length:Math.max(0,n-1)},()=>Array.from({length:n},()=>({sign:Math.random()<.5?-1:1,profile:randomEdgeProfile()})));
+
   for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    const top=r===0?null:{sign:-horizontal[r-1][c].sign,profile:horizontal[r-1][c].profile,reverse:false};
+    const right=c===n-1?null:{sign:vertical[r][c].sign,profile:vertical[r][c].profile,reverse:false};
+    const bottom=r===n-1?null:{sign:horizontal[r][c].sign,profile:horizontal[r][c].profile,reverse:true};
+    const left=c===0?null:{sign:-vertical[r][c-1].sign,profile:vertical[r][c-1].profile,reverse:true};
     out.push({
       id:r*n+c,correctRow:r,correctCol:c,
       width:pw,height:ph,
       sx:crop.sx+(c/n)*crop.sw, sy:crop.sy+(r/n)*crop.sh,
       sw:crop.sw/n, sh:crop.sh/n,
+      edges:{top,right,bottom,left},
       x:0,y:0,isPlaced:false
     });
   }
   return out;
+}
+
+function addJigsawEdge(path,x1,y1,x2,y2,nx,ny,edge,scale){
+  if(!edge){path.lineTo(x2,y2);return}
+  const {sign,profile}=edge;
+  const dx=x2-x1,dy=y2-y1;
+  const len=Math.hypot(dx,dy);
+  let center=profile.center;
+  if(edge.reverse)center=1-center;
+  const half=profile.width/2;
+  const t0=Math.max(.18,center-half),t1=Math.min(.82,center+half);
+  const depth=sign*profile.depth*scale;
+  const pt=(t,o=0)=>[x1+dx*t+nx*o,y1+dy*t+ny*o];
+  let a=pt(t0),b=pt(center),c=pt(t1);
+  path.lineTo(a[0],a[1]);
+  const q1=pt(t0+(center-t0)*.34,0);
+  const q2=pt(t0+(center-t0)*.28,depth);
+  const q3=pt(center,depth);
+  path.bezierCurveTo(q1[0],q1[1],q2[0],q2[1],q3[0],q3[1]);
+  const q4=pt(t1-(t1-center)*.28,depth);
+  const q5=pt(t1-(t1-center)*.34,0);
+  path.bezierCurveTo(q4[0],q4[1],q5[0],q5[1],c[0],c[1]);
+  path.lineTo(x2,y2);
+}
+
+function piecePath(pc,x=pc.x,y=pc.y){
+  const w=pc.width,h=pc.height,scale=Math.min(w,h);
+  const path=new Path2D();
+  path.moveTo(x,y);
+  addJigsawEdge(path,x,y,x+w,y,0,-1,pc.edges.top,scale);
+  addJigsawEdge(path,x+w,y,x+w,y+h,1,0,pc.edges.right,scale);
+  addJigsawEdge(path,x+w,y+h,x,y+h,0,1,pc.edges.bottom,scale);
+  addJigsawEdge(path,x,y+h,x,y,-1,0,pc.edges.left,scale);
+  path.closePath();
+  return path;
 }
 
 function shuffle(){
@@ -190,24 +241,34 @@ function drawGuide(){
   if(!state.puzzleImage)return;
   const cr=coverRect(state.puzzleImage,state.boardWidth,state.boardHeight);
   g.drawImage(state.puzzleImage,cr.sx,cr.sy,cr.sw,cr.sh,0,0,state.boardWidth,state.boardHeight);
-  g.strokeStyle='#fff';g.lineWidth=.65;
-  for(let i=1;i<state.gridSize;i++){
-    const x=i*state.pieceWidth,y=i*state.pieceHeight;
-    g.beginPath();g.moveTo(x,0);g.lineTo(x,state.boardHeight);g.stroke();
-    g.beginPath();g.moveTo(0,y);g.lineTo(state.boardWidth,y);g.stroke();
+  g.save();
+  g.strokeStyle='rgba(255,255,255,.72)';
+  g.lineWidth=Math.max(.5,1.1-state.gridSize*.035);
+  for(const pc of state.pieces){
+    const x=pc.correctCol*state.pieceWidth,y=pc.correctRow*state.pieceHeight;
+    g.stroke(piecePath(pc,x,y));
   }
+  g.restore();
 }
 
 function drawPieces(){
   p.clearRect(0,0,state.boardWidth,state.boardHeight);
+  const cr=coverRect(state.puzzleImage,state.boardWidth,state.boardHeight);
   for(const pc of state.pieces){
+    const shape=piecePath(pc);
     p.save();
-    p.beginPath();p.rect(pc.x,pc.y,pc.width,pc.height);p.clip();
-    p.drawImage(state.puzzleImage,pc.sx,pc.sy,pc.sw,pc.sh,pc.x,pc.y,pc.width,pc.height);
+    p.clip(shape);
+    const ox=pc.x-pc.correctCol*state.pieceWidth;
+    const oy=pc.y-pc.correctRow*state.pieceHeight;
+    p.drawImage(state.puzzleImage,cr.sx,cr.sy,cr.sw,cr.sh,ox,oy,state.boardWidth,state.boardHeight);
     p.restore();
-    p.strokeStyle=pc.isPlaced?'#63e6be':'rgba(255,255,255,.58)';
-    p.lineWidth=pc.isPlaced?2:Math.max(.5,1.25-state.gridSize*.05);
-    p.strokeRect(pc.x+.3,pc.y+.3,pc.width-.6,pc.height-.6);
+    p.save();
+    p.strokeStyle=pc.isPlaced?'#63e6be':'rgba(255,255,255,.70)';
+    p.lineWidth=pc.isPlaced?1.7:Math.max(.5,1.2-state.gridSize*.045);
+    p.shadowColor='rgba(0,0,0,.45)';
+    p.shadowBlur=pc.isPlaced?0:Math.max(1,4-state.gridSize*.18);
+    p.stroke(shape);
+    p.restore();
   }
 }
 
@@ -264,7 +325,10 @@ function pos(e){
   return {x:(t.clientX-r.left)*els.piece.width/r.width,y:(t.clientY-r.top)*els.piece.height/r.height};
 }
 function pieceAt(x,y){
-  for(let i=state.pieces.length-1;i>=0;i--){const q=state.pieces[i];if(x>=q.x&&x<=q.x+q.width&&y>=q.y&&y<=q.y+q.height)return q}
+  for(let i=state.pieces.length-1;i>=0;i--){
+    const q=state.pieces[i],shape=piecePath(q);
+    if(p.isPointInPath(shape,x,y))return q;
+  }
   return null;
 }
 function down(e){
