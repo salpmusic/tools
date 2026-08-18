@@ -47,7 +47,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 </head>
 <body>
 <div id="app">
-  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v2</small></h1>
+  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v3</small></h1>
 
   <div id="toolbar">
     <div class="info"><small>TIME</small><b id="timer-display">00:00</b></div>
@@ -158,12 +158,19 @@ function coverRect(img,bw,bh){
 }
 
 function randomEdgeProfile(){
-  // スマホでもはっきり分かる、やや大きめのジグソー形状
+  // ピースごとに少しずつ個性が出るよう、位置・太さ・丸みを広めにランダム化
   return {
-    center:.43+Math.random()*.14,
-    width:.40+Math.random()*.07,
-    depth:.29+Math.random()*.07
+    center:.36+Math.random()*.28,
+    width:.30+Math.random()*.16,
+    depth:.22+Math.random()*.12,
+    neck:.12+Math.random()*.10,
+    crown:.74+Math.random()*.34
   };
+}
+
+function randomScatterAngle(){
+  const maxDeg=state.gridSize>=8?8:(state.gridSize>=6?10:14);
+  return (Math.random()*2-1)*(Math.PI/180)*maxDeg;
 }
 
 function makePieces(n,w,h,img){
@@ -182,7 +189,7 @@ function makePieces(n,w,h,img){
       sx:crop.sx+(c/n)*crop.sw, sy:crop.sy+(r/n)*crop.sh,
       sw:crop.sw/n, sh:crop.sh/n,
       edges:{top,right,bottom,left},
-      x:0,y:0,isPlaced:false
+      x:0,y:0,angle:0,isPlaced:false
     });
   }
   return out;
@@ -196,48 +203,63 @@ function addJigsawEdge(path,x1,y1,x2,y2,nx,ny,edge,scale){
   let center=profile.center;
   if(edge.reverse)center=1-center;
 
-  // 「首 → 丸い頭 → 首」が見えるクラシックなジグソー形
+  // 位置・首の細さ・頭の丸みをエッジごとに変えて、同じ形が並ばないようにする
   const half=profile.width/2;
-  const t0=Math.max(.12,center-half);
-  const t1=Math.min(.88,center+half);
+  const t0=Math.max(.09,center-half);
+  const t1=Math.min(.91,center+half);
   const span=t1-t0;
-  const n0=center-span*.17;
-  const n1=center+span*.17;
+  const neckRatio=profile.neck;
+  const crown=profile.crown;
+  const n0=center-span*neckRatio;
+  const n1=center+span*neckRatio;
   const depth=sign*profile.depth*scale;
 
   const pt=(t,o=0)=>[x1+dx*t+nx*o,y1+dy*t+ny*o];
   const P=(t,o=0)=>pt(t,o);
 
-  let a=P(t0,0), b=P(n0,depth*.10), c=P(center,depth), d=P(n1,depth*.10), e=P(t1,0);
+  const a=P(t0,0), b=P(n0,depth*.12), c=P(center,depth), d=P(n1,depth*.12), e=P(t1,0);
   path.lineTo(a[0],a[1]);
 
-  // 首の付け根
-  let c1=P(t0+span*.055,0), c2=P(n0-span*.035,depth*.05);
+  // 左の首
+  let c1=P(t0+span*.07,0), c2=P(n0-span*.05,depth*.05);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],b[0],b[1]);
 
-  // 丸い頭の前半
-  c1=P(n0-span*.035,depth*.72); c2=P(center-span*.12,depth);
+  // 頭の前半
+  c1=P(n0-span*.05,depth*(.42+.08*crown));
+  c2=P(center-span*(.13+.03*crown),depth*crown);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],c[0],c[1]);
 
-  // 丸い頭の後半
-  c1=P(center+span*.12,depth); c2=P(n1+span*.035,depth*.72);
+  // 頭の後半
+  c1=P(center+span*(.13+.03*crown),depth*crown);
+  c2=P(n1+span*.05,depth*(.42+.08*crown));
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],d[0],d[1]);
 
-  // 首から元の辺へ
-  c1=P(n1+span*.035,depth*.05); c2=P(t1-span*.055,0);
+  // 右の首
+  c1=P(n1+span*.05,depth*.05); c2=P(t1-span*.07,0);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],e[0],e[1]);
 
   path.lineTo(x2,y2);
 }
-function piecePath(pc,x=pc.x,y=pc.y){
+
+function rawPiecePath(pc){
   const w=pc.width,h=pc.height,scale=Math.min(w,h);
   const path=new Path2D();
-  path.moveTo(x,y);
-  addJigsawEdge(path,x,y,x+w,y,0,-1,pc.edges.top,scale);
-  addJigsawEdge(path,x+w,y,x+w,y+h,1,0,pc.edges.right,scale);
-  addJigsawEdge(path,x+w,y+h,x,y+h,0,1,pc.edges.bottom,scale);
-  addJigsawEdge(path,x,y+h,x,y,-1,0,pc.edges.left,scale);
+  path.moveTo(0,0);
+  addJigsawEdge(path,0,0,w,0,0,-1,pc.edges.top,scale);
+  addJigsawEdge(path,w,0,w,h,1,0,pc.edges.right,scale);
+  addJigsawEdge(path,w,h,0,h,0,1,pc.edges.bottom,scale);
+  addJigsawEdge(path,0,h,0,0,-1,0,pc.edges.left,scale);
   path.closePath();
+  return path;
+}
+
+function piecePath(pc,x=pc.x,y=pc.y,angle=(pc.angle||0)){
+  const path=new Path2D();
+  const m=new DOMMatrix();
+  m.translateSelf(x+pc.width/2,y+pc.height/2);
+  if(angle)m.rotateSelf(angle*180/Math.PI);
+  m.translateSelf(-pc.width/2,-pc.height/2);
+  path.addPath(rawPiecePath(pc),m);
   return path;
 }
 
@@ -246,7 +268,7 @@ function shuffle(){
   for(let i=cells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]]}
   state.pieces.forEach((pc,i)=>{
     const k=cells[i],r=Math.floor(k/state.gridSize),c=k%state.gridSize;
-    pc.x=c*state.pieceWidth;pc.y=r*state.pieceHeight;pc.isPlaced=false;
+    pc.x=c*state.pieceWidth;pc.y=r*state.pieceHeight;pc.angle=randomScatterAngle();pc.isPlaced=false;
   });
   // avoid an accidental solved board
   if(state.pieces.every(pc=>Math.abs(pc.x-pc.correctCol*state.pieceWidth)<1 && Math.abs(pc.y-pc.correctRow*state.pieceHeight)<1)){
@@ -265,7 +287,7 @@ function drawGuide(){
   g.lineWidth=Math.max(.8,1.5-state.gridSize*.04);
   for(const pc of state.pieces){
     const x=pc.correctCol*state.pieceWidth,y=pc.correctRow*state.pieceHeight;
-    g.stroke(piecePath(pc,x,y));
+    g.stroke(piecePath(pc,x,y,0));
   }
   g.restore();
 }
@@ -276,16 +298,24 @@ function drawPieces(){
   for(const pc of state.pieces){
     const shape=piecePath(pc);
     p.save();
+    p.shadowColor=pc.isPlaced?'rgba(0,0,0,.18)':'rgba(0,0,0,.28)';
+    p.shadowBlur=pc.isPlaced?0:Math.max(2,8-state.gridSize*.25);
+    p.fillStyle='rgba(255,255,255,.02)';
+    p.fill(shape);
+    p.restore();
+
+    p.save();
     p.clip(shape);
     const ox=pc.x-pc.correctCol*state.pieceWidth;
     const oy=pc.y-pc.correctRow*state.pieceHeight;
     p.drawImage(state.puzzleImage,cr.sx,cr.sy,cr.sw,cr.sh,ox,oy,state.boardWidth,state.boardHeight);
     p.restore();
+
     p.save();
-    p.strokeStyle=pc.isPlaced?'#63e6be':'rgba(255,255,255,.70)';
+    p.strokeStyle=pc.isPlaced?'#63e6be':'rgba(255,255,255,.74)';
     p.lineWidth=pc.isPlaced?2.2:Math.max(1.05,2.15-state.gridSize*.055);
     p.shadowColor='rgba(0,0,0,.45)';
-    p.shadowBlur=pc.isPlaced?0:Math.max(1,4-state.gridSize*.18);
+    p.shadowBlur=pc.isPlaced?0:Math.max(1.2,4-state.gridSize*.18);
     p.stroke(shape);
     p.restore();
   }
@@ -295,7 +325,7 @@ function trySnap(pc){
   const tx=pc.correctCol*state.pieceWidth,ty=pc.correctRow*state.pieceHeight;
   const th=Math.min(state.pieceWidth,state.pieceHeight)*CONFIG.snapDistanceRatio;
   if(Math.hypot(pc.x-tx,pc.y-ty)<th){
-    pc.x=tx;pc.y=ty;
+    pc.x=tx;pc.y=ty;pc.angle=0;
     if(!pc.isPlaced){pc.isPlaced=true;AudioSys.snap()}
     return true;
   }
@@ -407,7 +437,7 @@ window.addEventListener('resize',()=>{
   els.board.style.width=width+'px';els.board.style.height=height+'px';
   for(const c of [els.guide,els.piece]){c.width=width;c.height=height}
   state.pieces=makePieces(state.gridSize,width,height,state.puzzleImage);
-  state.pieces.forEach(pc=>{pc.x=pc.correctCol*state.pieceWidth;pc.y=pc.correctRow*state.pieceHeight;pc.isPlaced=true});
+  state.pieces.forEach(pc=>{pc.x=pc.correctCol*state.pieceWidth;pc.y=pc.correctRow*state.pieceHeight;pc.angle=0;pc.isPlaced=true});
   drawGuide();drawPieces();
 })();
 </script>
