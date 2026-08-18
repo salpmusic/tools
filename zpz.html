@@ -27,7 +27,7 @@ button:disabled{opacity:.45}
 #image-input{display:none}
 .file-btn{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
 #game-wrap{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
-#game-board{position:relative;background:#16213e;border:2px solid #315184;border-radius:10px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.45);touch-action:none}
+#game-board{position:relative;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.06),transparent 22%),radial-gradient(circle at 70% 75%,rgba(255,255,255,.03),transparent 18%),linear-gradient(180deg,#20345b 0%,#152544 100%);border:2px solid #315184;border-radius:10px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);touch-action:none}
 canvas{position:absolute;inset:0;width:100%;height:100%}
 #guide-canvas{opacity:.18;pointer-events:none}
 #piece-canvas{touch-action:none}
@@ -47,7 +47,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 </head>
 <body>
 <div id="app">
-  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v3</small></h1>
+  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v4</small></h1>
 
   <div id="toolbar">
     <div class="info"><small>TIME</small><b id="timer-display">00:00</b></div>
@@ -102,6 +102,7 @@ const DEFAULT_PHOTOS = [
 
 const CONFIG = {
   snapDistanceRatio: 0.42,
+  scatterJitterRatio: 0.18,
   boardMaxWidth: 760,
   boardMaxHeight: 760
 };
@@ -169,9 +170,11 @@ function randomEdgeProfile(){
 }
 
 function randomScatterAngle(){
-  const maxDeg=state.gridSize>=8?8:(state.gridSize>=6?10:14);
+  const maxDeg=state.gridSize>=8?10:(state.gridSize>=6?13:18);
   return (Math.random()*2-1)*(Math.PI/180)*maxDeg;
 }
+
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
 
 function makePieces(n,w,h,img){
   const out=[],pw=w/n,ph=h/n,crop=coverRect(img,w,h);
@@ -266,9 +269,15 @@ function piecePath(pc,x=pc.x,y=pc.y,angle=(pc.angle||0)){
 function shuffle(){
   const cells=state.pieces.map((_,i)=>i);
   for(let i=cells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]]}
+  const jx=state.pieceWidth*CONFIG.scatterJitterRatio;
+  const jy=state.pieceHeight*CONFIG.scatterJitterRatio;
   state.pieces.forEach((pc,i)=>{
     const k=cells[i],r=Math.floor(k/state.gridSize),c=k%state.gridSize;
-    pc.x=c*state.pieceWidth;pc.y=r*state.pieceHeight;pc.angle=randomScatterAngle();pc.isPlaced=false;
+    const baseX=c*state.pieceWidth,baseY=r*state.pieceHeight;
+    pc.x=clamp(baseX+(Math.random()*2-1)*jx,0,state.boardWidth-pc.width);
+    pc.y=clamp(baseY+(Math.random()*2-1)*jy,0,state.boardHeight-pc.height);
+    pc.angle=randomScatterAngle();
+    pc.isPlaced=false;
   });
   // avoid an accidental solved board
   if(state.pieces.every(pc=>Math.abs(pc.x-pc.correctCol*state.pieceWidth)<1 && Math.abs(pc.y-pc.correctRow*state.pieceHeight)<1)){
@@ -296,27 +305,56 @@ function drawPieces(){
   p.clearRect(0,0,state.boardWidth,state.boardHeight);
   const cr=coverRect(state.puzzleImage,state.boardWidth,state.boardHeight);
   for(const pc of state.pieces){
-    const shape=piecePath(pc);
+    const raw=rawPiecePath(pc);
+    const isDragging=pc===state.draggedPiece;
+    const w=pc.width,h=pc.height;
     p.save();
-    p.shadowColor=pc.isPlaced?'rgba(0,0,0,.18)':'rgba(0,0,0,.28)';
-    p.shadowBlur=pc.isPlaced?0:Math.max(2,8-state.gridSize*.25);
-    p.fillStyle='rgba(255,255,255,.02)';
-    p.fill(shape);
+    p.translate(pc.x+w/2,pc.y+h/2);
+    if(pc.angle)p.rotate(pc.angle);
+    p.translate(-w/2,-h/2);
+
+    // ambient shadow under the piece
+    p.save();
+    p.shadowColor=isDragging?'rgba(0,0,0,.42)':(pc.isPlaced?'rgba(0,0,0,.16)':'rgba(0,0,0,.32)');
+    p.shadowBlur=isDragging?16:(pc.isPlaced?2:9);
+    p.shadowOffsetX=isDragging?1:0;
+    p.shadowOffsetY=isDragging?5:3;
+    p.fillStyle='rgba(255,255,255,.01)';
+    p.fill(raw);
     p.restore();
 
+    // puzzle image (rotates together with the piece)
     p.save();
-    p.clip(shape);
-    const ox=pc.x-pc.correctCol*state.pieceWidth;
-    const oy=pc.y-pc.correctRow*state.pieceHeight;
-    p.drawImage(state.puzzleImage,cr.sx,cr.sy,cr.sw,cr.sh,ox,oy,state.boardWidth,state.boardHeight);
+    p.clip(raw);
+    p.drawImage(state.puzzleImage,cr.sx,cr.sy,cr.sw,cr.sh,-pc.correctCol*w,-pc.correctRow*h,state.boardWidth,state.boardHeight);
+
+    // subtle cardboard bevel and glossy edge highlight
+    const hi=p.createLinearGradient(0,0,w,h);
+    hi.addColorStop(0,'rgba(255,255,255,.24)');
+    hi.addColorStop(.22,'rgba(255,255,255,.09)');
+    hi.addColorStop(.5,'rgba(255,255,255,0)');
+    hi.addColorStop(1,'rgba(255,255,255,0)');
+    p.fillStyle=hi;
+    p.fillRect(0,0,w,h);
+
+    const sh=p.createLinearGradient(0,0,w,h);
+    sh.addColorStop(0,'rgba(0,0,0,0)');
+    sh.addColorStop(.58,'rgba(0,0,0,0)');
+    sh.addColorStop(1,'rgba(0,0,0,.18)');
+    p.fillStyle=sh;
+    p.fillRect(0,0,w,h);
     p.restore();
 
+    // outline + a faint inner highlight for a more real cut-piece look
     p.save();
-    p.strokeStyle=pc.isPlaced?'#63e6be':'rgba(255,255,255,.74)';
-    p.lineWidth=pc.isPlaced?2.2:Math.max(1.05,2.15-state.gridSize*.055);
-    p.shadowColor='rgba(0,0,0,.45)';
-    p.shadowBlur=pc.isPlaced?0:Math.max(1.2,4-state.gridSize*.18);
-    p.stroke(shape);
+    p.lineWidth=pc.isPlaced?2.15:Math.max(1.15,2.25-state.gridSize*.055);
+    p.strokeStyle=pc.isPlaced?'#7bf0c1':'rgba(255,255,255,.72)';
+    p.stroke(raw);
+    p.lineWidth=Math.max(.65,1.15-state.gridSize*.03);
+    p.strokeStyle='rgba(255,255,255,.22)';
+    p.stroke(raw);
+    p.restore();
+
     p.restore();
   }
 }
