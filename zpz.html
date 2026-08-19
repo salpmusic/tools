@@ -49,7 +49,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 </head>
 <body>
 <div id="app">
-  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v7 NATURAL</small></h1>
+  <h1>SALP JIGSAW PUZZLE <small style="font-size:.55em;color:#63e6be;letter-spacing:.04em">JIGSAW v9 CUTLINE</small></h1>
 
   <div id="toolbar">
     <div class="info"><small>TIME</small><b id="timer-display">00:00</b></div>
@@ -111,6 +111,16 @@ const CONFIG = {
   boardMaxHeight: 760
 };
 
+// 実物のジグソーの抜き型に近い「カットライン」用テンプレート群。
+// 完全ランダムではなく、崩れにくい数種類の型から選ぶ。
+const EDGE_TEMPLATES = [
+  {center:.50,width:.44,depth:.14,neck:.27,crown:.84,shoulder:.18},
+  {center:.48,width:.46,depth:.13,neck:.29,crown:.82,shoulder:.17},
+  {center:.52,width:.42,depth:.15,neck:.26,crown:.86,shoulder:.16},
+  {center:.46,width:.43,depth:.12,neck:.30,crown:.80,shoulder:.19},
+  {center:.54,width:.45,depth:.13,neck:.28,crown:.83,shoulder:.18}
+];
+
 const state = {
   gridSize:4,isPlaying:false,isCleared:false,startTime:0,timerInterval:null,moveCount:0,
   pieces:[],draggedPiece:null,selectedPiece:null,dragOffsetX:0,dragOffsetY:0,
@@ -165,15 +175,17 @@ function coverRect(img,bw,bh){
 }
 
 function randomEdgeProfile(){
-  // 見本に寄せた、より自然なクラシック形。
-  // 以前より「出っ張りの高さを短く」「首を少し太く」「頭を丸く広め」にする。
+  // 「まず本物っぽい型を決めてから切る」イメージで、
+  // 実物寄りテンプレートを選び、ほんの少しだけ揺らす。
+  const base=EDGE_TEMPLATES[Math.floor(Math.random()*EDGE_TEMPLATES.length)];
+  const jitter=(v,a)=>v+((Math.random()*2-1)*a);
   return {
-    center:.41+Math.random()*.18,
-    width:.30+Math.random()*.08,
-    depth:.18+Math.random()*.05,
-    neck:.16+Math.random()*.06,
-    crown:.76+Math.random()*.10,
-    shoulder:.14+Math.random()*.05
+    center:jitter(base.center,.025),
+    width:jitter(base.width,.025),
+    depth:jitter(base.depth,.016),
+    neck:jitter(base.neck,.022),
+    crown:jitter(base.crown,.04),
+    shoulder:jitter(base.shoulder,.02)
   };
 }
 
@@ -234,45 +246,39 @@ function addJigsawEdge(path,x1,y1,x2,y2,nx,ny,edge,scale){
   let center=profile.center;
   if(edge.reverse)center=1-center;
 
-  // 長すぎるキノコ形ではなく、実物のような「短め・丸め・少しくびれた」形。
+  // 1本のカットラインを先に作るイメージで、
+  // 本物寄りの「短め・丸め・肩がある」形にする。
   const half=profile.width/2;
-  const t0=Math.max(.10,center-half);
-  const t1=Math.min(.90,center+half);
+  const t0=Math.max(.07,center-half);
+  const t1=Math.min(.93,center+half);
   const span=t1-t0;
-  const neckHalf=span*profile.neck;
   const shoulder=span*profile.shoulder;
+  const neckHalf=span*profile.neck;
   const n0=center-neckHalf;
   const n1=center+neckHalf;
   const depth=sign*profile.depth*scale;
   const crown=profile.crown;
 
   const P=(t,o=0)=>[x1+dx*t+nx*o,y1+dy*t+ny*o];
-  const a=P(t0,0);
-  const b=P(n0,depth*.05);
-  const c=P(center,depth);
-  const d=P(n1,depth*.05);
-  const e=P(t1,0);
-
+  const a=P(t0,0), b=P(n0,depth*.03), c=P(center,depth), d=P(n1,depth*.03), e=P(t1,0);
   path.lineTo(a[0],a[1]);
 
-  // 左の肩から首へ。なだらかにくびれさせる。
-  let c1=P(t0+shoulder*.65,0);
-  let c2=P(n0-shoulder*.55,depth*.03);
+  // 肩 → 首
+  let c1=P(t0+shoulder*.55,0), c2=P(n0-shoulder*.65,depth*.015);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],b[0],b[1]);
 
-  // 左半分の丸み。以前より縦に伸ばしすぎず、横に丸くする。
-  c1=P(n0-shoulder*.10,depth*.40);
+  // 左の丸頭
+  c1=P(n0-shoulder*.08,depth*.30);
   c2=P(center-span*.18,depth*crown);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],c[0],c[1]);
 
-  // 右半分の丸み。
+  // 右の丸頭
   c1=P(center+span*.18,depth*crown);
-  c2=P(n1+shoulder*.10,depth*.40);
+  c2=P(n1+shoulder*.08,depth*.30);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],d[0],d[1]);
 
-  // 右の首から肩へ。
-  c1=P(n1+shoulder*.55,depth*.03);
-  c2=P(t1-shoulder*.65,0);
+  // 首 → 肩
+  c1=P(n1+shoulder*.65,depth*.015); c2=P(t1-shoulder*.55,0);
   path.bezierCurveTo(c1[0],c1[1],c2[0],c2[1],e[0],e[1]);
 
   path.lineTo(x2,y2);
