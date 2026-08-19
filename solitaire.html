@@ -78,10 +78,11 @@ h1{font-size:1.15rem;margin:0}
   height:auto;min-height:calc(var(--card-w) * 1.4);
   border-color:#ffffff26;
 }
+
 .card{
   width:var(--card-w);height:calc(var(--card-w) * 1.4);
   border-radius:var(--radius);position:absolute;left:-2px;top:-2px;
-  background:#fff;color:#111;border:1px solid var(--card-border);
+  background:#fff;color:#111;border:1px solid #cfcfcf;
   box-shadow:0 1px 5px #0005;
   user-select:none;-webkit-user-select:none;
   touch-action:none;cursor:grab;overflow:hidden;
@@ -96,65 +97,89 @@ h1{font-size:1.15rem;margin:0}
   outline:3px solid #ffeb3b;
   box-shadow:0 0 0 2px #0004,0 8px 18px #0006;
 }
-.rankTop,.rankBottom{
-  position:absolute;left:7px;
-  font-weight:900;font-size:var(--rank-size);line-height:1;
-  color:#111;
-  text-shadow:0 1px 0 #fff, 0 0 1px #fff;
-  letter-spacing:.02em;
+
+/* 通常モード：普通のトランプらしいデザイン */
+.normalFace{
+  position:absolute;inset:0;display:block;
+}
+.easyFace{display:none}
+.normalCorner{
+  position:absolute;
+  display:flex;flex-direction:column;align-items:center;
+  font-weight:900;line-height:.85;
+  font-size:calc(var(--card-w) * .22);
   pointer-events:none;
 }
-.rankTop{top:6px}
-.rankBottom{right:7px;left:auto;bottom:6px;transform:rotate(180deg)}
-.centerSuit{
+.normalCorner.top{top:5px;left:5px}
+.normalCorner.bottom{right:5px;bottom:5px;transform:rotate(180deg)}
+.normalSuit{
+  font-size:calc(var(--card-w) * .18);
+  margin-top:2px;
+}
+.normalCenter{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  font-size:var(--suit-size);line-height:1;pointer-events:none;
+  font-size:calc(var(--card-w) * .50);
+  line-height:1;
+  pointer-events:none;
+}
+.card.red .normalFace{color:#d71920}
+.card.black .normalFace{color:#111}
+
+/* 見やすいモード：大きな黒数字 + 輪郭だけの大きなマーク */
+body.easyMode .normalFace{display:none}
+body.easyMode .easyFace{
+  position:absolute;inset:0;display:block;
+}
+body.easyMode .card{
+  border-width:4px;
+  border-style:solid;
+  background:#fff;
+}
+body.easyMode .card.red{border-color:#ef3038}
+body.easyMode .card.black{border-color:#111}
+.easyRank{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  z-index:3;
+  font-weight:950;
+  font-size:calc(var(--card-w) * .82);
+  line-height:1;
+  letter-spacing:-.06em;
+  color:#000;
+  text-shadow:
+    -2px -2px 0 #fff,
+     2px -2px 0 #fff,
+    -2px  2px 0 #fff,
+     2px  2px 0 #fff,
+     0 0 5px #fff;
+  pointer-events:none;
+}
+.easySuit{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  z-index:1;
+  font-size:calc(var(--card-w) * .96);
+  line-height:1;
   font-weight:900;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+  pointer-events:none;
 }
-.centerSuit.redSuit{
-  color:#e22323;
-  text-shadow:
-    -1.6px -1.6px 0 #7a0000,
-     1.6px -1.6px 0 #7a0000,
-    -1.6px  1.6px 0 #7a0000,
-     1.6px  1.6px 0 #7a0000,
-     0 0 1px #fff;
+.easySuit.redSuit{
+  -webkit-text-stroke:4px #ef3038;
+  text-shadow:0 0 1px #ef3038;
 }
-.centerSuit.blackSuit{
-  color:#111;
-  text-shadow:
-    -1.4px -1.4px 0 #666,
-     1.4px -1.4px 0 #666,
-    -1.4px  1.4px 0 #666,
-     1.4px  1.4px 0 #666,
-     0 0 1px #fff;
+.easySuit.blackSuit{
+  -webkit-text-stroke:4px #111;
+  text-shadow:0 0 1px #111;
 }
-body.easyMode .rankTop,
-body.easyMode .rankBottom{
-  color:#000;
-  text-shadow:
-    -1px -1px 0 #fff,
-     1px -1px 0 #fff,
-    -1px  1px 0 #fff,
-     1px  1px 0 #fff;
-}
-body.easyMode .centerSuit.redSuit{
-  color:#ff1f1f;
-  text-shadow:
-    -2.2px -2.2px 0 #6f0000,
-     2.2px -2.2px 0 #6f0000,
-    -2.2px  2.2px 0 #6f0000,
-     2.2px  2.2px 0 #6f0000,
-     0 0 1px #fff;
-}
-body.easyMode .centerSuit.blackSuit{
-  color:#000;
-  text-shadow:
-    -2px -2px 0 #7d7d7d,
-     2px -2px 0 #7d7d7d,
-    -2px  2px 0 #7d7d7d,
-     2px  2px 0 #7d7d7d,
-     0 0 1px #fff;
+/* Firefox等で text-stroke が効かない場合のフォールバック */
+@supports not (-webkit-text-stroke: 1px black){
+  .easySuit.redSuit{color:#fff;text-shadow:-2px -2px 0 #ef3038,2px -2px 0 #ef3038,-2px 2px 0 #ef3038,2px 2px 0 #ef3038}
+  .easySuit.blackSuit{color:#fff;text-shadow:-2px -2px 0 #111,2px -2px 0 #111,-2px 2px 0 #111,2px 2px 0 #111}
 }
 .drag-ghost{
   position:fixed;z-index:9999;pointer-events:none;
@@ -197,7 +222,7 @@ body.easyMode .centerSuit.blackSuit{
   </div>
 </header>
 
-<div class="helperText">見やすいモードでは、数字を大きく黒で表示し、マークを中央に大きく表示します。</div>
+<div class="helperText">通常モードは普通のトランプ風。見やすいモードは、黒い大数字1つ＋輪郭だけの大きなマークで表示します。</div>
 
 <div id="board">
   <div class="top-region">
@@ -318,10 +343,17 @@ body.easyMode .centerSuit.blackSuit{
     if(card.faceUp){
       const r=rankText(card.rank);
       const suitClass=card.color==='red' ? 'redSuit' : 'blackSuit';
+
       div.innerHTML=
-        '<div class="rankTop">'+r+'</div>'+
-        '<div class="centerSuit '+suitClass+'">'+card.suit+'</div>'+
-        '<div class="rankBottom">'+r+'</div>';
+        '<div class="normalFace">'+
+          '<div class="normalCorner top"><span>'+r+'</span><span class="normalSuit">'+card.suit+'</span></div>'+
+          '<div class="normalCenter">'+card.suit+'</div>'+
+          '<div class="normalCorner bottom"><span>'+r+'</span><span class="normalSuit">'+card.suit+'</span></div>'+
+        '</div>'+
+        '<div class="easyFace">'+
+          '<div class="easySuit '+suitClass+'">'+card.suit+'</div>'+
+          '<div class="easyRank">'+r+'</div>'+
+        '</div>';
     }
     return div;
   }
