@@ -1,40 +1,72 @@
-
-# salp Linux v1.9 browser layer
-# Keep the upstream WebVM Alpine image and add a small graphical browser.
+# salp Linux v1.9.2 Firefox browser layer
+# Upstream already includes Xorg + i3 + LightDM. Add Firefox ESR as the primary browser.
 RUN set -eux; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/community' \
       > /etc/apk/repositories; \
     apk update; \
-    if ! apk add --no-cache netsurf; then \
-      printf '%s\n' \
-        'https://dl-cdn.alpinelinux.org/alpine/edge/main' \
-        'https://dl-cdn.alpinelinux.org/alpine/edge/community' \
-        > /etc/apk/repositories; \
-      apk update; \
-      apk add --no-cache netsurf; \
-    fi; \
     apk add --no-cache \
+      firefox-esr \
+      netsurf \
       ca-certificates \
       font-noto \
       font-noto-cjk \
       ttf-dejavu \
+      dbus \
       curl wget nano bash python3 git; \
     update-ca-certificates; \
     rm -rf /var/cache/apk/*
 
+# Firefox profile defaults chosen for software-rendered/browser-virtualized Linux.
+RUN mkdir -p /home/user/.mozilla/firefox/salp.default \
+ && cat > /home/user/.mozilla/firefox/profiles.ini <<'EOF'
+[Profile0]
+Name=salp
+IsRelative=1
+Path=salp.default
+Default=1
+
+[General]
+StartWithLastProfile=1
+Version=2
+EOF
+
+RUN cat > /home/user/.mozilla/firefox/salp.default/user.js <<'EOF'
+user_pref("browser.startup.homepage", "https://www.google.com/");
+user_pref("browser.startup.page", 1);
+user_pref("media.hardware-video-decoding.enabled", false);
+user_pref("gfx.webrender.software", true);
+user_pref("layers.acceleration.disabled", true);
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("datareporting.healthreport.uploadEnabled", false);
+user_pref("toolkit.telemetry.enabled", false);
+EOF
+
+RUN chown -R user:user /home/user/.mozilla
+
 RUN cat > /usr/local/bin/salp-browser <<'SALP_BROWSER'
 #!/bin/sh
 set -eu
-URL="${1:-https://salpmusic.github.io/}"
+URL="${1:-https://www.google.com/}"
 export DISPLAY="${DISPLAY:-:0}"
+export HOME="${HOME:-/home/user}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+
+# Prefer real Linux Firefox. NetSurf remains as a lightweight safety fallback.
+for browser in firefox-esr firefox; do
+  if command -v "$browser" >/dev/null 2>&1; then
+    exec "$browser" --new-instance --no-remote "$URL"
+  fi
+done
 for browser in netsurf-gtk3 netsurf-gtk netsurf; do
   if command -v "$browser" >/dev/null 2>&1; then
     exec "$browser" "$URL"
   fi
 done
-echo 'salp Browser: NetSurf executable was not found.' >&2
+echo 'salp Browser: Firefox ESR / NetSurf executable was not found.' >&2
 exit 127
 SALP_BROWSER
 
@@ -43,15 +75,18 @@ RUN chmod 0755 /usr/local/bin/salp-browser \
  && printf '%s\n' \
     '[Desktop Entry]' \
     'Type=Application' \
-    'Name=salp Browser' \
-    'Comment=Lightweight browser for salp Linux' \
+    'Name=salp Firefox' \
+    'Comment=Firefox ESR for salp Linux' \
     'Exec=/usr/local/bin/salp-browser' \
     'Terminal=false' \
     'Categories=Network;WebBrowser;' \
     > /usr/share/applications/salp-browser.desktop \
  && printf '%s\n' \
-    'salp Linux v1.9' \
-    'browser=netsurf' \
+    'salp Linux v1.9.2' \
+    'browser=firefox-esr' \
+    'fallback=netsurf' \
+    'homepage=https://www.google.com/' \
     > /etc/salp-release \
  && command -v /usr/local/bin/salp-browser \
+ && (command -v firefox-esr || command -v firefox) \
  && (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf)

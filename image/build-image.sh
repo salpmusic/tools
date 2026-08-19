@@ -3,11 +3,11 @@ set -Eeuo pipefail
 
 WORKDIR="${1:-${RUNNER_TEMP:-/tmp}/salp-build}"
 OUTPUT="${2:-${GITHUB_WORKSPACE:-$PWD}/salp-browser.ext2}"
-IMAGE_SIZE="${IMAGE_SIZE:-1600M}"
+IMAGE_SIZE="${IMAGE_SIZE:-2200M}"
 REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ADDITION="$REPO_ROOT/image/Dockerfile.addition.txt"
 UPSTREAM="${UPSTREAM_REPO:-https://github.com/leaningtech/alpine-image.git}"
-IMAGE_TAG="salp-linux-browser:v1.9"
+IMAGE_TAG="salp-linux-browser:v1.9.2"
 container=""
 rootfs=""
 
@@ -24,7 +24,7 @@ cleanup() {
 trap cleanup EXIT
 
 [[ -f "$ADDITION" ]] || fail "Missing $ADDITION"
-[[ "$IMAGE_SIZE" =~ ^[0-9]+[MG]$ ]] || fail "IMAGE_SIZE must look like 1600M or 2G"
+[[ "$IMAGE_SIZE" =~ ^[0-9]+[MG]$ ]] || fail "IMAGE_SIZE must look like 2200M or 3G"
 
 rm -rf "$WORKDIR"
 mkdir -p "$WORKDIR" "$(dirname "$OUTPUT")"
@@ -55,10 +55,13 @@ rootfs="$(buildah mount "$container")"
 log "Validate browser files before creating ext2"
 [[ -x "$rootfs/usr/local/bin/salp-browser" ]] || fail "salp-browser launcher is missing"
 [[ -f "$rootfs/etc/salp-release" ]] || fail "/etc/salp-release is missing"
+if [[ ! -x "$rootfs/usr/bin/firefox-esr" && ! -x "$rootfs/usr/bin/firefox" ]]; then
+  fail "Firefox ESR binary is missing from the built root filesystem"
+fi
 if ! find "$rootfs/usr/bin" "$rootfs/usr/local/bin" -maxdepth 1 -type f \
   \( -name 'netsurf' -o -name 'netsurf-gtk' -o -name 'netsurf-gtk3' \) \
   -print -quit | grep -q .; then
-  fail "NetSurf binary is missing from the built root filesystem"
+  fail "NetSurf fallback binary is missing from the built root filesystem"
 fi
 
 log "Create ext2 image ($IMAGE_SIZE)"
@@ -77,11 +80,12 @@ fi
 
 sha256sum "$OUTPUT" > "$OUTPUT.sha256"
 {
-  echo 'salp Linux v1.9 Browser Image'
+  echo 'salp Linux v1.9.2 Firefox Browser Image'
   echo "built_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "image_size=$IMAGE_SIZE"
   echo 'architecture=i386'
-  echo 'browser=netsurf'
+  echo 'browser=firefox-esr'
+  echo 'fallback=netsurf'
   echo "upstream=$UPSTREAM"
   echo
   cat "$rootfs/etc/salp-release"
