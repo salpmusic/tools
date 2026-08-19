@@ -10,8 +10,10 @@
   --card-w:clamp(42px,12vw,86px);
   --card-h:calc(var(--card-w) * 1.4);
   --gap:clamp(3px,1vw,10px);
-  --radius:7px;
-  --font:calc(var(--card-w) * .27);
+  --radius:8px;
+  --card-border:#d7d7d7;
+  --rank-size:calc(var(--card-w) * .30);
+  --suit-size:calc(var(--card-w) * .62);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:var(--bg)}
@@ -22,10 +24,17 @@ body{
   overflow-x:hidden;
   touch-action:manipulation;
 }
+body.easyMode{
+  --card-w:clamp(50px,13.6vw,98px);
+  --gap:clamp(4px,1.2vw,12px);
+  --rank-size:calc(var(--card-w) * .36);
+  --suit-size:calc(var(--card-w) * .78);
+  --card-border:#bdbdbd;
+}
 button{font:inherit}
 header{
-  width:min(100%,700px);margin:0 auto 10px;
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  width:min(100%,760px);margin:0 auto 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
 }
 h1{font-size:1.15rem;margin:0}
 .controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
@@ -34,15 +43,23 @@ h1{font-size:1.15rem;margin:0}
   background:#fff;color:#1b5e20;font-weight:800;
   box-shadow:0 2px 5px #0003;
 }
+.btn.active{
+  background:linear-gradient(135deg,#fff7a8,#ffe082);
+  color:#3b2a1e;
+}
 .btn:active{transform:scale(.97)}
-#board{width:min(100%,700px);margin:auto}
+.helperText{
+  width:min(100%,760px);margin:0 auto 8px;
+  font-size:.9rem;color:#f2fff0;font-weight:700;
+}
+#board{width:min(100%,760px);margin:auto}
 .top-region{
   display:flex;justify-content:space-between;align-items:flex-start;
   gap:var(--gap);margin-bottom:16px;
 }
 .group{display:flex;gap:var(--gap)}
 .slot,.tableau-column{
-  width:var(--card-w);height:var(--card-h);
+  width:var(--card-w);height:calc(var(--card-w) * 1.4);
   border:2px dashed #ffffff4f;border-radius:var(--radius);
   position:relative;flex:0 0 auto;
 }
@@ -55,23 +72,20 @@ h1{font-size:1.15rem;margin:0}
 .foundation.hint::after{content:"A"}
 .tableau-region{
   display:flex;justify-content:space-between;align-items:flex-start;
-  gap:var(--gap);min-height:calc(var(--card-h)*4.6)
+  gap:var(--gap);min-height:calc(var(--card-w)*6.5)
 }
 .tableau-column{
-  height:auto;min-height:var(--card-h);
+  height:auto;min-height:calc(var(--card-w) * 1.4);
   border-color:#ffffff26;
 }
 .card{
-  width:var(--card-w);height:var(--card-h);
+  width:var(--card-w);height:calc(var(--card-w) * 1.4);
   border-radius:var(--radius);position:absolute;left:-2px;top:-2px;
-  background:#fff;color:#111;border:1px solid #d7d7d7;
+  background:#fff;color:#111;border:1px solid var(--card-border);
   box-shadow:0 1px 5px #0005;
-  padding:3px 4px;font-size:var(--font);font-weight:800;
-  display:flex;flex-direction:column;justify-content:space-between;
   user-select:none;-webkit-user-select:none;
-  touch-action:none;cursor:grab;
+  touch-action:none;cursor:grab;overflow:hidden;
 }
-.card.red{color:#d92323}
 .card.face-down{
   background:
     linear-gradient(135deg,#0d47a1 25%,#1976d2 25%,#1976d2 50%,#0d47a1 50%,#0d47a1 75%,#1976d2 75%);
@@ -82,11 +96,65 @@ h1{font-size:1.15rem;margin:0}
   outline:3px solid #ffeb3b;
   box-shadow:0 0 0 2px #0004,0 8px 18px #0006;
 }
-.corner{line-height:.9;pointer-events:none}
-.corner.bottom{transform:rotate(180deg)}
-.center{
+.rankTop,.rankBottom{
+  position:absolute;left:7px;
+  font-weight:900;font-size:var(--rank-size);line-height:1;
+  color:#111;
+  text-shadow:0 1px 0 #fff, 0 0 1px #fff;
+  letter-spacing:.02em;
+  pointer-events:none;
+}
+.rankTop{top:6px}
+.rankBottom{right:7px;left:auto;bottom:6px;transform:rotate(180deg)}
+.centerSuit{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  font-size:calc(var(--card-w)*.45);pointer-events:none
+  font-size:var(--suit-size);line-height:1;pointer-events:none;
+  font-weight:900;
+}
+.centerSuit.redSuit{
+  color:#e22323;
+  text-shadow:
+    -1.6px -1.6px 0 #7a0000,
+     1.6px -1.6px 0 #7a0000,
+    -1.6px  1.6px 0 #7a0000,
+     1.6px  1.6px 0 #7a0000,
+     0 0 1px #fff;
+}
+.centerSuit.blackSuit{
+  color:#111;
+  text-shadow:
+    -1.4px -1.4px 0 #666,
+     1.4px -1.4px 0 #666,
+    -1.4px  1.4px 0 #666,
+     1.4px  1.4px 0 #666,
+     0 0 1px #fff;
+}
+body.easyMode .rankTop,
+body.easyMode .rankBottom{
+  color:#000;
+  text-shadow:
+    -1px -1px 0 #fff,
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff;
+}
+body.easyMode .centerSuit.redSuit{
+  color:#ff1f1f;
+  text-shadow:
+    -2.2px -2.2px 0 #6f0000,
+     2.2px -2.2px 0 #6f0000,
+    -2.2px  2.2px 0 #6f0000,
+     2.2px  2.2px 0 #6f0000,
+     0 0 1px #fff;
+}
+body.easyMode .centerSuit.blackSuit{
+  color:#000;
+  text-shadow:
+    -2px -2px 0 #7d7d7d,
+     2px -2px 0 #7d7d7d,
+    -2px  2px 0 #7d7d7d,
+     2px  2px 0 #7d7d7d,
+     0 0 1px #fff;
 }
 .drag-ghost{
   position:fixed;z-index:9999;pointer-events:none;
@@ -94,8 +162,8 @@ h1{font-size:1.15rem;margin:0}
 }
 .drag-ghost .card{position:absolute;left:0}
 #message{
-  min-height:24px;width:min(100%,700px);margin:7px auto 0;
-  text-align:center;font-size:.86rem;font-weight:800;color:#efffe9
+  min-height:24px;width:min(100%,760px);margin:7px auto 0;
+  text-align:center;font-size:.9rem;font-weight:800;color:#efffe9
 }
 #win-overlay{
   display:none;position:fixed;inset:0;background:#000b;
@@ -107,10 +175,15 @@ h1{font-size:1.15rem;margin:0}
 }
 .win-modal h2{color:#2e7d32;margin:0 0 8px}
 .win-modal p{margin:0 0 17px}
+@media(max-width:560px){
+  .controls{width:100%}
+}
 @media(max-width:390px){
   :root{--card-w:12.2vw;--gap:2px}
+  body.easyMode{--card-w:13vw}
   .btn{padding:7px 10px;font-size:.82rem}
   h1{font-size:1rem}
+  .helperText{font-size:.82rem}
 }
 </style>
 </head>
@@ -118,10 +191,13 @@ h1{font-size:1.15rem;margin:0}
 <header>
   <h1>♠ SALP SOLITAIRE</h1>
   <div class="controls">
+    <button class="btn" id="viewBtn">見やすいモード OFF</button>
     <button class="btn" id="undoBtn">↶ 戻す</button>
     <button class="btn" id="newBtn">新しいゲーム</button>
   </div>
 </header>
+
+<div class="helperText">見やすいモードでは、数字を大きく黒で表示し、マークを中央に大きく表示します。</div>
 
 <div id="board">
   <div class="top-region">
@@ -164,6 +240,8 @@ h1{font-size:1.15rem;margin:0}
   const RED=new Set(['♥','♦']);
   const board=document.getElementById('board');
   const msg=document.getElementById('message');
+  const viewBtn=document.getElementById('viewBtn');
+  const VIEW_KEY='salpSolitaireEasyMode';
 
   let stock=[],waste=[],foundations=[[],[],[],[]],tableau=[[],[],[],[],[],[],[]];
   let selected=null;
@@ -196,6 +274,14 @@ h1{font-size:1.15rem;margin:0}
     msg.textContent=text;
     clearTimeout(flash.t);
     flash.t=setTimeout(()=>{if(msg.textContent===text)msg.textContent=''},1400);
+  }
+
+  function applyViewMode(on){
+    document.body.classList.toggle('easyMode', on);
+    viewBtn.classList.toggle('active', on);
+    viewBtn.textContent='見やすいモード ' + (on ? 'ON' : 'OFF');
+    localStorage.setItem(VIEW_KEY, on ? 'on' : 'off');
+    render();
   }
 
   function init(){
@@ -231,10 +317,11 @@ h1{font-size:1.15rem;margin:0}
     div.dataset.cardId=card.id;
     if(card.faceUp){
       const r=rankText(card.rank);
+      const suitClass=card.color==='red' ? 'redSuit' : 'blackSuit';
       div.innerHTML=
-        '<div class="corner"><div>'+r+'</div><div>'+card.suit+'</div></div>'+
-        '<div class="center">'+card.suit+'</div>'+
-        '<div class="corner bottom"><div>'+r+'</div><div>'+card.suit+'</div></div>';
+        '<div class="rankTop">'+r+'</div>'+
+        '<div class="centerSuit '+suitClass+'">'+card.suit+'</div>'+
+        '<div class="rankBottom">'+r+'</div>';
     }
     return div;
   }
@@ -286,11 +373,21 @@ h1{font-size:1.15rem;margin:0}
         el.appendChild(c);
         y += card.faceUp ? faceOffset() : downOffset();
       });
-      el.style.minHeight=Math.max(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-h'))||60, y+80)+'px';
+      el.style.minHeight=Math.max(cardHeight(), y+80)+'px';
     });
   }
 
-  function faceOffset(){ return innerWidth<500?27:34 }
+  function cardWidth(){
+    return document.querySelector('.slot').getBoundingClientRect().width || 60;
+  }
+  function cardHeight(){
+    return cardWidth() * 1.4;
+  }
+  function faceOffset(){
+    return document.body.classList.contains('easyMode')
+      ? (innerWidth<500?31:38)
+      : (innerWidth<500?27:34);
+  }
   function downOffset(){ return innerWidth<500?14:18 }
 
   function locate(id){
@@ -502,7 +599,7 @@ h1{font-size:1.15rem;margin:0}
       const cards=movingCards(pointerDown.loc);
       const ghost=document.createElement('div');
       ghost.className='drag-ghost';
-      ghost.style.width='var(--card-w)';
+      ghost.style.width=cardWidth()+'px';
       cards.forEach((c,i)=>{
         const el=cardHTML(c);
         el.style.top=(i*faceOffset())+'px';
@@ -533,11 +630,13 @@ h1{font-size:1.15rem;margin:0}
     pointerDown=null;
   });
 
+  viewBtn.onclick=()=>applyViewMode(!document.body.classList.contains('easyMode'));
   document.getElementById('newBtn').onclick=init;
   document.getElementById('restartBtn').onclick=init;
   document.getElementById('undoBtn').onclick=undo;
   window.addEventListener('resize',render);
 
+  applyViewMode(localStorage.getItem(VIEW_KEY)==='on');
   init();
 })();
 </script>
