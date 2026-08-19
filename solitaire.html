@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>クロンダイク・ソリティア</title>
+  <style>
+    /* ==========================================
+       1. 基本スタイル・レスポンシブ設定
+       ========================================== */
+    :root {
+      --bg-color: #2e7d32;
+      --card-width: clamp(42px, 12vw, 85px);
+      --card-height: calc(var(--card-width) * 1.4);
+      --card-gap: clamp(4px, 1.2vw, 12px);
+      --card-radius: 6px;
+      --font-size: calc(var(--card-width) * 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 4px;
+      overflow-x: hidden;
+    }
+
+    /* ヘッダー・操作パネル */
+    header {
+      width: 100%;
+      max-width: 650px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: white;
+      padding: 0 4px;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    button {
+      background-color: #ffffff;
+      color: #1b5e20;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    /* ゲームボード全体のレイアウト */
+    #board {
+      width: 100%;
+      max-width: 650px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* 上部エリア（山札・捨て札・組札） */
+    .top-region {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .stock-waste-group, .foundations-group {
+      display: flex;
+      gap: var(--card-gap);
+    }
+
+    /* 場札エリア */
+    .tableau-region {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      min-height: calc(var(--card-height) * 4);
+    }
+
+    /* カードのスロット（枠）ベース */
+    .slot {
+      width: var(--card-width);
+      height: var(--card-height);
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: var(--card-radius);
+      position: relative;
+    }
+
+    .tableau-column {
+      width: var(--card-width);
+      position: relative;
+    }
+
+    /* ==========================================
+       2. カードのコンポーネントデザイン
+       ========================================== */
+    .card {
+      width: var(--card-width);
+      height: var(--card-height);
+      border-radius: var(--card-radius);
+      position: absolute;
+      background-color: white;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3px 4px;
+      font-size: var(--font-size);
+      font-weight: bold;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: border 0.1s, transform 0.1s;
+    }
+
+    .card.red {
+      color: #e53935;
+    }
+
+    .card.black {
+      color: #212121;
+    }
+
+    /* カード裏面 */
+    .card.face-down {
+      background: linear-gradient(135deg, #1565c0 25%, #1e88e5 25%, #1e88e5 50%, #1565c0 50%, #1565c0 75%, #1e88e5 75%);
+      background-size: 12px 12px;
+      border: 2px solid white;
+    }
+
+    .card.face-down * {
+      display: none;
+    }
+
+    /* 選択状態の強調表示 */
+    .card.selected {
+      outline: 3px solid #ffeb3b;
+      transform: translateY(-4px);
+      z-index: 999 !important;
+    }
+
+    .card-corner {
+      line-height: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .card-corner.bottom {
+      transform: rotate(180deg);
+    }
+
+    .card-center-suit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(var(--card-width) * 0.45);
+      pointer-events: none;
+    }
+
+    /* クリアダイアログ */
+    #win-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .win-modal {
+      background: white;
+      padding: 24px 32px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .win-modal h2 {
+      color: #2e7d32;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ソリティア</h1>
+    <button id="btn-new-game">新しいゲーム</button>
+  </header>
+
+  <div id="board">
+    <!-- 上部: 山札・捨て札 & 組札 -->
+    <div class="top-region">
+      <div class="stock-waste-group">
+        <div id="stock" class="slot"></div>
+        <div id="waste" class="slot"></div>
+      </div>
+      <div class="foundations-group">
+        <div id="foundation-0" class="slot foundation" data-f-idx="0"></div>
+        <div id="foundation-1" class="slot foundation" data-f-idx="1"></div>
+        <div id="foundation-2" class="slot foundation" data-f-idx="2"></div>
+        <div id="foundation-3" class="slot foundation" data-f-idx="3"></div>
+      </div>
+    </div>
+
+    <!-- 下部: 7列の場札 -->
+    <div class="tableau-region">
+      <div id="tableau-0" class="tableau-column slot" data-t-idx="0"></div>
+      <div id="tableau-1" class="tableau-column slot" data-t-idx="1"></div>
+      <div id="tableau-2" class="tableau-column slot" data-t-idx="2"></div>
+      <div id="tableau-3" class="tableau-column slot" data-t-idx="3"></div>
+      <div id="tableau-4" class="tableau-column slot" data-t-idx="4"></div>
+      <div id="tableau-5" class="tableau-column slot" data-t-idx="5"></div>
+      <div id="tableau-6" class="tableau-column slot" data-t-idx="6"></div>
+    </div>
+  </div>
+
+  <!-- ゲームクリア表示 -->
+  <div id="win-overlay">
+    <div class="win-modal">
+      <h2>🎉 CLEAR! 🎉</h2>
+      <p style="margin-bottom: 16px;">おめでとうございます！クリアです！</p>
+      <button id="btn-win-restart">もう一度遊ぶ</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================
+       3. ゲーム状態定義 & 定数
+       ========================================== */
+    const SUITS = ['♠', '♥', '♦', '♣'];
+    const RED_SUITS = ['♥', '♦'];
+    const RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+    // ゲーム状態
+    let stock = [];
+    let waste = [];
+    let foundations = [[], [], [], []];
+    let tableau = [[], [], [], [], [], [], []];
+
+    // 選択状態
+    // { source: 'waste'|'foundation'|'tableau', colIdx?: number, cardIdx?: number }
+    let selectedLocation = null;
+
+    // タップ判定用（ダブルタップで自動移動）
+    let lastTapTime = 0;
+    let lastTapCardId = null;
+
+    /* ==========================================
+       4. 初期化 & ゲーム生成
+       ========================================== */
+    function initGame() {
+      // 状態のリセット
+      stock = [];
+      waste = [];
+      foundations = [[], [], [], []];
+      tableau = [[], [], [], [], [], [], []];
+      selectedLocation = null;
+      document.getElementById('win-overlay').style.display = 'none';
+
+      // デッキ生成 (52枚)
+      let deck = [];
+      let idCounter = 0;
+      for (let s of SUITS) {
+        for (let r of RANKS) {
+          deck.push({
+            id: `card-${idCounter++}`,
+            suit: s,
+            rank: r,
+            color: RED_SUITS.includes(s) ? 'red' : 'black',
+            faceUp: false
+          });
+        }
+      }
+
+      // シャッフル (Fisher-Yates)
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+
+      // 場札に配る (1~7枚)
+      for (let i = 0; i < 7; i++) {
+        for (let j = 0; j <= i; j++) {
+          let card = deck.pop();
+          if (j === i) card.faceUp = true; // 一番上だけ表向き
+          tableau[i].push(card);
+        }
+      }
+
+      // 残りは山札へ
+      stock = deck;
+
+      render();
+    }
+
+    /* ==========================================
+       5. 描画処理 (DOM Render)
+       ========================================== */
+    function render() {
+      // 1. 山札
+      const stockEl = document.getElementById('stock');
+      stockEl.innerHTML = '';
+      if (stock.length > 0) {
+        const cardEl = createCardDOM(stock[stock.length - 1], false);
+        stockEl.appendChild(cardEl);
+      }
+
+      // 2. 捨て札
+      const wasteEl = document.getElementById('waste');
+      wasteEl.innerHTML = '';
+      if (waste.length > 0) {
+        const topCard = waste[waste.length - 1];
+        const isSelected = isCardSelected('waste', null, waste.length - 1);
+        const cardEl = createCardDOM(topCard, true, isSelected);
+        wasteEl.appendChild(cardEl);
+      }
+
+      // 3. 組札 (4箇所)
+      for (let f = 0; f < 4; f++) {
+        const fEl = document.getElementById(`foundation-${f}`);
+        fEl.innerHTML = '';
+        if (foundations[f].length > 0) {
+          const topCard = foundations[f][foundations[f].length - 1];
+          const isSelected = isCardSelected('foundation', f, foundations[f].length - 1);
+          const cardEl = createCardDOM(topCard, true, isSelected);
+          fEl.appendChild(cardEl);
+        }
+      }
+
+      // 4. 場札 (7列)
+      for (let t = 0; t < 7; t++) {
+        const tEl = document.getElementById(`tableau-${t}`);
+        tEl.innerHTML = '';
+        
+        let offsetY = 0;
+        tableau[t].forEach((card, idx) => {
+          const isSelected = isCardSelected('tableau', t, idx);
+          const cardEl = createCardDOM(card, card.faceUp, isSelected);
+          
+          // 縦にずらして重ねる（スマホ画面に配慮してオフセット調整）
+          cardEl.style.top = `${offsetY}px`;
+          tEl.appendChild(cardEl);
+
+          // 重なり幅の計算（表向きと裏向きで間隔を変える）
+          const baseOffset = window.innerWidth < 500 ? 14 : 20;
+          offsetY += card.faceUp ? (baseOffset + 6) : baseOffset;
+        });
+      }
+    }
+
+    // カードのHTML要素を生成
+    function createCardDOM(card, faceUp, isSelected = false) {
+      const el = document.createElement('div');
+      el.className = `card ${card.color} ${faceUp ? '' : 'face-down'} ${isSelected ? 'selected' : ''}`;
+      el.dataset.id = card.id;
+
+      if (faceUp) {
+        const rankStr = getRankStr(card.rank);
+        el.innerHTML = `
+          <div class="card-corner top">
+            <div>${rankStr}</div>
+            <div>${card.suit}</div>
+          </div>
+          <div class="card-center-suit">${card.suit}</div>
+          <div class="card-corner bottom">
+            <div>${rankStr}</div>
+            <div>${card.suit}</div>
+          </div>
+        `;
+      }
+      return el;
+    }
+
+    function getRankStr(rank) {
+      if (rank === 1) return 'A';
+      if (rank === 11) return 'J';
+      if (rank === 12) return 'Q';
+      if (rank === 13) return 'K';
+      return rank.toString();
+    }
+
+    function isCardSelected(source, colIdx, cardIdx) {
+      if (!selectedLocation) return false;
+      if (selectedLocation.source !== source) return false;
+      if (source === 'tableau') {
+        return selectedLocation.colIdx === colIdx && cardIdx >= selectedLocation.cardIdx;
+      }
+      if (source === 'foundation') {
+        return selectedLocation.colIdx === colIdx;
+      }
+      return true; // waste
+    }
+
+    /* ==========================================
+       6. ルール判定 & 移動ロジック
+       ========================================== */
+    
+    // 組札に置けるか？
+    function canMoveToFoundation(card, foundationArr) {
+      if (foundationArr.length === 0) {
+        return card.rank === 1; // Aのみ可
+      }
+      const topCard = foundationArr[foundationArr.length - 1];
+      return card.suit === topCard.suit && card.rank === topCard.rank + 1;
+    }
+
+    // 場札に置けるか？
+    function canMoveToTableau(card, tableauArr) {
+      if (tableauArr.length === 0) {
+        return card.rank === 13; // Kのみ可
+      }
+      const topCard = tableauArr[tableauArr.length - 1];
+      return card.color !== topCard.color && card.rank === topCard.rank - 1;
+    }
+
+    // 移動の実行処理
+    function executeMove(targetType, targetColIdx) {
+      if (!selectedLocation) return false;
+
+      let movingCards = [];
+      
+      // 移動元からカードを取得
+      if (selectedLocation.source === 'waste') {
+        movingCards = [waste[waste.length - 1]];
+      } else if (selectedLocation.source === 'foundation') {
+        const f = foundations[selectedLocation.colIdx];
+        movingCards = [f[f.length - 1]];
+      } else if (selectedLocation.source === 'tableau') {
+        const t = tableau[selectedLocation.colIdx];
+        movingCards = t.slice(selectedLocation.cardIdx);
+      }
+
+      if (movingCards.length === 0) return false;
+
+      let moved = false;
+
+      // 組札への移動処理
+      if (targetType === 'foundation') {
+        // 組札へは1枚ずつしか移動できない
+        if (movingCards.length === 1) {
+          const card = movingCards[0];
+          const targetF = foundations[targetColIdx];
+          if (canMoveToFoundation(card, targetF)) {
+            targetF.push(card);
+            removeSourceCards();
+            moved = true;
+          }
+        }
+      } 
+      // 場札への移動処理
+      else if (targetType === 'tableau') {
+        const targetT = tableau[targetColIdx];
+        if (canMoveToTableau(movingCards[0], targetT)) {
+          tableau[targetColIdx] = targetT.concat(movingCards);
+          removeSourceCards();
+          moved = true;
+        }
+      }
+
+      if (moved) {
+        // 移動完了後に元場のカードを表向きにする処理
+        autoFlipTableau();
+        selectedLocation = null;
+        render();
+        checkWin();
+        return true;
+      }
+
+      return false;
+    }
+
+    // 移動元のカードを取り除く
+    function removeSourceCards() {
+      if (selectedLocation.source === 'waste') {
+        waste.pop();
+      } else if (selectedLocation.source === 'foundation') {
+        foundations[selectedLocation.colIdx].pop();
+      } else if (selectedLocation.source === 'tableau') {
+        const t = tableau[selectedLocation.colIdx];
+        tableau[selectedLocation.colIdx] = t.slice(0, selectedLocation.cardIdx);
+      }
+    }
+
+    // 場札の一番上の裏向きカードを自動で表向きにする
+    function autoFlipTableau() {
+      for (let t = 0; t < 7; t++) {
+        const len = tableau[t].length;
+        if (len > 0) {
+          tableau[t][len - 1].faceUp = true;
+        }
+      }
+    }
+
+    // スマート自動移動 (1タップ/ダブルタップ時に可能な場所に自動移動させる機能)
+    function autoMoveCard(source, colIdx, cardIdx) {
+      selectedLocation = { source, colIdx, cardIdx };
+      
+      let card = null;
+      let isSingleCard = false;
+
+      if (source === 'waste') {
+        card = waste[waste.length - 1];
+        isSingleCard = true;
+      } else if (source === 'tableau') {
+        const t = tableau[colIdx];
+        if (cardIdx === t.length - 1) isSingleCard = true;
+        card = t[cardIdx];
+      }
+
+      if (!card) return;
+
+      // 1. まず組札に移動可能か試す (1枚だけ動かす場合のみ)
+      if (isSingleCard) {
+        for (let f = 0; f < 4; f++) {
+          if (canMoveToFoundation(card, foundations[f])) {
+            executeMove('foundation', f);
+            return;
+          }
+        }
+      }
+
+      // 2. 次に場札に移動可能か試す
+      for (let t = 0; t < 7; t++) {
+        if (source === 'tableau' && t === colIdx) continue; // 同じ列への移動はスキップ
+        if (canMoveToTableau(card, tableau[t])) {
+          executeMove('tableau', t);
+          return;
+        }
+      }
+
+      // 自動移動できなかった場合は選択解除
+      selectedLocation = null;
+      render();
+    }
+
+    /* ==========================================
+       7. ユーザー操作イベントハンドラー
+       ========================================== */
+    
+    // イベント委譲でタップ/クリックを制御
+    document.getElementById('board').addEventListener('click', (e) => {
+      const now = Date.now();
+
+      // --- A. 山札のタップ ---
+      const stockEl = e.target.closest('#stock');
+      if (stockEl) {
+        selectedLocation = null;
+        if (stock.length > 0) {
+          let card = stock.pop();
+          card.faceUp = true;
+          waste.push(card);
+        } else {
+          // 捨て札を山札に戻す
+          while (waste.length > 0) {
+            let card = waste.pop();
+            card.faceUp = false;
+            stock.push(card);
+          }
+        }
+        render();
+        return;
+      }
+
+      // --- B. カード要素のタップ ---
+      const cardEl = e.target.closest('.card');
+      if (cardEl) {
+        const cardId = cardEl.dataset.id;
+        
+        // カードの位置（所属）を判定
+        const loc = findCardLocation(cardId);
+        if (!loc) return;
+
+        // ダブルタップ判定（素早い2連タップで自動移動）
+        const isDoubleTap = (lastTapCardId === cardId && (now - lastTapTime) < 300);
+        lastTapTime = now;
+        lastTapCardId = cardId;
+
+        // すでに何かが選択されている状態の場合 -> 移動試行
+        if (selectedLocation) {
+          // 同じカードをもう一度タップしたら選択解除
+          if (isSameLocation(selectedLocation, loc)) {
+            selectedLocation = null;
+            render();
+            return;
+          }
+
+          // タップされたカードの場所へ移動を試みる
+          let moved = false;
+          if (loc.source === 'tableau') {
+            moved = executeMove('tableau', loc.colIdx);
+          } else if (loc.source === 'foundation') {
+            moved = executeMove('foundation', loc.colIdx);
+          }
+
+          // 移動できなかった場合は、新しくタップしたカードを選択状態にする
+          if (!moved && loc.card.faceUp) {
+            selectedLocation = { source: loc.source, colIdx: loc.colIdx, cardIdx: loc.cardIdx };
+            render();
+          }
+          return;
+        }
+
+        // 選択がない状態でタップした場合
+        if (loc.card.faceUp) {
+          if (isDoubleTap) {
+            // ダブルタップ時：自動移動を試みる
+            autoMoveCard(loc.source, loc.colIdx, loc.cardIdx);
+          } else {
+            // シングルタップ時：選択状態にする
+            selectedLocation = { source: loc.source, colIdx: loc.colIdx, cardIdx: loc.cardIdx };
+            render();
+          }
+        }
+        return;
+      }
+
+      // --- C. 空のスロット（枠）をタップ ---
+      const slotEl = e.target.closest('.slot');
+      if (slotEl && selectedLocation) {
+        if (slotEl.classList.contains('foundation')) {
+          const fIdx = parseInt(slotEl.dataset.fIdx, 10);
+          executeMove('foundation', fIdx);
+        } else if (slotEl.classList.contains('tableau-column')) {
+          const tIdx = parseInt(slotEl.dataset.tIdx, 10);
+          executeMove('tableau', tIdx);
+        }
+      }
+    });
+
+    // IDからカードの現在地を検索する補助関数
+    function findCardLocation(cardId) {
+      if (waste.length > 0 && waste[waste.length - 1].id === cardId) {
+        return { source: 'waste', card: waste[waste.length - 1], cardIdx: waste.length - 1 };
+      }
+      for (let f = 0; f < 4; f++) {
+        const idx = foundations[f].findIndex(c => c.id === cardId);
+        if (idx !== -1) {
+          return { source: 'foundation', colIdx: f, cardIdx: idx, card: foundations[f][idx] };
+        }
+      }
+      for (let t = 0; t < 7; t++) {
+        const idx = tableau[t].findIndex(c => c.id === cardId);
+        if (idx !== -1) {
+          return { source: 'tableau', colIdx: t, cardIdx: idx, card: tableau[t][idx] };
+        }
+      }
+      return null;
+    }
+
+    function isSameLocation(loc1, loc2) {
+      return loc1.source === loc2.source && loc1.colIdx === loc2.colIdx && loc1.cardIdx === loc2.cardIdx;
+    }
+
+    /* ==========================================
+       8. ゲームクリア判定
+       ========================================== */
+    function checkWin() {
+      const totalInFoundation = foundations.reduce((sum, f) => sum + f.length, 0);
+      if (totalInFoundation === 52) {
+        setTimeout(() => {
+          document.getElementById('win-overlay').style.display = 'flex';
+        }, 300);
+      }
+    }
+
+    // ボタンのイベント
+    document.getElementById('btn-new-game').addEventListener('click', initGame);
+    document.getElementById('btn-win-restart').addEventListener('click', initGame);
+
+    // ゲーム開始
+    initGame();
+  </script>
+</body>
+</html>
