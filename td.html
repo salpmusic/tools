@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+  <html lang=ja>
+    <head>
+      <meta charset=UTF-8>
+      <meta name=viewport content=width=device-width,initial-scale=1>
+      <title>
+        タワーディフェンス
+      </title>
+      <style>
+        * {
+          margin:0;
+          padding:0;
+          box-sizing:border-box;
+        }
+        body {
+          background:#1a1a2e;
+          color:#eee;
+          font-family:'Segoe UI',sans-serif;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          min-height:100vh;
+          padding:10px;
+        }
+        h1 {
+          color:#e94560;
+          text-shadow:0 0 10px #e94560;
+          margin-bottom:8px;
+        }
+        #gameContainer {
+          position:relative;
+          border:3px solid #16213e;
+          border-radius:8px;
+          box-shadow:0 0 20px rgba(233,69,96,.3);
+        }
+        canvas {
+          background:#0f3460;
+          display:block;
+        }
+        #ui {
+          position:absolute;
+          top:0;
+          left:0;
+          right:0;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          padding:8px 12px;
+          background:rgba(0,0,0,.7);
+          border-radius:5px 5px 0 0;
+          font-size:14px;
+          pointer-events:none;
+        }
+        #ui span {
+          margin-right:15px;
+        }
+        #ui .gold {
+          color:#ffd700;
+          font-weight:700;
+        }
+        #ui .life {
+          color:#ff4444;
+          font-weight:700;
+        }
+        #ui .wave {
+          color:#44ff44;
+          font-weight:700;
+        }
+        #towerPanel {
+          position:absolute;
+          bottom:0;
+          left:0;
+          right:0;
+          display:flex;
+          justify-content:center;
+          gap:10px;
+          padding:10px;
+          background:rgba(0,0,0,.8);
+          border-radius:0 0 5px 5px;
+        }
+        .towerBtn {
+          cursor:pointer;
+          padding:8px 12px;
+          border:2px solid #e94560;
+          border-radius:6px;
+          background:#1a1a2e;
+          color:#fff;
+          font-size:12px;
+          transition:all .2s;
+          pointer-events:auto;
+          text-align:center;
+          min-width:80px;
+        }
+        .towerBtn:hover {
+          background:#e94560;
+          transform:translateY(-2px);
+        }
+        .towerBtn.selected {
+          background:#e94560;
+          box-shadow:0 0 15px #e94560;
+        }
+        .towerBtn .cost {
+          color:#ffd700;
+          font-size:11px;
+        }
+        #upgradePanel {
+          position:absolute;
+          top:50%;
+          left:50%;
+          transform:translate(-50%,-50%);
+          background:rgba(0,0,0,.9);
+          border:2px solid #e94560;
+          border-radius:10px;
+          padding:20px;
+          display:none;
+          text-align:center;
+          z-index:10;
+        }
+        #upgradePanel h3 {
+          color:#e94560;
+          margin-bottom:10px;
+        }
+        #upgradePanel button {
+          margin:5px;
+          padding:8px 16px;
+          border:none;
+          border-radius:5px;
+          cursor:pointer;
+          background:#0f3460;
+          color:#fff;
+          transition:.2s;
+        }
+        #upgradePanel button:hover {
+          background:#e94560;
+        }
+        #gameOverScreen,#victoryScreen {
+          position:absolute;
+          top:0;
+          left:0;
+          right:0;
+          bottom:0;
+          display:none;
+          flex-direction:column;
+          justify-content:center;
+          align-items:center;
+          background:rgba(0,0,0,.85);
+          z-index:20;
+          border-radius:5px;
+        }
+        #gameOverScreen h2 {
+          color:#ff4444;
+          font-size:36px;
+          margin-bottom:20px;
+          text-shadow:0 0 20px #ff4444;
+        }
+        #victoryScreen h2 {
+          color:#44ff44;
+          font-size:36px;
+          margin-bottom:20px;
+          text-shadow:0 0 20px #44ff44;
+        }
+        .restartBtn {
+          padding:12px 30px;
+          font-size:18px;
+          border:2px solid #e94560;
+          border-radius:8px;
+          background:#1a1a2e;
+          color:#fff;
+          cursor:pointer;
+          transition:.3s;
+        }
+        .restartBtn:hover {
+          background:#e94560;
+          transform:scale(1.05);
+        }
+        #infoText {
+          position:absolute;
+          top:45px;
+          left:50%;
+          transform:translateX(-50%);
+          background:rgba(0,0,0,.6);
+          padding:4px 12px;
+          border-radius:4px;
+          font-size:12px;
+          color:#aaa;
+          pointer-events:none;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>
+        タワーディフェンス
+      </h1>
+      <div id=gameContainer>
+        <canvas id=gameCanvas width=800 height=500>
+        </canvas>
+        <div id=ui>
+          <span class=wave>
+            ウェーブ:
+            <span id=waveNum>
+              1
+            </span>
+            /10
+          </span>
+          <span class=gold>
+            ゴールド:
+            <span id=goldNum>
+              150
+            </span>
+          </span>
+          <span class=life>
+            ライフ:
+            <span id=lifeNum>
+              20
+            </span>
+          </span>
+        </div>
+        <div id=infoText>
+          タワーを選択してマップの緑エリアに配置 → 敵を倒してゴールドを獲得 → タワーをアップグレード
+        </div>
+        <div id=towerPanel>
+          <div class=towerBtn data-type=0>
+            <div>
+              機関銃
+            </div>
+            <div class=cost>
+              50G
+            </div>
+          </div>
+          <div class=towerBtn data-type=1>
+            <div>
+              キャノン
+            </div>
+            <div class=cost>
+              120G
+            </div>
+          </div>
+          <div class=towerBtn data-type=2>
+            <div>
+              スナイパー
+            </div>
+            <div class=cost>
+              200G
+            </div>
+          </div>
+        </div>
+        <div id=upgradePanel>
+          <h3>
+            タワー強化
+          </h3>
+          <p id=upInfo>
+          </p>
+          <button id=btnDmg>
+            ダメージUP (30G)
+          </button>
+          <button id=btnRate>
+            射速UP (40G)
+          </button>
+          <button id=btnClose>
+            閉じる
+          </button>
+        </div>
+        <div id=gameOverScreen>
+          <h2>
+            GAME OVER
+          </h2>
+          <button class=restartBtn onclick=restartGame()>
+            リスタート
+          </button>
+        </div>
+        <div id=victoryScreen>
+          <h2>
+            VICTORY!
+          </h2>
+          <button class=restartBtn onclick=restartGame()>
+            リスタート
+          </button>
+        </div>
+      </div>
+      <script>
+        const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
+        const CELL=40,COLS=20,ROWS=12;
+        let gold=150,life=20,wave=1,maxWaves=10,selectedTowerType=null,selectedTower=null,enemies=[],towers=[],projectiles=[],particles=[],waveActive=false,enemiesToSpawn=0,spawnTimer=0,spawnInterval=60,gameOver=false,victory=false;
+        const path=[{
+          x:0,y:2
+        }
+        ,{
+          x:3,y:2
+        }
+        ,{
+          x:3,y:5
+        }
+        ,{
+          x:7,y:5
+        }
+        ,{
+          x:7,y:3
+        }
+        ,{
+          x:11,y:3
+        }
+        ,{
+          x:11,y:7
+        }
+        ,{
+          x:6,y:7
+        }
+        ,{
+          x:6,y:9
+        }
+        ,{
+          x:14,y:9
+        }
+        ,{
+          x:14,y:4
+        }
+        ,{
+          x:17,y:4
+        }
+        ,{
+          x:17,y:8
+        }
+        ,{
+          x:19,y:8
+        }
+        ];
+        const towerTypes=[{
+          name:'機関銃',cost:50,range:120,damage:8,fireRate:15,color:'#ff6b6b',projColor:'#ff9999',projSpeed:6
+        }
+        ,{
+          name:'キャノン',cost:120,range:100,damage:25,fireRate:45,color:'#4ecdc4',projColor:'#7eddd8',projSpeed:4,splash:40
+        }
+        ,{
+          name:'スナイパー',cost:200,range:200,damage:60,fireRate:90,color:'#ffe66d',projColor:'#fff0a0',projSpeed:10
+        }
+        ];
+        function initGame(){
+          gold=150;
+          life=20;
+          wave=1;
+          enemies=[];
+          towers=[];
+          projectiles=[];
+          particles=[];
+          waveActive=false;
+          enemiesToSpawn=0;
+          spawnTimer=0;
+          gameOver=false;
+          victory=false;
+          selectedTowerType=null;
+          selectedTower=null;
+          document.getElementById('gameOverScreen').style.display='none';
+          document.getElementById('victoryScreen').style.display='none';
+          document.getElementById('upgradePanel').style.display='none';
+          updateUI();
+          startWave()
+        }
+        function updateUI(){
+          document.getElementById('goldNum').textContent=gold;
+          document.getElementById('lifeNum').textContent=life;
+          document.getElementById('waveNum').textContent=wave
+        }
+        function startWave(){
+          if(wave>maxWaves){
+            victory=true;
+            document.getElementById('victoryScreen').style.display='flex';
+            return
+          }
+          waveActive=true;
+          enemiesToSpawn=5+wave*3;
+          spawnInterval=Math.max(20,60-wave*3);
+          spawnTimer=0
+        }
+        function getPathPos(t){
+          const idx=Math.floor(t),frac=t-idx;
+          if(idx>=path.length-1)return{
+            x:path[path.length-1].x*CELL+CELL/2,y:path[path.length-1].y*CELL+CELL/2
+          }
+          ;
+          const p1=path[idx],p2=path[idx+1];
+          return{
+            x:(p1.x+(p2.x-p1.x)*frac)*CELL+CELL/2,y:(p1.y+(p2.y-p1.y)*frac)*CELL+CELL/2
+          }
+        }
+        function spawnEnemy(){
+          const hp=20+wave*15+Math.pow(wave,2)*2;
+          const speed=0.02+wave*0.003;
+          const reward=10+wave*2;
+          enemies.push({
+            t:0,hp:hp,maxHp:hp,speed:speed,reward:reward,frozen:0
+          }
+          )
+        }
+        function update(){
+          if(gameOver||victory)return;
+          if(waveActive&&enemiesToSpawn>0){
+            spawnTimer++;
+            if(spawnTimer>=spawnInterval){
+              spawnEnemy();
+              enemiesToSpawn--;
+              spawnTimer=0;
+              if(enemiesToSpawn===0)waveActive=false
+            }
+          }
+          for(let i=enemies.length-1;
+          i>=0;
+          i--){
+            const e=enemies[i];
+            e.t+=e.speed*(e.frozen>0?0.5:1);
+            if(e.frozen>0)e.frozen--;
+            const pos=getPathPos(e.t);
+            e.x=pos.x;
+            e.y=pos.y;
+            if(e.t>=path.length-1){
+              life--;
+              enemies.splice(i,1);
+              updateUI();
+              if(life<=0){
+                gameOver=true;
+                document.getElementById('gameOverScreen').style.display='flex'
+              }
+              continue
+            }
+            if(e.hp<=0){
+              gold+=e.reward;
+              enemies.splice(i,1);
+              updateUI();
+              for(let k=0;
+              k<8;
+              k++){
+                particles.push({
+                  x:e.x,y:e.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:20,color:'#ff6b6b'
+                }
+                )
+              }
+              if(!waveActive&&enemies.length===0&&enemiesToSpawn===0){
+                wave++;
+                startWave()
+              }
+            }
+          }
+          for(let t of towers){
+            t.cooldown--;
+            if(t.cooldown<=0){
+              let target=null,minDist=Infinity;
+              for(let e of enemies){
+                const d=Math.hypot(e.x-t.x,e.y-t.y);
+                if(d<=t.range&&d<minDist){
+                  minDist=d;
+                  target=e
+                }
+              }
+              if(target){
+                t.cooldown=t.fireRate;
+                projectiles.push({
+                  x:t.x,y:t.y,target:target,damage:t.damage,speed:t.projSpeed,color:t.projColor,splash:t.splash||0,hit:false
+                }
+                )
+              }
+            }
+          }
+          for(let i=projectiles.length-1;
+          i>=0;
+          i--){
+            const p=projectiles[i];
+            if(p.hit||!enemies.includes(p.target)){
+              projectiles.splice(i,1);
+              continue
+            }
+            const dx=p.target.x-p.x,dy=p.target.y-p.y,dist=Math.hypot(dx,dy);
+            if(dist<p.speed){
+              p.hit=true;
+              if(p.splash>0){
+                for(let e of enemies){
+                  const d=Math.hypot(e.x-p.target.x,e.y-p.target.y);
+                  if(d<=p.splash)e.hp-=p.damage
+                }
+              }
+              else{
+                p.target.hp-=p.damage
+              }
+              projectiles.splice(i,1);
+              for(let k=0;
+              k<5;
+              k++){
+                particles.push({
+                  x:p.target.x,y:p.target.y,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:15,color:p.color
+                }
+                )
+              }
+            }
+            else{
+              p.x+=dx/dist*p.speed;
+              p.y+=dy/dist*p.speed
+            }
+          }
+          for(let i=particles.length-1;
+          i>=0;
+          i--){
+            const pt=particles[i];
+            pt.x+=pt.vx;
+            pt.y+=pt.vy;
+            pt.life--;
+            if(pt.life<=0)particles.splice(i,1)
+          }
+          if(!waveActive&&enemies.length===0&&enemiesToSpawn===0){
+            wave++;
+            startWave()
+          }
+        }
+        function draw(){
+          ctx.fillStyle='#0f3460';
+          ctx.fillRect(0,0,canvas.width,canvas.height);
+          ctx.strokeStyle='#1a5490';
+          ctx.lineWidth=1;
+          for(let x=0;
+          x<=COLS;
+          x++){
+            ctx.beginPath();
+            ctx.moveTo(x*CELL,0);
+            ctx.lineTo(x*CELL,canvas.height);
+            ctx.stroke()
+          }
+          for(let y=0;
+          y<=ROWS;
+          y++){
+            ctx.beginPath();
+            ctx.moveTo(0,y*CELL);
+            ctx.lineTo(canvas.width,y*CELL);
+            ctx.stroke()
+          }
+          ctx.fillStyle='#2d4a3e';
+          for(let i=0;
+          i<path.length-1;
+          i++){
+            const p1=path[i],p2=path[i+1];
+            const minX=Math.min(p1.x,p2.x),maxX=Math.max(p1.x,p2.x);
+            const minY=Math.min(p1.y,p2.y),maxY=Math.max(p1.y,p2.y);
+            ctx.fillRect(minX*CELL,minY*CELL,(maxX-minX+1)*CELL,(maxY-minY+1)*CELL)
+          }
+          ctx.fillStyle='#3d6a4e';
+          for(let p of path){
+            ctx.fillRect(p.x*CELL+2,p.y*CELL+2,CELL-4,CELL-4)
+          }
+          for(let t of towers){
+            ctx.beginPath();
+            ctx.arc(t.x,t.y,12,0,Math.PI*2);
+            ctx.fillStyle=t.color;
+            ctx.fill();
+            ctx.strokeStyle='#fff';
+            ctx.lineWidth=2;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(t.x,t.y,6,0,Math.PI*2);
+            ctx.fillStyle='#fff';
+            ctx.fill();
+            if(t===selectedTower){
+              ctx.beginPath();
+              ctx.arc(t.x,t.y,t.range,0,Math.PI*2);
+              ctx.strokeStyle='rgba(255,255,255,0.3)';
+              ctx.lineWidth=1;
+              ctx.setLineDash([5,5]);
+              ctx.stroke();
+              ctx.setLineDash([])
+            }
+          }
+          for(let e of enemies){
+            const size=10+Math.sqrt(e.maxHp)*0.5;
+            ctx.beginPath();
+            ctx.arc(e.x,e.y,size,0,Math.PI*2);
+            ctx.fillStyle=e.frozen>0?'#88ccff':'#e94560';
+            ctx.fill();
+            ctx.strokeStyle='#fff';
+            ctx.lineWidth=1;
+            ctx.stroke();
+            const barW=size*2;
+            const barH=4;
+            ctx.fillStyle='#333';
+            ctx.fillRect(e.x-barW/2,e.y-size-8,barW,barH);
+            ctx.fillStyle='#44ff44';
+            ctx.fillRect(e.x-barW/2,e.y-size-8,barW*(e.hp/e.maxHp),barH)
+          }
+          for(let p of projectiles){
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,4,0,Math.PI*2);
+            ctx.fillStyle=p.color;
+            ctx.fill()
+          }
+          for(let pt of particles){
+            ctx.globalAlpha=pt.life/20;
+            ctx.fillStyle=pt.color;
+            ctx.fillRect(pt.x-2,pt.y-2,4,4);
+            ctx.globalAlpha=1
+          }
+          if(selectedTowerType!==null){
+            const rect=canvas.getBoundingClientRect();
+          }
+          requestAnimationFrame(()=>{
+            update();
+            draw()
+          });
+        }
+        canvas.addEventListener('click',e=>{
+          const rect=canvas.getBoundingClientRect();
+          const x=e.clientX-rect.left,y=e.clientY-rect.top;
+          const gx=Math.floor(x/CELL),gy=Math.floor(y/CELL);
+          if(selectedTowerType!==null){
+            if(canPlaceTower(gx,gy)){
+              const type=towerTypes[selectedTowerType];
+              if(gold>=type.cost){
+                gold-=type.cost;
+                towers.push({
+                  x:gx*CELL+CELL/2,y:gy*CELL+CELL/2,range:type.range,damage:type.damage,fireRate:type.fireRate,cooldown:0,color:type.color,projColor:type.projColor,projSpeed:type.projSpeed,splash:type.splash||0,level:1
+                });
+                selectedTowerType=null;
+                document.querySelectorAll('.towerBtn').forEach(b=>b.classList.remove('selected'));
+                updateUI()
+              }
+            }
+            else{
+              selectedTower=null;
+              document.getElementById('upgradePanel').style.display='none';
+              for(let t of towers){
+                const d=Math.hypot(t.x-x,t.y-y);
+                if(d<20){
+                  selectedTower=t;
+                  showUpgradePanel(t);
+                  break
+                }
+              }
+            }
+          }
+        });
+          function canPlaceTower(gx,gy){
+            if(gx<0||gx>=COLS||gy<0||gy>=ROWS)return false;
+            for(let p of path)if(p.x===gx&&p.y===gy)return false;
+            for(let t of towers)if(Math.floor(t.x/CELL)===gx&&Math.floor(t.y/CELL)===gy)return false;
+            return true
+          }
+          function showUpgradePanel(tower){
+            const panel=document.getElementById('upgradePanel');
+            const info=document.getElementById('upInfo');
+            info.innerHTML=`レベル${
+              tower.level
+            }
+            <br>ダメージ:${
+              tower.damage
+            }
+            射速:${
+              tower.fireRate
+            }
+            `;
+            panel.style.display='block'
+          }
+          document.getElementById('btnDmg').addEventListener('click',()=>{
+            if(selectedTower&&gold>=30){
+              gold-=30;
+              selectedTower.damage=Math.floor(selectedTower.damage*1.3);
+              selectedTower.level++;
+              updateUI();
+              showUpgradePanel(selectedTower)
+            }
+          });
+          document.getElementById('btnRate').addEventListener('click',()=>{
+            if(selectedTower&&gold>=40){
+              gold-=40;
+              selectedTower.fireRate=Math.max(5,Math.floor(selectedTower.fireRate*0.85));
+              selectedTower.level++;
+              updateUI();
+              showUpgradePanel(selectedTower)
+            }
+          });
+          document.getElementById('btnClose').addEventListener('click',()=>{
+            document.getElementById('upgradePanel').style.display='none';
+            selectedTower=null
+          });
+          document.querySelectorAll('.towerBtn').forEach(btn=>{
+            btn.addEventListener('click',()=>{
+              const type=parseInt(btn.dataset.type);
+              if(selectedTowerType===type){
+                selectedTowerType=null;
+                btn.classList.remove('selected')
+              }
+              else{
+                selectedTowerType=type;
+                document.querySelectorAll('.towerBtn').forEach(b=>b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.getElementById('upgradePanel').style.display='none';
+                selectedTower=null
+              }
+            });
+          });
+          function restartGame(){
+            initGame()
+          }
+          initGame();
+          draw();
+      </script>
+    </body>
+  </html>
