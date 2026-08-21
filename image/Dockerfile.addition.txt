@@ -1,4 +1,4 @@
-# salp Linux v1.9.2 Firefox browser layer
+# salp Linux v1.10.0 Firefox browser layer
 # Upstream already includes Xorg + i3 + LightDM. Add Firefox ESR as the primary browser.
 RUN set -eux; \
     printf '%s\n' \
@@ -82,7 +82,7 @@ RUN chmod 0755 /usr/local/bin/salp-browser \
     'Categories=Network;WebBrowser;' \
     > /usr/share/applications/salp-browser.desktop \
  && printf '%s\n' \
-    'salp Linux v1.9.2' \
+    'salp Linux v1.10.0' \
     'browser=firefox-esr' \
     'fallback=netsurf' \
     'homepage=https://www.google.com/' \
