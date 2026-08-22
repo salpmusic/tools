@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>確率シミュレーター - ダイス & コイン</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #334155;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --accent: #38bdf8;
+    --accent2: #f472b6;
+    --accent3: #34d399;
+    --warn: #fbbf24;
+    --danger: #ef4444;
+    --border: #475569;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 18px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    margin-bottom: 8px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text2);
+    font-size: clamp(0.85rem, 3vw, 1rem);
+    margin-bottom: 20px;
+  }
+
+  /* モード切り替え */
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    flex: 1;
+    min-width: 140px;
+    max-width: 220px;
+    padding: 14px 20px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    touch-action: manipulation;
+  }
+  .mode-btn:hover { border-color: var(--accent); }
+  .mode-btn.active {
+    border-color: var(--accent);
+    background: rgba(56,189,248,0.15);
+    box-shadow: 0 0 15px rgba(56,189,248,0.2);
+  }
+  .mode-btn .icon { font-size: 1.4rem; }
+
+  /* カード */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--card2);
+  }
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 試行回数設定 */
+  .preset-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+    justify-content: center;
+  }
+  .preset-btn {
+    padding: 10px 18px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--card2);
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 80px;
+    touch-action: manipulation;
+  }
+  .preset-btn:hover, .preset-btn.active {
+    border-color: var(--accent3);
+    background: rgba(52,211,153,0.15);
+    color: var(--accent3);
+  }
+  .custom-input-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .custom-input-wrap label {
+    font-weight: 600;
+    color: var(--text2);
+  }
+  .custom-input-wrap input[type="number"] {
+    width: 140px;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+  }
+  .custom-input-wrap input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  /* コントロールボタン */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .ctrl-btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    touch-action: manipulation;
+    min-width: 130px;
+    justify-content: center;
+  }
+  .ctrl-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-start { background: var(--accent3); color: #064e3b; }
+  .btn-start:hover:not(:disabled) { background: #6ee7b7; transform: translateY(-2px); }
+  .btn-pause { background: var(--warn); color: #451a03; }
+  .btn-pause:hover:not(:disabled) { background: #fcd34d; transform: translateY(-2px); }
+  .btn-reset { background: var(--danger); color: #fff; }
+  .btn-reset:hover:not(:disabled) { background: #f87171; transform: translateY(-2px); }
+
+  /* 速度調整 */
+  .speed-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .speed-wrap label { font-weight: 600; color: var(--text2); }
+  .speed-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 200px;
+    height: 10px;
+    border-radius: 5px;
+    background: var(--card2);
+    outline: none;
+  }
+  .speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .speed-slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .speed-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* 進行状況 */
+  .progress-bar-wrap {
+    background: var(--card2);
+    border-radius: 10px;
+    height: 28px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 10px;
+    transition: width 0.1s linear;
+    width: 0%;
+  }
+  .progress-text {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+
+  /* ヒストグラム */
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: var(--bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--card2);
+  }
+  .chart-wrap canvas { display: block; width: 100%; height: 100%; }
+
+  /* 結果グリッド */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .result-item {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    border: 2px solid var(--card2);
+    transition: border-color 0.2s;
+  }
+  .result-item.highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(56,189,248,0.15);
+  }
+  .result-label {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .result-count {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .result-pct {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 2px;
+  }
+  .result-theory {
+    font-size: 0.8rem;
+    color: var(--text2);
+  }
+  .result-diff {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .diff-close { color: var(--accent3); }
+  .diff-far { color: var(--warn); }
+
+  /* 説明 */
+  .info-box {
+    background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(52,211,153,0.1));
+    border-left: 4px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .info-box p { margin-bottom: 8px; }
+  .info-box p:last-child { margin-bottom: 0; }
+  .info-box strong { color: var(--accent); }
+
+  /* 理論値ライン説明 */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 10px;
+    font-size: 0.85rem;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-color {
+    width: 20px;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  /* レスポンシブ */
+  @media (max-width: 480px) {
+    html { font-size: 16px; }
+    .card { padding: 14px; }
+    .chart-wrap { height: 260px; }
+    .ctrl-btn { padding: 12px 20px; min-width: 110px; }
+    .mode-btn { min-width: 120px; padding: 12px 14px; }
+    .results-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+    .speed-slider { width: 160px; }
+    .speed-labels { width: 160px; }
+  }
+  /* 完了アニメーション */
+  @keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(52,211,153,0); }
+    100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+  }
+  .complete-pulse {
+    animation: pulse-green 1s ease-out;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>確率シミュレーター</h1>
+  <p class="subtitle">ダイスとコインで確率の法則を体験しよう</p>
+
+  <!-- モード切り替え -->
+  <div class="mode-switch">
+    <button class="mode-btn active" id="modeCoin" onclick="setMode('coin')">
+      <span class="icon">🪙</span> コイン
+    </button>
+    <button class="mode-btn" id="modeDice" onclick="setMode('dice')">
+      <span class="icon">🎲</span> ダイス
+    </button>
+  </div>
+
+  <!-- 説明 -->
+  <div class="card">
+    <div class="info-box">
+      <p><strong>確率の基本を知ろう</strong></p>
+      <p>少ない試行では結果が大きく偏ることがあります。試行回数を増やすと、実測値は理論確率に近づきやすくなります。</p>
+      <p>10,000回以上試してみると、グラフの棒が理論値の線に近づいていくのが分かります。</p>
+    </div>
+  </div>
+
+  <!-- 試行回数設定 -->
+  <div class="card">
+    <div class="card-title">📊 試行回数を選ぶ</div>
+    <div class="preset-btns">
+      <button class="preset-btn" data-val="1" onclick="setTrials(1)">1回</button>
+      <button class="preset-btn" data-val="10" onclick="setTrials(10)">10回</button>
+      <button class="preset-btn" data-val="100" onclick="setTrials(100)">100回</button>
+      <button class="preset-btn active" data-val="1000" onclick="setTrials(1000)">1,000回</button>
+      <button class="preset-btn" data-val="10000" onclick="setTrials(10000)">10,000回</button>
+      <button class="preset-btn" data-val="50000" onclick="setTrials(50000)">50,000回</button>
+    </div>
+    <div class="custom-input-wrap">
+      <label for="customTrials">または直接入力：</label>
+      <input type="number" id="customTrials" min="1" max="100000" value="1000" onchange="setCustomTrials()">
+      <span>回</span>
+    </div>
+  </div>
+
+  <!-- コントロール -->
+  <div class="card">
+    <div class="card-title">🎮 コントロール</div>
+    <div class="controls">
+      <button class="ctrl-btn btn-start" id="btnStart" onclick="startSim()">
+        <span>▶</span> 開始
+      </button>
+      <button class="ctrl-btn btn-pause" id="btnPause" onclick="togglePause()" disabled>
+        <span>⏸</span> 一時停止
+      </button>
+      <button class="ctrl-btn btn-reset" id="btnReset" onclick="resetSim()">
+        <span>↺</span> リセット
+      </button>
+    </div>
+    <div class="speed-wrap">
+      <label for="speedSlider">⚡ 速度：</label>
+      <div>
+        <input type="range" id="speedSlider" class="speed-slider" min="1" max="5" value="3" step="1">
+        <div class="speed-labels">
+          <span>遅い</span>
+          <span>標準</span>
+          <span>速い</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 進行状況 -->
+  <div class="card">
+    <div class="card-title">📈 進行状況</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+      <div class="progress-text" id="progressText">0 / 1,000 回 (0%)</div>
+    </div>
+  </div>
+
+  <!-- ヒストグラム -->
+  <div class="card">
+    <div class="card-title">📊 ライブヒストグラム</div>
+    <div class="chart-wrap">
+      <canvas id="chartCanvas"></canvas>
+    </div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background:var(--accent3)"></div>
+        <span>実測確率</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background:var(--warn); border:2px dashed var(--warn); background:transparent;"></div>
+        <span>理論確率（基準線）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果詳細 -->
+  <div class="card">
+    <div class="card-title">📝 結果詳細</div>
+    <div class="results-grid" id="resultsGrid"></div>
+  </div>
+</div>
+
+<script>
+// ==================== 状態管理 ====================
+let mode = 'coin'; // 'coin' or 'dice'
+let totalTrials = 1000;
+let currentTrial = 0;
+let counts = {};
+let isRunning = false;
+let isPaused = false;
+let animId = null;
+let lastFrameTime = 0;
+let batchSize = 1;
+
+const coinLabels = ['表', '裏'];
+const diceLabels = ['1', '2', '3', '4', '5', '6'];
+const coinColors = ['#38bdf8', '#f472b6'];
+const diceColors = ['#38bdf8', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c'];
+
+function getLabels() { return mode === 'coin' ? coinLabels : diceLabels; }
+function getColors() { return mode === 'coin' ? coinColors : diceColors; }
+function getTheory() { return mode === 'coin' ? 50 : 16.6667; }
+function getOutcomeCount() { return mode === 'coin' ? 2 : 6; }
+
+function initCounts() {
+  counts = {};
+  getLabels().forEach(l => counts[l] = 0);
+}
+initCounts();
+
+// ==================== UI更新 ====================
+function setMode(m) {
+  if (isRunning) return;
+  mode = m;
+  document.getElementById('modeCoin').classList.toggle('active', m === 'coin');
+  document.getElementById('modeDice').classList.toggle('active', m === 'dice');
+  resetSim();
+}
+
+function setTrials(n) {
+  if (isRunning) return;
+  totalTrials = n;
+  document.getElementById('customTrials').value = n;
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.val) === n);
+  });
+  updateProgress();
+}
+
+function setCustomTrials() {
+  if (isRunning) return;
+  let v = parseInt(document.getElementById('customTrials').value);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 100000) v = 100000;
+  totalTrials = v;
+  document.getElementById('customTrials').value = v;
+  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = totalTrials > 0 ? (currentTrial / totalTrials * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent =
+    `${currentTrial.toLocaleString()} / ${totalTrials.toLocaleString()} 回 (${pct.toFixed(1)}%)`;
+}
+
+function getSpeed() {
+  const s = parseInt(document.getElementById('speedSlider').value);
+  // 1=遅い, 5=速い
+  if (s === 1) return { batch: 1, interval: 80 };
+  if (s === 2) return { batch: 5, interval: 40 };
+  if (s === 3) return { batch: 20, interval: 20 };
+  if (s === 4) return { batch: 100, interval: 10 };
+  return { batch: 500, interval: 5 };
+}
+
+// ==================== シミュレーション ====================
+function startSim() {
+  if (isRunning) return;
+  if (currentTrial >= totalTrials) resetSim();
+  isRunning = true;
+  isPaused = false;
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnPause').disabled = false;
+  document.getElementById('btnPause').innerHTML = '<span>⏸</span> 一時停止';
+  lastFrameTime = performance.now();
+  animId = requestAnimationFrame(simLoop);
+}
+
+function togglePause() {
+  if (!isRunning) return;
+  isPaused = !isPaused;
+  const btn = document.getElementById('btnPause');
+  if (isPaused) {
+    btn.innerHTML = '<span>▶</span> 再開';
+    cancelAnimationFrame(animId);
+  } else {
+    btn.innerHTML = '<span>⏸</span> 一時停止';
+    lastFrameTime = performance.now();
+    animId = requestAnimationFrame(simLoop);
+  }
+}
+
+function resetSim() {
+  isRunning = false;
+  isPaused = false;
+  cancelAnimationFrame(animId);
+  currentTrial = 0;
+  initCounts();
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('btnPause').innerHTML = '<span>⏸</span> 一時停止';
+  updateProgress();
+  renderChart();
+  renderResults();
+}
+
+function simLoop(timestamp) {
+  if (!isRunning || isPaused) return;
+  const speed = getSpeed();
+  const elapsed = timestamp - lastFrameTime;
+
+  let doBatch = speed.batch;
+  if (elapsed > speed.interval * 2) doBatch = Math.min(doBatch * 2, 3000);
+
+  const labels = getLabels();
+  for (let i = 0; i < doBatch; i++) {
+    if (currentTrial >= totalTrials) break;
+    const idx = Math.floor(Math.random() * labels.length);
+    counts[labels[idx]]++;
+    lastOutcome = labels[idx];
+    currentTrial++;
+  }
+
+  updateProgress();
+  renderChart();
+  renderResults();
+
+  if (currentTrial >= totalTrials) {
+    isRunning = false;
+    lastOutcome = null;
+    document.getElementById('btnStart').disabled = false;
+    document.getElementById('btnPause').disabled = true;
+    // 完了フィードバック
+    const progressWrap = document.querySelector('.progress-bar-wrap');
+    progressWrap.classList.add('complete-pulse');
+    setTimeout(() => progressWrap.classList.remove('complete-pulse'), 1000);
+    renderChart();
+    renderResults();
+    return;
+  }
+
+  lastFrameTime = timestamp;
+  animId = requestAnimationFrame(simLoop);
+}
+
+// ==================== ユーティリティ ====================
+function roundRectFallback(ctx, x, y, w, h, r) {
+  if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
+  const radius = Array.isArray(r) ? r : [r, r, r, r];
+  ctx.beginPath();
+  ctx.moveTo(x + radius[0], y);
+  ctx.lineTo(x + w - radius[1], y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius[1]);
+  ctx.lineTo(x + w, y + h - radius[2]);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius[2], y + h);
+  ctx.lineTo(x + radius[3], y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius[3]);
+  ctx.lineTo(x, y + radius[0]);
+  ctx.quadraticCurveTo(x, y, x + radius[0], y);
+  ctx.closePath();
+}
+
+let lastOutcome = null;
+
+// ==================== レンダリング ====================
+const canvas = document.getElementById('chartCanvas');
+const ctx = canvas.getContext('2d');
+let chartDpr = 1;
+
+function resizeCanvas() {
+  const wrap = canvas.parentElement;
+  chartDpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = wrap.clientWidth * chartDpr;
+  canvas.height = wrap.clientHeight * chartDpr;
+  canvas.style.width = wrap.clientWidth + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+  ctx.setTransform(chartDpr, 0, 0, chartDpr, 0, 0);
+}
+window.addEventListener('resize', () => { resizeCanvas(); renderChart(); });
+resizeCanvas();
+
+function renderChart() {
+  const W = canvas.width / chartDpr;
+  const H = canvas.height / chartDpr;
+  const labels = getLabels();
+  const colors = getColors();
+  const n = labels.length;
+  const theory = getTheory(); // %
+
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 52, padR = 16, padT = 28, padB = 44;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  // Y軸最大値を動的に決定（理論値の2倍以上は確保、最低でも理論値の3倍）
+  let yMax = 100;
+  if (mode === 'dice') {
+    yMax = Math.max(theory * 3, 40);
+    // 現在の最大パーセントを考慮
+    let maxPct = 0;
+    labels.forEach(l => {
+      const c = counts[l] || 0;
+      const p = currentTrial > 0 ? (c / currentTrial * 100) : 0;
+      if (p > maxPct) maxPct = p;
+    });
+    yMax = Math.max(yMax, maxPct * 1.3);
+    yMax = Math.min(yMax, 100);
+  }
+
+  // 背景グリッド
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + chartH * (i / 5);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + chartW, y);
+    ctx.stroke();
+    // Y軸ラベル
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const pct = (yMax * (1 - i / 5));
+    ctx.fillText(pct.toFixed(mode==='coin'?0:1) + '%', padL - 8, y);
+  }
+
+  // 理論値ライン
+  const theoryY = padT + chartH * (1 - theory / yMax);
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, theoryY);
+  ctx.lineTo(padL + chartW, theoryY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 理論値ラベル
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('理論値 ' + theory.toFixed(mode==='coin'?0:2) + '%', padL + 4, theoryY - 6);
+
+  // 棒グラフ
+  const barGap = Math.min(18, chartW / (n * 5));
+  const barW = (chartW - barGap * (n + 1)) / n;
+
+  labels.forEach((label, i) => {
+    const count = counts[label] || 0;
+    const pct = currentTrial > 0 ? (count / currentTrial * 100) : 0;
+    const barH = (pct / yMax) * chartH;
+    const x = padL + barGap + i * (barW + barGap);
+    const y = padT + chartH - barH;
+
+    // 最新の出目を強調
+    const isLatest = lastOutcome === label;
+    const glow = isLatest ? 'ff' : 'cc';
+    const glowBorder = isLatest ? 'ff' : 'cc';
+
+    // 棒
+    const grad = ctx.createLinearGradient(0, y, 0, padT + chartH);
+    grad.addColorStop(0, colors[i] + glow);
+    grad.addColorStop(1, colors[i] + '66');
+    ctx.fillStyle = grad;
+    roundRectFallback(ctx, x, y, barW, barH, [6, 6, 0, 0]);
+    ctx.fill();
+
+    // 枠線
+    ctx.strokeStyle = isLatest ? '#fff' : colors[i];
+    ctx.lineWidth = isLatest ? 3 : 2;
+    roundRectFallback(ctx, x, y, barW, barH, [6, 6, 0, 0]);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    // パーセント表示（棒の上）
+    if (barH > 18) {
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(pct.toFixed(1) + '%', x + barW / 2, y - 4);
+    }
+
+    // X軸ラベル
+    ctx.fillStyle = isLatest ? '#fff' : '#f1f5f9';
+    ctx.font = isLatest ? 'bold 17px sans-serif' : 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label, x + barW / 2, padT + chartH + 10);
+  });
+}
+
+function renderResults() {
+  const grid = document.getElementById('resultsGrid');
+  const labels = getLabels();
+  const colors = getColors();
+  const theory = getTheory();
+
+  grid.innerHTML = '';
+  labels.forEach((label, i) => {
+    const count = counts[label] || 0;
+    const pct = currentTrial > 0 ? (count / currentTrial * 100) : 0;
+    const diff = pct - theory;
+    const diffAbs = Math.abs(diff);
+    const diffClass = diffAbs < 2 ? 'diff-close' : 'diff-far';
+    const diffText = diff >= 0 ? `+${diff.toFixed(2)}%` : `${diff.toFixed(2)}%`;
+    const isLatest = lastOutcome === label;
+
+    const div = document.createElement('div');
+    div.className = 'result-item' + (isLatest ? ' highlight' : '');
+    div.style.borderColor = isLatest ? colors[i] : colors[i] + '44';
+    div.innerHTML = `
+      <div class="result-label" style="color:${colors[i]}">${label}${isLatest ? ' ✨' : ''}</div>
+      <div class="result-count">${count.toLocaleString()}<span style="font-size:0.7em;color:var(--text2)"> 回</span></div>
+      <div class="result-pct">${pct.toFixed(2)}%</div>
+      <div class="result-theory">理論値: ${theory.toFixed(mode==='coin'?0:2)}%</div>
+      <div class="result-diff ${diffClass}">差分: ${diffText}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// ==================== 初期化 ====================
+renderChart();
+renderResults();
+</script>
+</body>
+</html>
