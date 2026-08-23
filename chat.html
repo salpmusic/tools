@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07130c">
+<title>SALP NETWORK - Private Chat</title>
+<style>
+:root{
+  --bg:#061008;
+  --panel:#0a1b0f;
+  --line:#2d7d46;
+  --text:#b9ffca;
+  --muted:#6fb882;
+  --bright:#ecfff1;
+  --warn:#ffe88a;
+  --danger:#ff8f8f;
+  --shadow:0 0 22px rgba(78,255,125,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{
+  font-family:"Courier New","Hiragino Kaku Gothic ProN","Yu Gothic",monospace;
+  background:
+    radial-gradient(circle at 50% 0,rgba(39,123,65,.16),transparent 42%),
+    linear-gradient(180deg,#07130c,#030806 75%);
+}
+body::after{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;opacity:.10;
+  background:repeating-linear-gradient(180deg,transparent 0 2px,#9cffb2 3px,transparent 4px);
+}
+button,input,textarea{font:inherit}
+.wrap{width:min(100%,900px);margin:auto;padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+header{
+  border:1px solid var(--line);background:#06150bde;box-shadow:var(--shadow);
+  padding:16px;margin-bottom:12px
+}
+.brand{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+h1{font-size:clamp(22px,5vw,36px);margin:0;color:var(--bright);letter-spacing:.06em}
+.sub{margin:7px 0 0;color:var(--muted);font-size:.9rem}
+.status{font-size:.82rem;border:1px solid var(--line);padding:7px 9px;white-space:nowrap}
+.panel{border:1px solid var(--line);background:rgba(4,18,9,.92);box-shadow:var(--shadow)}
+.hidden{display:none!important}
+.login{padding:20px}
+.login h2,.chatTitle{margin:0 0 14px;color:var(--bright);font-size:1.05rem}
+.field{margin:12px 0}
+label{display:block;margin-bottom:6px;color:var(--muted)}
+input,textarea{
+  width:100%;border:1px solid var(--line);border-radius:0;background:#020905;color:var(--bright);
+  padding:13px;outline:none;box-shadow:inset 0 0 12px rgba(80,255,125,.04)
+}
+input:focus,textarea:focus{border-color:#83ff9f;box-shadow:0 0 0 2px rgba(103,255,139,.12)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+button,.homeLink{
+  border:1px solid var(--line);border-radius:0;background:#0a2a14;color:var(--bright);
+  padding:11px 14px;text-decoration:none;cursor:pointer
+}
+button:hover,.homeLink:hover{background:#0f3a1d}
+button:disabled{opacity:.5;cursor:not-allowed}
+.danger{border-color:#7b3636;background:#2a0d0d;color:#ffd1d1}
+.note{font-size:.82rem;color:var(--muted);line-height:1.7;margin-top:14px}
+.error{color:var(--danger);min-height:1.4em;margin-top:9px}
+.chatHead{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);padding:12px 14px
+}
+.userLine{color:var(--warn);font-size:.9rem}
+.messages{
+  height:min(62vh,620px);min-height:330px;overflow:auto;padding:13px;
+  display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth
+}
+.msg{
+  border-left:3px solid #276d3e;background:#06120a;padding:10px 11px;
+  overflow-wrap:anywhere
+}
+.msg.mine{border-left-color:#d8c75f;background:#101508}
+.meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.76rem;margin-bottom:5px}
+.name{color:var(--warn)}
+.body{white-space:pre-wrap;line-height:1.55;color:var(--bright)}
+.empty{color:var(--muted);padding:22px;text-align:center}
+.composer{border-top:1px solid var(--line);padding:12px}
+textarea{min-height:76px;resize:vertical}
+.composeRow{display:flex;align-items:center;gap:9px;margin-top:9px}
+.send{min-width:100px}
+.count{margin-left:auto;color:var(--muted);font-size:.78rem}
+.sys{font-size:.78rem;color:var(--muted);padding:8px 13px;border-top:1px dotted #225a34}
+@media(max-width:600px){
+  .wrap{padding-left:8px;padding-right:8px}
+  header{padding:12px}
+  .login{padding:15px}
+  .messages{height:58vh;min-height:300px;padding:9px}
+  .msg{padding:9px}
+  .composeRow{align-items:stretch}
+  .send{min-width:88px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div>
+        <h1>◆ SALP NETWORK ◆</h1>
+        <p class="sub">PRIVATE COMPUTER COMMUNICATION SERVICE / CLOSED CHAT</p>
+      </div>
+      <div id="connStatus" class="status">SYSTEM: READY</div>
+    </div>
+  </header>
+
+  <section id="loginPanel" class="panel login">
+    <h2>== MEMBER LOGIN ==</h2>
+    <div class="field">
+      <label for="loginId">USER ID</label>
+      <input id="loginId" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="例: kane">
+    </div>
+    <div class="field">
+      <label for="password">PASSWORD</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="パスワード">
+    </div>
+    <div class="actions">
+      <button id="loginBtn">CONNECT</button>
+      <a class="homeLink" href="./index.html">← HOME</a>
+    </div>
+    <div id="loginError" class="error"></div>
+    <p class="note">
+      このチャットは招待制です。新規登録ボタンはありません。<br>
+      管理者が発行したIDとパスワードを持つ人だけ入室できます。
+    </p>
+  </section>
+
+  <section id="chatPanel" class="panel hidden">
+    <div class="chatHead">
+      <div>
+        <div class="chatTitle">== GENERAL ROOM ==</div>
+        <div id="userLine" class="userLine"></div>
+      </div>
+      <div class="actions" style="margin:0">
+        <a class="homeLink" href="./index.html">HOME</a>
+        <button id="logoutBtn" class="danger">LOG OUT</button>
+      </div>
+    </div>
+
+    <div id="messages" class="messages">
+      <div class="empty">CONNECTING...</div>
+    </div>
+
+    <div class="composer">
+      <textarea id="messageInput" maxlength="500" placeholder="メッセージを入力…&#10;Enterで送信 / Shift+Enterで改行"></textarea>
+      <div class="composeRow">
+        <button id="sendBtn" class="send">SEND</button>
+        <div id="sendError" class="error" style="margin:0;min-height:0"></div>
+        <div id="count" class="count">0 / 500</div>
+      </div>
+    </div>
+    <div class="sys">※ ログイン済みメンバーだけが閲覧・投稿できます。</div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  // ===== ここだけ自分のSupabase情報に置き換える =====
+  const SUPABASE_URL = "YOUR_SUPABASE_URL";
+  const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+  // ================================================
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  const $ = id => document.getElementById(id);
+  const loginPanel = $("loginPanel");
+  const chatPanel = $("chatPanel");
+  const loginId = $("loginId");
+  const password = $("password");
+  const loginBtn = $("loginBtn");
+  const logoutBtn = $("logoutBtn");
+  const loginError = $("loginError");
+  const messagesEl = $("messages");
+  const messageInput = $("messageInput");
+  const sendBtn = $("sendBtn");
+  const sendError = $("sendError");
+  const count = $("count");
+  const userLine = $("userLine");
+  const connStatus = $("connStatus");
+
+  let currentUser = null;
+  let currentProfile = null;
+  let realtimeChannel = null;
+  let seen = new Set();
+
+  function setStatus(text){ connStatus.textContent = "SYSTEM: " + text; }
+
+  function validConfig(){
+    return !SUPABASE_URL.includes("YOUR_") && !SUPABASE_PUBLISHABLE_KEY.includes("YOUR_");
+  }
+
+  // USER IDを内部用メール形式へ変換。
+  // 実際の利用者にはメールアドレスを見せず、IDだけでログインさせる。
+  function idToEmail(id){
+    const clean = id.trim().toLowerCase();
+    if(!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(clean)) return null;
+    return clean + "@salp.local";
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+  }
+
+  function fmtDate(iso){
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat("ja-JP",{
+      month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"
+    }).format(d);
+  }
+
+  function showLogin(){
+    chatPanel.classList.add("hidden");
+    loginPanel.classList.remove("hidden");
+    currentUser = null;
+    currentProfile = null;
+    seen.clear();
+    if(realtimeChannel){
+      sb.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+    setStatus("READY");
+  }
+
+  async function loadProfile(uid){
+    const {data,error} = await sb
+      .from("profiles")
+      .select("id,login_id,display_name")
+      .eq("id",uid)
+      .single();
+    if(error) throw error;
+    return data;
+  }
+
+  function renderMessage(m, append=true){
+    if(seen.has(m.id)) return;
+    seen.add(m.id);
+
+    const div = document.createElement("div");
+    const mine = currentUser && m.user_id === currentUser.id;
+    div.className = "msg" + (mine ? " mine" : "");
+    div.dataset.id = m.id;
+    div.innerHTML =
+      '<div class="meta"><span class="name">' + esc(m.display_name || "UNKNOWN") +
+      '</span><span>#' + esc(m.id) + '</span><span>' + esc(fmtDate(m.created_at)) +
+      '</span></div><div class="body">' + esc(m.body) + '</div>';
+
+    if(append) messagesEl.appendChild(div);
+    else messagesEl.prepend(div);
+  }
+
+  async function loadMessages(){
+    const {data,error} = await sb
+      .from("messages")
+      .select("id,user_id,display_name,body,created_at")
+      .order("id",{ascending:true})
+      .limit(200);
+
+    if(error) throw error;
+
+    messagesEl.innerHTML = "";
+    seen.clear();
+    if(!data.length){
+      messagesEl.innerHTML = '<div class="empty">まだメッセージはありません。最初の書き込みをどうぞ。</div>';
+      return;
+    }
+    data.forEach(m => renderMessage(m));
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function subscribeMessages(){
+    if(realtimeChannel) sb.removeChannel(realtimeChannel);
+
+    realtimeChannel = sb
+      .channel("salp-general-room")
+      .on("postgres_changes",{
+        event:"INSERT",
+        schema:"public",
+        table:"messages"
+      }, payload => {
+        const empty = messagesEl.querySelector(".empty");
+        if(empty) empty.remove();
+        renderMessage(payload.new);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      })
+      .subscribe(status => {
+        if(status === "SUBSCRIBED") setStatus("ONLINE");
+        else if(status === "CHANNEL_ERROR") setStatus("REALTIME ERROR");
+      });
+  }
+
+  async function enterChat(user){
+    currentUser = user;
+    currentProfile = await loadProfile(user.id);
+
+    loginPanel.classList.add("hidden");
+    chatPanel.classList.remove("hidden");
+    userLine.textContent = "CONNECTED AS: " + currentProfile.display_name + " [" + currentProfile.login_id + "]";
+
+    setStatus("CONNECTING");
+    await loadMessages();
+    subscribeMessages();
+    messageInput.focus();
+  }
+
+  async function login(){
+    loginError.textContent = "";
+
+    if(!validConfig()){
+      loginError.textContent = "SupabaseのURLとPublishable Keyを設定してください。";
+      return;
+    }
+
+    const email = idToEmail(loginId.value);
+    if(!email){
+      loginError.textContent = "IDは半角英数字・._- の3〜32文字で入力してください。";
+      return;
+    }
+    if(password.value.length < 6){
+      loginError.textContent = "パスワードを確認してください。";
+      return;
+    }
+
+    loginBtn.disabled = true;
+    setStatus("DIALING...");
+
+    const {data,error} = await sb.auth.signInWithPassword({
+      email,
+      password: password.value
+    });
+
+    loginBtn.disabled = false;
+
+    if(error){
+      setStatus("READY");
+      loginError.textContent = "IDまたはパスワードが違います。";
+      return;
+    }
+
+    password.value = "";
+    try{
+      await enterChat(data.user);
+    }catch(e){
+      console.error(e);
+      loginError.textContent = "プロフィール情報を読み込めませんでした。";
+      await sb.auth.signOut();
+      showLogin();
+    }
+  }
+
+  async function logout(){
+    await sb.auth.signOut();
+    loginId.value = "";
+    password.value = "";
+    showLogin();
+  }
+
+  async function sendMessage(){
+    sendError.textContent = "";
+    const body = messageInput.value.trim();
+    if(!body || !currentUser || !currentProfile) return;
+
+    sendBtn.disabled = true;
+
+    const {error} = await sb.from("messages").insert({
+      user_id: currentUser.id,
+      display_name: currentProfile.display_name,
+      body
+    });
+
+    sendBtn.disabled = false;
+
+    if(error){
+      console.error(error);
+      sendError.textContent = "送信できませんでした。";
+      return;
+    }
+
+    messageInput.value = "";
+    count.textContent = "0 / 500";
+    messageInput.focus();
+  }
+
+  loginBtn.addEventListener("click", login);
+  logoutBtn.addEventListener("click", logout);
+  sendBtn.addEventListener("click", sendMessage);
+
+  loginId.addEventListener("keydown", e => {
+    if(e.key === "Enter") password.focus();
+  });
+  password.addEventListener("keydown", e => {
+    if(e.key === "Enter") login();
+  });
+  messageInput.addEventListener("keydown", e => {
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  messageInput.addEventListener("input", () => {
+    count.textContent = messageInput.value.length + " / 500";
+  });
+
+  sb.auth.getSession().then(async ({data}) => {
+    if(data.session?.user && validConfig()){
+      try{
+        await enterChat(data.session.user);
+      }catch(e){
+        console.error(e);
+        await sb.auth.signOut();
+        showLogin();
+      }
+    }else{
+      showLogin();
+    }
+  });
+
+  sb.auth.onAuthStateChange((event,session) => {
+    if(event === "SIGNED_OUT") showLogin();
+  });
+})();
+</script>
+</body>
+</html>
