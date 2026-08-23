@@ -164,8 +164,8 @@ textarea{min-height:76px;resize:vertical}
   // Supabase Auth内部メール: admin_at_86@salp.local
   // パスワードはSupabase Authenticationで設定してください。
   // ===== ここだけ自分のSupabase情報に置き換える =====
-  const SUPABASE_URL = "YOUR_SUPABASE_URL";
-  const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+  const SUPABASE_URL = "https://lmzapmlbirikcwpxmfuy.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1747j1fyt52LLUcgRrGQBg_TXvcOQsU";
   // ================================================
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -344,8 +344,16 @@ textarea{min-height:76px;resize:vertical}
     loginBtn.disabled = false;
 
     if(error){
+      console.error("Login error:", error);
       setStatus("READY");
-      loginError.textContent = "IDまたはパスワードが違います。";
+      const msg = String(error.message || "");
+      if(msg.toLowerCase().includes("invalid login credentials")){
+        loginError.textContent = "IDまたはパスワードが違います。";
+      }else if(msg.toLowerCase().includes("email not confirmed")){
+        loginError.textContent = "このユーザーはまだ確認済みになっていません。";
+      }else{
+        loginError.textContent = "ログインできませんでした。接続設定を確認してください。";
+      }
       return;
     }
 
