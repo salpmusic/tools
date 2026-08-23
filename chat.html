@@ -94,6 +94,35 @@ textarea{min-height:76px;resize:vertical}
   .composeRow{align-items:stretch}
   .send{min-width:88px}
 }
+
+.adminBadge{
+  display:inline-block;margin-left:8px;padding:3px 7px;border:1px solid #d8c75f;
+  color:#ffe88a;background:#211d08;font-size:.72rem
+}
+.adminTools{
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:10px 12px;background:#07180d
+}
+.adminToolsTitle{
+  color:var(--warn);font-weight:bold;margin-bottom:8px
+}
+.adminButtons{display:flex;gap:8px;flex-wrap:wrap}
+.adminPanel{
+  border-top:1px solid var(--line);
+  background:#041007;padding:12px
+}
+.adminPanel h3{margin:0 0 10px;color:var(--warn);font-size:1rem}
+.memberRow{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+  padding:9px 4px;border-bottom:1px dotted #245c36;font-size:.86rem
+}
+.memberRole{color:var(--muted);font-size:.75rem}
+.deleteMsg{
+  margin-left:auto;padding:3px 8px;font-size:.72rem;
+  border-color:#7b3636;background:#2a0d0d;color:#ffd1d1
+}
+
 </style>
 </head>
 <body>
@@ -141,6 +170,19 @@ textarea{min-height:76px;resize:vertical}
       </div>
     </div>
 
+    <div id="adminTools" class="adminTools hidden">
+      <div class="adminToolsTitle">== SYSOP MENU ==</div>
+      <div class="adminButtons">
+        <button id="membersBtn">👥 MEMBER LIST</button>
+        <button id="closeAdminBtn" class="hidden">CLOSE</button>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="adminPanel hidden">
+      <h3>REGISTERED MEMBERS</h3>
+      <div id="memberList"></div>
+    </div>
+
     <div id="messages" class="messages">
       <div class="empty">CONNECTING...</div>
     </div>
@@ -185,11 +227,17 @@ textarea{min-height:76px;resize:vertical}
   const count = $("count");
   const userLine = $("userLine");
   const connStatus = $("connStatus");
+  const adminTools = $("adminTools");
+  const adminPanel = $("adminPanel");
+  const membersBtn = $("membersBtn");
+  const closeAdminBtn = $("closeAdminBtn");
+  const memberList = $("memberList");
 
   let currentUser = null;
   let currentProfile = null;
   let realtimeChannel = null;
   let seen = new Set();
+  let isAdmin = false;
 
   function setStatus(text){ connStatus.textContent = "SYSTEM: " + text; }
 
@@ -226,6 +274,9 @@ textarea{min-height:76px;resize:vertical}
     loginPanel.classList.remove("hidden");
     currentUser = null;
     currentProfile = null;
+    isAdmin = false;
+    adminTools?.classList.add("hidden");
+    adminPanel?.classList.add("hidden");
     seen.clear();
     if(realtimeChannel){
       sb.removeChannel(realtimeChannel);
@@ -237,7 +288,7 @@ textarea{min-height:76px;resize:vertical}
   async function loadProfile(uid){
     const {data,error} = await sb
       .from("profiles")
-      .select("id,login_id,display_name")
+      .select("id,login_id,display_name,role")
       .eq("id",uid)
       .single();
     if(error) throw error;
@@ -255,7 +306,25 @@ textarea{min-height:76px;resize:vertical}
     div.innerHTML =
       '<div class="meta"><span class="name">' + esc(m.display_name || "UNKNOWN") +
       '</span><span>#' + esc(m.id) + '</span><span>' + esc(fmtDate(m.created_at)) +
-      '</span></div><div class="body">' + esc(m.body) + '</div>';
+      '</span>' +
+      (isAdmin ? '<button class="deleteMsg" data-delete-id="' + esc(m.id) + '">DELETE</button>' : '') +
+      '</div><div class="body">' + esc(m.body) + '</div>';
+
+    if(isAdmin){
+      const del = div.querySelector("[data-delete-id]");
+      if(del){
+        del.addEventListener("click", async () => {
+          if(!confirm("このメッセージを削除しますか？")) return;
+          const {error} = await sb.from("messages").delete().eq("id", m.id);
+          if(error){
+            alert("削除できませんでした。");
+            console.error(error);
+            return;
+          }
+          div.remove();
+        });
+      }
+    }
 
     if(append) messagesEl.appendChild(div);
     else messagesEl.prepend(div);
@@ -295,6 +364,14 @@ textarea{min-height:76px;resize:vertical}
         renderMessage(payload.new);
         messagesEl.scrollTop = messagesEl.scrollHeight;
       })
+      .on("postgres_changes",{
+        event:"DELETE",
+        schema:"public",
+        table:"messages"
+      }, payload => {
+        const el = messagesEl.querySelector('[data-id="' + payload.old.id + '"]');
+        if(el) el.remove();
+      })
       .subscribe(status => {
         if(status === "SUBSCRIBED") setStatus("ONLINE");
         else if(status === "CHANNEL_ERROR") setStatus("REALTIME ERROR");
@@ -304,10 +381,16 @@ textarea{min-height:76px;resize:vertical}
   async function enterChat(user){
     currentUser = user;
     currentProfile = await loadProfile(user.id);
+    isAdmin = currentProfile.role === "admin";
 
     loginPanel.classList.add("hidden");
     chatPanel.classList.remove("hidden");
-    userLine.textContent = "CONNECTED AS: " + currentProfile.display_name + " [" + currentProfile.login_id + "]";
+    userLine.innerHTML = "CONNECTED AS: " + esc(currentProfile.display_name) + " [" + esc(currentProfile.login_id) + "]" +
+      (isAdmin ? '<span class="adminBadge">SYSOP</span>' : '');
+
+    adminTools.classList.toggle("hidden", !isAdmin);
+    adminPanel.classList.add("hidden");
+    closeAdminBtn.classList.add("hidden");
 
     setStatus("CONNECTING");
     await loadMessages();
@@ -328,8 +411,8 @@ textarea{min-height:76px;resize:vertical}
       loginError.textContent = "IDは半角英数字・@._- の3〜32文字で入力してください。";
       return;
     }
-    if(password.value.length < 6){
-      loginError.textContent = "パスワードを確認してください。";
+    if(password.value.length < 1){
+      loginError.textContent = "パスワードを入力してください。";
       return;
     }
 
@@ -400,6 +483,38 @@ textarea{min-height:76px;resize:vertical}
     count.textContent = "0 / 500";
     messageInput.focus();
   }
+
+
+  async function showMembers(){
+    if(!isAdmin) return;
+    memberList.innerHTML = '<div class="empty">LOADING...</div>';
+    const {data,error} = await sb
+      .from("profiles")
+      .select("login_id,display_name,role,created_at")
+      .order("created_at",{ascending:true});
+    if(error){
+      console.error(error);
+      memberList.innerHTML = '<div class="error">メンバー一覧を読み込めませんでした。</div>';
+      return;
+    }
+    memberList.innerHTML = "";
+    data.forEach(p => {
+      const row = document.createElement("div");
+      row.className = "memberRow";
+      row.innerHTML =
+        '<div><b>' + esc(p.display_name) + '</b><br><span>' + esc(p.login_id) + '</span></div>' +
+        '<div class="memberRole">' + (p.role === "admin" ? "SYSOP" : "MEMBER") + '</div>';
+      memberList.appendChild(row);
+    });
+    adminPanel.classList.remove("hidden");
+    closeAdminBtn.classList.remove("hidden");
+  }
+
+  membersBtn.addEventListener("click", showMembers);
+  closeAdminBtn.addEventListener("click", () => {
+    adminPanel.classList.add("hidden");
+    closeAdminBtn.classList.add("hidden");
+  });
 
   loginBtn.addEventListener("click", login);
   logoutBtn.addEventListener("click", logout);
