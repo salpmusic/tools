@@ -1,0 +1,41 @@
+SALP NETWORK 管理者ログイン修正版
+
+画面で入力するID:
+admin@86
+
+Supabase Authentication に登録する内部Email:
+admin_at_86@salp.local
+
+Password:
+8623@akaD
+
+手順:
+1. Supabase Dashboardを開く
+2. SQL Editorで salp-chat-admin-fix.sql を実行
+3. Authentication > Users > Add user
+4. Email に admin_at_86@salp.local
+5. Password を設定
+6. 作成したユーザーのUUIDをコピー
+7. SQL Editorで以下を実行
+
+insert into public.profiles (id, login_id, display_name)
+values (
+  'ここにUUID',
+  'admin@86',
+  '管理者'
+)
+on conflict (id) do update
+set login_id = excluded.login_id,
+    display_name = excluded.display_name;
+
+8. chat.html の
+YOUR_SUPABASE_URL
+YOUR_SUPABASE_PUBLISHABLE_KEY
+が実際の値に置き換わっていることを確認
+
+9. GitHubへpush
+
+ログイン画面では
+ID: admin@86
+Password: 8623@akaD
+で入れます。
