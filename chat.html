@@ -160,6 +160,9 @@ textarea{min-height:76px;resize:vertical}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
+  // 管理者ログインID: admin@86
+  // Supabase Auth内部メール: admin_at_86@salp.local
+  // パスワードはSupabase Authenticationで設定してください。
   // ===== ここだけ自分のSupabase情報に置き換える =====
   const SUPABASE_URL = "YOUR_SUPABASE_URL";
   const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
@@ -198,8 +201,11 @@ textarea{min-height:76px;resize:vertical}
   // 実際の利用者にはメールアドレスを見せず、IDだけでログインさせる。
   function idToEmail(id){
     const clean = id.trim().toLowerCase();
-    if(!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(clean)) return null;
-    return clean + "@salp.local";
+    if(!/^[a-z0-9][a-z0-9@._-]{2,31}$/.test(clean)) return null;
+    const encoded = clean
+      .replaceAll("@","_at_")
+      .replaceAll(".","_dot_");
+    return encoded + "@salp.local";
   }
 
   function esc(s){
@@ -319,7 +325,7 @@ textarea{min-height:76px;resize:vertical}
 
     const email = idToEmail(loginId.value);
     if(!email){
-      loginError.textContent = "IDは半角英数字・._- の3〜32文字で入力してください。";
+      loginError.textContent = "IDは半角英数字・@._- の3〜32文字で入力してください。";
       return;
     }
     if(password.value.length < 6){
