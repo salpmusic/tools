@@ -117,6 +117,9 @@ const CONFIG={
   flipperKick:8.8,
   plungerMin:18,
   plungerMax:25,
+  launchAssistY:118,
+  launchAssistVX:-8.5,
+  launchAssistVY:-8.0,
   subSteps:7,
   comboWindow:1800,
   multiballTargets:3,
@@ -188,7 +191,7 @@ class ScorePopup{
 class Ball{
   constructor(x,y,r){
     this.pos=new Vector(x,y);this.vel=new Vector(0,0);this.radius=r;
-    this.active=true;this.inPlunger=false;this.justLaunched=0
+    this.active=true;this.inPlunger=false;this.justLaunched=0;this.launchAssist=true
   }
   update(dt){
     if(!this.active)return;
@@ -350,16 +353,16 @@ class Game{
     // Shooter lane left wall only in the lower area. Top is intentionally open into the playfield.
     w.push({p1:new Vector(laneX,145),p2:new Vector(laneX,645)});
 
-    // Curved-ish shooter roof: the launched ball at x≈355 must hit this and be redirected left.
-    w.push({p1:new Vector(R,62),p2:new Vector(372,46)});
-    w.push({p1:new Vector(372,46),p2:new Vector(355,34)});
-    w.push({p1:new Vector(355,34),p2:new Vector(334,32)});
-    w.push({p1:new Vector(334,32),p2:new Vector(314,40)});
-    w.push({p1:new Vector(314,40),p2:new Vector(296,56)});
-    w.push({p1:new Vector(296,56),p2:new Vector(286,78)});
+    // Shooter roof: broad, forgiving guide. The launch-assist below guarantees
+    // that the first trip through the lane exits cleanly into the playfield.
+    w.push({p1:new Vector(R,70),p2:new Vector(372,54)});
+    w.push({p1:new Vector(372,54),p2:new Vector(356,45)});
+    w.push({p1:new Vector(356,45),p2:new Vector(338,44)});
+    w.push({p1:new Vector(338,44),p2:new Vector(318,51)});
+    w.push({p1:new Vector(318,51),p2:new Vector(302,64)});
 
-    // Small anti-return guide. It leaves ample clearance for normal/easy ball sizes.
-    w.push({p1:new Vector(322,118),p2:new Vector(300,101)});
+    // Gentle anti-return guide, kept well clear of the launch path.
+    w.push({p1:new Vector(321,132),p2:new Vector(300,116)});
 
     // Lower playfield / outlane guides.
     w.push({p1:new Vector(L,548),p2:new Vector(72,548)});
@@ -490,7 +493,7 @@ class Game{
     this.plungerCharging=false;
     if(b){
       const power=Math.max(CONFIG.plungerMin,Math.min(CONFIG.plungerMax,this.plungerPower));
-      b.inPlunger=false;b.justLaunched=24;b.vel=new Vector(-.25,-power);
+      b.inPlunger=false;b.justLaunched=36;b.launchAssist=true;b.vel=new Vector(-0.35,-power);
       this.sound.play('plunger')
     }
     this.plungerPull=0;this.plungerPower=CONFIG.plungerMin
@@ -613,7 +616,7 @@ class Game{
     const base=this.balls.find(b=>b.active&&!b.inPlunger);if(!base)return;
     this.inMultiball=true;
     const b=new Ball(base.pos.x+4,base.pos.y-4,this.easy?CONFIG.ballRadiusEasy:CONFIG.ballRadius);
-    b.vel=new Vector(base.vel.x-4,-Math.max(9,Math.abs(base.vel.y)+3));this.balls.push(b);
+    b.launchAssist=false;b.vel=new Vector(base.vel.x-4,-Math.max(9,Math.abs(base.vel.y)+3));this.balls.push(b);
     this.sound.play('multiball');this.flashMessage('2 BALL MULTIBALL',1500)
   }
 
@@ -656,6 +659,23 @@ class Game{
         }
 
         b.update(stepDt);
+
+        // Reliable shooter-lane exit:
+        // while the freshly launched ball is climbing the right lane,
+        // gently steer it left into the main playfield instead of relying
+        // on a lucky ricochet off the top wall.
+        if(b.launchAssist && b.pos.x>328 && b.pos.y<CONFIG.launchAssistY){
+          b.pos.x=Math.min(b.pos.x,356);
+          b.vel.x=CONFIG.launchAssistVX;
+          b.vel.y=Math.min(b.vel.y,CONFIG.launchAssistVY);
+          b.launchAssist=false;
+        }
+
+        // Once the ball has clearly entered the main playfield,
+        // never apply launch assistance again for this ball.
+        if(b.pos.x<315 && b.pos.y<170){
+          b.launchAssist=false;
+        }
 
         for(let pass=0;pass<2;pass++){
           this.walls.forEach(w=>this.resolveWall(b,w));
