@@ -120,6 +120,7 @@ const CONFIG={
   launchAssistY:118,
   launchAssistVX:-8.5,
   launchAssistVY:-8.0,
+  launchDuration:52,
   subSteps:7,
   comboWindow:1800,
   multiballTargets:3,
@@ -191,7 +192,7 @@ class ScorePopup{
 class Ball{
   constructor(x,y,r){
     this.pos=new Vector(x,y);this.vel=new Vector(0,0);this.radius=r;
-    this.active=true;this.inPlunger=false;this.justLaunched=0;this.launchAssist=true
+    this.active=true;this.inPlunger=false;this.justLaunched=0;this.launchAssist=true;this.scriptedLaunch=false;this.launchFrame=0
   }
   update(dt){
     if(!this.active)return;
@@ -492,11 +493,48 @@ class Game{
     const b=this.balls.find(x=>x.inPlunger);
     this.plungerCharging=false;
     if(b){
-      const power=Math.max(CONFIG.plungerMin,Math.min(CONFIG.plungerMax,this.plungerPower));
-      b.inPlunger=false;b.justLaunched=36;b.launchAssist=true;b.vel=new Vector(-0.35,-power);
-      this.sound.play('plunger')
+      // Script the launch until the ball safely reaches the playfield.
+      b.inPlunger=false;
+      b.scriptedLaunch=true;
+      b.launchFrame=0;
+      b.launchAssist=false;
+      b.vel=new Vector(0,0);
+      this.sound.play('plunger');
     }
     this.plungerPull=0;this.plungerPower=CONFIG.plungerMin
+  }
+
+  updateScriptedLaunch(b,dt){
+    b.launchFrame += dt;
+    const t = Math.min(1, b.launchFrame / CONFIG.launchDuration);
+
+    // Stage 1: straight up the shooter lane.
+    if(t < 0.68){
+      const u = t / 0.68;
+      b.pos.x = 355;
+      b.pos.y = 615 + (118 - 615) * u;
+      b.vel.x = 0;
+      b.vel.y = -18;
+      return;
+    }
+
+    // Stage 2: smooth curve into the main playfield.
+    const u = (t - 0.68) / 0.32;
+    const p0 = new Vector(355,118);
+    const p1 = new Vector(350,70);
+    const p2 = new Vector(300,75);
+    const p3 = new Vector(275,115);
+    const om = 1-u;
+    b.pos.x = om*om*om*p0.x + 3*om*om*u*p1.x + 3*om*u*u*p2.x + u*u*u*p3.x;
+    b.pos.y = om*om*om*p0.y + 3*om*om*u*p1.y + 3*om*u*u*p2.y + u*u*u*p3.y;
+
+    if(t >= 1){
+      b.scriptedLaunch=false;
+      b.pos.x=275;
+      b.pos.y=115;
+      b.vel=new Vector(-4.5,5.0);
+      b.justLaunched=20;
+    }
   }
 
   togglePause(){
@@ -616,7 +654,7 @@ class Game{
     const base=this.balls.find(b=>b.active&&!b.inPlunger);if(!base)return;
     this.inMultiball=true;
     const b=new Ball(base.pos.x+4,base.pos.y-4,this.easy?CONFIG.ballRadiusEasy:CONFIG.ballRadius);
-    b.launchAssist=false;b.vel=new Vector(base.vel.x-4,-Math.max(9,Math.abs(base.vel.y)+3));this.balls.push(b);
+    b.launchAssist=false;b.scriptedLaunch=false;b.vel=new Vector(base.vel.x-4,-Math.max(9,Math.abs(base.vel.y)+3));this.balls.push(b);
     this.sound.play('multiball');this.flashMessage('2 BALL MULTIBALL',1500)
   }
 
@@ -658,24 +696,13 @@ class Game{
           continue
         }
 
+        if(b.scriptedLaunch){
+          // Ignore normal wall and object collisions during the shooter animation.
+          this.updateScriptedLaunch(b,stepDt);
+          continue;
+        }
+
         b.update(stepDt);
-
-        // Reliable shooter-lane exit:
-        // while the freshly launched ball is climbing the right lane,
-        // gently steer it left into the main playfield instead of relying
-        // on a lucky ricochet off the top wall.
-        if(b.launchAssist && b.pos.x>328 && b.pos.y<CONFIG.launchAssistY){
-          b.pos.x=Math.min(b.pos.x,356);
-          b.vel.x=CONFIG.launchAssistVX;
-          b.vel.y=Math.min(b.vel.y,CONFIG.launchAssistVY);
-          b.launchAssist=false;
-        }
-
-        // Once the ball has clearly entered the main playfield,
-        // never apply launch assistance again for this ball.
-        if(b.pos.x<315 && b.pos.y<170){
-          b.launchAssist=false;
-        }
 
         for(let pass=0;pass<2;pass++){
           this.walls.forEach(w=>this.resolveWall(b,w));
