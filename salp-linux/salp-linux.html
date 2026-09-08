@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v1.10.0</title>
+<title>salp Linux v1.10.1</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
@@ -138,7 +138,7 @@ footer{padding:7px 11px;padding-bottom:calc(7px + env(safe-area-inset-bottom));b
 .browserModeBtn.active{border-color:#3d8050;background:#183721;color:var(--green)}
 .browserStage{position:absolute;inset:0;display:flex;justify-content:center;align-items:flex-start;overflow:auto;background:#101412;padding:0}
 .browserCanvas{position:relative;height:100%;background:#fff;transform-origin:top center;flex:0 0 auto;box-shadow:0 0 0 1px #25352a,0 12px 40px rgba(0,0,0,.35)}
-.browserCanvas.mode-pc{width:1280px;min-height:720px}
+.browserCanvas.mode-pc{width:1366px;min-height:768px}
 .browserCanvas.mode-mobile{width:390px;min-height:100%}
 .browserCanvas iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
 .browserCanvas .browserEmpty{position:absolute}
@@ -328,7 +328,7 @@ for i in range(1, 6):
           <button id="browserPcModeBtn" class="browserModeBtn active">🖥 PC表示</button>
           <button id="browserMobileModeBtn" class="browserModeBtn">📱 スマホ表示</button>
           <button id="browserFitBtn">↔ 自動フィット</button>
-          <span id="browserViewportLabel">1280px PC</span>
+          <span id="browserViewportLabel">1366×768 PC</span>
           <span id="browserFitNote" class="browserFitNote">PC画面を縮小表示</span>
         </div>
         <div class="browserHint"><span id="browserSecurity">🔒</span><span id="browserStatus" class="browserStatus">ホーム — URLまたは検索語を入力してください</span><button id="browserHelpBtn" style="min-height:28px;padding:3px 8px">表示ヘルプ</button></div>
@@ -361,7 +361,7 @@ for i in range(1, 6):
 
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v1.10.0</h1>
+      <h1>salp Linux v1.10.1</h1>
       <p>Linuxターミナルを内蔵した、最初のsalp Linuxデスクトップ。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
@@ -400,7 +400,7 @@ for i in range(1, 6):
 
 <div class="utilityBar">
   <button class="home" id="homeBtn">⌂ HOME</button>
-  <button class="saveTest" data-command="echo 'salp Linux v1.10.0' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
+  <button class="saveTest" data-command="echo 'salp Linux v1.10.1' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
   <button data-command="mkdir -p projects && cd projects && pwd">📁 projects</button>
   <button data-command="history | tail -10">↺ 履歴</button>
   <button data-command="clear">CLEAR</button>
@@ -715,16 +715,32 @@ function applyBrowserLayout(){
   canvas.classList.toggle("mode-mobile",browserMode==="mobile");
   $("browserPcModeBtn").classList.toggle("active",browserMode==="pc");
   $("browserMobileModeBtn").classList.toggle("active",browserMode==="mobile");
-  $("browserViewportLabel").textContent=browserMode==="pc"?"1280px PC":"390px Mobile";
+  $("browserViewportLabel").textContent=browserMode==="pc"?"1366×768 PC":"390px Mobile";
   $("browserFitNote").textContent=browserMode==="pc"?"PC画面を縮小表示":"スマホ幅で表示";
   let fitScale=1;
   if(browserAutoFit && browserMode==="pc"){
     const available=Math.max(280,view.clientWidth-4);
-    fitScale=Math.min(1,available/1280);
+    fitScale=Math.min(1,available/1366);
   }
-  const finalScale=Math.max(.35,Math.min(1.6,fitScale*browserZoom));
+  const finalScale=Math.max(.28,Math.min(1.6,fitScale*browserZoom));
+  const frame=$("browserFrame");
+  if(browserMode==="pc"){
+    canvas.style.width="1366px";
+    canvas.style.minHeight="768px";
+    frame.style.width="1366px";
+    frame.style.minWidth="1366px";
+  }else{
+    canvas.style.width="390px";
+    canvas.style.minHeight="100%";
+    frame.style.width="390px";
+    frame.style.minWidth="390px";
+  }
   canvas.style.transform=`scale(${finalScale})`;
   canvas.style.marginBottom=((finalScale-1)*canvas.offsetHeight)+"px";
+  // iOS Safariでもiframe内のresponsive layoutを確実に再計算させる
+  frame.style.display="none";
+  void frame.offsetWidth;
+  requestAnimationFrame(()=>{frame.style.display="block";});
   $("browserZoomLabel").textContent=Math.round(browserZoom*100)+"%";
   $("browserFitBtn").textContent=browserAutoFit?"↔ 自動フィット ON":"↔ 自動フィット OFF";
   localStorage.setItem("salpBrowserZoom",String(browserZoom));
@@ -794,7 +810,7 @@ $("browserFitBtn").addEventListener("click",()=>{browserAutoFit=!browserAutoFit;
 $("browserZoomOutBtn").addEventListener("click",()=>{browserZoom=Math.max(.6,Math.round((browserZoom-.1)*10)/10);applyBrowserZoom()});
 $("browserZoomInBtn").addEventListener("click",()=>{browserZoom=Math.min(1.6,Math.round((browserZoom+.1)*10)/10);applyBrowserZoom()});
 $("browserZoomLabel").addEventListener("click",()=>{browserZoom=1;applyBrowserZoom()});
-$("browserHelpBtn").addEventListener("click",()=>alert("PC表示は1280px幅の画面をスマホに合わせて縮小します。スマホ表示は390px幅です。\n\nサイト側のセキュリティ設定により、画面内表示できないページがあります。その場合は右上の ↗ か 🦊 Linux Firefox を使ってください。\n\nA− / A＋で倍率、↔で自動フィット、⛶で全画面表示を切り替えられます。"));
+$("browserHelpBtn").addEventListener("click",()=>alert("PC表示は1366×768のデスクトップ画面をスマホに合わせて縮小します。スマホ表示は390px幅です。\n\nサイト側のセキュリティ設定により、画面内表示できないページがあります。その場合は右上の ↗ か 🦊 Linux Firefox を使ってください。\n\nA− / A＋で倍率、↔で自動フィット、⛶で全画面表示を切り替えられます。"));
 document.querySelectorAll("[data-browser-url]").forEach(btn=>btn.addEventListener("click",()=>navigateBrowser(btn.dataset.browserUrl)));
 $("browserFrame").addEventListener("load",()=>{
   clearTimeout(browserLoadTimer);
