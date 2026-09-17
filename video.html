@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.8</title>
+<title>salp Simple Video v3.9</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -133,7 +133,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.8</h1>
+  <h1>🎬 salp Simple Video v3.9</h1>
   <div class="sub">動画・静止画を複数つないで1本のMP4に</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
@@ -276,7 +276,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.8では従来の静止画＋音声、動画切り出しに加えて、複数の動画・静止画を順番につないで1本のMP4にできます。</p>
+  <p class="note">v3.9ではiPhoneなどの回転情報付き動画を正しい向きで書き出せるよう修正しました。静止画＋音声、動画切り出し、複数素材の連結に対応しています。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -747,6 +747,69 @@ function mixAudioBuffers({
   return output;
 }
 
+
+/*
+  v3.9:
+  iPhoneなどの動画は、画素自体は横向きで保存し、
+  「90度回転して表示」というメタデータを持つことがあります。
+  HTMLVideoElementのプレビューは自動補正しますが、
+  VideoFrameをそのままdrawImage()すると回転情報が失われます。
+
+  Mediabunny VideoSample.drawWithFit() は sample.rotation / sample.flip を
+  反映して描画するため、書き出し時もプレビューと同じ向きになります。
+*/
+function drawVideoSampleFitted(sample,context,width,height,fit,bg){
+  context.save();
+  context.setTransform(1,0,0,1,0,0);
+  context.fillStyle=bg;
+  context.fillRect(0,0,width,height);
+
+  if(typeof sample.drawWithFit==="function"){
+    sample.drawWithFit(context,{fit});
+    context.restore();
+    return;
+  }
+
+  // 念のためのフォールバック。
+  // 通常は上のdrawWithFit()が使われます。
+  const frame=sample.toVideoFrame();
+  try{
+    const rotation=Number(sample.rotation)||0;
+    const flip=Boolean(sample.flip);
+    const displayWidth=sample.displayWidth||frame.displayWidth||frame.codedWidth;
+    const displayHeight=sample.displayHeight||frame.displayHeight||frame.codedHeight;
+
+    let drawWidth=width;
+    let drawHeight=height;
+    if(fit!=="fill"){
+      const scale=fit==="cover"
+        ?Math.max(width/displayWidth,height/displayHeight)
+        :Math.min(width/displayWidth,height/displayHeight);
+      drawWidth=displayWidth*scale;
+      drawHeight=displayHeight*scale;
+    }
+
+    context.translate(width/2,height/2);
+    context.rotate(rotation*Math.PI/180);
+    if(flip)context.scale(-1,1);
+
+    // 90/270度では、回転前の描画幅・高さを入れ替える。
+    const rawDrawWidth=(rotation===90||rotation===270)?drawHeight:drawWidth;
+    const rawDrawHeight=(rotation===90||rotation===270)?drawWidth:drawHeight;
+
+    context.drawImage(
+      frame,
+      -rawDrawWidth/2,
+      -rawDrawHeight/2,
+      rawDrawWidth,
+      rawDrawHeight
+    );
+  }finally{
+    frame.close();
+    context.restore();
+  }
+}
+
 async function renderVideoFrames({
   M,
   videoFile,
@@ -788,32 +851,13 @@ async function renderVideoFrames({
   for await(
     const sample of sink.samples(start,end)
   ){
-    const frame=sample.toVideoFrame();
-
-    workContext.fillStyle=bg;
-    workContext.fillRect(0,0,width,height);
-
-    const sourceWidth=frame.displayWidth||frame.codedWidth;
-    const sourceHeight=frame.displayHeight||frame.codedHeight;
-
-    let drawWidth=width;
-    let drawHeight=height;
-
-    if(fit!=="fill"){
-      const scale=fit==="cover"
-        ?Math.max(width/sourceWidth,height/sourceHeight)
-        :Math.min(width/sourceWidth,height/sourceHeight);
-
-      drawWidth=sourceWidth*scale;
-      drawHeight=sourceHeight*scale;
-    }
-
-    workContext.drawImage(
-      frame,
-      (width-drawWidth)/2,
-      (height-drawHeight)/2,
-      drawWidth,
-      drawHeight
+    drawVideoSampleFitted(
+      sample,
+      workContext,
+      width,
+      height,
+      fit,
+      bg
     );
 
     const timestamp=Math.max(0,sample.timestamp-start);
@@ -828,7 +872,6 @@ async function renderVideoFrames({
       {keyFrame:frameCount%60===0}
     );
 
-    frame.close();
     sample.close();
     frameCount++;
 
@@ -1066,41 +1109,13 @@ async function exportTrimmedVideo(M){
       continue;
     }
 
-    const frame=sample.toVideoFrame();
-
-    renderContext.fillStyle=$("background").value;
-    renderContext.fillRect(0,0,width,height);
-
-    const sourceWidth=
-      frame.displayWidth||frame.codedWidth;
-
-    const sourceHeight=
-      frame.displayHeight||frame.codedHeight;
-
-    let drawWidth=width;
-    let drawHeight=height;
-
-    if($("fit").value!=="fill"){
-      const scale=$("fit").value==="cover"
-        ?Math.max(
-            width/sourceWidth,
-            height/sourceHeight
-          )
-        :Math.min(
-            width/sourceWidth,
-            height/sourceHeight
-          );
-
-      drawWidth=sourceWidth*scale;
-      drawHeight=sourceHeight*scale;
-    }
-
-    renderContext.drawImage(
-      frame,
-      (width-drawWidth)/2,
-      (height-drawHeight)/2,
-      drawWidth,
-      drawHeight
+    drawVideoSampleFitted(
+      sample,
+      renderContext,
+      width,
+      height,
+      $("fit").value,
+      $("background").value
     );
 
     const remaining=Math.max(
@@ -1114,7 +1129,6 @@ async function exportTrimmedVideo(M){
     );
 
     if(frameDuration<=0){
-      frame.close();
       sample.close();
       break;
     }
@@ -1125,7 +1139,6 @@ async function exportTrimmedVideo(M){
       {keyFrame:frameCount%60===0}
     );
 
-    frame.close();
     sample.close();
     frameCount++;
 
@@ -1176,7 +1189,7 @@ async function exportMultiVideo(M){
   function mixInto(dest,src,offset){if(!src)return;for(let ch=0;ch<Math.min(dest.numberOfChannels,Math.max(1,src.numberOfChannels));ch++){const dd=dest.getChannelData(ch),sd=src.getChannelData(Math.min(ch,src.numberOfChannels-1));const start=Math.floor(offset*dest.sampleRate);for(let i=0;i<sd.length;i++){const di=start+Math.floor(i*dest.sampleRate/src.sampleRate);if(di>=dd.length)break;dd[di]=Math.max(-1,Math.min(1,dd[di]+sd[i]));}}}
   for(let ci=0;ci<multiClips.length;ci++){const clip=multiClips[ci];const dur=Math.max(.1,Number(clip.duration)||.1);$("status").textContent=`素材 ${ci+1}/${multiClips.length} を変換中…`;
     if(clip.type==="image"){if(!clip.bitmap)clip.bitmap=await createImageBitmap(clip.file);drawAny(clip.bitmap,clip.bitmap.width,clip.bitmap.height);const frames=Math.max(1,Math.ceil(dur*fps));for(let f=0;f<frames;f++){const t=timeline+f*step;if(t>=timeline+dur)break;await videoSource.add(t,Math.min(step,timeline+dur-t),{keyFrame:f===0});}}
-    else{const input=new Input({source:new BlobSource(clip.file,{useStreamReader:false}),formats:ALL_FORMATS});const vt=await input.getPrimaryVideoTrack();if(!vt)throw new Error("動画トラックが見つかりません: "+clip.file.name);const sink=new VideoSampleSink(vt,{hardwareAcceleration:"prefer-hardware"});const frames=Math.max(1,Math.ceil(dur*fps));async function* stamps(){for(let f=0;f<frames;f++)yield f*step}let f=0;for await(const sample of sink.samplesAtTimestamps(stamps())){if(!sample){f++;continue}const frame=sample.toVideoFrame();drawAny(frame,frame.displayWidth||frame.codedWidth,frame.displayHeight||frame.codedHeight);const local=f*step;if(local>=dur){frame.close();sample.close();break}await videoSource.add(timeline+local,Math.min(step,dur-local),{keyFrame:f===0||f%60===0});frame.close();sample.close();f++;}
+    else{const input=new Input({source:new BlobSource(clip.file,{useStreamReader:false}),formats:ALL_FORMATS});const vt=await input.getPrimaryVideoTrack();if(!vt)throw new Error("動画トラックが見つかりません: "+clip.file.name);const sink=new VideoSampleSink(vt,{hardwareAcceleration:"prefer-hardware"});const frames=Math.max(1,Math.ceil(dur*fps));async function* stamps(){for(let f=0;f<frames;f++)yield f*step}let f=0;for await(const sample of sink.samplesAtTimestamps(stamps())){if(!sample){f++;continue}drawVideoSampleFitted(sample,rctx,width,height,$("fit").value,$("background").value);const local=f*step;if(local>=dur){sample.close();break}await videoSource.add(timeline+local,Math.min(step,dur-local),{keyFrame:f===0||f%60===0});sample.close();f++;}
       try{const ab=await extractOriginalAudioFromVideo(M,clip.file,0,dur);mixInto(mixed,ab,timeline)}catch(e){console.warn("クリップ音声を取得できません",clip.file.name,e)}
     }timeline+=dur;$("progressBar").style.width=(20+65*(timeline/total))+"%";
   }
