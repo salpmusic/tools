@@ -7,7 +7,7 @@ IMAGE_SIZE="${IMAGE_SIZE:-2200M}"
 REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ADDITION="$REPO_ROOT/image/Dockerfile.addition.txt"
 UPSTREAM="${UPSTREAM_REPO:-https://github.com/leaningtech/alpine-image.git}"
-IMAGE_TAG="salp-linux-browser:v1.10.7"
+IMAGE_TAG="salp-linux-browser:v1.10.9"
 container=""
 rootfs=""
 
@@ -64,6 +64,11 @@ if ! find "$rootfs/usr/bin" "$rootfs/usr/local/bin" -maxdepth 1 -type f \
   fail "NetSurf fallback binary is missing from the built root filesystem"
 fi
 
+[[ -x "$rootfs/usr/bin/xterm" ]] || fail "xterm is missing from the built root filesystem"
+[[ -x "$rootfs/usr/bin/pcmanfm" ]] || fail "PCManFM is missing from the built root filesystem"
+[[ -x "$rootfs/usr/local/bin/salp-terminal" ]] || fail "salp-terminal launcher is missing"
+[[ -x "$rootfs/usr/local/bin/salp-files" ]] || fail "salp-files launcher is missing"
+
 log "Create ext2 image ($IMAGE_SIZE)"
 rm -f "$OUTPUT" "$OUTPUT.sha256" "$OUTPUT.manifest.txt"
 truncate -s "$IMAGE_SIZE" "$OUTPUT"
@@ -80,12 +85,14 @@ fi
 
 sha256sum "$OUTPUT" > "$OUTPUT.sha256"
 {
-  echo 'salp Linux v1.10.7 Firefox Browser Image'
+  echo 'salp Linux v1.10.9 Firefox Browser Image'
   echo "built_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "image_size=$IMAGE_SIZE"
   echo 'architecture=i386'
   echo 'browser=firefox-esr'
   echo 'fallback=netsurf'
+  echo 'terminal=xterm'
+  echo 'file_manager=pcmanfm'
   echo "upstream=$UPSTREAM"
   echo
   cat "$rootfs/etc/salp-release"

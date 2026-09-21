@@ -1,4 +1,4 @@
-# salp Linux v1.10.7 Firefox browser layer
+# salp Linux v1.10.9 Firefox browser layer
 # Upstream already includes Xorg + i3 + LightDM. Add Firefox ESR as the primary browser.
 RUN set -eux; \
     printf '%s\n' \
@@ -14,10 +14,61 @@ RUN set -eux; \
       font-noto-cjk \
       ttf-dejavu \
       dbus \
+      dbus-x11 \
       xrandr \
+      xterm \
+      pcmanfm \
+      adwaita-icon-theme \
+      shared-mime-info \
       curl wget nano bash python3 git; \
     update-ca-certificates; \
     rm -rf /var/cache/apk/*
+
+
+# Core desktop apps: terminal + file manager are mandatory in salp Linux.
+RUN cat > /usr/local/bin/salp-terminal <<'SALP_TERMINAL'
+#!/bin/sh
+set -eu
+export DISPLAY="${DISPLAY:-:0}"
+export HOME="${HOME:-/home/user}"
+exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28
+SALP_TERMINAL
+
+RUN cat > /usr/local/bin/salp-files <<'SALP_FILES'
+#!/bin/sh
+set -eu
+export DISPLAY="${DISPLAY:-:0}"
+export HOME="${HOME:-/home/user}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+if command -v dbus-launch >/dev/null 2>&1; then
+  exec dbus-launch --exit-with-session pcmanfm --no-desktop "${1:-/home/user}"
+fi
+exec pcmanfm --no-desktop "${1:-/home/user}"
+SALP_FILES
+
+RUN chmod 0755 /usr/local/bin/salp-terminal /usr/local/bin/salp-files \
+ && printf '%s\n' \
+    '[Desktop Entry]' \
+    'Type=Application' \
+    'Name=salp Terminal' \
+    'Exec=/usr/local/bin/salp-terminal' \
+    'Terminal=false' \
+    'Categories=System;TerminalEmulator;' \
+    > /usr/share/applications/salp-terminal.desktop \
+ && printf '%s\n' \
+    '[Desktop Entry]' \
+    'Type=Application' \
+    'Name=salp Files' \
+    'Exec=/usr/local/bin/salp-files' \
+    'Terminal=false' \
+    'Categories=System;FileManager;' \
+    > /usr/share/applications/salp-files.desktop \
+ && command -v xterm \
+ && command -v pcmanfm \
+ && test -x /usr/local/bin/salp-terminal \
+ && test -x /usr/local/bin/salp-files
 
 # Firefox profile defaults chosen for software-rendered/browser-virtualized Linux.
 RUN mkdir -p /home/user/.mozilla/firefox/salp.default \
@@ -83,11 +134,17 @@ RUN chmod 0755 /usr/local/bin/salp-browser \
     'Categories=Network;WebBrowser;' \
     > /usr/share/applications/salp-browser.desktop \
  && printf '%s\n' \
-    'salp Linux v1.10.7' \
+    'salp Linux v1.10.9' \
     'browser=firefox-esr' \
     'fallback=netsurf' \
     'homepage=https://www.google.com/' \
+    'terminal=xterm' \
+    'file_manager=pcmanfm' \
     > /etc/salp-release \
  && command -v /usr/local/bin/salp-browser \
  && (command -v firefox-esr || command -v firefox) \
- && (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf)
+ && (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf) \
+ && command -v xterm \
+ && command -v pcmanfm \
+ && test -x /usr/local/bin/salp-terminal \
+ && test -x /usr/local/bin/salp-files

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.8</title>
+<title>salp Browser OS v1.10.9</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.8 DEBUG FIX</span>
+  <span class="splashVersion">VERSION 1.10.9 DEBUG FIX</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -171,6 +171,7 @@ footer{
  <span id="linuxReady" class="readyChip">Linux Waiting</span>
  <span id="imageReady" class="readyChip">Image Checking</span>
  <span id="browserReady" class="readyChip">Firefox Waiting</span>
+ <span id="coreReady" class="readyChip">Core Apps Waiting</span>
 </div>
 
 <div class="setupBar">
@@ -251,7 +252,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.8">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.9">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -264,7 +265,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.10.8</h1>
+   <h1>salp Linux Desktop v1.10.9</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -285,7 +286,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.10.8：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
+ salp Linux Desktop v1.10.9：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -331,7 +332,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1108");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1109");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -525,6 +526,39 @@ async function exists(path){
  try{return (await shell("test -x "+path,false))===0}catch(_){return false}
 }
 
+async function detectCoreApps(){
+ const term=(await exists("/usr/local/bin/salp-terminal"))||(await exists("/usr/bin/xterm"));
+ const files=(await exists("/usr/local/bin/salp-files"))||(await exists("/usr/bin/pcmanfm"))||(await exists("/usr/bin/thunar"));
+ $("xtermBtn").disabled=!term;
+ $("filesBtn").disabled=!files;
+ if(term&&files){
+  setReady("coreReady","ok","Terminal + Files Ready");
+  log("Core GUI apps ready: terminal + file manager");
+ }else{
+  setReady("coreReady","error",`Core Apps Missing${!term?" / Terminal":""}${!files?" / Files":""}`);
+  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.9.`);
+ }
+ return {term,files};
+}
+async function launchTerminal(){
+ if(await exists("/usr/local/bin/salp-terminal"))return run("/usr/local/bin/salp-terminal");
+ if(await exists("/usr/bin/xterm"))return run("/usr/bin/xterm",["-fa","DejaVu Sans Mono","-fs","14","-title","salp Terminal"]);
+ state("Terminalがありません。v1.10.9のsalp-browser.ext2を再ビルドしてください。");
+}
+async function launchFiles(){
+ if(await exists("/usr/local/bin/salp-files"))return run("/usr/local/bin/salp-files");
+ if(await exists("/usr/bin/pcmanfm"))return run("/usr/bin/pcmanfm",["--no-desktop","/home/user"]);
+ if(await exists("/usr/bin/thunar"))return run("/usr/bin/thunar",["/home/user"]);
+ state("Filesがありません。v1.10.9のsalp-browser.ext2を再ビルドしてください。");
+}
+async function openCoreAppsIfBrowserMissing(){
+ const core=await detectCoreApps();
+ if(detectedBrowser||(!core.term&&!core.files))return;
+ log("No browser detected; opening core desktop apps instead.");
+ if(core.files){try{await launchFiles()}catch(e){log("FILES ERROR: "+(e?.message||String(e)))}}
+ if(core.term){setTimeout(()=>launchTerminal().catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900)}
+}
+
 
 function updateAutoButton(){
  $("autoToggleBtn").textContent=autoLaunchEnabled?"Auto: ON":"Auto: OFF";
@@ -570,7 +604,7 @@ async function detectBrowser(){
    state("現在は公式Alpineです。Firefoxは入っていません。salp-browser.ext2を同じフォルダへ置くか、⚙ ImageでFirefox入りext2のURLを設定してください。");
    setReady("browserReady","error","Browser Image Needed");
   }else{
-   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.8 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
+   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.9 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
    setReady("browserReady","error","Browser Not Found");
   }
   status("Browser未検出","error");
@@ -660,8 +694,8 @@ async function resolveBrowserImage(){
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
  if(forceOfficial)return {url:"",name:"Official Alpine 3.17",source:"official"};
  const tries=[];
- if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.8",source:"saved"});
- else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.8",source:"local"});
+ if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.9",source:"saved"});
+ else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.9",source:"local"});
  for(const item of tries){
   try{
    const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
@@ -677,7 +711,7 @@ async function boot(){
  window.salpStage?.("5/7 Linux起動開始","boot() entered");
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.8...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.9...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const selectedImage=await resolveBrowserImage();
@@ -760,7 +794,7 @@ async function boot(){
   initPromise=cx.run("/sbin/init",[],{uid:0,gid:0});
   initPromise.catch(e=>{log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
 
-  ["networkBtn","detectBtn","xtermBtn","filesBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
+  ["networkBtn","detectBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
   markStep("stepBoot","done");markStep("stepNet","active");
   setTimeout(async()=>{
    window.salpStage?.("7/7 Linux GUI","起動処理を開始済み");
@@ -770,8 +804,10 @@ async function boot(){
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$("screenWrap").scrollIntoView({behavior:"smooth",block:"start"}),300);
    syncGuestResolution(guiW,guiH);
    $("installBtn").disabled=false;
+   await detectCoreApps();
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
    else await detectBrowser();
+   if(!detectedBrowser)await openCoreAppsIfBrowserMissing();
   },2500);
  }catch(e){
   window.salpFatal?.("Linux起動エラー",e);
@@ -783,7 +819,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.8";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.9";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  if(url){$("sourceBadge").textContent="🦊 "+name;setReady("imageReady","ok","Custom Firefox Image")}
@@ -812,13 +848,13 @@ sizeCanvas({refit:true});
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1108");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1109");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.8";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.9";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -896,12 +932,8 @@ $("launchBtn").addEventListener("click",launchBrowser);
 $("goBtn").addEventListener("click",launchBrowser);
 $("urlInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("goBtn").disabled)launchBrowser()});
 $("homeUrlBtn").addEventListener("click",()=>{$("urlInput").value="https://www.google.com/"});
-$("xtermBtn").addEventListener("click",()=>run("/usr/bin/xterm"));
-$("filesBtn").addEventListener("click",async()=>{
- if(await exists("/usr/bin/thunar"))run("/usr/bin/thunar");
- else if(await exists("/usr/bin/pcmanfm"))run("/usr/bin/pcmanfm");
- else state("ファイルマネージャーが見つかりません。");
-});
+$("xtermBtn").addEventListener("click",launchTerminal);
+$("filesBtn").addEventListener("click",launchFiles);
 $("keyboardBtn").addEventListener("click",()=>{$("display").focus({preventScroll:true});$("display").click()});
 $("fullBtn").addEventListener("click",async()=>{
  try{
@@ -910,7 +942,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1108");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1109");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
