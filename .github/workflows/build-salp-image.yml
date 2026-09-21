@@ -8,11 +8,20 @@ on:
         required: true
         default: 800M
         type: string
+      mode:
+        description: "build = rebuild ext2; deploy-only = republish latest successful ext2 artifact (no rebuild)"
+        required: true
+        default: build
+        type: choice
+        options:
+          - build
+          - deploy-only
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: pages-salp-image
@@ -20,6 +29,7 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ inputs.mode == 'build' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     outputs:
@@ -50,6 +60,9 @@ jobs:
             salp-browser.ext2 \
             salp-browser.ext2.sha256 \
             salp-browser.ext2.manifest.txt
+          # Normalize sha256 to relative path
+          awk '{print $1 "  salp-browser.ext2"}' salp-browser.ext2.sha256 > salp-browser.ext2.sha256.tmp
+          mv salp-browser.ext2.sha256.tmp salp-browser.ext2.sha256
 
       - name: Verify output files
         run: |
@@ -59,10 +72,6 @@ jobs:
           sha256sum -c salp-browser.ext2.sha256
           ls -lh salp-browser.ext2*
           cat salp-browser.ext2.manifest.txt
-          # Guard: never accidentally stage the huge blob into git
-          test ! -f .gitattributes || ! grep -qi 'lfs' .gitattributes || true
-          git check-ignore -q salp-browser.ext2 2>/dev/null || \
-            echo 'salp-browser.ext2' >> .gitignore || true
 
       - name: Upload browser image
         uses: actions/upload-artifact@v4
@@ -77,7 +86,8 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    needs: build
+    needs: [build]
+    if: ${{ always() && (needs.build.result == 'success' || inputs.mode == 'deploy-only') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     environment:
@@ -88,31 +98,48 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download ext2 artifact
+      - name: Download ext2 from this run
+        if: ${{ inputs.mode == 'build' }}
         uses: actions/download-artifact@v4
         with:
           name: salp-firefox-v1.10.9-ext2
           path: _ext2_artifact
 
+      - name: Download latest successful ext2 artifact
+        if: ${{ inputs.mode == 'deploy-only' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eux
+          mkdir -p _ext2_artifact
+          # Prefer the most recent successful workflow run that uploaded the named artifact
+          RUN_ID=$(gh run list -R "$GITHUB_REPOSITORY" --workflow=build-salp-image.yml --json databaseId,conclusion,name \
+            --jq '[.[]|select(.conclusion=="success")][0].databaseId')
+          echo "Using run $RUN_ID"
+          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n salp-firefox-v1.10.9-ext2 -D _ext2_artifact
+          ls -lh _ext2_artifact/
+
       - name: Place ext2 under salp-linux/ for Pages
         run: |
+          set -eux
           mkdir -p salp-linux
           cp -f _ext2_artifact/salp-browser.ext2 salp-linux/salp-browser.ext2
           cp -f _ext2_artifact/salp-browser.ext2.sha256 salp-linux/salp-browser.ext2.sha256
+          # Normalize sha path
+          awk '{print $1 "  salp-browser.ext2"}' salp-linux/salp-browser.ext2.sha256 > salp-linux/salp-browser.ext2.sha256.tmp
+          mv salp-linux/salp-browser.ext2.sha256.tmp salp-linux/salp-browser.ext2.sha256
           cp -f _ext2_artifact/salp-browser.ext2.manifest.txt salp-linux/salp-browser.ext2.manifest.txt
           ls -lh salp-linux/salp-browser.ext2*
-          # Sanity: must be hundreds of MB, not empty
           test -s salp-linux/salp-browser.ext2
           SIZE_BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
           echo "ext2 bytes=$SIZE_BYTES"
           test "$SIZE_BYTES" -gt 100000000
+          sha256sum -c salp-linux/salp-browser.ext2.sha256
 
       - name: Prepare Pages publish tree
         run: |
-          # Publish full repo contents (existing HTML site) + salp-linux/ext2.
-          # Exclude .git and build debris; Pages artifact must not include .git.
+          set -eux
           rm -rf _ext2_artifact .git
-          # Ensure we do not ship accidental local build leftovers from checkout root
           rm -f salp-browser.ext2 salp-browser.ext2.sha256 salp-browser.ext2.manifest.txt
           ls -la
           test -f index.html
