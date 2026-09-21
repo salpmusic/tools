@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.0</title>
+<title>salp Browser OS v1.10.2</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -58,8 +58,14 @@ button:disabled{opacity:.4}
 }
 .dot{width:9px;height:9px;border-radius:50%;background:#667}
 .dot.busy{background:var(--yellow)}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}
-.screenWrap{position:relative;min-height:0;background:#000;overflow:hidden}
-#display{position:absolute;inset:0;width:100%;height:100%;background:#000;touch-action:none;outline:none}
+.screenWrap{position:relative;min-height:0;background:#000;overflow:hidden;touch-action:none}
+#display{position:absolute;left:0;top:0;background:#000;touch-action:none;outline:none;transform-origin:0 0;will-change:transform,left,top}
+.viewControls{position:absolute;z-index:4;top:8px;left:8px;display:flex;gap:5px;align-items:center;max-width:calc(100% - 16px);padding:5px;border:1px solid rgba(121,243,157,.24);border-radius:12px;background:rgba(3,8,5,.82);backdrop-filter:blur(9px);overflow-x:auto;box-shadow:0 6px 24px rgba(0,0,0,.32)}
+.viewControls button{min-height:32px;padding:4px 9px;font-size:11px;border-radius:8px}
+.viewControls button.active{border-color:var(--green);background:#173321;color:var(--green)}
+.viewControls .moveActive{border-color:var(--yellow);background:#33290d;color:var(--yellow)}
+.viewInfo{padding:0 4px;color:var(--muted);font:10px ui-monospace,monospace;white-space:nowrap}
+@media(max-width:650px){.viewControls{top:5px;left:5px;right:5px;max-width:none}.viewControls button{min-height:30px;padding:3px 8px;font-size:10px}.viewInfo{font-size:9px}}
 .boot{
  position:absolute;inset:0;display:grid;place-items:center;padding:22px;
  text-align:center;z-index:6;
@@ -131,7 +137,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.0</span>
+  <span class="splashVersion">VERSION 1.10.2</span>
  </div>
 </section>
 <div class="app">
@@ -180,6 +186,16 @@ footer{
 
 <main class="screenWrap" id="screenWrap">
  <canvas id="display" tabindex="0"></canvas>
+ <div id="viewControls" class="viewControls" aria-label="Linux画面表示操作">
+  <button id="guiPcBtn" title="Linux仮想画面を1366×768へ">🖥 PC</button>
+  <button id="guiMobileBtn" title="端末比率に合わせたスマホ向けLinux解像度へ">📱 Mobile</button>
+  <button id="moveModeBtn" title="指ドラッグでLinux画面を移動">🖐 移動</button>
+  <button id="zoomOutBtn" title="縮小">−</button>
+  <button id="zoomInBtn" title="拡大">＋</button>
+  <button id="fitBtn" title="画面内にフィット">Fit</button>
+  <button id="centerBtn" title="中央へ戻す">◎</button>
+  <span id="viewInfo" class="viewInfo">--</span>
+ </div>
 
  <section id="loginBox" class="loginBox hidden">
   <h3>🔐 Tailscaleログイン</h3>
@@ -207,7 +223,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.0">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.2">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -220,7 +236,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.10.0</h1>
+   <h1>salp Linux Desktop v1.10.2</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -241,7 +257,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.10.0：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
+ salp Linux Desktop v1.10.2：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -249,7 +265,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1100");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1102");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -300,14 +316,66 @@ function appEnv(){
 }
 function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/sh","DISPLAY=:0","LANG=C.UTF-8"]}
 
-function sizeCanvas(){
- const canvas=$("display"),rect=$("screenWrap").getBoundingClientRect();
- const dpr=Math.min(window.devicePixelRatio||1,1.5);
- const w=Math.max(640,Math.floor(rect.width*dpr)),h=Math.max(480,Math.floor(rect.height*dpr));
- canvas.width=w;canvas.height=h;canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
- if(cx)cx.setKmsCanvas(canvas,w,h);
+const GUI_PC={w:1366,h:768};
+let guiMode=localStorage.getItem("salpGuiMode")||(window.innerWidth<=650?"mobile":"pc");
+let guiScale=1,guiPanX=0,guiPanY=0,moveMode=false,panPointer=null,panStartX=0,panStartY=0,panOriginX=0,panOriginY=0;
+let guiW=GUI_PC.w,guiH=GUI_PC.h;
+
+function mobileVirtualSize(){
+ const r=$("screenWrap").getBoundingClientRect();
+ const aspect=Math.max(.45,Math.min(1.8,(r.width||390)/(r.height||600)));
+ const w=720;
+ const h=Math.max(540,Math.min(1280,Math.round(w/aspect)));
+ return {w,h};
 }
-window.addEventListener("resize",()=>setTimeout(sizeCanvas,130));
+function currentVirtualSize(){return guiMode==="pc"?GUI_PC:mobileVirtualSize()}
+function updateViewInfo(){
+ $("guiPcBtn").classList.toggle("active",guiMode==="pc");
+ $("guiMobileBtn").classList.toggle("active",guiMode==="mobile");
+ $("moveModeBtn").classList.toggle("moveActive",moveMode);
+ $("moveModeBtn").textContent=moveMode?"🖐 移動ON":"🖐 移動";
+ $("viewInfo").textContent=`${guiW}×${guiH}  ${Math.round(guiScale*100)}%`;
+ $("display").style.cursor=moveMode?"grab":"default";
+}
+function applyCanvasView(){
+ const canvas=$("display");
+ canvas.style.width=guiW+"px";canvas.style.height=guiH+"px";
+ canvas.style.left=guiPanX+"px";canvas.style.top=guiPanY+"px";canvas.style.transform=`scale(${guiScale})`;
+ updateViewInfo();
+}
+function centerView(){
+ const r=$("screenWrap").getBoundingClientRect();
+ guiPanX=Math.round((r.width-guiW*guiScale)/2);
+ guiPanY=Math.round((r.height-guiH*guiScale)/2);
+ applyCanvasView();
+}
+function fitView(){
+ const r=$("screenWrap").getBoundingClientRect();
+ if(!r.width||!r.height)return;
+ guiScale=Math.min(r.width/guiW,r.height/guiH);
+ guiScale=Math.max(.18,Math.min(2.5,guiScale));
+ centerView();
+}
+function setZoom(next){
+ const r=$("screenWrap").getBoundingClientRect();
+ const old=guiScale;next=Math.max(.18,Math.min(2.5,next));
+ const cxp=r.width/2,cyp=r.height/2;
+ const worldX=(cxp-guiPanX)/old,worldY=(cyp-guiPanY)/old;
+ guiScale=next;guiPanX=cxp-worldX*guiScale;guiPanY=cyp-worldY*guiScale;applyCanvasView();
+}
+function sizeCanvas({refit=true}={}){
+ const canvas=$("display"),v=currentVirtualSize();
+ const changed=canvas.width!==v.w||canvas.height!==v.h||guiW!==v.w||guiH!==v.h;
+ guiW=v.w;guiH=v.h;
+ if(changed){canvas.width=guiW;canvas.height=guiH;if(cx)cx.setKmsCanvas(canvas,guiW,guiH)}
+ if(refit)fitView();else applyCanvasView();
+}
+function setGuiMode(mode){
+ guiMode=mode;localStorage.setItem("salpGuiMode",mode);sizeCanvas({refit:true});
+ state(mode==="pc"?"PC表示：Linux仮想画面を1366×768へ変更しました。":"スマホ表示：端末比率に合わせてLinux仮想画面を変更しました。");
+}
+function setMoveMode(on){moveMode=!!on;panPointer=null;updateViewInfo()}
+let resizeTimer;window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>sizeCanvas({refit:true}),180)});
 
 async function run(path,args=[],root=false,wait=false){
  if(!cx)throw new Error("Linux not ready");
@@ -364,7 +432,7 @@ async function detectBrowser(){
   $("launchBtn").disabled=false;$("goBtn").disabled=false;
   markStep("stepInstall","done");markStep("stepLaunch","active");setReady("browserReady","ok",detectedBrowser.name+" Ready");
  }else{
-  state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.0 Imageを設定するか、Network接続後に「Firefox導入」を実行してください。");
+  state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.2 Imageを設定するか、Network接続後に「Firefox導入」を実行してください。");
   status("Browser未検出","error");setReady("browserReady","error","Browser Not Found");
   $("launchBtn").disabled=true;$("goBtn").disabled=true;
  }
@@ -450,11 +518,11 @@ async function boot(){
  if(booting||cx)return;
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.0...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.2...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.0";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.2";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -538,7 +606,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.0";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.2";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
@@ -549,13 +617,13 @@ setTimeout(()=>{
  if(splash){splash.classList.add("fade");setTimeout(()=>splash.remove(),500)}
 },1400);
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1100");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1102");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.0";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.2";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -645,9 +713,31 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1100");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1102");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
+$("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
+$("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
+$("moveModeBtn").addEventListener("click",()=>setMoveMode(!moveMode));
+$("zoomOutBtn").addEventListener("click",()=>setZoom(guiScale/1.2));
+$("zoomInBtn").addEventListener("click",()=>setZoom(guiScale*1.2));
+$("fitBtn").addEventListener("click",fitView);
+$("centerBtn").addEventListener("click",centerView);
 $("display").addEventListener("pointerdown",()=>$("display").focus());
+const wrap=$("screenWrap");
+wrap.addEventListener("pointerdown",e=>{
+ if(!moveMode||e.target.closest?.(".viewControls"))return;
+ e.preventDefault();e.stopPropagation();panPointer=e.pointerId;panStartX=e.clientX;panStartY=e.clientY;panOriginX=guiPanX;panOriginY=guiPanY;
+ try{wrap.setPointerCapture(e.pointerId)}catch(_){}
+ $("display").style.cursor="grabbing";
+},{capture:true});
+wrap.addEventListener("pointermove",e=>{
+ if(!moveMode||panPointer!==e.pointerId)return;
+ e.preventDefault();e.stopPropagation();guiPanX=panOriginX+(e.clientX-panStartX);guiPanY=panOriginY+(e.clientY-panStartY);applyCanvasView();
+},{capture:true});
+function finishPan(e){if(panPointer!==e.pointerId)return;e.preventDefault();e.stopPropagation();panPointer=null;updateViewInfo()}
+wrap.addEventListener("pointerup",finishPan,{capture:true});
+wrap.addEventListener("pointercancel",finishPan,{capture:true});
+sizeCanvas({refit:true});
 </script>
 </body>
 </html>

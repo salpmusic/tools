@@ -1,19 +1,65 @@
-name: Build salp Linux Browser Image
+name: Build salp Linux v1.10.2 Firefox Image
 
 on:
   workflow_dispatch:
+    inputs:
+      image_size:
+        description: ext2 image size (2200M recommended)
+        required: true
+        default: 2200M
+        type: string
+
+permissions:
+  contents: read
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check Dockerfile
+      - name: Show runner disk space
+        run: df -h
+
+      - name: Install build tools
         run: |
-          echo "Dockerfile check"
-          test -f image/Dockerfile
-          cat image/Dockerfile
-          echo "Dockerfile found successfully"
+          sudo apt-get update
+          sudo apt-get install -y buildah e2fsprogs git uidmap
+          buildah version
+
+      - name: Build Firefox ESR ext2 image
+        env:
+          IMAGE_SIZE: ${{ inputs.image_size }}
+        run: |
+          sudo --preserve-env=IMAGE_SIZE,GITHUB_WORKSPACE,RUNNER_TEMP \
+            bash image/build-image.sh \
+            "$RUNNER_TEMP/salp-build" \
+            "$GITHUB_WORKSPACE/salp-browser.ext2"
+          sudo chown "$USER:$USER" \
+            salp-browser.ext2 \
+            salp-browser.ext2.sha256 \
+            salp-browser.ext2.manifest.txt
+
+      - name: Verify output files
+        run: |
+          test -s salp-browser.ext2
+          test -s salp-browser.ext2.sha256
+          test -s salp-browser.ext2.manifest.txt
+          sha256sum -c salp-browser.ext2.sha256
+          ls -lh salp-browser.ext2*
+          cat salp-browser.ext2.manifest.txt
+
+      - name: Upload browser image
+        uses: actions/upload-artifact@v4
+        with:
+          name: salp-firefox-v1.10.2-ext2
+          path: |
+            salp-browser.ext2
+            salp-browser.ext2.sha256
+            salp-browser.ext2.manifest.txt
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
