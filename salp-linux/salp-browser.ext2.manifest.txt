@@ -1,5 +1,5 @@
 salp Linux v1.10.9 Firefox Browser Image
-built_utc=2026-09-21T13:42:38Z
+built_utc=2026-09-21T13:48:44Z
 image_size=800M
 rootfs_used_mb=409
 architecture=i386
