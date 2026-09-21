@@ -2,6 +2,7 @@
 # Upstream is Alpine 3.17 with Xorg + i3 + LightDM (slimmed: xterm + pcmanfm only).
 # Stay on 3.17 main+community — do NOT drop @testing while a @testing package remains
 # in world; prefer slim upstream so sgt-puzzles@testing is never installed.
+# netsurf is absent from 3.17; install that one package from edge/community via --repository.
 RUN set -eux; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
@@ -10,7 +11,6 @@ RUN set -eux; \
     apk update; \
     apk add --no-cache \
       firefox-esr \
-      netsurf \
       ca-certificates \
       ttf-dejavu \
       dbus \
@@ -20,6 +20,7 @@ RUN set -eux; \
       pcmanfm \
       shared-mime-info \
       curl; \
+    apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community netsurf; \
     update-ca-certificates; \
     rm -rf /var/cache/apk/* /usr/share/man /usr/share/doc /usr/share/info
 
