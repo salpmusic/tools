@@ -149,10 +149,22 @@ jobs:
           set -eux
           rm -rf _ext2_artifact .git
           rm -f salp-browser.ext2 salp-browser.ext2.sha256 salp-browser.ext2.manifest.txt
+          # Static site: keep binaries; never let Jekyll strip .ext2
+          touch .nojekyll
+          # upload-pages-artifact respects .gitignore — temporarily allow the ext2
+          if [[ -f .gitignore ]]; then
+            grep -v -E '(^|/)\*?\.ext2$|salp-browser\.ext2' .gitignore > .gitignore.pages || true
+            mv .gitignore.pages .gitignore
+          fi
+          test -s salp-linux/salp-browser.ext2
+          # Fail loudly if publish tree would omit the image
+          BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
+          echo "publish ext2 bytes=$BYTES"
+          test "$BYTES" -ge 700000000
           ls -la
           test -f index.html
           test -f salp-linux/salp-browser.html
-          test -s salp-linux/salp-browser.ext2
+          test -f .nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
