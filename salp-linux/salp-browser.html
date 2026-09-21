@@ -58,6 +58,9 @@ button:disabled{opacity:.4}
 }
 .dot{width:9px;height:9px;border-radius:50%;background:#667}
 .dot.busy{background:var(--yellow)}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}
+.displayModeBar{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#07140d}
+.displayModeBar .label{font-weight:900;color:#eaffef;white-space:nowrap}.displayModeBar button{min-height:40px;font-weight:900}.displayModeBar button.active{border-color:#5ce98f;background:#103c22;color:#d8ffe5;box-shadow:0 0 0 2px #1c6b3b inset}.displayModeNow{font:10px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
+@media(max-width:650px){.displayModeBar{grid-template-columns:1fr 1fr}.displayModeBar .label{grid-column:1/-1}.displayModeNow{grid-column:1/-1}}
 .screenWrap{position:relative;min-height:0;background:#000;overflow:hidden;touch-action:none}
 #display{position:absolute;left:0;top:0;background:#000;touch-action:none;outline:none;transform-origin:0 0;will-change:transform,left,top}
 .viewControls{position:absolute;z-index:4;top:8px;left:8px;display:flex;gap:5px;align-items:center;max-width:calc(100% - 16px);padding:5px;border:1px solid rgba(121,243,157,.24);border-radius:12px;background:rgba(3,8,5,.82);backdrop-filter:blur(9px);overflow-x:auto;box-shadow:0 6px 24px rgba(0,0,0,.32)}
@@ -137,7 +140,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.4</span>
+  <span class="splashVersion">VERSION 1.10.5</span>
  </div>
 </section>
 <div class="app">
@@ -184,11 +187,16 @@ footer{
  <button id="autoToggleBtn">Auto: ON</button>
 </div>
 
+<section class="displayModeBar" aria-label="Linux本体の表示切替">
+ <span class="label">🖥 Linux本体の表示</span>
+ <button id="guiPcBtn" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC表示 1366×768</button>
+ <button id="guiMobileBtn" title="Linux GUIをスマホ向け解像度で起動/再起動">📱 スマホ表示</button>
+ <span id="displayModeNow" class="displayModeNow">現在：--</span>
+</section>
+
 <main class="screenWrap" id="screenWrap">
  <canvas id="display" tabindex="0"></canvas>
  <div id="viewControls" class="viewControls" aria-label="Linux画面表示操作">
-  <button id="guiPcBtn" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC</button>
-  <button id="guiMobileBtn" title="Linux GUIをスマホ向け解像度で起動/再起動">📱 Mobile</button>
   <button id="moveModeBtn" title="指ドラッグでLinux画面を移動">🖐 移動</button>
   <button id="zoomOutBtn" title="縮小">−</button>
   <button id="zoomInBtn" title="拡大">＋</button>
@@ -223,7 +231,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.4">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.5">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -236,7 +244,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.10.3</h1>
+   <h1>salp Linux Desktop v1.10.5</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -257,7 +265,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.10.3：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
+ salp Linux Desktop v1.10.5：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -265,7 +273,7 @@ footer{
 (async()=>{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1102");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1105");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
      navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -336,6 +344,7 @@ function updateViewInfo(){
  $("moveModeBtn").classList.toggle("moveActive",moveMode);
  $("moveModeBtn").textContent=moveMode?"🖐 移動ON":"🖐 移動";
  $("viewInfo").textContent=`${guiW}×${guiH}  ${Math.round(guiScale*100)}%`;
+ if($("displayModeNow")) $("displayModeNow").textContent=guiMode==="pc"?`現在：PC ${guiW}×${guiH}`:`現在：スマホ ${guiW}×${guiH}`;
  $("display").style.cursor=moveMode?"grab":"default";
 }
 function applyCanvasView(){
@@ -569,7 +578,7 @@ async function boot(){
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.4";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.5";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -655,7 +664,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.4";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.5";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
@@ -686,7 +695,7 @@ $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.ad
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.4";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.5";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);

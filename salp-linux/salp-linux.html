@@ -171,6 +171,15 @@ body.browserFullscreen #browserWindow .windowBody{height:100%}
   .desktopArea{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 
+.linuxDisplaySwitch{margin:10px 0 0;padding:12px;border:2px solid #2f8f57;border-radius:16px;background:#07140d;box-shadow:0 0 0 1px #0e2c1a inset}
+.linuxDisplayTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.linuxDisplayTitle strong{font-size:14px;color:#eaffef}.linuxDisplayTitle span{font-size:10px;color:var(--muted)}
+.linuxDisplayButtons{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.linuxDisplayButtons button{min-height:48px;font-size:14px;font-weight:900}
+.linuxDisplayButtons button.active{border-color:#5ce98f;background:#103c22;color:#d8ffe5;box-shadow:0 0 0 2px #1c6b3b inset}
+#openGuiLinuxBtn{padding-inline:14px}
+@media(max-width:650px){.linuxDisplayButtons{grid-template-columns:1fr 1fr}.linuxDisplayButtons #openGuiLinuxBtn{grid-column:1/-1}.linuxDisplayTitle{align-items:flex-start;flex-direction:column;gap:2px}}
+
 .hidden{display:none!important}
 @media(max-width:650px){.badge{display:none}.toolbar{flex-wrap:wrap}.status{width:100%;margin-left:0}}
 </style>
@@ -179,9 +188,21 @@ body.browserFullscreen #browserWindow .windowBody{height:100%}
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Desktop 1.10.0 / Firefox Upgrade</small></div>
-  <div class="badge">v1.10.4 GUI DISPLAY</div>
+  <div class="title"><strong>salp Linux</strong><small>Desktop 1.10.5 / Clear Display Switch</small></div>
+  <div class="badge">v1.10.5 DISPLAY SWITCH</div>
 </header>
+
+<section class="linuxDisplaySwitch" aria-label="Linux本体の表示切替">
+  <div class="linuxDisplayTitle">
+    <strong>🖥 Linux本体の表示切替</strong>
+    <span id="linuxDisplayStatus">現在：PC 1366×768</span>
+  </div>
+  <div class="linuxDisplayButtons">
+    <button id="linuxPcModeBtn">🖥 Linux PC表示</button>
+    <button id="linuxMobileModeBtn">📱 Linux スマホ表示</button>
+    <button id="openGuiLinuxBtn" class="primary">🌐 Linux GUIを開く</button>
+  </div>
+</section>
 
 <div class="toolbar">
   <button id="bootBtn" class="primary">▶ Linuxを起動</button>
@@ -325,8 +346,8 @@ for i in range(1, 6):
           <button id="browserGoBtn" class="primary">開く</button>
         </div>
         <div class="browserModeBar">
-          <button id="browserPcModeBtn" class="browserModeBtn active">🖥 PC表示</button>
-          <button id="browserMobileModeBtn" class="browserModeBtn">📱 スマホ表示</button>
+          <button id="browserPcModeBtn" class="browserModeBtn active">🌐 Web PC表示</button>
+          <button id="browserMobileModeBtn" class="browserModeBtn">🌐 Web スマホ表示</button>
           <button id="browserFitBtn">↔ 自動フィット</button>
           <span id="browserViewportLabel">1366×768 PC</span>
           <span id="browserFitNote" class="browserFitNote">PC画面を縮小表示</span>
@@ -341,7 +362,7 @@ for i in range(1, 6):
             <div>
               <div style="font-size:48px">🌐</div>
               <h3>salp Browser 1.2</h3>
-              <p>URLまたは検索語を入力してください。PC表示を標準にし、スマホ表示・自動フィット・全画面表示を切り替えられます。</p>
+              <p>URLまたは検索語を入力してください。この欄の表示切替はWebページ専用です。Linux本体の表示切替は画面上部にあります。</p>
               <div class="browserQuick">
                 <button data-browser-url="https://example.com">🌐 Example</button>
                 <button data-browser-url="https://www.wikipedia.org">📚 Wikipedia</button>
@@ -810,7 +831,7 @@ $("browserFitBtn").addEventListener("click",()=>{browserAutoFit=!browserAutoFit;
 $("browserZoomOutBtn").addEventListener("click",()=>{browserZoom=Math.max(.6,Math.round((browserZoom-.1)*10)/10);applyBrowserZoom()});
 $("browserZoomInBtn").addEventListener("click",()=>{browserZoom=Math.min(1.6,Math.round((browserZoom+.1)*10)/10);applyBrowserZoom()});
 $("browserZoomLabel").addEventListener("click",()=>{browserZoom=1;applyBrowserZoom()});
-$("browserHelpBtn").addEventListener("click",()=>alert("PC表示は1366×768のデスクトップ画面をスマホに合わせて縮小します。スマホ表示は390px幅です。\n\nサイト側のセキュリティ設定により、画面内表示できないページがあります。その場合は右上の ↗ か 🦊 Linux Firefox を使ってください。\n\nA− / A＋で倍率、↔で自動フィット、⛶で全画面表示を切り替えられます。"));
+$("browserHelpBtn").addEventListener("click",()=>alert("この2つは内蔵Webブラウザー専用です。Web PC表示は1366×768相当、Webスマホ表示は390px幅です。\n\nLinux本体の表示切替は、画面上部の「Linux PC表示 / Linux スマホ表示」を使ってください。\n\nサイト側のセキュリティ設定により、画面内表示できないページがあります。その場合は右上の ↗ か 🦊 Linux Firefox を使ってください。\n\nA− / A＋で倍率、↔で自動フィット、⛶で全画面表示を切り替えられます。"));
 document.querySelectorAll("[data-browser-url]").forEach(btn=>btn.addEventListener("click",()=>navigateBrowser(btn.dataset.browserUrl)));
 $("browserFrame").addEventListener("load",()=>{
   clearTimeout(browserLoadTimer);
@@ -834,11 +855,30 @@ setInterval(updateDesktopClock,30000);
 $("supportText").textContent=[
   crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation",
   typeof SharedArrayBuffer!=="undefined"?"✓ SharedArrayBuffer":"✗ SharedArrayBuffer",
-  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.10.4"
+  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.10.5"
 ].join("  ");
 
+const linuxPcModeBtn=$("linuxPcModeBtn");
+const linuxMobileModeBtn=$("linuxMobileModeBtn");
+const linuxDisplayStatus=$("linuxDisplayStatus");
+function refreshLinuxDisplaySwitch(){
+  const mode=localStorage.getItem("salpGuiMode")||"pc";
+  linuxPcModeBtn?.classList.toggle("active",mode==="pc");
+  linuxMobileModeBtn?.classList.toggle("active",mode==="mobile");
+  if(linuxDisplayStatus) linuxDisplayStatus.textContent=mode==="pc"?"現在：PC 1366×768":"現在：スマホ向け表示";
+}
+function chooseLinuxDisplay(mode){
+  localStorage.setItem("salpGuiMode",mode);
+  refreshLinuxDisplaySwitch();
+  $("statusText").textContent=mode==="pc"?"Linux PC表示を選択：GUI起動時 1366×768":"Linux スマホ表示を選択";
+}
+linuxPcModeBtn?.addEventListener("click",()=>chooseLinuxDisplay("pc"));
+linuxMobileModeBtn?.addEventListener("click",()=>chooseLinuxDisplay("mobile"));
+$("openGuiLinuxBtn")?.addEventListener("click",()=>{ location.href="./salp-browser.html?v=1105"; });
+refreshLinuxDisplaySwitch();
+
 $("linuxFirefoxBtn")?.addEventListener("click",()=>{
-  location.href="./salp-browser.html?v=1104";
+  location.href="./salp-browser.html?v=1105";
 });
 </script>
 </body>

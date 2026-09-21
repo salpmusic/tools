@@ -1,4 +1,4 @@
-name: Build salp Linux v1.10.4 Firefox Image
+name: Build salp Linux v1.10.5 Firefox Image
 
 on:
   workflow_dispatch:
@@ -55,7 +55,7 @@ jobs:
       - name: Upload browser image
         uses: actions/upload-artifact@v4
         with:
-          name: salp-firefox-v1.10.4-ext2
+          name: salp-firefox-v1.10.5-ext2
           path: |
             salp-browser.ext2
             salp-browser.ext2.sha256
