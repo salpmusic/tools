@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.7</title>
+<title>salp Browser OS v1.10.8</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -14,8 +14,8 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
-body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:hidden}
-.app{height:100%;display:grid;grid-template-rows:auto auto auto auto auto 1fr auto}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:auto}
+.app{min-height:100dvh;display:grid;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,68dvh) auto}
 header{
  display:flex;align-items:center;gap:11px;padding:10px 12px;
  padding-top:calc(10px + env(safe-area-inset-top));
@@ -58,10 +58,10 @@ button:disabled{opacity:.4}
 }
 .dot{width:9px;height:9px;border-radius:50%;background:#667}
 .dot.busy{background:var(--yellow)}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}
-.displayModeBar{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#07140d}
+.displayModeBar{display:grid;grid-template-columns:auto 1fr 1fr auto auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#07140d}
 .displayModeBar .label{font-weight:900;color:#eaffef;white-space:nowrap}.displayModeBar button{min-height:40px;font-weight:900}.displayModeBar button.active{border-color:#5ce98f;background:#103c22;color:#d8ffe5;box-shadow:0 0 0 2px #1c6b3b inset}.displayModeNow{font:10px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
-@media(max-width:650px){.displayModeBar{grid-template-columns:1fr 1fr}.displayModeBar .label{grid-column:1/-1}.displayModeNow{grid-column:1/-1}}
-.screenWrap{position:relative;min-height:0;background:#000;overflow:hidden;touch-action:none}
+@media(max-width:650px){.displayModeBar{grid-template-columns:1fr 1fr}.displayModeBar .label{grid-column:1/-1}.displayModeNow{grid-column:1/-1}.displayModeBar #jumpScreenBtn{grid-column:1/-1}}
+.screenWrap{position:relative;min-height:420px;height:68dvh;background:#000;overflow:hidden;touch-action:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 #display{position:absolute;left:0;top:0;background:#000;touch-action:none;outline:none;transform-origin:0 0;will-change:transform,left,top}
 .viewControls{position:absolute;z-index:4;top:8px;left:8px;display:flex;gap:5px;align-items:center;max-width:calc(100% - 16px);padding:5px;border:1px solid rgba(121,243,157,.24);border-radius:12px;background:rgba(3,8,5,.82);backdrop-filter:blur(9px);overflow-x:auto;box-shadow:0 6px 24px rgba(0,0,0,.32)}
 .viewControls button{min-height:32px;padding:4px 9px;font-size:11px;border-radius:8px}
@@ -129,13 +129,19 @@ footer{
 .diagBox{margin:0;padding:8px 11px;border-bottom:1px solid var(--line);background:#031007;font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:#a8b7ab}.diagBox b{color:var(--green)}.diagBox.error b{color:var(--red)}.diagLog{margin-top:4px;max-height:72px;overflow:auto;white-space:pre-wrap;color:#708579;font-size:9px}
 .hidden{display:none!important}
 @media(max-width:650px){
- .app{grid-template-rows:auto auto auto auto auto 1fr auto}
+ .app{grid-template-rows:auto auto auto auto auto auto auto minmax(420px,68dvh) auto}
  .toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
  .toolbar button,.toolbar a.toolButton{width:100%;padding:8px 6px;font-size:12px}
  .toolbar .status{grid-column:1/-1;width:100%;margin-left:0;padding:2px 3px}
  .addressBar{display:grid;grid-template-columns:auto 1fr auto;overflow:visible}
  .addressBar .sourceBadge{grid-column:1/-1;justify-self:start}
  .addressBar #homeUrlBtn{grid-column:1}.addressBar input{grid-column:2;min-width:0}.addressBar #goBtn{grid-column:3}.addressBar #autoToggleBtn{grid-column:1/-1}
+}
+
+@media(min-width:900px){
+ body{overflow:hidden}
+ .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(260px,1fr) auto}
+ .screenWrap{height:auto;min-height:260px}
 }
 </style>
 </head>
@@ -145,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.7 DEBUG FIX</span>
+  <span class="splashVersion">VERSION 1.10.8 DEBUG FIX</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -205,6 +211,7 @@ footer{
  <button id="guiPcBtn" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC表示 1366×768</button>
  <button id="guiMobileBtn" title="Linux GUIをスマホ向け解像度で起動/再起動">📱 スマホ表示</button>
  <span id="displayModeNow" class="displayModeNow">現在：--</span>
+ <button id="jumpScreenBtn" title="Linux画面まで移動">🖥 Linux画面へ</button>
 </section>
 
 <main class="screenWrap" id="screenWrap">
@@ -244,7 +251,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.7">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.8">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -257,7 +264,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.10.7</h1>
+   <h1>salp Linux Desktop v1.10.8</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -278,7 +285,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.10.7：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
+ salp Linux Desktop v1.10.8：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -324,7 +331,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1106");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1108");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -540,7 +547,7 @@ async function autoDetectAndLaunch(){
   launchBrowser();
   setTimeout(hideLaunchOverlay,1600);
  }else{
-  $("launchMessage").textContent="ブラウザーが見つかりませんでした。⚙ Imageでブラウザー入りext2を設定してください。";
+  $("launchMessage").textContent="ブラウザーが見つかりません。公式Alpineの場合はFirefox入り salp-browser.ext2 が必要です。";
   setTimeout(hideLaunchOverlay,3000);
  }
 }
@@ -558,8 +565,15 @@ async function detectBrowser(){
   $("launchBtn").disabled=false;$("goBtn").disabled=false;
   markStep("stepInstall","done");markStep("stepLaunch","active");setReady("browserReady","ok",detectedBrowser.name+" Ready");
  }else{
-  state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.7 Imageを設定するか、Network接続後に「Firefox導入」を実行してください。");
-  status("Browser未検出","error");setReady("browserReady","error","Browser Not Found");
+  const src=$("sourceBadge").textContent||"";
+  if(src.includes("Official Alpine")){
+   state("現在は公式Alpineです。Firefoxは入っていません。salp-browser.ext2を同じフォルダへ置くか、⚙ ImageでFirefox入りext2のURLを設定してください。");
+   setReady("browserReady","error","Browser Image Needed");
+  }else{
+   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.8 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
+   setReady("browserReady","error","Browser Not Found");
+  }
+  status("Browser未検出","error");
   $("launchBtn").disabled=true;$("goBtn").disabled=true;
  }
  $("detectBtn").disabled=false;
@@ -640,32 +654,47 @@ async function installBrowser(){
  }
 }
 
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2",location.href).href;
+async function resolveBrowserImage(){
+ const saved=(localStorage.getItem("salpImageUrl")||"").trim();
+ const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
+ if(forceOfficial)return {url:"",name:"Official Alpine 3.17",source:"official"};
+ const tries=[];
+ if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.8",source:"saved"});
+ else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.8",source:"local"});
+ for(const item of tries){
+  try{
+   const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
+   if(probe.ok)return item;
+   log(`[image] ${item.source} image HEAD ${probe.status}: ${item.url}`);
+  }catch(e){log(`[image] ${item.source} image unavailable: ${e?.message||String(e)}`)}
+ }
+ return {url:"",name:"Official Alpine 3.17",source:saved?"saved-failed":"local-missing"};
+}
+
 async function boot(){
  if(booting||cx)return;
  window.salpStage?.("5/7 Linux起動開始","boot() entered");
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.7...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.8...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
-  const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.7";
-  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
+  const selectedImage=await resolveBrowserImage();
+  const configuredUrl=selectedImage.url;
+  const configuredName=selectedImage.name;
 
-  if(configuredUrl&&!forceOfficial){
+  if(configuredUrl){
    try{
-    state(configuredName+" を確認しています。");
-    const probe=await fetch(configuredUrl,{method:"HEAD",mode:"cors",cache:"no-store"});
-    if(!probe.ok)throw new Error("HTTP "+probe.status);
-    window.salpStage?.("5/7 ext2接続中","外部イメージ");
-    cloud=await CheerpX.HttpBytesDevice.create(configuredUrl);
-    window.salpStage?.("5/7 ext2接続","外部イメージ OK");
-    log("[1/4] External image connected: "+configuredUrl);
     state(configuredName+" を読み込んでいます。");
-    $("sourceBadge").textContent="🐧 "+configuredName;setReady("imageReady","ok","Image Verified");
+    window.salpStage?.("5/7 ext2接続中",selectedImage.source==="local"?"同フォルダ Firefox image":"外部 Firefox image");
+    cloud=await CheerpX.HttpBytesDevice.create(configuredUrl);
+    window.salpStage?.("5/7 ext2接続","Firefox image OK");
+    log("[1/4] Browser image connected: "+configuredUrl);
+    $("sourceBadge").textContent="🦊 "+configuredName;setReady("imageReady","ok","Firefox Image Verified");
    }catch(externalError){
-    log("External image failed: "+externalError.message);
-    state("外部イメージを読み込めないため公式Alpineへフォールバックします。");
+    log("Browser image failed: "+externalError.message);
+    state("Firefox入りイメージを開けないため公式Alpineへフォールバックします。");
     window.salpStage?.("5/7 ext2接続中","公式Alpine fallback");
     cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
     window.salpStage?.("5/7 ext2接続","公式Alpine fallback OK");
@@ -673,12 +702,12 @@ async function boot(){
     $("sourceBadge").textContent="🐧 Official Alpine fallback";setReady("imageReady","ok","Image Fallback Ready");
    }
   }else{
-   window.salpStage?.("5/7 ext2接続中","公式Alpine");
+   window.salpStage?.("5/7 ext2接続中","公式Alpine / Firefox imageなし");
    cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/alpine_20251007.ext2");
    window.salpStage?.("5/7 ext2接続","公式Alpine OK");
-   log("[1/4] Official Alpine connected");
-   state("公式Alpineイメージを読み込んでいます。");
-   $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Image Verified");
+   log("[1/4] Official Alpine connected; browser image was not available");
+   state(selectedImage.source==="local-missing"?"Firefox入り salp-browser.ext2 が同フォルダに無いため、公式Alpineで起動します。":"設定したFirefox入りイメージを確認できないため、公式Alpineで起動します。");
+   $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
   const idb=await CheerpX.IDBDevice.create("salp-linux-v11-browser-disk");
@@ -714,7 +743,9 @@ async function boot(){
   // Critical: set the requested KMS resolution BEFORE Xorg/i3 starts.
   window.salpStage?.("6/7 KMS解像度設定中",`${guiMode} ${currentVirtualSize().w}x${currentVirtualSize().h}`);
   sizeCanvas({refit:true,forceKms:true,syncGuest:false});
-  window.salpStage?.("6/7 KMS解像度設定","OK");
+  const sr=$("screenWrap").getBoundingClientRect();
+  log(`[layout] screenWrap ${Math.round(sr.width)}x${Math.round(sr.height)} / canvas ${guiW}x${guiH} / scale ${Math.round(guiScale*100)}%`);
+  window.salpStage?.("6/7 KMS解像度設定",`OK / view ${Math.round(sr.width)}x${Math.round(sr.height)}`);
 
   cx.setCustomConsole(buf=>{
    try{
@@ -735,6 +766,8 @@ async function boot(){
    window.salpStage?.("7/7 Linux GUI","起動処理を開始済み");
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
    state("GUI Linuxが起動しました。");log("Desktop environment ready.");
+   sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+   if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$("screenWrap").scrollIntoView({behavior:"smooth",block:"start"}),300);
    syncGuestResolution(guiW,guiH);
    $("installBtn").disabled=false;
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
@@ -750,10 +783,12 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.7";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.8";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
- $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
+ if(url){$("sourceBadge").textContent="🦊 "+name;setReady("imageReady","ok","Custom Firefox Image")}
+ else if(localStorage.getItem("salpForceOfficial")==="1"){$("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Official Alpine")}
+ else{$("sourceBadge").textContent="🦊 Auto: salp-browser.ext2";setReady("imageReady","busy","Browser Image Auto")};
 }
 loadImageSettings();
 window.salpStage?.("4/7 salp Linux UI初期化","完了。GUI画面へ移動します");
@@ -771,28 +806,31 @@ if(sessionStorage.getItem("salpDisplayReboot")==="1") {
  sessionStorage.removeItem("salpDisplayRebootMode");
  guiMode=rebootMode;
  localStorage.setItem("salpGuiMode",rebootMode);
- sizeCanvas({refit:true});
+ updateViewInfo();
+sizeCanvas({refit:true});
  state(rebootMode==="pc"?"PC表示 1366×768 でLinuxを再起動します…":"スマホ表示でLinuxを再起動します…");
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1106");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1108");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.7";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.8";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
   localStorage.removeItem("salpForceOfficial");
-  $("sourceBadge").textContent="🐧 "+name;
-  state("外部イメージ設定を保存しました。再起動後に使用されます。");
+  $("sourceBadge").textContent="🦊 "+name;
+  setReady("imageReady","ok","Custom Firefox Image");
+  state("Firefox入り外部イメージ設定を保存しました。再起動後に使用されます。");
  }else{
   localStorage.removeItem("salpImageUrl");
   localStorage.removeItem("salpImageName");
-  $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Image Verified");
+  localStorage.removeItem("salpForceOfficial");
+  $("sourceBadge").textContent="🦊 Auto: salp-browser.ext2";setReady("imageReady","busy","Browser Image Auto");
  }
  $("settingsBox").classList.add("hidden");
 });
@@ -872,10 +910,11 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1106");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1108");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
+$("jumpScreenBtn").addEventListener("click",()=>$("screenWrap").scrollIntoView({behavior:"smooth",block:"start"}));
 $("moveModeBtn").addEventListener("click",()=>setMoveMode(!moveMode));
 $("zoomOutBtn").addEventListener("click",()=>setZoom(guiScale/1.2));
 $("zoomInBtn").addEventListener("click",()=>setZoom(guiScale*1.2));
@@ -896,6 +935,7 @@ wrap.addEventListener("pointermove",e=>{
 function finishPan(e){if(panPointer!==e.pointerId)return;e.preventDefault();e.stopPropagation();panPointer=null;updateViewInfo()}
 wrap.addEventListener("pointerup",finishPan,{capture:true});
 wrap.addEventListener("pointercancel",finishPan,{capture:true});
+updateViewInfo();
 sizeCanvas({refit:true});
 </script>
 </body>
