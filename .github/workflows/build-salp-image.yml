@@ -134,7 +134,7 @@ jobs:
           SIZE_BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
           echo "ext2 bytes=$SIZE_BYTES"
           test "$SIZE_BYTES" -gt 100000000
-          sha256sum -c salp-linux/salp-browser.ext2.sha256
+          (cd salp-linux && sha256sum -c salp-browser.ext2.sha256)
 
       - name: Prepare Pages publish tree
         run: |
