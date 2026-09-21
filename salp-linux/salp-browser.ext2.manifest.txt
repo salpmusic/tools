@@ -1,0 +1,17 @@
+salp Linux v1.10.9 Firefox Browser Image
+built_utc=2026-09-21T13:42:38Z
+image_size=800M
+rootfs_used_mb=409
+architecture=i386
+browser=firefox-esr
+fallback=netsurf
+terminal=xterm
+file_manager=pcmanfm
+upstream=https://github.com/leaningtech/alpine-image.git
+
+salp Linux v1.10.9
+browser=firefox-esr
+fallback=netsurf
+homepage=https://www.google.com/
+terminal=xterm
+file_manager=pcmanfm
