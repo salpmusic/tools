@@ -1,0 +1,4 @@
+# Never commit Pages-sized rootfs blobs (deploy via Actions Pages artifact only)
+*.ext2
+salp-browser.ext2
+salp-linux/salp-browser.ext2

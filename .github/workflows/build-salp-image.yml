@@ -4,18 +4,26 @@ on:
   workflow_dispatch:
     inputs:
       image_size:
-        description: ext2 image size (2200M recommended)
+        description: ext2 image size (≤800M for GitHub Pages soft limit)
         required: true
-        default: 2200M
+        default: 800M
         type: string
 
 permissions:
-  contents: read
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-salp-image
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    outputs:
+      artifact_name: salp-firefox-v1.10.9-ext2
 
     steps:
       - name: Checkout repository
@@ -51,6 +59,10 @@ jobs:
           sha256sum -c salp-browser.ext2.sha256
           ls -lh salp-browser.ext2*
           cat salp-browser.ext2.manifest.txt
+          # Guard: never accidentally stage the huge blob into git
+          test ! -f .gitattributes || ! grep -qi 'lfs' .gitattributes || true
+          git check-ignore -q salp-browser.ext2 2>/dev/null || \
+            echo 'salp-browser.ext2' >> .gitignore || true
 
       - name: Upload browser image
         uses: actions/upload-artifact@v4
@@ -63,3 +75,56 @@ jobs:
           compression-level: 0
           retention-days: 7
           if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download ext2 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: salp-firefox-v1.10.9-ext2
+          path: _ext2_artifact
+
+      - name: Place ext2 under salp-linux/ for Pages
+        run: |
+          mkdir -p salp-linux
+          cp -f _ext2_artifact/salp-browser.ext2 salp-linux/salp-browser.ext2
+          cp -f _ext2_artifact/salp-browser.ext2.sha256 salp-linux/salp-browser.ext2.sha256
+          cp -f _ext2_artifact/salp-browser.ext2.manifest.txt salp-linux/salp-browser.ext2.manifest.txt
+          ls -lh salp-linux/salp-browser.ext2*
+          # Sanity: must be hundreds of MB, not empty
+          test -s salp-linux/salp-browser.ext2
+          SIZE_BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
+          echo "ext2 bytes=$SIZE_BYTES"
+          test "$SIZE_BYTES" -gt 100000000
+
+      - name: Prepare Pages publish tree
+        run: |
+          # Publish full repo contents (existing HTML site) + salp-linux/ext2.
+          # Exclude .git and build debris; Pages artifact must not include .git.
+          rm -rf _ext2_artifact .git
+          # Ensure we do not ship accidental local build leftovers from checkout root
+          rm -f salp-browser.ext2 salp-browser.ext2.sha256 salp-browser.ext2.manifest.txt
+          ls -la
+          test -f index.html
+          test -f salp-linux/salp-browser.html
+          test -s salp-linux/salp-browser.ext2
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+          name: github-pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

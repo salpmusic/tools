@@ -1,5 +1,7 @@
 # salp Linux v1.10.9 Firefox browser layer
-# Upstream already includes Xorg + i3 + LightDM. Add Firefox ESR as the primary browser.
+# Upstream is Alpine 3.17 with Xorg + i3 + LightDM (slimmed: xterm + pcmanfm only).
+# Stay on 3.17 main+community — do NOT drop @testing while a @testing package remains
+# in world; prefer slim upstream so sgt-puzzles@testing is never installed.
 RUN set -eux; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
@@ -10,20 +12,16 @@ RUN set -eux; \
       firefox-esr \
       netsurf \
       ca-certificates \
-      font-noto \
-      font-noto-cjk \
       ttf-dejavu \
       dbus \
       dbus-x11 \
       xrandr \
       xterm \
       pcmanfm \
-      adwaita-icon-theme \
       shared-mime-info \
-      curl wget nano bash python3 git; \
+      curl; \
     update-ca-certificates; \
-    rm -rf /var/cache/apk/*
-
+    rm -rf /var/cache/apk/* /usr/share/man /usr/share/doc /usr/share/info
 
 # Core desktop apps: terminal + file manager are mandatory in salp Linux.
 RUN cat > /usr/local/bin/salp-terminal <<'SALP_TERMINAL'

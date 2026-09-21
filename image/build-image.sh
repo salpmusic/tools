@@ -3,11 +3,13 @@ set -Eeuo pipefail
 
 WORKDIR="${1:-${RUNNER_TEMP:-/tmp}/salp-build}"
 OUTPUT="${2:-${GITHUB_WORKSPACE:-$PWD}/salp-browser.ext2}"
-IMAGE_SIZE="${IMAGE_SIZE:-2200M}"
+IMAGE_SIZE="${IMAGE_SIZE:-800M}"
 REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ADDITION="$REPO_ROOT/image/Dockerfile.addition.txt"
 UPSTREAM="${UPSTREAM_REPO:-https://github.com/leaningtech/alpine-image.git}"
 IMAGE_TAG="salp-linux-browser:v1.10.9"
+# Soft Pages budget: refuse to mkfs if used rootfs is clearly too large for IMAGE_SIZE=800M.
+MAX_ROOTFS_MB="${MAX_ROOTFS_MB:-780}"
 container=""
 rootfs=""
 
@@ -24,7 +26,7 @@ cleanup() {
 trap cleanup EXIT
 
 [[ -f "$ADDITION" ]] || fail "Missing $ADDITION"
-[[ "$IMAGE_SIZE" =~ ^[0-9]+[MG]$ ]] || fail "IMAGE_SIZE must look like 2200M or 3G"
+[[ "$IMAGE_SIZE" =~ ^[0-9]+[MG]$ ]] || fail "IMAGE_SIZE must look like 800M or 1G"
 
 rm -rf "$WORKDIR"
 mkdir -p "$WORKDIR" "$(dirname "$OUTPUT")"
@@ -34,11 +36,34 @@ git clone --depth 1 "$UPSTREAM" "$WORKDIR/source"
 cd "$WORKDIR/source"
 [[ -f Dockerfile ]] || fail "Upstream Dockerfile was not found"
 
+log "Slim upstream Dockerfile (drop fat GUI/devtools; keep xterm+pcmanfm)"
+# Drop edge/testing — we will not install sgt-puzzles@testing.
+sed -i '/@testing https:\/\/dl-cdn.alpinelinux.org\/alpine\/edge\/testing/d' Dockerfile || true
+
+# terminal apps: bash already present in base; skip vim/python3/nodejs/gcc/nano/openssh
+if grep -qE '^RUN apk add vim python3 nodejs gcc nano openssh' Dockerfile; then
+  sed -i 's/^RUN apk add vim python3 nodejs gcc nano openssh.*/RUN true  # slim: skip vim python3 nodejs gcc nano openssh/' Dockerfile
+fi
+
+# gui apps: only xterm + pcmanfm
+if grep -qE '^RUN apk add .*xterm.*pcmanfm' Dockerfile; then
+  sed -i 's/^RUN apk add .*xterm.*pcmanfm.*/RUN apk add xterm pcmanfm/' Dockerfile
+fi
+
+# Remove sgt-puzzles desktop fix (package no longer installed)
+sed -i '/sgt-\*\.desktop/d' Dockerfile || true
+sed -i '/the sgt-puzzles package has broken desktop files/d' Dockerfile || true
+
+# Skip xpdf-only moves (package no longer installed); keep .Xresources move
+sed -i 's|^RUN mv /home/user/\.config/\.xpdfrc /home/user/.*|RUN true  # slim: skip .xpdfrc (xpdf not installed)|' Dockerfile
+sed -i 's|^RUN mv /home/user/\.config/xpdf\.desktop /usr/share/applications/.*|RUN true  # slim: skip xpdf.desktop (xpdf not installed)|' Dockerfile
+
 log "Append salp browser layer"
 printf '\n' >> Dockerfile
 cat "$ADDITION" >> Dockerfile
 
-tail -n 120 Dockerfile
+log "Effective Dockerfile (tail)"
+tail -n 160 Dockerfile
 
 log "Build i386 container image"
 buildah bud \
@@ -69,6 +94,29 @@ fi
 [[ -x "$rootfs/usr/local/bin/salp-terminal" ]] || fail "salp-terminal launcher is missing"
 [[ -x "$rootfs/usr/local/bin/salp-files" ]] || fail "salp-files launcher is missing"
 
+log "Aggressive rootfs cleanup before mkfs"
+rm -rf \
+  "$rootfs/var/cache/apk/"* \
+  "$rootfs/usr/share/man" \
+  "$rootfs/usr/share/doc" \
+  "$rootfs/usr/share/info" \
+  "$rootfs/tmp/"* \
+  "$rootfs/var/tmp/"* \
+  "$rootfs/root/.cache" \
+  "$rootfs/home/user/.cache" \
+  2>/dev/null || true
+# Drop leftover apk indexes / build debris if any
+find "$rootfs/var/cache" -mindepth 1 -maxdepth 2 -type f -delete 2>/dev/null || true
+# Drop unused locale translations for common heavy packages (keep C/en)
+find "$rootfs/usr/share/locale" -mindepth 1 -maxdepth 1 ! -name 'en*' ! -name 'C' -exec rm -rf {} + 2>/dev/null || true
+
+used_kb="$(du -sk "$rootfs" | awk '{print $1}')"
+used_mb=$(( used_kb / 1024 ))
+log "Rootfs used size after cleanup: ${used_mb}M ($(du -sh "$rootfs" | awk '{print $1}'))"
+if (( used_mb > MAX_ROOTFS_MB )); then
+  fail "Rootfs used size ${used_mb}M exceeds ${MAX_ROOTFS_MB}M budget for IMAGE_SIZE=${IMAGE_SIZE}. Slim further or raise MAX_ROOTFS_MB carefully (Pages soft limit ~800M)."
+fi
+
 log "Create ext2 image ($IMAGE_SIZE)"
 rm -f "$OUTPUT" "$OUTPUT.sha256" "$OUTPUT.manifest.txt"
 truncate -s "$IMAGE_SIZE" "$OUTPUT"
@@ -88,6 +136,7 @@ sha256sum "$OUTPUT" > "$OUTPUT.sha256"
   echo 'salp Linux v1.10.9 Firefox Browser Image'
   echo "built_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "image_size=$IMAGE_SIZE"
+  echo "rootfs_used_mb=$used_mb"
   echo 'architecture=i386'
   echo 'browser=firefox-esr'
   echo 'fallback=netsurf'
