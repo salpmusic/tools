@@ -137,7 +137,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.3</span>
+  <span class="splashVersion">VERSION 1.10.4</span>
  </div>
 </section>
 <div class="app">
@@ -187,8 +187,8 @@ footer{
 <main class="screenWrap" id="screenWrap">
  <canvas id="display" tabindex="0"></canvas>
  <div id="viewControls" class="viewControls" aria-label="Linux画面表示操作">
-  <button id="guiPcBtn" title="Linux仮想画面を1366×768へ">🖥 PC</button>
-  <button id="guiMobileBtn" title="端末比率に合わせたスマホ向けLinux解像度へ">📱 Mobile</button>
+  <button id="guiPcBtn" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC</button>
+  <button id="guiMobileBtn" title="Linux GUIをスマホ向け解像度で起動/再起動">📱 Mobile</button>
   <button id="moveModeBtn" title="指ドラッグでLinux画面を移動">🖐 移動</button>
   <button id="zoomOutBtn" title="縮小">−</button>
   <button id="zoomInBtn" title="拡大">＋</button>
@@ -223,7 +223,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.3">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.4">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -398,14 +398,28 @@ function sizeCanvas({refit=true,forceKms=false,syncGuest=false}={}){
  if(refit)fitView();else applyCanvasView();
 }
 function setGuiMode(mode){
- guiMode=mode;localStorage.setItem("salpGuiMode",mode);
- // Force setKmsCanvas even if the canvas attributes already have the target size.
- sizeCanvas({refit:true,forceKms:true,syncGuest:true});
- if(mode==="pc"){
-  state("PC表示：Linux/KMSを1366×768へ切替中… Xorgにも解像度変更を通知します。");
- }else{
-  state(`スマホ表示：Linux/KMSを${guiW}×${guiH}へ切替中…`);
+ if(mode!=="pc"&&mode!=="mobile")return;
+ const same=guiMode===mode;
+ guiMode=mode;
+ localStorage.setItem("salpGuiMode",mode);
+ // Before Linux starts we can change KMS immediately. Once Xorg is running,
+ // the reliable way to change the real desktop geometry is to reboot this
+ // CheerpX session and apply KMS before /sbin/init starts.
+ if(!cx&&!booting){
+  sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+  state(mode==="pc"?"PC表示を選択しました。Linuxは1366×768で起動します。":"スマホ表示を選択しました。端末向け解像度で起動します。");
+  return;
  }
+ if(same&&cx){
+  // Still re-apply the view, but avoid an unnecessary reboot when already in this mode.
+  sizeCanvas({refit:true,forceKms:true,syncGuest:true});
+  state(mode==="pc"?"PC表示 1366×768 を再適用しました。":"スマホ表示を再適用しました。");
+  return;
+ }
+ sessionStorage.setItem("salpDisplayReboot","1");
+ sessionStorage.setItem("salpDisplayRebootMode",mode);
+ state(mode==="pc"?"PC表示へ切替中… Linux GUIを1366×768で再起動します。":"スマホ表示へ切替中… Linux GUIを再起動します。");
+ setTimeout(()=>location.reload(),180);
 }
 function setMoveMode(on){moveMode=!!on;panPointer=null;updateViewInfo()}
 let resizeTimer;window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>sizeCanvas({refit:true}),180)});
@@ -551,11 +565,11 @@ async function boot(){
  if(booting||cx)return;
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.3...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.4...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const configuredUrl=localStorage.getItem("salpImageUrl")||"";
-  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.3";
+  const configuredName=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.4";
   const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
 
   if(configuredUrl&&!forceOfficial){
@@ -641,7 +655,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.3";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.4";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  $("sourceBadge").textContent=url?"🐧 "+name:"🐧 Official Alpine 3.17";setReady("imageReady","ok",url?"Custom Image Ready":"Image Verified");
@@ -652,13 +666,27 @@ setTimeout(()=>{
  if(splash){splash.classList.add("fade");setTimeout(()=>splash.remove(),500)}
 },1400);
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1103");
+// A display-mode change while Linux is already running reloads the page.
+// Restore that intent here and boot automatically so the new KMS size is
+// applied before Xorg/i3 starts.
+if(sessionStorage.getItem("salpDisplayReboot")==="1") {
+ const rebootMode=sessionStorage.getItem("salpDisplayRebootMode")||guiMode;
+ sessionStorage.removeItem("salpDisplayReboot");
+ sessionStorage.removeItem("salpDisplayRebootMode");
+ guiMode=rebootMode;
+ localStorage.setItem("salpGuiMode",rebootMode);
+ sizeCanvas({refit:true});
+ state(rebootMode==="pc"?"PC表示 1366×768 でLinuxを再起動します…":"スマホ表示でLinuxを再起動します…");
+ setTimeout(()=>boot(),650);
+}
+
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1104");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.3";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.4";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -748,7 +776,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1102");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1104");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));

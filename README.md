@@ -1,8 +1,8 @@
-# salp Linux v1.10.3 — CheerpX GUI Display Upgrade
+# salp Linux v1.10.4 — CheerpX GUI Display Upgrade
 
 ブラウザー上で動く salp Linux の表示・スマホ操作改善版です。v1.10.1 の Linux 起動、Firefox ESR、NetSurf fallback、Tailscale、外部 ext2、永続化、Builder を維持しつつ、**CheerpX の本物の Linux GUI Canvas** 側を修正しました。
 
-## v1.10.3 の主な更新
+## v1.10.4 の主な更新
 
 - `salp-browser.html` の CheerpX `setKmsCanvas()` を PC / Mobile 表示切替と連動
 - PC表示は Linux 仮想画面を **1366×768** に設定
@@ -13,11 +13,11 @@
 - `−` / `＋` で拡大縮小、`Fit` で全体表示、`◎` で中央へ復帰
 - 小画面向けに表示操作バーをコンパクト化
 - 画面回転・リサイズ時にフィットを再計算。Mobile表示では仮想解像度も再計算
-- Desktop / Browser OS / Builder / build scripts のバージョンとキャッシュクエリを v1.10.3 に更新
+- Desktop / Browser OS / Builder / build scripts のバージョンとキャッシュクエリを v1.10.4 に更新
 
 ## 重要：iframe と Linux GUI は別物
 
-`salp-linux.html` 内の通常Webブラウザー表示は iframe です。一方、Linuxデスクトップ / Firefox ESR は `salp-browser.html` 内の CheerpX Canvas (`setKmsCanvas`) です。v1.10.3 の PC/Mobile・移動・Fit は **後者の Linux GUI Canvas** に実装されています。
+`salp-linux.html` 内の通常Webブラウザー表示は iframe です。一方、Linuxデスクトップ / Firefox ESR は `salp-browser.html` 内の CheerpX Canvas (`setKmsCanvas`) です。v1.10.4 の PC/Mobile・移動・Fit は **後者の Linux GUI Canvas** に実装されています。
 
 ## 操作
 
