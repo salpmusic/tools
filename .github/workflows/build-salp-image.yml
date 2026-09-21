@@ -112,11 +112,19 @@ jobs:
         run: |
           set -eux
           mkdir -p _ext2_artifact
-          # Prefer the most recent successful workflow run that uploaded the named artifact
-          RUN_ID=$(gh run list -R "$GITHUB_REPOSITORY" --workflow=build-salp-image.yml --json databaseId,conclusion,name \
-            --jq '[.[]|select(.conclusion=="success")][0].databaseId')
-          echo "Using run $RUN_ID"
-          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n salp-firefox-v1.10.9-ext2 -D _ext2_artifact
+          ARTIFACT=salp-firefox-v1.10.9-ext2
+          RUN_ID=""
+          for id in $(gh run list -R "$GITHUB_REPOSITORY" --workflow=build-salp-image.yml -L 30 \
+            --json databaseId,conclusion --jq '.[]|select(.conclusion=="success")|.databaseId'); do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/artifacts" \
+              --jq ".artifacts[]|select(.name==\"$ARTIFACT\" and .expired==false)|.name" | grep -qx "$ARTIFACT"; then
+              RUN_ID="$id"
+              break
+            fi
+          done
+          test -n "$RUN_ID" || { echo "No successful run with artifact $ARTIFACT" >&2; exit 1; }
+          echo "Using run $RUN_ID (has $ARTIFACT)"
+          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n "$ARTIFACT" -D _ext2_artifact
           ls -lh _ext2_artifact/
 
       - name: Place ext2 under salp-linux/ for Pages
