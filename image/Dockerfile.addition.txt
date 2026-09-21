@@ -3,6 +3,7 @@
 # Stay on 3.17 main+community — do NOT drop @testing while a @testing package remains
 # in world; prefer slim upstream so sgt-puzzles@testing is never installed.
 # netsurf is absent from 3.17; install that one package from edge/community via --repository.
+# NOTE: avoid Dockerfile shell heredocs — buildah classic parser splits them into bogus STEPs.
 RUN set -eux; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
@@ -25,125 +26,123 @@ RUN set -eux; \
     rm -rf /var/cache/apk/* /usr/share/man /usr/share/doc /usr/share/info
 
 # Core desktop apps: terminal + file manager are mandatory in salp Linux.
-RUN cat > /usr/local/bin/salp-terminal <<'SALP_TERMINAL'
-#!/bin/sh
-set -eu
-export DISPLAY="${DISPLAY:-:0}"
-export HOME="${HOME:-/home/user}"
-exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28
-SALP_TERMINAL
-
-RUN cat > /usr/local/bin/salp-files <<'SALP_FILES'
-#!/bin/sh
-set -eu
-export DISPLAY="${DISPLAY:-:0}"
-export HOME="${HOME:-/home/user}"
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"
-mkdir -p "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
-if command -v dbus-launch >/dev/null 2>&1; then
-  exec dbus-launch --exit-with-session pcmanfm --no-desktop "${1:-/home/user}"
-fi
-exec pcmanfm --no-desktop "${1:-/home/user}"
-SALP_FILES
-
-RUN chmod 0755 /usr/local/bin/salp-terminal /usr/local/bin/salp-files \
- && printf '%s\n' \
-    '[Desktop Entry]' \
-    'Type=Application' \
-    'Name=salp Terminal' \
-    'Exec=/usr/local/bin/salp-terminal' \
-    'Terminal=false' \
-    'Categories=System;TerminalEmulator;' \
-    > /usr/share/applications/salp-terminal.desktop \
- && printf '%s\n' \
-    '[Desktop Entry]' \
-    'Type=Application' \
-    'Name=salp Files' \
-    'Exec=/usr/local/bin/salp-files' \
-    'Terminal=false' \
-    'Categories=System;FileManager;' \
-    > /usr/share/applications/salp-files.desktop \
- && command -v xterm \
- && command -v pcmanfm \
- && test -x /usr/local/bin/salp-terminal \
- && test -x /usr/local/bin/salp-files
+RUN set -eux; \
+    printf '%s\n' \
+      '#!/bin/sh' \
+      'set -eu' \
+      'export DISPLAY="${DISPLAY:-:0}"' \
+      'export HOME="${HOME:-/home/user}"' \
+      "exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28" \
+      > /usr/local/bin/salp-terminal; \
+    printf '%s\n' \
+      '#!/bin/sh' \
+      'set -eu' \
+      'export DISPLAY="${DISPLAY:-:0}"' \
+      'export HOME="${HOME:-/home/user}"' \
+      'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"' \
+      'mkdir -p "$XDG_RUNTIME_DIR"' \
+      'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true' \
+      'if command -v dbus-launch >/dev/null 2>&1; then' \
+      '  exec dbus-launch --exit-with-session pcmanfm --no-desktop "${1:-/home/user}"' \
+      'fi' \
+      'exec pcmanfm --no-desktop "${1:-/home/user}"' \
+      > /usr/local/bin/salp-files; \
+    chmod 0755 /usr/local/bin/salp-terminal /usr/local/bin/salp-files; \
+    printf '%s\n' \
+      '[Desktop Entry]' \
+      'Type=Application' \
+      'Name=salp Terminal' \
+      'Exec=/usr/local/bin/salp-terminal' \
+      'Terminal=false' \
+      'Categories=System;TerminalEmulator;' \
+      > /usr/share/applications/salp-terminal.desktop; \
+    printf '%s\n' \
+      '[Desktop Entry]' \
+      'Type=Application' \
+      'Name=salp Files' \
+      'Exec=/usr/local/bin/salp-files' \
+      'Terminal=false' \
+      'Categories=System;FileManager;' \
+      > /usr/share/applications/salp-files.desktop; \
+    command -v xterm; \
+    command -v pcmanfm; \
+    test -x /usr/local/bin/salp-terminal; \
+    test -x /usr/local/bin/salp-files
 
 # Firefox profile defaults chosen for software-rendered/browser-virtualized Linux.
-RUN mkdir -p /home/user/.mozilla/firefox/salp.default \
- && cat > /home/user/.mozilla/firefox/profiles.ini <<'EOF'
-[Profile0]
-Name=salp
-IsRelative=1
-Path=salp.default
-Default=1
+RUN set -eux; \
+    mkdir -p /home/user/.mozilla/firefox/salp.default; \
+    printf '%s\n' \
+      '[Profile0]' \
+      'Name=salp' \
+      'IsRelative=1' \
+      'Path=salp.default' \
+      'Default=1' \
+      '' \
+      '[General]' \
+      'StartWithLastProfile=1' \
+      'Version=2' \
+      > /home/user/.mozilla/firefox/profiles.ini; \
+    printf '%s\n' \
+      'user_pref("browser.startup.homepage", "https://www.google.com/");' \
+      'user_pref("browser.startup.page", 1);' \
+      'user_pref("media.hardware-video-decoding.enabled", false);' \
+      'user_pref("gfx.webrender.software", true);' \
+      'user_pref("layers.acceleration.disabled", true);' \
+      'user_pref("browser.shell.checkDefaultBrowser", false);' \
+      'user_pref("datareporting.healthreport.uploadEnabled", false);' \
+      'user_pref("toolkit.telemetry.enabled", false);' \
+      > /home/user/.mozilla/firefox/salp.default/user.js; \
+    chown -R user:user /home/user/.mozilla
 
-[General]
-StartWithLastProfile=1
-Version=2
-EOF
-
-RUN cat > /home/user/.mozilla/firefox/salp.default/user.js <<'EOF'
-user_pref("browser.startup.homepage", "https://www.google.com/");
-user_pref("browser.startup.page", 1);
-user_pref("media.hardware-video-decoding.enabled", false);
-user_pref("gfx.webrender.software", true);
-user_pref("layers.acceleration.disabled", true);
-user_pref("browser.shell.checkDefaultBrowser", false);
-user_pref("datareporting.healthreport.uploadEnabled", false);
-user_pref("toolkit.telemetry.enabled", false);
-EOF
-
-RUN chown -R user:user /home/user/.mozilla
-
-RUN cat > /usr/local/bin/salp-browser <<'SALP_BROWSER'
-#!/bin/sh
-set -eu
-URL="${1:-https://www.google.com/}"
-export DISPLAY="${DISPLAY:-:0}"
-export HOME="${HOME:-/home/user}"
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"
-mkdir -p "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
-
-# Prefer real Linux Firefox. NetSurf remains as a lightweight safety fallback.
-for browser in firefox-esr firefox; do
-  if command -v "$browser" >/dev/null 2>&1; then
-    exec "$browser" --new-instance --no-remote "$URL"
-  fi
-done
-for browser in netsurf-gtk3 netsurf-gtk netsurf; do
-  if command -v "$browser" >/dev/null 2>&1; then
-    exec "$browser" "$URL"
-  fi
-done
-echo 'salp Browser: Firefox ESR / NetSurf executable was not found.' >&2
-exit 127
-SALP_BROWSER
-
-RUN chmod 0755 /usr/local/bin/salp-browser \
- && mkdir -p /usr/share/applications \
- && printf '%s\n' \
-    '[Desktop Entry]' \
-    'Type=Application' \
-    'Name=salp Firefox' \
-    'Comment=Firefox ESR for salp Linux' \
-    'Exec=/usr/local/bin/salp-browser' \
-    'Terminal=false' \
-    'Categories=Network;WebBrowser;' \
-    > /usr/share/applications/salp-browser.desktop \
- && printf '%s\n' \
-    'salp Linux v1.10.9' \
-    'browser=firefox-esr' \
-    'fallback=netsurf' \
-    'homepage=https://www.google.com/' \
-    'terminal=xterm' \
-    'file_manager=pcmanfm' \
-    > /etc/salp-release \
- && command -v /usr/local/bin/salp-browser \
- && (command -v firefox-esr || command -v firefox) \
- && (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf) \
- && command -v xterm \
- && command -v pcmanfm \
- && test -x /usr/local/bin/salp-terminal \
- && test -x /usr/local/bin/salp-files
+RUN set -eux; \
+    printf '%s\n' \
+      '#!/bin/sh' \
+      'set -eu' \
+      'URL="${1:-https://www.google.com/}"' \
+      'export DISPLAY="${DISPLAY:-:0}"' \
+      'export HOME="${HOME:-/home/user}"' \
+      'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"' \
+      'mkdir -p "$XDG_RUNTIME_DIR"' \
+      'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true' \
+      '' \
+      '# Prefer real Linux Firefox. NetSurf remains as a lightweight safety fallback.' \
+      'for browser in firefox-esr firefox; do' \
+      '  if command -v "$browser" >/dev/null 2>&1; then' \
+      '    exec "$browser" --new-instance --no-remote "$URL"' \
+      '  fi' \
+      'done' \
+      'for browser in netsurf-gtk3 netsurf-gtk netsurf; do' \
+      '  if command -v "$browser" >/dev/null 2>&1; then' \
+      '    exec "$browser" "$URL"' \
+      '  fi' \
+      'done' \
+      "echo 'salp Browser: Firefox ESR / NetSurf executable was not found.' >&2" \
+      'exit 127' \
+      > /usr/local/bin/salp-browser; \
+    chmod 0755 /usr/local/bin/salp-browser; \
+    mkdir -p /usr/share/applications; \
+    printf '%s\n' \
+      '[Desktop Entry]' \
+      'Type=Application' \
+      'Name=salp Firefox' \
+      'Comment=Firefox ESR for salp Linux' \
+      'Exec=/usr/local/bin/salp-browser' \
+      'Terminal=false' \
+      'Categories=Network;WebBrowser;' \
+      > /usr/share/applications/salp-browser.desktop; \
+    printf '%s\n' \
+      'salp Linux v1.10.9' \
+      'browser=firefox-esr' \
+      'fallback=netsurf' \
+      'homepage=https://www.google.com/' \
+      'terminal=xterm' \
+      'file_manager=pcmanfm' \
+      > /etc/salp-release; \
+    command -v /usr/local/bin/salp-browser; \
+    (command -v firefox-esr || command -v firefox); \
+    (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf); \
+    command -v xterm; \
+    command -v pcmanfm; \
+    test -x /usr/local/bin/salp-terminal; \
+    test -x /usr/local/bin/salp-files
