@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1116");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1117");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -660,36 +660,126 @@ async function openCoreDesktopApps(){
 
 async function rewriteOverlayLaunchers(){
  // Fix IndexedDB overlay shadows of /usr/local/bin without ext2 rebuild.
- // Prefer /bin/ash explicitly; CheerpX can overwrite SHELL to basename "xterm".
- log("[term] rewriteOverlayLaunchers start");
+ // Write full instrumented salp-gui-start + salp-session BEFORE cx.run(gui-start)
+ // so CheerpX is not blocked on forever-wait (exec/wait I3PID).
+ log("[term] rewriteOverlayLaunchers / rewriteGuiLaunchers start");
  const rewrite=[
 "set -eu",
+"rm -f /tmp/salp-gui-steps.log",
+"cat > /usr/local/bin/salp-gui-start << 'SALPGUIEOF'",
+"#!/bin/sh",
+"set -u",
+'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log; }',
+"export DISPLAY=:0",
+"export HOME=/root",
+'step "01 runtime dir"',
+"mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /home/user",
+"chmod 1777 /tmp/.X11-unix 2>/dev/null || true",
+"chown 1000:1000 /tmp/runtime-user",
+"chmod 700 /tmp/runtime-user",
+"chown 1000:1000 /home/user",
+"",
+'grep -qs " /proc " /proc/mounts 2>/dev/null || mount -t proc proc /proc 2>/dev/null || true',
+'grep -qs " /sys " /proc/mounts 2>/dev/null || mount -t sysfs sysfs /sys 2>/dev/null || true',
+'grep -qs " /dev/pts " /proc/mounts 2>/dev/null || mount -t devpts devpts /dev/pts 2>/dev/null || true',
+"",
+'if command -v dbus-daemon >/dev/null 2>&1 && [ ! -S /run/dbus/system_bus_socket ]; then',
+"  dbus-uuidgen --ensure=/etc/machine-id >/dev/null 2>&1 || true",
+"  dbus-daemon --system --fork >/tmp/salp-dbus.log 2>&1 || true",
+"fi",
+"",
+'step "02 Xorg start"',
+"if ! pidof Xorg >/dev/null 2>&1 && ! pidof X >/dev/null 2>&1; then",
+"  rm -f /tmp/.X0-lock /tmp/.X11-unix/X0",
+"  nohup Xorg :0 -ac -noreset -nolisten tcp >/tmp/salp-xorg.log 2>&1 &",
+"fi",
+"",
+'step "03 Xorg ready"',
+"n=0",
+'while [ ! -S /tmp/.X11-unix/X0 ] && [ "$n" -lt 50 ]; do',
+"  sleep 0.25",
+'  n=$((n+1))',
+"done",
+'if [ ! -S /tmp/.X11-unix/X0 ]; then',
+'  step "03 Xorg ready FAIL"',
+"  echo 'salp GUI: Xorg socket :0 did not appear' >&2",
+"  tail -n 80 /tmp/salp-xorg.log 2>/dev/null || true",
+"  exit 20",
+"fi",
+"",
+"if command -v xhost >/dev/null 2>&1; then",
+"  DISPLAY=:0 xhost +SI:localuser:user >/dev/null 2>&1 || DISPLAY=:0 xhost +local: >/dev/null 2>&1 || true",
+"fi",
+"",
+"# Background session (no exec/wait). Session owns steps 04-07; we log 08 and return.",
+"if command -v su >/dev/null 2>&1; then",
+"  nohup su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash; exec /usr/local/bin/salp-session' >/tmp/salp-session.out 2>&1 &",
+"else",
+"  export HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash",
+"  nohup /usr/local/bin/salp-session >/tmp/salp-session.out 2>&1 &",
+"fi",
+"sleep 0.3",
+'step "08 GUI startup complete (session bg)"',
+"exit 0",
+"SALPGUIEOF",
+"chmod 0755 /usr/local/bin/salp-gui-start",
+"",
+"cat > /usr/local/bin/salp-session << 'SALPSESEOF'",
+"#!/bin/sh",
+"set -u",
+'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log; }',
+'export DISPLAY="${DISPLAY:-:0}"',
+'export HOME="${HOME:-/home/user}"',
+'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
+"export SHELL=/bin/ash",
+'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
+'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
+"",
+'step "04 i3 start"',
+"nohup i3 >/tmp/salp-i3.log 2>&1 &",
+"",
+'step "05 i3 ready"',
+"for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do",
+"  i3-msg -t get_version >/dev/null 2>&1 && break",
+"  sleep 0.4",
+"done",
+"",
+'step "06 Files start"',
+"if command -v dbus-launch >/dev/null 2>&1; then",
+'  nohup dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
+"else",
+'  nohup /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
+"fi",
+"",
+'step "07 Terminal start"',
+"nohup /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
+"",
+"# Do NOT wait on i3 — must return so CheerpX can run further cx.run/shell.",
+"exit 0",
+"SALPSESEOF",
+"chmod 0755 /usr/local/bin/salp-session",
+"",
 "cat > /usr/local/bin/salp-terminal << 'SALPEOF'",
 "#!/bin/sh",
 "set -eu",
-"export DISPLAY=\"${DISPLAY:-:0}\"",
-"export HOME=\"${HOME:-/home/user}\"",
+'export DISPLAY="${DISPLAY:-:0}"',
+'export HOME="${HOME:-/home/user}"',
 "export SHELL=/bin/ash",
 "exec /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash",
 "SALPEOF",
 "chmod 0755 /usr/local/bin/salp-terminal",
-"# Surgical patch of salp-session: SHELL=/bin/ash, -e /bin/ash, absolute xterm",
-"if [ -f /usr/local/bin/salp-session ]; then",
-"  sed -i -E 's|^export SHELL=.*|export SHELL=/bin/ash|' /usr/local/bin/salp-session",
-"  sed -i -E 's|-e /bin/sh|-e /bin/ash|g' /usr/local/bin/salp-session",
-"  sed -i -E 's|(^|[[:space:]])xterm |\\1/usr/bin/xterm |' /usr/local/bin/salp-session",
-"fi",
+"",
+"echo '=== rewritten salp-gui-start (head) ==='",
+"head -n 40 /usr/local/bin/salp-gui-start",
+"echo '=== rewritten salp-session ==='",
+"cat /usr/local/bin/salp-session",
 "echo '=== rewritten salp-terminal ==='",
 "cat /usr/local/bin/salp-terminal",
-"echo '=== salp-session xterm/SHELL lines ==='",
-"grep -nE 'SHELL|xterm' /usr/local/bin/salp-session 2>/dev/null | head -n 20 || true",
-"echo 'SHELL check (appEnv printenv):'",
-"printenv SHELL || true",
 "echo REWRITE_LAUNCHERS_DONE"
  ].join("\n");
  try{
   await shell(rewrite, true);
-  log("[term] rewriteOverlayLaunchers done (cat logged above)");
+  log("[term] rewriteOverlayLaunchers done (gui-start+session+terminal)");
  }catch(e){
   log("[term] rewriteOverlayLaunchers ERROR: "+(e?.message||String(e)));
  }
@@ -951,7 +1041,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1116",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1117",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1087,12 +1177,19 @@ async function boot(){
    }catch(_){}
   },80,24);
 
+  // Rewrite overlay GUI launchers BEFORE cx.run so gui-start returns (no exec/wait hang).
+  await rewriteOverlayLaunchers();
+
   const dedicatedGui=(await exists("/usr/local/bin/salp-gui-start"));
   if(dedicatedGui){
    window.salpStage?.("7/7 salp GUI起動中","Xorg → i3 → Files → Terminal");
    status("salp GUI起動中…","busy");state("専用GUIランチャーでLinuxデスクトップを起動しています…");log("[4/4] Starting /usr/local/bin/salp-gui-start");
    initPromise=cx.run("/usr/local/bin/salp-gui-start",[],{uid:0,gid:0});
-   initPromise.catch(e=>{log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+   initPromise.then(async(result)=>{
+    const st=exitStatus(result);
+    log(`[gui] salp-gui-start exited status=${st}`);
+    try{await shell("echo '=== /tmp/salp-gui-steps.log ==='; cat /tmp/salp-gui-steps.log 2>/dev/null || echo NO_STEPS_LOG",true)}catch(_){}
+   }).catch(e=>{log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error")});
   }else{
    window.salpStage?.("7/7 /sbin/init起動中","専用GUIランチャーなし / fallback");
    status("Xorg/i3起動中…","busy");state("互換モードでGUI Linuxを起動しています…");log("[4/4] salp-gui-start missing; fallback /sbin/init");
