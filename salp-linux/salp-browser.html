@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1114");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1115");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -399,9 +399,9 @@ function setReady(id,kind="",text=""){
  if(text)el.textContent=text;
 }
 function appEnv(){
- return ["HOME=/home/user","USER=user","LOGNAME=user","SHELL=/bin/sh","DISPLAY=:0","XDG_RUNTIME_DIR=/tmp/runtime-user","LANG=C.UTF-8"];
+ return ["HOME=/home/user","USER=user","LOGNAME=user","SHELL=/bin/ash","DISPLAY=:0","XDG_RUNTIME_DIR=/tmp/runtime-user","LANG=C.UTF-8"];
 }
-function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/sh","DISPLAY=:0","LANG=C.UTF-8"]}
+function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/ash","DISPLAY=:0","LANG=C.UTF-8"]}
 
 const GUI_PC={w:1366,h:768};
 let guiMode=localStorage.getItem("salpGuiMode")||"pc";
@@ -552,14 +552,23 @@ async function detectCoreApps(){
  return {term,files};
 }
 async function launchTerminal(){
- if(await exists("/usr/local/bin/salp-terminal"))return run("/usr/local/bin/salp-terminal");
- if(await exists("/usr/bin/xterm"))return run("/usr/bin/xterm",["-fa","DejaVu Sans Mono","-fs","14","-title","salp Terminal","-e","/bin/sh"]);
+ // Never prefer bare salp-terminal: CheerpX may leave SHELL=xterm (basename) and stale
+ // IndexedDB overlay can shadow /usr/local/bin/salp-terminal without -e. Always force ash.
+ if(await exists("/usr/bin/xterm")){
+  log("[term] direct xterm -e /bin/ash");
+  return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user SHELL=/bin/ash; exec /usr/bin/xterm -fa "DejaVu Sans Mono" -fs 14 -title "salp Terminal" -geometry 92x28 -e /bin/ash'],false);
+ }
  state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
- if(await exists("/usr/local/bin/salp-files"))return run("/usr/local/bin/salp-files");
- if(await exists("/usr/bin/pcmanfm"))return run("/usr/bin/pcmanfm",["--no-desktop","/home/user"]);
- if(await exists("/usr/bin/thunar"))return run("/usr/bin/thunar",["/home/user"]);
+ // Force DISPLAY=:0 via sh -lc; avoid salp-files if it does not guarantee DISPLAY.
+ if(await exists("/usr/bin/pcmanfm")){
+  log("[files] direct pcmanfm DISPLAY=:0");
+  return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user; exec /usr/bin/pcmanfm --no-desktop /home/user'],false);
+ }
+ if(await exists("/usr/bin/thunar")){
+  return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user; exec /usr/bin/thunar /home/user'],false);
+ }
  state("Filesがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function openCoreAppsIfBrowserMissing(){
@@ -597,9 +606,49 @@ async function openCoreDesktopApps(){
  return core;
 }
 
+async function rewriteOverlayLaunchers(){
+ // Fix IndexedDB overlay shadows of /usr/local/bin without ext2 rebuild.
+ // Prefer /bin/ash explicitly; CheerpX can overwrite SHELL to basename "xterm".
+ log("[term] rewriteOverlayLaunchers start");
+ const rewrite=[
+"set -eu",
+"cat > /usr/local/bin/salp-terminal << 'SALPEOF'",
+"#!/bin/sh",
+"set -eu",
+"export DISPLAY=\"${DISPLAY:-:0}\"",
+"export HOME=\"${HOME:-/home/user}\"",
+"export SHELL=/bin/ash",
+"exec /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash",
+"SALPEOF",
+"chmod 0755 /usr/local/bin/salp-terminal",
+"# Surgical patch of salp-session: SHELL=/bin/ash, -e /bin/ash, absolute xterm",
+"if [ -f /usr/local/bin/salp-session ]; then",
+"  sed -i -E 's|^export SHELL=.*|export SHELL=/bin/ash|' /usr/local/bin/salp-session",
+"  sed -i -E 's|-e /bin/sh|-e /bin/ash|g' /usr/local/bin/salp-session",
+"  sed -i -E 's|(^|[[:space:]])xterm |\\1/usr/bin/xterm |' /usr/local/bin/salp-session",
+"fi",
+"echo '=== rewritten salp-terminal ==='",
+"cat /usr/local/bin/salp-terminal",
+"echo '=== salp-session xterm/SHELL lines ==='",
+"grep -nE 'SHELL|xterm' /usr/local/bin/salp-session 2>/dev/null | head -n 20 || true",
+"echo 'SHELL check (appEnv printenv):'",
+"printenv SHELL || true",
+"echo REWRITE_LAUNCHERS_DONE"
+ ].join("\n");
+ try{
+  await shell(rewrite, true);
+  log("[term] rewriteOverlayLaunchers done (cat logged above)");
+ }catch(e){
+  log("[term] rewriteOverlayLaunchers ERROR: "+(e?.message||String(e)));
+ }
+}
+
 async function prepareReadableDesktop(){
  log("[desktop] prepareReadableDesktop start");
  try{
+  // 0. Rewrite overlay launchers (salp-terminal / salp-session) to force -e /bin/ash
+  await rewriteOverlayLaunchers();
+
   // a. Solid dark-green BMP RGB(32,74,58) — 1x1 24-bit (stretch via pcmanfm)
   const bmpB64="Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAOkogAA==";
   await shell("echo "+bmpB64+" | base64 -d > /tmp/salp-solid.bmp; EC=$?; ls -la /tmp/salp-solid.bmp 2>&1; wc -c /tmp/salp-solid.bmp 2>&1; echo BMP_EC=$EC",false);
@@ -621,7 +670,7 @@ async function prepareReadableDesktop(){
 "# salp minimal i3 config",
 "set $mod Mod1",
 "font pango:DejaVu Sans 12",
-"bindsym $mod+Return exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -e /bin/sh",
+"bindsym $mod+Return exec /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -e /bin/ash",
 "bindsym $mod+Shift+q kill",
 "bindsym $mod+d exec pcmanfm --no-desktop /home/user",
 "bindsym $mod+1 workspace 1",
@@ -718,9 +767,11 @@ async function runDisplayDiagnostics(){
  await diagCapture("3-i3", "echo '=== workspaces ==='; DISPLAY=:0 i3-msg -t get_workspaces 2>&1 | head -c 2500; echo; echo '=== tree name/window fields ==='; "+treeFields+" | head -n 140; echo; echo '=== title hits ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'diag-ash|salp Terminal|Firefox|pcman|xterm|Navigator' | head -n 40", false);
  // (4) xwininfo missing → xrandr + X11 socket
  await diagCapture("4-xwininfo-xrandr", "if command -v xwininfo >/dev/null 2>&1; then echo 'xwininfo: present'; DISPLAY=:0 xwininfo -root -tree 2>&1 | head -n 80; else echo 'xwininfo: MISSING (not in image; using fallbacks)'; fi; echo '=== xrandr --query ==='; DISPLAY=:0 xrandr --query 2>&1; echo '=== /tmp/.X11-unix ==='; ls -la /tmp/.X11-unix 2>&1", false);
- // (5) spawn diag xterm and look for title
+ // (4b) launcher contents + SHELL under appEnv BEFORE relying on salp-terminal
+ await diagCapture("4b-launcher-shell", "echo '=== /usr/local/bin/salp-terminal ==='; cat /usr/local/bin/salp-terminal 2>&1; echo '=== printenv SHELL ==='; printenv SHELL; echo '=== which ash/sh/xterm ==='; command -v ash; command -v /bin/ash; ls -la /bin/ash /bin/sh /usr/bin/xterm 2>&1; echo '=== salp-session SHELL/xterm ==='; grep -nE 'SHELL|xterm' /usr/local/bin/salp-session 2>&1 | head -n 20", false);
+ // (5) spawn diag xterm with absolute SHELL=/bin/ash and -e /bin/ash
  await diagCapture("5-xterm-test", "DISPLAY=:0 SHELL=/bin/ash /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'diag-ash' -geometry 80x24 -e /bin/ash & sleep 2; echo \"pidof xterm: $(pidof xterm 2>/dev/null)\"; echo '=== tree look for diag-ash ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'diag-ash|XTerm|xterm' | head -n 30", false);
- // (6) spawn pcmanfm and recheck tree
+ // (6) spawn Files direct with DISPLAY=:0
  await diagCapture("6-pcmanfm-test", "DISPLAY=:0 /usr/bin/pcmanfm --no-desktop /home/user & sleep 2; echo \"pidof pcmanfm: $(pidof pcmanfm 2>/dev/null)\"; echo '=== tree look for pcmanfm ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'pcmanfm|PCManFM|File Manager|class' | head -n 40", false);
  // firefox pid after auto path
  await diagCapture("firefox-pid", "pidof firefox-esr firefox 2>/dev/null; ps -o pid,user,comm,args -A 2>/dev/null | grep -E 'firefox' | grep -v grep", true);
@@ -858,7 +909,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1114",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1115",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -926,6 +977,7 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
+  // Keep v1111 IDB: rewriteOverlayLaunchers() fixes stale /usr/local/bin each boot (no reset).
   const idb=await CheerpX.IDBDevice.create("salp-linux-v1111-browser-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1027,6 +1079,8 @@ async function boot(){
    $("installBtn").disabled=false;
    // Let i3 finish IPC handshake before spawning PCManFM/xterm from JS.
    await new Promise(r=>setTimeout(r,1200));
+   // Rewrite overlay launchers BEFORE core app launches (stale IDB may shadow base).
+   await rewriteOverlayLaunchers();
    await openCoreDesktopApps();
    await prepareReadableDesktop();
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
