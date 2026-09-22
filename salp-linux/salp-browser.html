@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1117");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1118");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -367,6 +367,7 @@ let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
 let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")==="1";
 let autoCancelled=false;
 let initPromise=null;
+let guiStartStatus=null; // null=pending/unknown, number=exit status
 
 const candidates=[
  {name:"Firefox ESR",path:"/usr/bin/firefox-esr",pkg:"firefox-esr"},
@@ -635,13 +636,18 @@ async function quietShell(command,root=false){
 async function waitForGuiDesktop(timeoutMs=20000){
  const started=Date.now();
  while(Date.now()-started<timeoutMs){
+  if(guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0)){
+   log(`[gui] waitForGuiDesktop fail-fast: gui-start status=${guiStartStatus}`);
+   return false;
+  }
   try{
-   const code=await quietShell("test -S /tmp/.X11-unix/X0 || pidof Xorg >/dev/null 2>&1 || pidof X >/dev/null 2>&1",true);
-   if(code===0){log(`[gui] X display ready after ${Date.now()-started}ms`);return true}
+   // Require real X11 socket — pidof alone can false-positive after orphaned/dead Xorg.
+   const code=await quietShell("test -S /tmp/.X11-unix/X0",true);
+   if(code===0){log(`[gui] X socket ready after ${Date.now()-started}ms`);return true}
   }catch(_){}
   await new Promise(r=>setTimeout(r,700));
  }
- log(`[gui] X display not ready after ${timeoutMs}ms`);
+ log(`[gui] X socket not ready after ${timeoutMs}ms (guiStartStatus=${guiStartStatus})`);
  return false;
 }
 async function openCoreDesktopApps(){
@@ -660,8 +666,8 @@ async function openCoreDesktopApps(){
 
 async function rewriteOverlayLaunchers(){
  // Fix IndexedDB overlay shadows of /usr/local/bin without ext2 rebuild.
- // Write full instrumented salp-gui-start + salp-session BEFORE cx.run(gui-start)
- // so CheerpX is not blocked on forever-wait (exec/wait I3PID).
+ // Write instrumented salp-gui-start + salp-session BEFORE cx.run(gui-start).
+ // Parent keeps wait $XORGPID so CheerpX does not drop orphaned Xorg; JS does not await.
  log("[term] rewriteOverlayLaunchers / rewriteGuiLaunchers start");
  const rewrite=[
 "set -eu",
@@ -672,6 +678,7 @@ async function rewriteOverlayLaunchers(){
 'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log; }',
 "export DISPLAY=:0",
 "export HOME=/root",
+"XORGPID=",
 'step "01 runtime dir"',
 "mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /home/user",
 "chmod 1777 /tmp/.X11-unix 2>/dev/null || true",
@@ -691,19 +698,25 @@ async function rewriteOverlayLaunchers(){
 'step "02 Xorg start"',
 "if ! pidof Xorg >/dev/null 2>&1 && ! pidof X >/dev/null 2>&1; then",
 "  rm -f /tmp/.X0-lock /tmp/.X11-unix/X0",
-"  nohup Xorg :0 -ac -noreset -nolisten tcp >/tmp/salp-xorg.log 2>&1 &",
+"  Xorg :0 -ac -noreset -nolisten tcp >/tmp/salp-xorg.log 2>&1 &",
+"  XORGPID=$!",
+"else",
+"  XORGPID=`pidof Xorg 2>/dev/null`",
+'  XORGPID=${XORGPID%% *}',
+'  if [ -z "$XORGPID" ]; then XORGPID=`pidof X 2>/dev/null`; XORGPID=${XORGPID%% *}; fi',
 "fi",
 "",
 'step "03 Xorg ready"',
 "n=0",
-'while [ ! -S /tmp/.X11-unix/X0 ] && [ "$n" -lt 50 ]; do',
+'while [ ! -S /tmp/.X11-unix/X0 ] && [ "$n" -lt 80 ]; do',
 "  sleep 0.25",
 '  n=$((n+1))',
 "done",
 'if [ ! -S /tmp/.X11-unix/X0 ]; then',
 '  step "03 Xorg ready FAIL"',
 "  echo 'salp GUI: Xorg socket :0 did not appear' >&2",
-"  tail -n 80 /tmp/salp-xorg.log 2>/dev/null || true",
+"  echo '=== /tmp/salp-xorg.log (full) ===' >&2",
+"  cat /tmp/salp-xorg.log 2>/dev/null || echo 'NO_XORG_LOG' >&2",
 "  exit 20",
 "fi",
 "",
@@ -711,15 +724,23 @@ async function rewriteOverlayLaunchers(){
 "  DISPLAY=:0 xhost +SI:localuser:user >/dev/null 2>&1 || DISPLAY=:0 xhost +local: >/dev/null 2>&1 || true",
 "fi",
 "",
-"# Background session (no exec/wait). Session owns steps 04-07; we log 08 and return.",
+"# Background session without nohup. Session owns steps 04-07 + wait i3.",
 "if command -v su >/dev/null 2>&1; then",
-"  nohup su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash; exec /usr/local/bin/salp-session' >/tmp/salp-session.out 2>&1 &",
+"  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash; exec /usr/local/bin/salp-session' >/tmp/salp-session.out 2>&1 &",
 "else",
 "  export HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash",
-"  nohup /usr/local/bin/salp-session >/tmp/salp-session.out 2>&1 &",
+"  /usr/local/bin/salp-session >/tmp/salp-session.out 2>&1 &",
 "fi",
 "sleep 0.3",
-'step "08 GUI startup complete (session bg)"',
+'step "08 GUI startup complete (waiting on Xorg)"',
+"# Keep this process alive so CheerpX does not drop orphaned Xorg (no nohup/exit 0).",
+'if [ -n "$XORGPID" ]; then',
+"  wait $XORGPID",
+"  exit $?",
+"fi",
+"while pidof Xorg >/dev/null 2>&1 || pidof X >/dev/null 2>&1; do",
+"  sleep 2",
+"done",
 "exit 0",
 "SALPGUIEOF",
 "chmod 0755 /usr/local/bin/salp-gui-start",
@@ -736,7 +757,8 @@ async function rewriteOverlayLaunchers(){
 'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
 "",
 'step "04 i3 start"',
-"nohup i3 >/tmp/salp-i3.log 2>&1 &",
+"i3 >/tmp/salp-i3.log 2>&1 &",
+"I3PID=$!",
 "",
 'step "05 i3 ready"',
 "for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do",
@@ -746,15 +768,19 @@ async function rewriteOverlayLaunchers(){
 "",
 'step "06 Files start"',
 "if command -v dbus-launch >/dev/null 2>&1; then",
-'  nohup dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
+'  dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
 "else",
-'  nohup /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
+'  /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
 "fi",
 "",
 'step "07 Terminal start"',
-"nohup /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
+"/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
 "",
-"# Do NOT wait on i3 — must return so CheerpX can run further cx.run/shell.",
+"# Supervise i3 while gui-start waits on Xorg (bg session child).",
+'if [ -n "$I3PID" ]; then',
+"  wait $I3PID",
+"  exit $?",
+"fi",
 "exit 0",
 "SALPSESEOF",
 "chmod 0755 /usr/local/bin/salp-session",
@@ -1041,7 +1067,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1117",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1118",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1177,24 +1203,33 @@ async function boot(){
    }catch(_){}
   },80,24);
 
-  // Rewrite overlay GUI launchers BEFORE cx.run so gui-start returns (no exec/wait hang).
+  // Rewrite overlay GUI launchers BEFORE cx.run. JS does not await gui-start
+  // (parent stays alive via wait $XORGPID so Xorg is not orphaned/dropped).
   await rewriteOverlayLaunchers();
 
   const dedicatedGui=(await exists("/usr/local/bin/salp-gui-start"));
+  guiStartStatus=null;
   if(dedicatedGui){
    window.salpStage?.("7/7 salp GUI起動中","Xorg → i3 → Files → Terminal");
    status("salp GUI起動中…","busy");state("専用GUIランチャーでLinuxデスクトップを起動しています…");log("[4/4] Starting /usr/local/bin/salp-gui-start");
    initPromise=cx.run("/usr/local/bin/salp-gui-start",[],{uid:0,gid:0});
    initPromise.then(async(result)=>{
     const st=exitStatus(result);
+    guiStartStatus=st;
     log(`[gui] salp-gui-start exited status=${st}`);
     try{await shell("echo '=== /tmp/salp-gui-steps.log ==='; cat /tmp/salp-gui-steps.log 2>/dev/null || echo NO_STEPS_LOG",true)}catch(_){}
-   }).catch(e=>{log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+    if(st===20){
+     try{await shell("echo '=== /tmp/salp-xorg.log ==='; cat /tmp/salp-xorg.log 2>/dev/null || echo NO_XORG_LOG",true)}catch(_){}
+    }
+   }).catch(e=>{
+    guiStartStatus=-1;
+    log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error");
+   });
   }else{
    window.salpStage?.("7/7 /sbin/init起動中","専用GUIランチャーなし / fallback");
    status("Xorg/i3起動中…","busy");state("互換モードでGUI Linuxを起動しています…");log("[4/4] salp-gui-start missing; fallback /sbin/init");
    initPromise=cx.run("/sbin/init",[],{uid:0,gid:0});
-   initPromise.catch(e=>{log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+   initPromise.catch(e=>{guiStartStatus=-1;log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
   }
 
   ["networkBtn","detectBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
@@ -1202,11 +1237,11 @@ async function boot(){
   setTimeout(async()=>{
    window.salpStage?.("7/7 Linux GUI","Xorg/i3を確認中");
    const guiReady=await waitForGuiDesktop(28000);
-   if(!guiReady){
+   if(!guiReady || guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0)){
     status("GUI startup error","error");setReady("linuxReady","error","Xorg Not Ready");
     state("Alpineは起動しましたがXorgが開始できませんでした。Setup Logの最後を確認してください。");
-    log("GUI STARTUP ERROR: Xorg display :0 was not detected. Check /tmp/salp-xorg.log and /tmp/salp-i3.log in Setup Log diagnostics.");
-    try{await shell("tail -n 40 /tmp/salp-xorg.log /tmp/salp-i3.log 2>/dev/null || true",true)}catch(_){}
+    log("GUI STARTUP ERROR: Xorg display :0 was not detected (guiStartStatus="+guiStartStatus+"). Check /tmp/salp-xorg.log and /tmp/salp-i3.log.");
+    try{await shell("tail -n 80 /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-gui-steps.log 2>/dev/null || true",true)}catch(_){}
     return;
    }
    window.salpStage?.("7/7 Linux GUI","Xorg ready / Core apps起動");
