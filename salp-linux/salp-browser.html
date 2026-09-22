@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1115");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1116");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -561,15 +561,64 @@ async function launchTerminal(){
  state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
- // Force DISPLAY=:0 via sh -lc; avoid salp-files if it does not guarantee DISPLAY.
+ // Force DISPLAY=:0 via sh -lc; match salp-files dbus-launch; --new-win for mapped window.
+ // Alpine/LXDE pcmanfm supports -n/--new-win (man page). Avoid wallpaper-only single-instance steal.
  if(await exists("/usr/bin/pcmanfm")){
-  log("[files] direct pcmanfm DISPLAY=:0");
-  return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user; exec /usr/bin/pcmanfm --no-desktop /home/user'],false);
+  log("[files] direct pcmanfm DISPLAY=:0 dbus-launch --new-win");
+  const cmd=[
+"export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash;",
+'mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true;',
+"if command -v dbus-launch >/dev/null 2>&1; then",
+"  exec dbus-launch --exit-with-session /usr/bin/pcmanfm --no-desktop --new-win /home/user",
+"fi",
+"exec /usr/bin/pcmanfm --no-desktop --new-win /home/user"
+  ].join("\n");
+  return run("/bin/sh",["-lc",cmd],false);
  }
  if(await exists("/usr/bin/thunar")){
   return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user; exec /usr/bin/thunar /home/user'],false);
  }
  state("Filesがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
+}
+
+async function ensureFilesVisible(){
+ log("[files] ensureFilesVisible start");
+ try{
+  await new Promise(r=>setTimeout(r,1500));
+  const probe=[
+"export DISPLAY=:0",
+"PID=$(pidof pcmanfm 2>/dev/null || true)",
+'echo "[files] pidof=$PID"',
+'TREE_HIT=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -ciE "pcmanfm|PCManFM|File Manager" || true)',
+'echo "[files] tree_hit=$TREE_HIT"',
+'if [ -z "$PID" ] || [ "$TREE_HIT" = "0" ]; then echo MISSING; exit 42; fi',
+"echo PRESENT; exit 0"
+  ].join("; ");
+  const code=await shell(probe,false);
+  if(code===42){
+   log("[files] retry");
+   try{await launchFiles()}catch(e){log("[files] retry launch ERROR: "+(e?.message||String(e)))}
+   await new Promise(r=>setTimeout(r,1500));
+  }
+  const focus=[
+"export DISPLAY=:0",
+"i3-msg 'workspace 1' >/dev/null 2>&1 || true",
+"i3-msg '[class=\"(?i)pcmanfm\"] focus' >/tmp/salp-focus-files.log 2>&1 || true",
+"i3-msg '[instance=\"(?i)pcmanfm\"] focus' >>/tmp/salp-focus-files.log 2>&1 || true",
+"i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >>/tmp/salp-focus-files.log 2>&1 || true",
+"echo FOCUS_FILES_EC=$?",
+"echo '=== brief tree ==='",
+"i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei '\"name\":|\"class\":|\"instance\":|\"focused\":|pcmanfm|PCManFM|File' | head -n 80",
+"echo '=== salp-pcmanfm.log tail ==='",
+"tail -n 40 /tmp/salp-pcmanfm.log 2>/dev/null || echo NO_PCMANFM_LOG",
+"pidof pcmanfm 2>/dev/null | sed 's/^/[files] pidof=/' || echo '[files] pidof='",
+"echo ENSURE_FILES_DONE"
+  ].join("; ");
+  await shell(focus,false);
+  log("[files] ensureFilesVisible done");
+ }catch(e){
+  log("[files] ensureFilesVisible ERROR: "+(e?.message||String(e)));
+ }
 }
 async function openCoreAppsIfBrowserMissing(){
  const core=await detectCoreApps();
@@ -602,6 +651,9 @@ async function openCoreDesktopApps(){
  }
  if(core.term){
   setTimeout(()=>launchTerminal().then(()=>log("[gui] Terminal launch requested")).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
+ }
+ if(core.files){
+  try{await ensureFilesVisible()}catch(e){log("[files] ensure after openCore ERROR: "+(e?.message||String(e)))}
  }
  return core;
 }
@@ -649,16 +701,9 @@ async function prepareReadableDesktop(){
   // 0. Rewrite overlay launchers (salp-terminal / salp-session) to force -e /bin/ash
   await rewriteOverlayLaunchers();
 
-  // a. Solid dark-green BMP RGB(32,74,58) — 1x1 24-bit (stretch via pcmanfm)
-  const bmpB64="Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAOkogAA==";
-  await shell("echo "+bmpB64+" | base64 -d > /tmp/salp-solid.bmp; EC=$?; ls -la /tmp/salp-solid.bmp 2>&1; wc -c /tmp/salp-solid.bmp 2>&1; echo BMP_EC=$EC",false);
-  log("[desktop] wrote /tmp/salp-solid.bmp");
-
-  // b. Wallpaper via PCManFM (feh missing)
-  try{
-   await shell("DISPLAY=:0 pcmanfm --set-wallpaper=/tmp/salp-solid.bmp --wallpaper-mode=stretch >/tmp/salp-wall.log 2>&1; echo WALL_EC=$?; cat /tmp/salp-wall.log 2>/dev/null | head -n 20",false);
-   log("[desktop] pcmanfm wallpaper applied");
-  }catch(e){log("[desktop] wallpaper ERROR: "+(e?.message||String(e)))}
+  // a/b. Wallpaper deferred — pcmanfm --set-wallpaper can own the single instance
+  // and prevent a visible --no-desktop file window. alpine_bg.png not required.
+  log("[desktop] wallpaper deferred");
 
   // c. Patch i3 config: disable polybar/feh, ensure simple i3bar block
   // Built as array.join to avoid JS template $ interpolation with i3 $mod.
@@ -728,14 +773,11 @@ async function prepareReadableDesktop(){
   await shell("HIT=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -ci i3bar || echo 0); echo BAR_HIT=$HIT; if [ \"$HIT\" = \"0\" ] || [ -z \"$HIT\" ]; then DISPLAY=:0 i3-msg restart >/tmp/salp-i3-restart.log 2>&1; echo RESTART_EC=$?; echo USED_RESTART=1; else echo USED_RESTART=0; fi",false);
   log("[desktop] i3 bar check/reload done");
 
-  // e. Launch/focus Files; brief tree names
+  // e. Launch Files last (after i3 reload), then ensure visible + focused
   try{await launchFiles();log("[desktop] launchFiles() for focus")}catch(e){log("[desktop] launchFiles ERROR: "+(e?.message||String(e)))}
-  await new Promise(r=>setTimeout(r,900));
-  await shell("DISPLAY=:0 i3-msg 'workspace 1' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/tmp/salp-focus-files.log 2>&1 || true; DISPLAY=:0 i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >>/tmp/salp-focus-files.log 2>&1 || true; echo FOCUS_FILES_EC=$?; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -E '\"name\":|\"class\":|\"focused\":' | head -n 60; echo TREE_NAMES_DONE",false);
-  log("[desktop] Files focus attempted");
-
-  // f. Ensure Terminal visible then Files frontmost
-  await shell("DISPLAY=:0 i3-msg '[class=\"(?i)xterm\"] focus' >/dev/null 2>&1 || true; sleep 0.3; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >/dev/null 2>&1 || true; echo FRONT_FILES_DONE",false);
+  await ensureFilesVisible();
+  // f. Terminal then Files frontmost (Files should win)
+  await shell("DISPLAY=:0 i3-msg '[class=\"(?i)xterm\"] focus' >/dev/null 2>&1 || true; sleep 0.3; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[instance=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >/dev/null 2>&1 || true; echo FRONT_FILES_DONE",false);
   log("[desktop] prepareReadableDesktop done (Files should be frontmost)");
  }catch(e){
   log("[desktop] prepareReadableDesktop ERROR: "+(e?.message||String(e)));
@@ -909,7 +951,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1115",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1116",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
