@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Linux v1.10.9</title>
+<title>salp Linux v1.10.11</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
 <style>
 :root{--bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;--muted:#90aa98;--green:#79f39d;--cyan:#76dce6;--yellow:#ffd66b;--red:#ff7f8a}
@@ -188,8 +188,8 @@ body.browserFullscreen #browserWindow .windowBody{height:100%}
 <div class="app">
 <header>
   <div class="logo">🐧</div>
-  <div class="title"><strong>salp Linux</strong><small>Desktop 1.10.9 / Clear Display Switch</small></div>
-  <div class="badge">v1.10.9 DISPLAY SWITCH</div>
+  <div class="title"><strong>salp Linux</strong><small>Desktop 1.10.11 / Clear Display Switch</small></div>
+  <div class="badge">v1.10.11 DISPLAY SWITCH</div>
 </header>
 
 <section class="linuxDisplaySwitch" aria-label="Linux本体の表示切替">
@@ -382,7 +382,7 @@ for i in range(1, 6):
 
   <section id="bootScreen" class="bootScreen">
     <div class="bootCard">
-      <h1>salp Linux v1.10.9</h1>
+      <h1>salp Linux v1.10.11</h1>
       <p>Linuxターミナルを内蔵した、最初のsalp Linuxデスクトップ。</p>
       <div class="steps">
         1. BOOT SALP LINUXを押す<br>
@@ -421,7 +421,7 @@ for i in range(1, 6):
 
 <div class="utilityBar">
   <button class="home" id="homeBtn">⌂ HOME</button>
-  <button class="saveTest" data-command="echo 'salp Linux v1.10.9' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
+  <button class="saveTest" data-command="echo 'salp Linux v1.10.11' > salp-test.txt && cat salp-test.txt">💾 保存テスト</button>
   <button data-command="mkdir -p projects && cd projects && pwd">📁 projects</button>
   <button data-command="history | tail -10">↺ 履歴</button>
   <button data-command="clear">CLEAR</button>
@@ -434,7 +434,7 @@ for i in range(1, 6):
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1109");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1111");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -855,7 +855,7 @@ setInterval(updateDesktopClock,30000);
 $("supportText").textContent=[
   crossOriginIsolated?"✓ Cross-origin isolated":"✗ Cross-origin isolation",
   typeof SharedArrayBuffer!=="undefined"?"✓ SharedArrayBuffer":"✗ SharedArrayBuffer",
-  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.10.9"
+  "✓ WebAssembly","✓ xterm.js","✓ Mobile keys","✓ Persistent disk","✓ salp Desktop 1.10.11"
 ].join("  ");
 
 const linuxPcModeBtn=$("linuxPcModeBtn");
@@ -874,11 +874,11 @@ function chooseLinuxDisplay(mode){
 }
 linuxPcModeBtn?.addEventListener("click",()=>chooseLinuxDisplay("pc"));
 linuxMobileModeBtn?.addEventListener("click",()=>chooseLinuxDisplay("mobile"));
-$("openGuiLinuxBtn")?.addEventListener("click",()=>{ location.href="./salp-browser.html?v=1109"; });
+$("openGuiLinuxBtn")?.addEventListener("click",()=>{ location.href="./salp-browser.html?v=1111"; });
 refreshLinuxDisplaySwitch();
 
 $("linuxFirefoxBtn")?.addEventListener("click",()=>{
-  location.href="./salp-browser.html?v=1109";
+  location.href="./salp-browser.html?v=1111";
 });
 </script>
 </body>

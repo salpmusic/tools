@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.9</title>
+<title>salp Browser OS v1.10.11</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.9 DEBUG FIX</span>
+  <span class="splashVersion">VERSION 1.10.11 GUI BOOT FIX</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -252,7 +252,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.9">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.11">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -265,7 +265,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.10.9</h1>
+   <h1>salp Linux Desktop v1.10.11</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -286,7 +286,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.10.9：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
+ salp Linux Desktop v1.10.11：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -332,7 +332,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1109");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1111");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -384,7 +384,7 @@ function status(msg,state=""){
  $("dot").className="dot"+(state?" "+state:"");
 }
 function log(msg){
- $("log").textContent+=msg+"\\n";
+ $("log").textContent+=msg+"\n";
  $("log").scrollTop=$("log").scrollHeight;
 }
 function state(msg){$("browserState").textContent=msg}
@@ -511,11 +511,17 @@ function setGuiMode(mode){
 function setMoveMode(on){moveMode=!!on;panPointer=null;updateViewInfo()}
 let resizeTimer;window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>sizeCanvas({refit:true}),180)});
 
+function exitStatus(result){
+ // CheerpX.Linux.run resolves to { status:number }, not a bare exit code.
+ if(typeof result==="number")return result;
+ if(result&&typeof result.status==="number")return result.status;
+ return 0;
+}
 async function run(path,args=[],root=false,wait=false){
  if(!cx)throw new Error("Linux not ready");
  log("$ "+path+" "+args.join(" "));
  const p=cx.run(path,args,{env:root?rootEnv():appEnv(),cwd:root?"/root":"/home/user",uid:root?0:1000,gid:root?0:1000});
- if(wait)return await p;
+ if(wait)return exitStatus(await p);
  p.catch(e=>log("APP ERROR: "+(e?.message||String(e))));
  return p;
 }
@@ -523,7 +529,7 @@ async function shell(command,root=false){
  return await run("/bin/sh",["-lc",command],root,true);
 }
 async function exists(path){
- try{return (await shell("test -x "+path,false))===0}catch(_){return false}
+ try{return (await shell("test -x "+JSON.stringify(path),false))===0}catch(_){return false}
 }
 
 async function detectCoreApps(){
@@ -536,20 +542,20 @@ async function detectCoreApps(){
   log("Core GUI apps ready: terminal + file manager");
  }else{
   setReady("coreReady","error",`Core Apps Missing${!term?" / Terminal":""}${!files?" / Files":""}`);
-  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.9.`);
+  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.11.`);
  }
  return {term,files};
 }
 async function launchTerminal(){
  if(await exists("/usr/local/bin/salp-terminal"))return run("/usr/local/bin/salp-terminal");
  if(await exists("/usr/bin/xterm"))return run("/usr/bin/xterm",["-fa","DejaVu Sans Mono","-fs","14","-title","salp Terminal"]);
- state("Terminalがありません。v1.10.9のsalp-browser.ext2を再ビルドしてください。");
+ state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
  if(await exists("/usr/local/bin/salp-files"))return run("/usr/local/bin/salp-files");
  if(await exists("/usr/bin/pcmanfm"))return run("/usr/bin/pcmanfm",["--no-desktop","/home/user"]);
  if(await exists("/usr/bin/thunar"))return run("/usr/bin/thunar",["/home/user"]);
- state("Filesがありません。v1.10.9のsalp-browser.ext2を再ビルドしてください。");
+ state("Filesがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function openCoreAppsIfBrowserMissing(){
  const core=await detectCoreApps();
@@ -557,6 +563,33 @@ async function openCoreAppsIfBrowserMissing(){
  log("No browser detected; opening core desktop apps instead.");
  if(core.files){try{await launchFiles()}catch(e){log("FILES ERROR: "+(e?.message||String(e)))}}
  if(core.term){setTimeout(()=>launchTerminal().catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900)}
+}
+
+async function quietShell(command,root=false){
+ if(!cx)throw new Error("Linux not ready");
+ return exitStatus(await cx.run("/bin/sh",["-lc",command],{env:root?rootEnv():appEnv(),cwd:root?"/root":"/home/user",uid:root?0:1000,gid:root?0:1000}));
+}
+async function waitForGuiDesktop(timeoutMs=20000){
+ const started=Date.now();
+ while(Date.now()-started<timeoutMs){
+  try{
+   const code=await quietShell("test -S /tmp/.X11-unix/X0 || pidof Xorg >/dev/null 2>&1 || pidof X >/dev/null 2>&1",true);
+   if(code===0){log(`[gui] X display ready after ${Date.now()-started}ms`);return true}
+  }catch(_){}
+  await new Promise(r=>setTimeout(r,700));
+ }
+ log(`[gui] X display not ready after ${timeoutMs}ms`);
+ return false;
+}
+async function openCoreDesktopApps(){
+ const core=await detectCoreApps();
+ if(core.files){
+  try{await launchFiles();log("[gui] Files launch requested")}catch(e){log("FILES ERROR: "+(e?.message||String(e)))}
+ }
+ if(core.term){
+  setTimeout(()=>launchTerminal().then(()=>log("[gui] Terminal launch requested")).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
+ }
+ return core;
 }
 
 
@@ -604,7 +637,7 @@ async function detectBrowser(){
    state("現在は公式Alpineです。Firefoxは入っていません。salp-browser.ext2を同じフォルダへ置くか、⚙ ImageでFirefox入りext2のURLを設定してください。");
    setReady("browserReady","error","Browser Image Needed");
   }else{
-   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.9 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
+   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.11 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
    setReady("browserReady","error","Browser Not Found");
   }
   status("Browser未検出","error");
@@ -688,19 +721,31 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1111",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
  if(forceOfficial)return {url:"",name:"Official Alpine 3.17",source:"official"};
  const tries=[];
- if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.9",source:"saved"});
- else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.9",source:"local"});
+ if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.11",source:"saved"});
+ else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.11",source:"local"});
  for(const item of tries){
   try{
-   const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
-   if(probe.ok)return item;
-   log(`[image] ${item.source} image HEAD ${probe.status}: ${item.url}`);
+   let ok=false;
+   try{
+    const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
+    ok=probe.ok;
+    if(!ok)log(`[image] ${item.source} image HEAD ${probe.status}: ${item.url}`);
+   }catch(e){log(`[image] ${item.source} image HEAD failed: ${e?.message||String(e)}`)}
+   // iPhone Safari / some Pages hosts reject HEAD; fall back to a tiny Range GET.
+   if(!ok){
+    try{
+     const range=await fetch(item.url,{method:"GET",mode:"cors",cache:"no-store",headers:{Range:"bytes=0-1023"}});
+     ok=range.ok||range.status===206;
+     if(!ok)log(`[image] ${item.source} image Range ${range.status}: ${item.url}`);
+    }catch(e){log(`[image] ${item.source} image Range failed: ${e?.message||String(e)}`)}
+   }
+   if(ok)return item;
   }catch(e){log(`[image] ${item.source} image unavailable: ${e?.message||String(e)}`)}
  }
  return {url:"",name:"Official Alpine 3.17",source:saved?"saved-failed":"local-missing"};
@@ -711,7 +756,7 @@ async function boot(){
  window.salpStage?.("5/7 Linux起動開始","boot() entered");
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.9...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.11...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const selectedImage=await resolveBrowserImage();
@@ -744,36 +789,58 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  const idb=await CheerpX.IDBDevice.create("salp-linux-v11-browser-disk");
+  const idb=await CheerpX.IDBDevice.create("salp-linux-v1111-browser-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
   log("[2/4] Persistent overlay ready");
 
   window.salpStage?.("6/7 CheerpX Linux生成中","Linux.create()");
-  cx=await CheerpX.Linux.create({
-   mounts:[{type:"ext2",path:"/",dev:overlay},{type:"devs",path:"/dev"}],
-   networkInterface:{
-    loginUrlCb:(url)=>{
-     loginUrl=url;
-     $("loginLink").href=url;
-     $("loginBox").classList.remove("hidden");
-     log("Tailscale login URL ready");
-    },
-    stateUpdateCb:(s)=>{
-     networkState=String(s);
-     log("Network state: "+networkState);
-     if(/running|connected/i.test(networkState)){
-      status("Tailscale Connected","ok");log("Network connection ready.");
-      $("testNetBtn").disabled=false;
-      $("loginBox").classList.add("hidden");
-      markStep("stepNet","done");markStep("stepInstall","active");
-     }
-    },
-    netmapUpdateCb:(map)=>log("Network map updated")
-   }
-  });
+  const networkInterface={
+   loginUrlCb:(url)=>{
+    loginUrl=url;
+    $("loginLink").href=url;
+    $("loginBox").classList.remove("hidden");
+    log("Tailscale login URL ready");
+   },
+   stateUpdateCb:(s)=>{
+    networkState=String(s);
+    log("Network state: "+networkState);
+    if(/running|connected/i.test(networkState)){
+     status("Tailscale Connected","ok");log("Network connection ready.");
+     $("testNetBtn").disabled=false;
+     $("loginBox").classList.add("hidden");
+     markStep("stepNet","done");markStep("stepInstall","active");
+    }
+   },
+   netmapUpdateCb:(map)=>log("Network map updated")
+  };
+  const mountsWithPts=[
+   {type:"ext2",path:"/",dev:overlay},
+   {type:"devs",path:"/dev"},
+   {type:"devpts",path:"/dev/pts"},
+   {type:"proc",path:"/proc"}
+  ];
+  try{
+   cx=await CheerpX.Linux.create({mounts:mountsWithPts,networkInterface});
+  }catch(createError){
+   // Some older CheerpX builds may not expose devpts as a mount type.
+   // Keep /proc (required for Alpine init) and retry without devpts.
+   log("[mount] devpts create retry: "+(createError?.message||String(createError)));
+   cx=await CheerpX.Linux.create({
+    mounts:[{type:"ext2",path:"/",dev:overlay},{type:"devs",path:"/dev"},{type:"proc",path:"/proc"}],
+    networkInterface
+   });
+  }
   window.salpStage?.("6/7 CheerpX Linux生成","OK");
   log("[3/4] Linux + network interface created");
+
+  // CheerpX pseudo filesystems are mounted by Linux.create.  /proc is
+  // required by Alpine init/Xorg startup, and /dev/pts is needed by GUI terminals.
+  const procOk=(await shell("test -r /proc/filesystems",true))===0;
+  const ptsOk=(await shell("test -d /dev/pts",true))===0;
+  log(`[mount] /proc=${procOk?"OK":"MISSING"} /dev/pts=${ptsOk?"OK":"MISSING"}`);
+  if(!procOk)throw new Error("CheerpX /proc mount is unavailable; Alpine GUI init cannot continue");
+  if(!ptsOk)log("[mount] warning: /dev/pts is unavailable; terminal PTY support may be limited");
   // Critical: set the requested KMS resolution BEFORE Xorg/i3 starts.
   window.salpStage?.("6/7 KMS解像度設定中",`${guiMode} ${currentVirtualSize().w}x${currentVirtualSize().h}`);
   sizeCanvas({refit:true,forceKms:true,syncGuest:false});
@@ -784,31 +851,49 @@ async function boot(){
   cx.setCustomConsole(buf=>{
    try{
     const t=new TextDecoder().decode(new Uint8Array(buf));
-    const clean=t.replace(/\\x1b\\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
+    const clean=t.replace(/\x1b\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
     if(clean)log(clean);
    }catch(_){}
   },80,24);
 
-  window.salpStage?.("7/7 /sbin/init起動中","Xorg/i3開始");
-  status("Xorg/i3起動中…","busy");state("GUI Linuxを起動しています…");log("[4/4] Starting /sbin/init");
-  initPromise=cx.run("/sbin/init",[],{uid:0,gid:0});
-  initPromise.catch(e=>{log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+  const dedicatedGui=(await exists("/usr/local/bin/salp-gui-start"));
+  if(dedicatedGui){
+   window.salpStage?.("7/7 salp GUI起動中","Xorg → i3 → Files → Terminal");
+   status("salp GUI起動中…","busy");state("専用GUIランチャーでLinuxデスクトップを起動しています…");log("[4/4] Starting /usr/local/bin/salp-gui-start");
+   initPromise=cx.run("/usr/local/bin/salp-gui-start",[],{uid:0,gid:0});
+   initPromise.catch(e=>{log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+  }else{
+   window.salpStage?.("7/7 /sbin/init起動中","専用GUIランチャーなし / fallback");
+   status("Xorg/i3起動中…","busy");state("互換モードでGUI Linuxを起動しています…");log("[4/4] salp-gui-start missing; fallback /sbin/init");
+   initPromise=cx.run("/sbin/init",[],{uid:0,gid:0});
+   initPromise.catch(e=>{log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+  }
 
   ["networkBtn","detectBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
   markStep("stepBoot","done");markStep("stepNet","active");
   setTimeout(async()=>{
-   window.salpStage?.("7/7 Linux GUI","起動処理を開始済み");
+   window.salpStage?.("7/7 Linux GUI","Xorg/i3を確認中");
+   const guiReady=await waitForGuiDesktop(28000);
+   if(!guiReady){
+    status("GUI startup error","error");setReady("linuxReady","error","Xorg Not Ready");
+    state("Alpineは起動しましたがXorgが開始できませんでした。Setup Logの最後を確認してください。");
+    log("GUI STARTUP ERROR: Xorg display :0 was not detected. Check /tmp/salp-xorg.log and /tmp/salp-i3.log in Setup Log diagnostics.");
+    try{await shell("tail -n 40 /tmp/salp-xorg.log /tmp/salp-i3.log 2>/dev/null || true",true)}catch(_){}
+    return;
+   }
+   window.salpStage?.("7/7 Linux GUI","Xorg ready / Core apps起動");
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
-   state("GUI Linuxが起動しました。");log("Desktop environment ready.");
+   state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready.");
    sizeCanvas({refit:true,forceKms:false,syncGuest:false});
-   if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$("screenWrap").scrollIntoView({behavior:"smooth",block:"start"}),300);
+   if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
    syncGuestResolution(guiW,guiH);
    $("installBtn").disabled=false;
-   await detectCoreApps();
+   // Let i3 finish IPC handshake before spawning PCManFM/xterm from JS.
+   await new Promise(r=>setTimeout(r,1200));
+   await openCoreDesktopApps();
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
    else await detectBrowser();
-   if(!detectedBrowser)await openCoreAppsIfBrowserMissing();
-  },2500);
+  },1800);
  }catch(e){
   window.salpFatal?.("Linux起動エラー",e);
   console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");setReady("linuxReady","error","Linux Error");state("GUI Linuxを起動できませんでした。");
@@ -819,7 +904,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.9";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.11";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  if(url){$("sourceBadge").textContent="🦊 "+name;setReady("imageReady","ok","Custom Firefox Image")}
@@ -848,13 +933,13 @@ sizeCanvas({refit:true});
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1109");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1111");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.9";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.11";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -942,7 +1027,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1109");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1111");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));

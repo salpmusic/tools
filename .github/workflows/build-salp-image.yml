@@ -1,39 +1,21 @@
-name: Build salp Linux v1.10.9 Firefox Image
+name: Build salp Linux v1.10.11 Firefox Image
 
 on:
   workflow_dispatch:
     inputs:
       image_size:
-        description: ext2 image size (≤800M for GitHub Pages soft limit)
+        description: ext2 image size (800M recommended for GitHub Pages)
         required: true
         default: 800M
         type: string
-      mode:
-        description: "build = rebuild ext2; deploy-only = republish latest successful ext2 artifact (no rebuild)"
-        required: true
-        default: build
-        type: choice
-        options:
-          - build
-          - deploy-only
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
-  actions: read
-
-concurrency:
-  group: pages-salp-image
-  cancel-in-progress: false
+  contents: read
 
 jobs:
   build:
-    if: ${{ inputs.mode == 'build' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
-    outputs:
-      artifact_name: salp-firefox-v1.10.9-ext2
 
     steps:
       - name: Checkout repository
@@ -60,9 +42,6 @@ jobs:
             salp-browser.ext2 \
             salp-browser.ext2.sha256 \
             salp-browser.ext2.manifest.txt
-          # Normalize sha256 to relative path
-          awk '{print $1 "  salp-browser.ext2"}' salp-browser.ext2.sha256 > salp-browser.ext2.sha256.tmp
-          mv salp-browser.ext2.sha256.tmp salp-browser.ext2.sha256
 
       - name: Verify output files
         run: |
@@ -76,7 +55,7 @@ jobs:
       - name: Upload browser image
         uses: actions/upload-artifact@v4
         with:
-          name: salp-firefox-v1.10.9-ext2
+          name: salp-firefox-v1.10.11-ext2
           path: |
             salp-browser.ext2
             salp-browser.ext2.sha256
@@ -84,94 +63,3 @@ jobs:
           compression-level: 0
           retention-days: 7
           if-no-files-found: error
-
-  deploy:
-    needs: [build]
-    if: ${{ always() && (needs.build.result == 'success' || inputs.mode == 'deploy-only') }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download ext2 from this run
-        if: ${{ inputs.mode == 'build' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: salp-firefox-v1.10.9-ext2
-          path: _ext2_artifact
-
-      - name: Download latest successful ext2 artifact
-        if: ${{ inputs.mode == 'deploy-only' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -eux
-          mkdir -p _ext2_artifact
-          ARTIFACT=salp-firefox-v1.10.9-ext2
-          RUN_ID=""
-          for id in $(gh run list -R "$GITHUB_REPOSITORY" --workflow=build-salp-image.yml -L 30 \
-            --json databaseId,conclusion --jq '.[]|select(.conclusion=="success")|.databaseId'); do
-            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/artifacts" \
-              --jq ".artifacts[]|select(.name==\"$ARTIFACT\" and .expired==false)|.name" | grep -qx "$ARTIFACT"; then
-              RUN_ID="$id"
-              break
-            fi
-          done
-          test -n "$RUN_ID" || { echo "No successful run with artifact $ARTIFACT" >&2; exit 1; }
-          echo "Using run $RUN_ID (has $ARTIFACT)"
-          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n "$ARTIFACT" -D _ext2_artifact
-          ls -lh _ext2_artifact/
-
-      - name: Place ext2 under salp-linux/ for Pages
-        run: |
-          set -eux
-          mkdir -p salp-linux
-          cp -f _ext2_artifact/salp-browser.ext2 salp-linux/salp-browser.ext2
-          cp -f _ext2_artifact/salp-browser.ext2.sha256 salp-linux/salp-browser.ext2.sha256
-          # Normalize sha path
-          awk '{print $1 "  salp-browser.ext2"}' salp-linux/salp-browser.ext2.sha256 > salp-linux/salp-browser.ext2.sha256.tmp
-          mv salp-linux/salp-browser.ext2.sha256.tmp salp-linux/salp-browser.ext2.sha256
-          cp -f _ext2_artifact/salp-browser.ext2.manifest.txt salp-linux/salp-browser.ext2.manifest.txt
-          ls -lh salp-linux/salp-browser.ext2*
-          test -s salp-linux/salp-browser.ext2
-          SIZE_BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
-          echo "ext2 bytes=$SIZE_BYTES"
-          test "$SIZE_BYTES" -gt 100000000
-          (cd salp-linux && sha256sum -c salp-browser.ext2.sha256)
-
-      - name: Prepare Pages publish tree
-        run: |
-          set -eux
-          rm -rf _ext2_artifact .git
-          rm -f salp-browser.ext2 salp-browser.ext2.sha256 salp-browser.ext2.manifest.txt
-          # Static site: keep binaries; never let Jekyll strip .ext2
-          touch .nojekyll
-          # upload-pages-artifact respects .gitignore — temporarily allow the ext2
-          if [[ -f .gitignore ]]; then
-            grep -v -E '(^|/)\*?\.ext2$|salp-browser\.ext2' .gitignore > .gitignore.pages || true
-            mv .gitignore.pages .gitignore
-          fi
-          test -s salp-linux/salp-browser.ext2
-          # Fail loudly if publish tree would omit the image
-          BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
-          echo "publish ext2 bytes=$BYTES"
-          test "$BYTES" -ge 700000000
-          ls -la
-          test -f index.html
-          test -f salp-linux/salp-browser.html
-          test -f .nojekyll
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-          name: github-pages
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
