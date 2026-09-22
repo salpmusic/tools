@@ -140,8 +140,8 @@ footer{
 
 @media(min-width:900px){
  body{overflow:hidden}
- .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(260px,1fr) auto}
- .screenWrap{height:auto;min-height:260px}
+ .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(360px,1fr) auto}
+ .screenWrap{height:auto;min-height:360px}
 }
 </style>
 </head>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1118");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1119");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -555,31 +555,74 @@ async function detectCoreApps(){
 async function launchTerminal(){
  // Never prefer bare salp-terminal: CheerpX may leave SHELL=xterm (basename) and stale
  // IndexedDB overlay can shadow /usr/local/bin/salp-terminal without -e. Always force ash.
+ // Background xterm (no exec-only) so launch failures show in Setup Log via wrapper wait.
  if(await exists("/usr/bin/xterm")){
-  log("[term] direct xterm -e /bin/ash");
-  return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user SHELL=/bin/ash; exec /usr/bin/xterm -fa "DejaVu Sans Mono" -fs 14 -title "salp Terminal" -geometry 92x28 -e /bin/ash'],false);
+  log("[term] direct xterm -e /bin/ash (bg+diag)");
+  const cmd=[
+"export DISPLAY=:0 HOME=/home/user SHELL=/bin/ash;",
+'/usr/bin/xterm -fa "DejaVu Sans Mono" -fs 14 -title "salp Terminal" -geometry 92x28 -e /bin/ash >/tmp/salp-xterm-js.log 2>&1 &',
+"echo TERM_PID=$!;",
+"sleep 1;",
+"pidof xterm || echo 'pidof xterm: none';",
+"echo '=== salp-xterm-js.log ===';",
+"head -n 40 /tmp/salp-xterm-js.log 2>/dev/null || echo NO_XTERM_JS_LOG"
+  ].join(" ");
+  return await shell(cmd,false);
  }
  state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
  // Force DISPLAY=:0 via sh -lc; match salp-files dbus-launch; --new-win for mapped window.
  // Alpine/LXDE pcmanfm supports -n/--new-win (man page). Avoid wallpaper-only single-instance steal.
+ // Background app (no exec-only) so failures appear in Setup Log via wrapper wait.
  if(await exists("/usr/bin/pcmanfm")){
-  log("[files] direct pcmanfm DISPLAY=:0 dbus-launch --new-win");
+  log("[files] direct pcmanfm DISPLAY=:0 dbus-launch --new-win (bg+diag)");
   const cmd=[
 "export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash;",
 'mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true;',
-"if command -v dbus-launch >/dev/null 2>&1; then",
-"  exec dbus-launch --exit-with-session /usr/bin/pcmanfm --no-desktop --new-win /home/user",
-"fi",
-"exec /usr/bin/pcmanfm --no-desktop --new-win /home/user"
+"(",
+"  if command -v dbus-launch >/dev/null 2>&1; then",
+"    dbus-launch --exit-with-session /usr/bin/pcmanfm --no-desktop --new-win /home/user",
+"  else",
+"    /usr/bin/pcmanfm --no-desktop --new-win /home/user",
+"  fi",
+") >/tmp/salp-pcmanfm-js.log 2>&1 &",
+"echo FILES_PID=$!;",
+"sleep 1;",
+"pidof pcmanfm || echo 'pidof pcmanfm: none';",
+"echo '=== salp-pcmanfm-js.log ===';",
+"head -n 40 /tmp/salp-pcmanfm-js.log 2>/dev/null || echo NO_PCMANFM_JS_LOG"
   ].join("\n");
-  return run("/bin/sh",["-lc",cmd],false);
+  return await shell(cmd,false);
  }
  if(await exists("/usr/bin/thunar")){
-  return run("/bin/sh",["-lc",'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user; exec /usr/bin/thunar /home/user'],false);
+  const cmd=[
+"export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user;",
+"/usr/bin/thunar /home/user >/tmp/salp-thunar-js.log 2>&1 &",
+"echo FILES_PID=$!; sleep 1; pidof thunar || echo 'pidof thunar: none';",
+"head -n 20 /tmp/salp-thunar-js.log 2>/dev/null || true"
+  ].join(" ");
+  return await shell(cmd,false);
  }
  state("Filesがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
+}
+
+async function diagnoseGuiPaint(){
+ if(!cx){log("[paint] Linux not ready (cx=null)");return}
+ log("[paint] === diagnoseGuiPaint start ===");
+ const cmd=[
+"echo '=== pidof ==='",
+"pidof Xorg i3 xterm pcmanfm 2>/dev/null || true",
+"echo '=== xrandr --query ==='",
+"if command -v xrandr >/dev/null 2>&1; then DISPLAY=:0 xrandr --query 2>&1; else echo 'xrandr: missing'; fi",
+"echo '=== i3 tree (names/classes) ==='",
+"DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei '\"name\":|\"class\":|\"instance\":' | head -n 80 || echo 'i3-msg tree: unavailable'",
+"echo '=== log tails ==='",
+"for f in /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-xterm.log /tmp/salp-pcmanfm.log /tmp/salp-session.out; do echo \"--- $f ---\"; tail -n 30 \"$f\" 2>/dev/null || echo MISSING; done",
+"echo '[paint] diagnoseGuiPaint done'"
+ ].join("; ");
+ try{await shell(cmd,false)}catch(e){log("[paint] ERROR: "+(e?.message||String(e)))}
+ log("[paint] === diagnoseGuiPaint end ===");
 }
 
 async function ensureFilesVisible(){
@@ -656,10 +699,14 @@ async function openCoreDesktopApps(){
   try{await launchFiles();log("[gui] Files launch requested")}catch(e){log("FILES ERROR: "+(e?.message||String(e)))}
  }
  if(core.term){
-  setTimeout(()=>launchTerminal().then(()=>log("[gui] Terminal launch requested")).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
+  setTimeout(()=>launchTerminal().then(async()=>{
+   log("[gui] Terminal launch requested");
+   try{await diagnoseGuiPaint()}catch(e){log("[paint] after terminal ERROR: "+(e?.message||String(e)))}
+  }).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
  }
  if(core.files){
   try{await ensureFilesVisible()}catch(e){log("[files] ensure after openCore ERROR: "+(e?.message||String(e)))}
+  try{await diagnoseGuiPaint()}catch(e){log("[paint] after ensureFiles ERROR: "+(e?.message||String(e)))}
  }
  return core;
 }
@@ -1067,7 +1114,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1118",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1119",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1135,8 +1182,8 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // Keep v1111 IDB: rewriteOverlayLaunchers() fixes stale /usr/local/bin each boot (no reset).
-  const idb=await CheerpX.IDBDevice.create("salp-linux-v1111-browser-disk");
+  // Clean overlay for v1119 KMS rebind / paint diagnostics (rewriteOverlayLaunchers still runs each boot).
+  const idb=await CheerpX.IDBDevice.create("salp-linux-v1119-kms-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
   log("[2/4] Persistent overlay ready");
@@ -1241,15 +1288,16 @@ async function boot(){
     status("GUI startup error","error");setReady("linuxReady","error","Xorg Not Ready");
     state("Alpineは起動しましたがXorgが開始できませんでした。Setup Logの最後を確認してください。");
     log("GUI STARTUP ERROR: Xorg display :0 was not detected (guiStartStatus="+guiStartStatus+"). Check /tmp/salp-xorg.log and /tmp/salp-i3.log.");
-    try{await shell("tail -n 80 /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-gui-steps.log 2>/dev/null || true",true)}catch(_){}
+    try{await shell("tail -n 80 /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-gui-steps.log /tmp/salp-session.out 2>/dev/null || true",true)}catch(_){}
     return;
    }
    window.salpStage?.("7/7 Linux GUI","Xorg ready / Core apps起動");
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
    state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready.");
-   sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+   // Rebind KMS after X is up — forceKms:false left canvas transparent on desktop Chrome.
+   sizeCanvas({refit:true,forceKms:true,syncGuest:true});
+   try{await diagnoseGuiPaint()}catch(e){log("[paint] after forceKms ERROR: "+(e?.message||String(e)))}
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
-   syncGuestResolution(guiW,guiH);
    $("installBtn").disabled=false;
    // Let i3 finish IPC handshake before spawning PCManFM/xterm from JS.
    await new Promise(r=>setTimeout(r,1200));
