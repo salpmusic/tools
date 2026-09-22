@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1120");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1121");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -368,6 +368,9 @@ let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")==="1";
 let autoCancelled=false;
 let initPromise=null;
 let guiStartStatus=null; // null=pending/unknown, number=exit status
+let xorgReadyFromLog=false; // set when Setup Log sees [gui-step] 03 Xorg ready (not FAIL)
+window.xorgReadyFromLog=false;
+let guiStepSeen={s04:false,s05:false,s06:false,s07:false};
 
 const candidates=[
  {name:"Firefox ESR",path:"/usr/bin/firefox-esr",pkg:"firefox-esr"},
@@ -385,7 +388,20 @@ function status(msg,state=""){
  $("statusText").textContent=msg;
  $("dot").className="dot"+(state?" "+state:"");
 }
+function noteGuiStepFromLine(line){
+ if(typeof line!=="string")return;
+ // Console / Setup Log path: mark Xorg ready without waiting for a free shell slot.
+ if(line.includes("[gui-step] 03 Xorg ready") && !line.includes("FAIL")){
+  xorgReadyFromLog=true;
+  window.xorgReadyFromLog=true;
+ }
+ if(line.includes("[gui-step] 04"))guiStepSeen.s04=true;
+ if(line.includes("[gui-step] 05"))guiStepSeen.s05=true;
+ if(line.includes("[gui-step] 06"))guiStepSeen.s06=true;
+ if(line.includes("[gui-step] 07"))guiStepSeen.s07=true;
+}
 function log(msg){
+ noteGuiStepFromLine(String(msg));
  $("log").textContent+=msg+"\n";
  $("log").scrollTop=$("log").scrollHeight;
 }
@@ -708,18 +724,36 @@ async function quietShell(command,root=false){
 async function waitForGuiDesktop(timeoutMs=20000){
  const started=Date.now();
  while(Date.now()-started<timeoutMs){
+  // Prefer Setup Log evidence: gui-start holds wait $XORGPID so quietShell may never run.
+  if(xorgReadyFromLog || window.xorgReadyFromLog){
+   log(`[gui] Xorg ready from Setup Log after ${Date.now()-started}ms`);
+   return true;
+  }
   if(guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0)){
    log(`[gui] waitForGuiDesktop fail-fast: gui-start status=${guiStartStatus}`);
    return false;
   }
   try{
-   // Require real X11 socket — pidof alone can false-positive after orphaned/dead Xorg.
-   const code=await quietShell("test -S /tmp/.X11-unix/X0",true);
+   // Best-effort socket probe; race a short timeout so CheerpX serialization cannot stall the loop.
+   const remaining=Math.max(400, timeoutMs-(Date.now()-started));
+   const shellBudget=Math.min(2000, remaining);
+   const code=await Promise.race([
+    quietShell("test -S /tmp/.X11-unix/X0",true),
+    new Promise(r=>setTimeout(()=>r(-2), shellBudget))
+   ]);
    if(code===0){log(`[gui] X socket ready after ${Date.now()-started}ms`);return true}
   }catch(_){}
+  if(xorgReadyFromLog || window.xorgReadyFromLog){
+   log(`[gui] Xorg ready from Setup Log after ${Date.now()-started}ms`);
+   return true;
+  }
   await new Promise(r=>setTimeout(r,700));
  }
- log(`[gui] X socket not ready after ${timeoutMs}ms (guiStartStatus=${guiStartStatus})`);
+ if(xorgReadyFromLog || window.xorgReadyFromLog){
+  log(`[gui] Xorg ready from Setup Log after ${timeoutMs}ms (post-loop)`);
+  return true;
+ }
+ log(`[gui] X socket not ready after ${timeoutMs}ms (guiStartStatus=${guiStartStatus}, logReady=${!!(xorgReadyFromLog||window.xorgReadyFromLog)})`);
  return false;
 }
 async function openCoreDesktopApps(){
@@ -810,17 +844,19 @@ async function rewriteOverlayLaunchers(){
 "  cat /tmp/salp-xorg.log 2>/dev/null || echo 'NO_XORG_LOG' >&2",
 "  exit 20",
 "fi",
+'step "03b displays: $(ls /tmp/.X11-unix 2>/dev/null); DISPLAY=$DISPLAY"',
 "",
 "if command -v xhost >/dev/null 2>&1; then",
 "  DISPLAY=:0 xhost +SI:localuser:user >/dev/null 2>&1 || DISPLAY=:0 xhost +local: >/dev/null 2>&1 || true",
 "fi",
 "",
-"# Background session without nohup. Session owns steps 04-07 + wait i3.",
+"# Background session WITHOUT redirecting stdout/stderr away from CheerpX console.",
+"# Steps 04-07 must reach setCustomConsole / Setup Log; step() still dual-writes files.",
 "if command -v su >/dev/null 2>&1; then",
-"  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash; exec /usr/local/bin/salp-session' >/tmp/salp-session.out 2>&1 &",
+"  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash; exec /usr/local/bin/salp-session' &",
 "else",
 "  export HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash",
-"  /usr/local/bin/salp-session >/tmp/salp-session.out 2>&1 &",
+"  /usr/local/bin/salp-session &",
 "fi",
 "sleep 0.3",
 'step "08 GUI startup complete (waiting on Xorg)"',
@@ -1174,7 +1210,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1120",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1121",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1307,7 +1343,10 @@ async function boot(){
    try{
     const t=new TextDecoder().decode(new Uint8Array(buf));
     const clean=t.replace(/\x1b\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
-    if(clean)log(clean);
+    if(clean){
+     noteGuiStepFromLine(clean);
+     log(clean);
+    }
    }catch(_){}
   },80,24);
 
@@ -1317,6 +1356,8 @@ async function boot(){
 
   const dedicatedGui=(await exists("/usr/local/bin/salp-gui-start"));
   guiStartStatus=null;
+  xorgReadyFromLog=false; window.xorgReadyFromLog=false;
+  guiStepSeen={s04:false,s05:false,s06:false,s07:false};
   if(dedicatedGui){
    window.salpStage?.("7/7 salp GUI起動中","Xorg → i3 → Files → Terminal");
    status("salp GUI起動中…","busy");state("専用GUIランチャーでLinuxデスクトップを起動しています…");log("[4/4] Starting /usr/local/bin/salp-gui-start");
@@ -1345,16 +1386,34 @@ async function boot(){
   setTimeout(async()=>{
    window.salpStage?.("7/7 Linux GUI","Xorg/i3を確認中");
    const guiReady=await waitForGuiDesktop(28000);
-   if(!guiReady || guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0)){
+   const logReady=!!(xorgReadyFromLog||window.xorgReadyFromLog);
+   const fatalGui=(guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0));
+   // Never show Xorg Not Ready from wait timeout alone when Setup Log already printed 03 Xorg ready.
+   if(fatalGui || (!guiReady && !logReady)){
     status("GUI startup error","error");setReady("linuxReady","error","Xorg Not Ready");
     state("Alpineは起動しましたがXorgが開始できませんでした。Setup Logの最後を確認してください。");
-    log("GUI STARTUP ERROR: Xorg display :0 was not detected (guiStartStatus="+guiStartStatus+"). Check /tmp/salp-xorg.log and /tmp/salp-i3.log.");
+    log("GUI STARTUP ERROR: Xorg display :0 was not detected (guiStartStatus="+guiStartStatus+", logReady="+logReady+"). Check /tmp/salp-xorg.log and /tmp/salp-i3.log.");
     try{await shell("tail -n 80 /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-gui-steps.log /tmp/salp-session.out 2>/dev/null || true",true)}catch(_){}
     return;
    }
    window.salpStage?.("7/7 Linux GUI","Xorg ready / Core apps起動");
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
-   state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready.");
+   state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready."+(logReady?" (log-ready)":""));
+   if(logReady){
+    log("[diag] probing session/i3 (may be delayed if cheerpx serializes)");
+    try{
+     await shell([
+      "pidof salp-session i3 Xorg || true",
+      "echo '--- session.out ---'",
+      "cat /tmp/salp-session.out 2>/dev/null | tail -40 || true",
+      "echo '--- steps ---'",
+      "cat /tmp/salp-gui-steps.log /tmp/runtime-user/gui-steps.log 2>/dev/null || true",
+      "ls -la /tmp/.X11-unix 2>/dev/null || true",
+      "echo DISPLAY check via:",
+      "DISPLAY=:0 sh -c 'echo DISPLAY=$DISPLAY; ls /tmp/.X11-unix'"
+     ].join("; "),true);
+    }catch(e){log("[diag] session/i3 probe deferred/blocked: "+(e?.message||String(e)))}
+   }
    // Rebind KMS after X is up — forceKms:false left canvas transparent on desktop Chrome.
    ensureScreenWrapLayout();
    sizeCanvas({refit:true,forceKms:true,syncGuest:true});
