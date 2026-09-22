@@ -190,6 +190,7 @@ footer{
  <button id="detectBtn" disabled>↻ 再検出</button>
  <button id="launchBtn" disabled>🌐 起動</button>
  <button id="xtermBtn" disabled>💻 Terminal</button>
+ <button id="diagBtn" disabled>診断</button>
  <button id="filesBtn" disabled>📁 Files</button>
  <button id="keyboardBtn" disabled>⌨️</button>
  <button id="settingsBtn">⚙ Image</button>
@@ -332,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1112");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1113");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -592,6 +593,42 @@ async function openCoreDesktopApps(){
  return core;
 }
 
+async function diagCapture(label, command, root=false){
+ log("[diag] --- ("+label+") ---");
+ // Capture guest stdout/stderr to a file, then echo tagged lines via console → Setup Log.
+ const wrapped='OUT=/tmp/salp-diag-'+label+'.txt; { '+command+'\n} >"$OUT" 2>&1; EC=$?; echo "[diag] ('+label+') exit=$EC"; sed "s/^/[diag] /" "$OUT" 2>/dev/null | head -n 160; echo "[diag] ('+label+') --- end ---"';
+ try{await shell(wrapped, root)}catch(e){log("[diag] ("+label+") ERROR: "+(e?.message||String(e)))}
+}
+
+async function runDisplayDiagnostics(){
+ if(!cx){log("[diag] Linux not ready (cx=null)");return}
+ log("[diag] === display diagnostics start ===");
+ const overlay=$("launchOverlay");
+ const overlayHidden=!overlay||overlay.classList.contains("hidden");
+ const canvas=$("display");
+ log("[diag] launchOverlay hidden="+overlayHidden);
+ log("[diag] canvas "+(canvas?canvas.width:"?")+"x"+(canvas?canvas.height:"?")+" guiScale="+guiScale+" guiPan="+guiPanX+","+guiPanY+" guiMode="+guiMode);
+ const treeFields="DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -E '\"name\"|\"window\":|\"window_type\"|\"class\"|\"focused\"|\"urgent\"|\"rect\"'";
+ // (1) processes
+ await diagCapture("1-procs", "pidof Xorg i3 i3bar xterm pcmanfm firefox-esr firefox 2>/dev/null; echo '---'; ps -o pid,user,comm,args -A 2>/dev/null | grep -E 'Xorg|i3|xterm|pcmanfm|firefox|salp-' | grep -v grep", true);
+ // (2) DISPLAY / Xauth as uid1000 and root
+ await diagCapture("2-env-user", "echo DISPLAY=$DISPLAY; echo XAUTHORITY=$XAUTHORITY; ls -la /home/user/.Xauthority /tmp/.X11-unix 2>&1; id", false);
+ await diagCapture("2-env-root", "echo DISPLAY=$DISPLAY; echo XAUTHORITY=$XAUTHORITY; ls -la /home/user/.Xauthority /tmp/.X11-unix 2>&1; id", true);
+ // (3) i3 tree / workspaces (no jq; busybox sed/grep)
+ await diagCapture("3-i3", "echo '=== workspaces ==='; DISPLAY=:0 i3-msg -t get_workspaces 2>&1 | head -c 2500; echo; echo '=== tree name/window fields ==='; "+treeFields+" | head -n 140; echo; echo '=== title hits ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'diag-ash|salp Terminal|Firefox|pcman|xterm|Navigator' | head -n 40", false);
+ // (4) xwininfo missing → xrandr + X11 socket
+ await diagCapture("4-xwininfo-xrandr", "if command -v xwininfo >/dev/null 2>&1; then echo 'xwininfo: present'; DISPLAY=:0 xwininfo -root -tree 2>&1 | head -n 80; else echo 'xwininfo: MISSING (not in image; using fallbacks)'; fi; echo '=== xrandr --query ==='; DISPLAY=:0 xrandr --query 2>&1; echo '=== /tmp/.X11-unix ==='; ls -la /tmp/.X11-unix 2>&1", false);
+ // (5) spawn diag xterm and look for title
+ await diagCapture("5-xterm-test", "DISPLAY=:0 SHELL=/bin/ash /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'diag-ash' -geometry 80x24 -e /bin/ash & sleep 2; echo \"pidof xterm: $(pidof xterm 2>/dev/null)\"; echo '=== tree look for diag-ash ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'diag-ash|XTerm|xterm' | head -n 30", false);
+ // (6) spawn pcmanfm and recheck tree
+ await diagCapture("6-pcmanfm-test", "DISPLAY=:0 /usr/bin/pcmanfm --no-desktop /home/user & sleep 2; echo \"pidof pcmanfm: $(pidof pcmanfm 2>/dev/null)\"; echo '=== tree look for pcmanfm ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'pcmanfm|PCManFM|File Manager|class' | head -n 40", false);
+ // firefox pid after auto path
+ await diagCapture("firefox-pid", "pidof firefox-esr firefox 2>/dev/null; ps -o pid,user,comm,args -A 2>/dev/null | grep -E 'firefox' | grep -v grep", true);
+ // known-missing wallpaper/bar probes (read-only; no apk)
+ await diagCapture("bar-wallpaper", "echo 'polybar:'; command -v polybar || echo MISSING; echo 'feh:'; command -v feh || echo MISSING; echo 'i3bar:'; command -v i3bar || echo MISSING; ls -la /web/assets/alpine_bg.png 2>&1; echo '--- i3 exec/bar lines ---'; grep -nE 'bar[[:space:]]*[{]|exec.*polybar|exec.*feh|i3bar' /home/user/.config/i3/config 2>&1 | head -n 20", false);
+ log("[diag] === display diagnostics end ===");
+}
+
 
 function updateAutoButton(){
  $("autoToggleBtn").textContent=autoLaunchEnabled?"Auto: ON":"Auto: OFF";
@@ -721,7 +758,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1112",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1113",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -893,6 +930,11 @@ async function boot(){
    await openCoreDesktopApps();
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
    else await detectBrowser();
+   // Display diagnostics after core apps + auto browser path settle (~3s).
+   setTimeout(()=>{
+    runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
+   },3000);
+   try{$("diagBtn").disabled=false}catch(_){}
   },1800);
  }catch(e){
   window.salpFatal?.("Linux起動エラー",e);
@@ -1018,6 +1060,9 @@ $("goBtn").addEventListener("click",launchBrowser);
 $("urlInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("goBtn").disabled)launchBrowser()});
 $("homeUrlBtn").addEventListener("click",()=>{$("urlInput").value="https://www.google.com/"});
 $("xtermBtn").addEventListener("click",launchTerminal);
+$("diagBtn").addEventListener("click",()=>{
+ runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
+});
 $("filesBtn").addEventListener("click",launchFiles);
 $("keyboardBtn").addEventListener("click",()=>{$("display").focus({preventScroll:true});$("display").click()});
 $("fullBtn").addEventListener("click",async()=>{
