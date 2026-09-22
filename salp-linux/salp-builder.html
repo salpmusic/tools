@@ -66,7 +66,7 @@ $("downloadConfigBtn").addEventListener("click",()=>{const c=preview();download(
 $("downloadDockerBtn").addEventListener("click",()=>{const c=preview();download("Dockerfile.addition.txt",dockerSnippet(c))});
 $("downloadWorkflowBtn").addEventListener("click",()=>{const c=preview();download("build-salp-image.yml",workflowText(c))});
 $("saveBtn").addEventListener("click",()=>{const c=getConfig();localStorage.setItem("salpBuilderConfig",JSON.stringify(c));$("preview").textContent="設定を端末へ保存しました。\n\n"+JSON.stringify(c,null,2)});
-$("backBtn").addEventListener("click",()=>location.href="./salp-browser.html?v=1113");
+$("backBtn").addEventListener("click",()=>location.href="./salp-browser.html?v=1114");
 restore();
 </script>
 </body>

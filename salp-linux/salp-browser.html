@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1113");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1114");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -364,7 +364,7 @@ try{
 const $=id=>document.getElementById(id);
 window.salpStage?.("4/7 salp Linux UI初期化","DOM接続成功");
 let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
-let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")!=="0";
+let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")==="1";
 let autoCancelled=false;
 let initPromise=null;
 
@@ -452,21 +452,25 @@ function setZoom(next){
  const worldX=(cxp-guiPanX)/old,worldY=(cyp-guiPanY)/old;
  guiScale=next;guiPanX=cxp-worldX*guiScale;guiPanY=cyp-worldY*guiScale;applyCanvasView();
 }
-async function syncGuestResolution(w,h){
+async function syncGuestResolution(w,h,{restartI3=false}={}){
  if(!cx)return;
  clearTimeout(guestResolutionTimer);
  guestResolutionTimer=setTimeout(async()=>{
   try{
    // setKmsCanvas changes CheerpX KMS. Xorg may still keep its previous RandR size,
    // so explicitly ask the running X server to re-read/use the new framebuffer.
+   // Skip i3-msg restart on first-boot sync to avoid racing core apps / prepareReadableDesktop.
+   const restartPart=restartI3
+    ? 'if command -v i3-msg >/dev/null 2>&1; then i3-msg restart >/dev/null 2>&1 || true; fi'
+    : 'true';
    const cmd=`export DISPLAY=:0; if command -v xrandr >/dev/null 2>&1; then \
 OUT=$(xrandr --query 2>/dev/null | awk '/ connected/{print $1; exit}'); \
 [ -n "$OUT" ] && xrandr --output "$OUT" --auto >/dev/null 2>&1 || true; \
 xrandr --fb ${w}x${h} >/dev/null 2>&1 || true; \
 xrandr -s ${w}x${h} >/dev/null 2>&1 || true; \
-fi; if command -v i3-msg >/dev/null 2>&1; then i3-msg restart >/dev/null 2>&1 || true; fi`;
+fi; ${restartPart}`;
    await shell(cmd,false);
-   log(`[display] guest sync requested: ${w}x${h}`);
+   log(`[display] guest sync requested: ${w}x${h} restartI3=${restartI3}`);
   }catch(e){
    log(`[display] xrandr sync skipped: ${e?.message||String(e)}`);
   }
@@ -591,6 +595,102 @@ async function openCoreDesktopApps(){
   setTimeout(()=>launchTerminal().then(()=>log("[gui] Terminal launch requested")).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
  }
  return core;
+}
+
+async function prepareReadableDesktop(){
+ log("[desktop] prepareReadableDesktop start");
+ try{
+  // a. Solid dark-green BMP RGB(32,74,58) — 1x1 24-bit (stretch via pcmanfm)
+  const bmpB64="Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAOkogAA==";
+  await shell("echo "+bmpB64+" | base64 -d > /tmp/salp-solid.bmp; EC=$?; ls -la /tmp/salp-solid.bmp 2>&1; wc -c /tmp/salp-solid.bmp 2>&1; echo BMP_EC=$EC",false);
+  log("[desktop] wrote /tmp/salp-solid.bmp");
+
+  // b. Wallpaper via PCManFM (feh missing)
+  try{
+   await shell("DISPLAY=:0 pcmanfm --set-wallpaper=/tmp/salp-solid.bmp --wallpaper-mode=stretch >/tmp/salp-wall.log 2>&1; echo WALL_EC=$?; cat /tmp/salp-wall.log 2>/dev/null | head -n 20",false);
+   log("[desktop] pcmanfm wallpaper applied");
+  }catch(e){log("[desktop] wallpaper ERROR: "+(e?.message||String(e)))}
+
+  // c. Patch i3 config: disable polybar/feh, ensure simple i3bar block
+  // Built as array.join to avoid JS template $ interpolation with i3 $mod.
+  const patchI3=[
+"CFG=/home/user/.config/i3/config",
+"mkdir -p /home/user/.config/i3",
+"if [ ! -f \"$CFG\" ]; then",
+" cat > \"$CFG\" << 'I3EOF'",
+"# salp minimal i3 config",
+"set $mod Mod1",
+"font pango:DejaVu Sans 12",
+"bindsym $mod+Return exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -e /bin/sh",
+"bindsym $mod+Shift+q kill",
+"bindsym $mod+d exec pcmanfm --no-desktop /home/user",
+"bindsym $mod+1 workspace 1",
+"bindsym $mod+2 workspace 2",
+"bindsym $mod+3 workspace 3",
+"bindsym $mod+Shift+1 move container to workspace 1",
+"bindsym $mod+Shift+2 move container to workspace 2",
+"bindsym $mod+Shift+3 move container to workspace 3",
+"bindsym $mod+Shift+c reload",
+"bindsym $mod+Shift+r restart",
+"bar {",
+" position top",
+" font pango:DejaVu Sans 12",
+" colors {",
+"  background #204a3a",
+"  statusline #ffffff",
+"  focused_workspace #3d8f6a #3d8f6a #ffffff",
+"  inactive_workspace #204a3a #204a3a #cce8d8",
+" }",
+"}",
+"I3EOF",
+" echo I3_WROTE_MINIMAL",
+"else",
+" sed -i -E 's/^([[:space:]]*exec[[:space:]].*polybar)/# salp-disabled: \\1/' \"$CFG\" 2>/dev/null || true",
+" sed -i -E 's/^([[:space:]]*exec[[:space:]].*feh)/# salp-disabled: \\1/' \"$CFG\" 2>/dev/null || true",
+" if ! grep -qE '^[[:space:]]*bar[[:space:]]*\\{' \"$CFG\" 2>/dev/null; then",
+"  cat >> \"$CFG\" << 'I3BAR'",
+"# salp readable bar (no i3status / polybar)",
+"bar {",
+" position top",
+" font pango:DejaVu Sans 12",
+" colors {",
+"  background #204a3a",
+"  statusline #ffffff",
+"  focused_workspace #3d8f6a #3d8f6a #ffffff",
+"  inactive_workspace #204a3a #204a3a #cce8d8",
+" }",
+"}",
+"I3BAR",
+"  echo I3_BAR_APPENDED",
+" else",
+"  echo I3_BAR_EXISTS",
+" fi",
+"fi",
+"grep -nE 'polybar|feh|bar[[:space:]]*\\{|background #' \"$CFG\" 2>/dev/null | head -n 40",
+"echo I3_PATCH_DONE"
+  ].join("\n");
+  await shell(patchI3,false);
+  log("[desktop] i3 config patched");
+
+  // d. reload, then restart if bar not applied
+  await shell("DISPLAY=:0 i3-msg reload >/tmp/salp-i3-reload.log 2>&1; echo RELOAD_EC=$?; cat /tmp/salp-i3-reload.log 2>/dev/null | head -n 10",false);
+  log("[desktop] i3-msg reload");
+  await new Promise(r=>setTimeout(r,600));
+  await shell("HIT=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -ci i3bar || echo 0); echo BAR_HIT=$HIT; if [ \"$HIT\" = \"0\" ] || [ -z \"$HIT\" ]; then DISPLAY=:0 i3-msg restart >/tmp/salp-i3-restart.log 2>&1; echo RESTART_EC=$?; echo USED_RESTART=1; else echo USED_RESTART=0; fi",false);
+  log("[desktop] i3 bar check/reload done");
+
+  // e. Launch/focus Files; brief tree names
+  try{await launchFiles();log("[desktop] launchFiles() for focus")}catch(e){log("[desktop] launchFiles ERROR: "+(e?.message||String(e)))}
+  await new Promise(r=>setTimeout(r,900));
+  await shell("DISPLAY=:0 i3-msg 'workspace 1' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/tmp/salp-focus-files.log 2>&1 || true; DISPLAY=:0 i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >>/tmp/salp-focus-files.log 2>&1 || true; echo FOCUS_FILES_EC=$?; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -E '\"name\":|\"class\":|\"focused\":' | head -n 60; echo TREE_NAMES_DONE",false);
+  log("[desktop] Files focus attempted");
+
+  // f. Ensure Terminal visible then Files frontmost
+  await shell("DISPLAY=:0 i3-msg '[class=\"(?i)xterm\"] focus' >/dev/null 2>&1 || true; sleep 0.3; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >/dev/null 2>&1 || true; echo FRONT_FILES_DONE",false);
+  log("[desktop] prepareReadableDesktop done (Files should be frontmost)");
+ }catch(e){
+  log("[desktop] prepareReadableDesktop ERROR: "+(e?.message||String(e)));
+ }
 }
 
 async function diagCapture(label, command, root=false){
@@ -758,7 +858,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1113",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1114",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -928,6 +1028,7 @@ async function boot(){
    // Let i3 finish IPC handshake before spawning PCManFM/xterm from JS.
    await new Promise(r=>setTimeout(r,1200));
    await openCoreDesktopApps();
+   await prepareReadableDesktop();
    if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
    else await detectBrowser();
    // Display diagnostics after core apps + auto browser path settle (~3s).
