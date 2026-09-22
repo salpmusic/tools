@@ -15,7 +15,7 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
 body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:auto}
-.app{min-height:100dvh;display:grid;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,68dvh) auto}
+.app{min-height:100dvh;display:grid;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,min(68dvh,520px)) auto}
 header{
  display:flex;align-items:center;gap:11px;padding:10px 12px;
  padding-top:calc(10px + env(safe-area-inset-top));
@@ -61,7 +61,7 @@ button:disabled{opacity:.4}
 .displayModeBar{display:grid;grid-template-columns:auto 1fr 1fr auto auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#07140d}
 .displayModeBar .label{font-weight:900;color:#eaffef;white-space:nowrap}.displayModeBar button{min-height:40px;font-weight:900}.displayModeBar button.active{border-color:#5ce98f;background:#103c22;color:#d8ffe5;box-shadow:0 0 0 2px #1c6b3b inset}.displayModeNow{font:10px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
 @media(max-width:650px){.displayModeBar{grid-template-columns:1fr 1fr}.displayModeBar .label{grid-column:1/-1}.displayModeNow{grid-column:1/-1}.displayModeBar #jumpScreenBtn{grid-column:1/-1}}
-.screenWrap{position:relative;min-height:420px;height:68dvh;background:#000;overflow:hidden;touch-action:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.screenWrap{position:relative;min-height:420px;height:min(68dvh,520px);background:#000;overflow:hidden;touch-action:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 #display{position:absolute;left:0;top:0;background:#000;touch-action:none;outline:none;transform-origin:0 0;will-change:transform,left,top}
 .viewControls{position:absolute;z-index:4;top:8px;left:8px;display:flex;gap:5px;align-items:center;max-width:calc(100% - 16px);padding:5px;border:1px solid rgba(121,243,157,.24);border-radius:12px;background:rgba(3,8,5,.82);backdrop-filter:blur(9px);overflow-x:auto;box-shadow:0 6px 24px rgba(0,0,0,.32)}
 .viewControls button{min-height:32px;padding:4px 9px;font-size:11px;border-radius:8px}
@@ -140,8 +140,8 @@ footer{
 
 @media(min-width:900px){
  body{overflow:hidden}
- .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(360px,1fr) auto}
- .screenWrap{height:auto;min-height:360px}
+ .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,1fr) auto}
+ .screenWrap{min-height:420px;height:min(68dvh,520px)}
 }
 </style>
 </head>
@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.11 GUI BOOT FIX</span>
+  <span class="splashVersion">VERSION 1.10.11 GUI PAINT v1120</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1119");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1120");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -477,8 +477,24 @@ fi; ${restartPart}`;
   }
  },350);
 }
+
+function ensureScreenWrapLayout(){
+ const wrap=$("screenWrap");
+ if(!wrap)return {w:0,h:0};
+ // Bot/desktop can collapse to ~260px; force a usable KMS viewport host.
+ const r=wrap.getBoundingClientRect();
+ if(r.height<400){
+  wrap.style.minHeight="420px";
+  wrap.style.height="min(68dvh, 520px)";
+ }
+ return wrap.getBoundingClientRect();
+}
 function sizeCanvas({refit=true,forceKms=false,syncGuest=false}={}){
  const canvas=$("display"),v=currentVirtualSize();
+ if(forceKms){
+  const sr=ensureScreenWrapLayout();
+  log(`[layout] ensureScreenWrap ${Math.round(sr.width)}x${Math.round(sr.height)} before KMS`);
+ }
  const changed=canvas.width!==v.w||canvas.height!==v.h||guiW!==v.w||guiH!==v.h;
  guiW=v.w;guiH=v.h;
  // Do not rely on CSS sizing: KMS gets the real Linux virtual resolution.
@@ -613,12 +629,25 @@ async function diagnoseGuiPaint(){
  const cmd=[
 "echo '=== pidof ==='",
 "pidof Xorg i3 xterm pcmanfm 2>/dev/null || true",
+"echo '=== pidof i3 alone ==='",
+"pidof i3 2>/dev/null || echo 'i3: none'",
+"echo '=== /dev/dri /dev/fb0 ==='",
+"ls -la /dev/dri /dev/fb0 2>&1 || true",
 "echo '=== xrandr --query ==='",
 "if command -v xrandr >/dev/null 2>&1; then DISPLAY=:0 xrandr --query 2>&1; else echo 'xrandr: missing'; fi",
 "echo '=== i3 tree (names/classes) ==='",
 "DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei '\"name\":|\"class\":|\"instance\":' | head -n 80 || echo 'i3-msg tree: unavailable'",
-"echo '=== log tails ==='",
-"for f in /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-xterm.log /tmp/salp-pcmanfm.log /tmp/salp-session.out; do echo \"--- $f ---\"; tail -n 30 \"$f\" 2>/dev/null || echo MISSING; done",
+"echo '=== /tmp/salp-xorg.log (full) ==='",
+"cat /tmp/salp-xorg.log 2>/dev/null || echo MISSING",
+"echo '=== /tmp/salp-i3.log (full) ==='",
+"cat /tmp/salp-i3.log 2>/dev/null || echo MISSING",
+"echo '=== /tmp/salp-session.out (full) ==='",
+"cat /tmp/salp-session.out 2>/dev/null || echo MISSING",
+"echo '=== steps logs ==='",
+"echo '--- /tmp/salp-gui-steps.log ---'; cat /tmp/salp-gui-steps.log 2>/dev/null || echo MISSING",
+"echo '--- /tmp/runtime-user/gui-steps.log ---'; cat /tmp/runtime-user/gui-steps.log 2>/dev/null || echo MISSING",
+"echo '=== other log tails ==='",
+"for f in /tmp/salp-xterm.log /tmp/salp-pcmanfm.log; do echo \"--- $f ---\"; tail -n 30 \"$f\" 2>/dev/null || echo MISSING; done",
 "echo '[paint] diagnoseGuiPaint done'"
  ].join("; ");
  try{await shell(cmd,false)}catch(e){log("[paint] ERROR: "+(e?.message||String(e)))}
@@ -719,13 +748,18 @@ async function rewriteOverlayLaunchers(){
  const rewrite=[
 "set -eu",
 "rm -f /tmp/salp-gui-steps.log",
+": > /tmp/salp-gui-steps.log",
+"chmod 666 /tmp/salp-gui-steps.log",
 "cat > /usr/local/bin/salp-gui-start << 'SALPGUIEOF'",
 "#!/bin/sh",
 "set -u",
-'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log; }',
+'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log 2>/dev/null || true; }',
 "export DISPLAY=:0",
 "export HOME=/root",
 "XORGPID=",
+"# Ensure steps log is world-writable (root creates; user session appends).",
+": > /tmp/salp-gui-steps.log",
+"chmod 666 /tmp/salp-gui-steps.log 2>/dev/null || true",
 'step "01 runtime dir"',
 "mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /home/user",
 "chmod 1777 /tmp/.X11-unix 2>/dev/null || true",
@@ -740,6 +774,16 @@ async function rewriteOverlayLaunchers(){
 'if command -v dbus-daemon >/dev/null 2>&1 && [ ! -S /run/dbus/system_bus_socket ]; then',
 "  dbus-uuidgen --ensure=/etc/machine-id >/dev/null 2>&1 || true",
 "  dbus-daemon --system --fork >/tmp/salp-dbus.log 2>&1 || true",
+"fi",
+"",
+'step "01b dri/fb0 probe"',
+"ls -la /dev/dri /dev/fb0 2>&1 | tee -a /tmp/salp-gui-steps.log || true",
+'if command -v udevadm >/dev/null 2>&1; then',
+"  udevadm settle 2>&1 | tee -a /tmp/salp-gui-steps.log || true",
+"  udevadm trigger 2>&1 | tee -a /tmp/salp-gui-steps.log || true",
+'  step "01c udevadm settle/trigger done"',
+"else",
+'  step "01c udevadm missing"',
 "fi",
 "",
 'step "02 Xorg start"',
@@ -795,17 +839,33 @@ async function rewriteOverlayLaunchers(){
 "cat > /usr/local/bin/salp-session << 'SALPSESEOF'",
 "#!/bin/sh",
 "set -u",
-'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log; }',
+'# Dual-write steps: runtime dir (user-owned) + /tmp (best-effort). Never fail session.',
+'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>"${XDG_RUNTIME_DIR:-/tmp/runtime-user}/gui-steps.log" 2>/dev/null || true; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log 2>/dev/null || true; }',
 'export DISPLAY="${DISPLAY:-:0}"',
 'export HOME="${HOME:-/home/user}"',
 'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
 "export SHELL=/bin/ash",
 'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
 'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
+': > "$XDG_RUNTIME_DIR/gui-steps.log" 2>/dev/null || true',
 "",
 'step "04 i3 start"',
-"i3 >/tmp/salp-i3.log 2>&1 &",
+"rm -f /tmp/salp-i3.log",
+": > /tmp/salp-i3.log",
+"chmod 666 /tmp/salp-i3.log 2>/dev/null || true",
+"i3 -V >/tmp/salp-i3.log 2>&1 &",
 "I3PID=$!",
+"sleep 1",
+'VER=$(i3-msg -t get_version 2>&1 || true)',
+'step "05 i3 version: $VER"',
+'if ! i3-msg -t get_version >/dev/null 2>&1; then',
+'  step "05 i3 retry"',
+"  i3 -V >>/tmp/salp-i3.log 2>&1 &",
+"  I3PID=$!",
+"  sleep 1",
+'  VER=$(i3-msg -t get_version 2>&1 || true)',
+'  step "05 i3 version after retry: $VER"',
+"fi",
 "",
 'step "05 i3 ready"',
 "for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do",
@@ -1114,7 +1174,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1119",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1120",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1182,7 +1242,7 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // Clean overlay for v1119 KMS rebind / paint diagnostics (rewriteOverlayLaunchers still runs each boot).
+  // Keep v1119 IDB overlay (save download); HTML rewrite still runs each boot for v1120 session/i3/KMS fixes.
   const idb=await CheerpX.IDBDevice.create("salp-linux-v1119-kms-disk");
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1237,6 +1297,7 @@ async function boot(){
   if(!ptsOk)log("[mount] warning: /dev/pts is unavailable; terminal PTY support may be limited");
   // Critical: set the requested KMS resolution BEFORE Xorg/i3 starts.
   window.salpStage?.("6/7 KMS解像度設定中",`${guiMode} ${currentVirtualSize().w}x${currentVirtualSize().h}`);
+  ensureScreenWrapLayout();
   sizeCanvas({refit:true,forceKms:true,syncGuest:false});
   const sr=$("screenWrap").getBoundingClientRect();
   log(`[layout] screenWrap ${Math.round(sr.width)}x${Math.round(sr.height)} / canvas ${guiW}x${guiH} / scale ${Math.round(guiScale*100)}%`);
@@ -1295,6 +1356,7 @@ async function boot(){
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
    state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready.");
    // Rebind KMS after X is up — forceKms:false left canvas transparent on desktop Chrome.
+   ensureScreenWrapLayout();
    sizeCanvas({refit:true,forceKms:true,syncGuest:true});
    try{await diagnoseGuiPaint()}catch(e){log("[paint] after forceKms ERROR: "+(e?.message||String(e)))}
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
