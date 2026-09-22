@@ -45,9 +45,9 @@ RUN set -eux; \
       'done' \
       '' \
       'export SHELL=/bin/sh' \
-      'pcmanfm --no-desktop "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &' \
       "xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh >/tmp/salp-xterm.log 2>&1 &" \
-      'wait "$I3PID"' \
+      'exit 0' \
       > /usr/local/bin/salp-session; \
     printf '%s\n' \
       '#!/bin/sh' \
@@ -112,7 +112,8 @@ RUN set -eux; \
       'export DISPLAY="${DISPLAY:-:0}"' \
       'export HOME="${HOME:-/home/user}"' \
       'export SHELL=/bin/sh' \
-      "exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh" \
+      "xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh >/tmp/salp-xterm.log 2>&1 &" \
+      'exit 0' \
       > /usr/local/bin/salp-terminal; \
     printf '%s\n' \
       '#!/bin/sh' \
@@ -122,10 +123,8 @@ RUN set -eux; \
       'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"' \
       'mkdir -p "$XDG_RUNTIME_DIR"' \
       'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true' \
-      'if command -v dbus-launch >/dev/null 2>&1; then' \
-      '  exec dbus-launch --exit-with-session pcmanfm --no-desktop "${1:-/home/user}"' \
-      'fi' \
-      'exec pcmanfm --no-desktop "${1:-/home/user}"' \
+      '( dbus-launch -- pcmanfm --no-desktop --new-win "${1:-$HOME}" || pcmanfm --no-desktop --new-win "${1:-$HOME}" ) >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'exit 0' \
       > /usr/local/bin/salp-files; \
     chmod 0755 /usr/local/bin/salp-terminal /usr/local/bin/salp-files; \
     printf '%s\n' \

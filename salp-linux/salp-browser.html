@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1121");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1122");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -587,52 +587,39 @@ async function detectCoreApps(){
 async function launchTerminal(){
  // Never prefer bare salp-terminal: CheerpX may leave SHELL=xterm (basename) and stale
  // IndexedDB overlay can shadow /usr/local/bin/salp-terminal without -e. Always force ash.
- // Background xterm (no exec-only) so launch failures show in Setup Log via wrapper wait.
+ // Fire-and-forget: bg xterm then exit immediately (no sleep/pidof in awaited shell).
  if(await exists("/usr/bin/xterm")){
-  log("[term] direct xterm -e /bin/ash (bg+diag)");
+  log("[term] direct xterm -e /bin/ash (bg, no wait)");
   const cmd=[
 "export DISPLAY=:0 HOME=/home/user SHELL=/bin/ash;",
 '/usr/bin/xterm -fa "DejaVu Sans Mono" -fs 14 -title "salp Terminal" -geometry 92x28 -e /bin/ash >/tmp/salp-xterm-js.log 2>&1 &',
-"echo TERM_PID=$!;",
-"sleep 1;",
-"pidof xterm || echo 'pidof xterm: none';",
-"echo '=== salp-xterm-js.log ===';",
-"head -n 40 /tmp/salp-xterm-js.log 2>/dev/null || echo NO_XTERM_JS_LOG"
+"echo TERM_LAUNCHED pid=$!;",
+"exit 0"
   ].join(" ");
   return await shell(cmd,false);
  }
  state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
- // Force DISPLAY=:0 via sh -lc; match salp-files dbus-launch; --new-win for mapped window.
- // Alpine/LXDE pcmanfm supports -n/--new-win (man page). Avoid wallpaper-only single-instance steal.
- // Background app (no exec-only) so failures appear in Setup Log via wrapper wait.
+ // Force DISPLAY=:0 via sh -lc; --new-win for mapped window.
+ // Fire-and-forget: bg pcmanfm then exit immediately (no sleep/pidof in awaited shell).
  if(await exists("/usr/bin/pcmanfm")){
-  log("[files] direct pcmanfm DISPLAY=:0 dbus-launch --new-win (bg+diag)");
+  log("[files] direct pcmanfm DISPLAY=:0 --new-win (bg, no wait)");
   const cmd=[
 "export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash;",
 'mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true;',
-"(",
-"  if command -v dbus-launch >/dev/null 2>&1; then",
-"    dbus-launch --exit-with-session /usr/bin/pcmanfm --no-desktop --new-win /home/user",
-"  else",
-"    /usr/bin/pcmanfm --no-desktop --new-win /home/user",
-"  fi",
-") >/tmp/salp-pcmanfm-js.log 2>&1 &",
-"echo FILES_PID=$!;",
-"sleep 1;",
-"pidof pcmanfm || echo 'pidof pcmanfm: none';",
-"echo '=== salp-pcmanfm-js.log ===';",
-"head -n 40 /tmp/salp-pcmanfm-js.log 2>/dev/null || echo NO_PCMANFM_JS_LOG"
-  ].join("\n");
+"( dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win /home/user || /usr/bin/pcmanfm --no-desktop --new-win /home/user ) >/tmp/salp-pcmanfm-js.log 2>&1 &",
+"echo FILES_LAUNCHED pid=$!;",
+"exit 0"
+  ].join(" ");
   return await shell(cmd,false);
  }
  if(await exists("/usr/bin/thunar")){
   const cmd=[
 "export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user;",
 "/usr/bin/thunar /home/user >/tmp/salp-thunar-js.log 2>&1 &",
-"echo FILES_PID=$!; sleep 1; pidof thunar || echo 'pidof thunar: none';",
-"head -n 20 /tmp/salp-thunar-js.log 2>/dev/null || true"
+"echo FILES_LAUNCHED pid=$!;",
+"exit 0"
   ].join(" ");
   return await shell(cmd,false);
  }
@@ -671,42 +658,24 @@ async function diagnoseGuiPaint(){
 }
 
 async function ensureFilesVisible(){
- log("[files] ensureFilesVisible start");
+ // Best-effort only — must never block forever before Firefox path.
+ log("[flow] ensureFiles start");
  try{
-  await new Promise(r=>setTimeout(r,1500));
-  const probe=[
-"export DISPLAY=:0",
-"PID=$(pidof pcmanfm 2>/dev/null || true)",
-'echo "[files] pidof=$PID"',
-'TREE_HIT=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -ciE "pcmanfm|PCManFM|File Manager" || true)',
-'echo "[files] tree_hit=$TREE_HIT"',
-'if [ -z "$PID" ] || [ "$TREE_HIT" = "0" ]; then echo MISSING; exit 42; fi',
-"echo PRESENT; exit 0"
-  ].join("; ");
-  const code=await shell(probe,false);
-  if(code===42){
-   log("[files] retry");
-   try{await launchFiles()}catch(e){log("[files] retry launch ERROR: "+(e?.message||String(e)))}
-   await new Promise(r=>setTimeout(r,1500));
-  }
+  await new Promise(r=>setTimeout(r,400));
   const focus=[
 "export DISPLAY=:0",
 "i3-msg 'workspace 1' >/dev/null 2>&1 || true",
-"i3-msg '[class=\"(?i)pcmanfm\"] focus' >/tmp/salp-focus-files.log 2>&1 || true",
-"i3-msg '[instance=\"(?i)pcmanfm\"] focus' >>/tmp/salp-focus-files.log 2>&1 || true",
-"i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >>/tmp/salp-focus-files.log 2>&1 || true",
-"echo FOCUS_FILES_EC=$?",
-"echo '=== brief tree ==='",
-"i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei '\"name\":|\"class\":|\"instance\":|\"focused\":|pcmanfm|PCManFM|File' | head -n 80",
-"echo '=== salp-pcmanfm.log tail ==='",
-"tail -n 40 /tmp/salp-pcmanfm.log 2>/dev/null || echo NO_PCMANFM_LOG",
-"pidof pcmanfm 2>/dev/null | sed 's/^/[files] pidof=/' || echo '[files] pidof='",
-"echo ENSURE_FILES_DONE"
+"i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true",
+"i3-msg '[instance=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true",
+"echo ENSURE_FILES_DONE; exit 0"
   ].join("; ");
-  await shell(focus,false);
-  log("[files] ensureFilesVisible done");
+  await Promise.race([
+   shell(focus,false),
+   new Promise(r=>setTimeout(()=>r(-2), 2500))
+  ]);
+  log("[flow] ensureFiles after");
  }catch(e){
-  log("[files] ensureFilesVisible ERROR: "+(e?.message||String(e)));
+  log("[flow] ensureFiles ERROR: "+(e?.message||String(e)));
  }
 }
 async function openCoreAppsIfBrowserMissing(){
@@ -759,17 +728,22 @@ async function waitForGuiDesktop(timeoutMs=20000){
 async function openCoreDesktopApps(){
  const core=await detectCoreApps();
  if(core.files){
+  log("[flow] Files before");
   try{await launchFiles();log("[gui] Files launch requested")}catch(e){log("FILES ERROR: "+(e?.message||String(e)))}
+  log("[flow] Files after");
  }
  if(core.term){
-  setTimeout(()=>launchTerminal().then(async()=>{
+  log("[flow] Terminal before");
+  try{
+   await launchTerminal();
    log("[gui] Terminal launch requested");
-   try{await diagnoseGuiPaint()}catch(e){log("[paint] after terminal ERROR: "+(e?.message||String(e)))}
-  }).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
+  }catch(e){log("TERMINAL ERROR: "+(e?.message||String(e)))}
+  log("[flow] Terminal after");
+  // diagnose best-effort; never block Firefox path
+  diagnoseGuiPaint().catch(e=>log("[paint] after terminal ERROR: "+(e?.message||String(e))));
  }
  if(core.files){
   try{await ensureFilesVisible()}catch(e){log("[files] ensure after openCore ERROR: "+(e?.message||String(e)))}
-  try{await diagnoseGuiPaint()}catch(e){log("[paint] after ensureFiles ERROR: "+(e?.message||String(e)))}
  }
  return core;
 }
@@ -919,24 +893,34 @@ async function rewriteOverlayLaunchers(){
 'step "07 Terminal start"',
 "/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
 "",
-"# Supervise i3 while gui-start waits on Xorg (bg session child).",
-'if [ -n "$I3PID" ]; then',
-"  wait $I3PID",
-"  exit $?",
-"fi",
+'step "07b session apps launched (bg); exiting"',
 "exit 0",
 "SALPSESEOF",
 "chmod 0755 /usr/local/bin/salp-session",
 "",
 "cat > /usr/local/bin/salp-terminal << 'SALPEOF'",
 "#!/bin/sh",
-"set -eu",
+"set -u",
 'export DISPLAY="${DISPLAY:-:0}"',
 'export HOME="${HOME:-/home/user}"',
 "export SHELL=/bin/ash",
-"exec /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash",
+"/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
+"exit 0",
 "SALPEOF",
 "chmod 0755 /usr/local/bin/salp-terminal",
+"",
+"cat > /usr/local/bin/salp-files << 'SALPFILESEOF'",
+"#!/bin/sh",
+"set -u",
+'export DISPLAY="${DISPLAY:-:0}"',
+'export HOME="${HOME:-/home/user}"',
+'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
+'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
+'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
+'( dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "${1:-$HOME}" || /usr/bin/pcmanfm --no-desktop --new-win "${1:-$HOME}" ) >/tmp/salp-pcmanfm.log 2>&1 &',
+"exit 0",
+"SALPFILESEOF",
+"chmod 0755 /usr/local/bin/salp-files",
 "",
 "echo '=== rewritten salp-gui-start (head) ==='",
 "head -n 40 /usr/local/bin/salp-gui-start",
@@ -944,22 +928,22 @@ async function rewriteOverlayLaunchers(){
 "cat /usr/local/bin/salp-session",
 "echo '=== rewritten salp-terminal ==='",
 "cat /usr/local/bin/salp-terminal",
+"echo '=== rewritten salp-files ==='",
+"cat /usr/local/bin/salp-files",
 "echo REWRITE_LAUNCHERS_DONE"
  ].join("\n");
  try{
   await shell(rewrite, true);
-  log("[term] rewriteOverlayLaunchers done (gui-start+session+terminal)");
+  log("[term] rewriteOverlayLaunchers done (gui-start+session+terminal+files)");
  }catch(e){
   log("[term] rewriteOverlayLaunchers ERROR: "+(e?.message||String(e)));
  }
 }
 
 async function prepareReadableDesktop(){
- log("[desktop] prepareReadableDesktop start");
+ log("[desktop] prepareReadableDesktop start (best-effort, post-Firefox)");
  try{
-  // 0. Rewrite overlay launchers (salp-terminal / salp-session) to force -e /bin/ash
-  await rewriteOverlayLaunchers();
-
+  // Overlay launchers already rewritten at boot / before core apps — skip full rewrite here.
   // a/b. Wallpaper deferred — pcmanfm --set-wallpaper can own the single instance
   // and prevent a visible --no-desktop file window. alpine_bg.png not required.
   log("[desktop] wallpaper deferred");
@@ -1032,11 +1016,16 @@ async function prepareReadableDesktop(){
   await shell("HIT=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -ci i3bar || echo 0); echo BAR_HIT=$HIT; if [ \"$HIT\" = \"0\" ] || [ -z \"$HIT\" ]; then DISPLAY=:0 i3-msg restart >/tmp/salp-i3-restart.log 2>&1; echo RESTART_EC=$?; echo USED_RESTART=1; else echo USED_RESTART=0; fi",false);
   log("[desktop] i3 bar check/reload done");
 
-  // e. Launch Files last (after i3 reload), then ensure visible + focused
+  // e. Launch Files last (after i3 reload), then ensure visible + focused (best-effort)
   try{await launchFiles();log("[desktop] launchFiles() for focus")}catch(e){log("[desktop] launchFiles ERROR: "+(e?.message||String(e)))}
-  await ensureFilesVisible();
-  // f. Terminal then Files frontmost (Files should win)
-  await shell("DISPLAY=:0 i3-msg '[class=\"(?i)xterm\"] focus' >/dev/null 2>&1 || true; sleep 0.3; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[instance=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[title=\"(?i)file|pcmanfm|home\"] focus' >/dev/null 2>&1 || true; echo FRONT_FILES_DONE",false);
+  try{await ensureFilesVisible()}catch(e){log("[desktop] ensureFiles ERROR: "+(e?.message||String(e)))}
+  // f. Terminal then Files frontmost (Files should win) — short race so never hangs forever
+  try{
+   await Promise.race([
+    shell("DISPLAY=:0 i3-msg '[class=\"(?i)xterm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; echo FRONT_FILES_DONE",false),
+    new Promise(r=>setTimeout(()=>r(-2), 2500))
+   ]);
+  }catch(e){log("[desktop] focus ERROR: "+(e?.message||String(e)))}
   log("[desktop] prepareReadableDesktop done (Files should be frontmost)");
  }catch(e){
   log("[desktop] prepareReadableDesktop ERROR: "+(e?.message||String(e)));
@@ -1210,7 +1199,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1121",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1122",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1417,17 +1406,24 @@ async function boot(){
    // Rebind KMS after X is up — forceKms:false left canvas transparent on desktop Chrome.
    ensureScreenWrapLayout();
    sizeCanvas({refit:true,forceKms:true,syncGuest:true});
-   try{await diagnoseGuiPaint()}catch(e){log("[paint] after forceKms ERROR: "+(e?.message||String(e)))}
+   // diagnoseGuiPaint after forceKms: best-effort, do not block Files→Terminal→Firefox
+   diagnoseGuiPaint().catch(e=>log("[paint] after forceKms ERROR: "+(e?.message||String(e))));
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
    $("installBtn").disabled=false;
-   // Let i3 finish IPC handshake before spawning PCManFM/xterm from JS.
-   await new Promise(r=>setTimeout(r,1200));
-   // Rewrite overlay launchers BEFORE core app launches (stale IDB may shadow base).
-   await rewriteOverlayLaunchers();
+   // Brief settle for i3 IPC; skip second full rewrite before Firefox (already rewritten at boot).
+   await new Promise(r=>setTimeout(r,600));
    await openCoreDesktopApps();
-   await prepareReadableDesktop();
-   if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
-   else await detectBrowser();
+   // Firefox path BEFORE prepareReadableDesktop (i3 reload/restart can stall under CheerpX).
+   if(autoLaunchEnabled&&!autoCancelled){
+    log("[flow] Firefox before");
+    try{await autoDetectAndLaunch()}catch(e){log("[flow] Firefox ERROR: "+(e?.message||String(e)))}
+    log("[flow] Firefox after");
+   }else{
+    log("[flow] Firefox skipped (Auto OFF)");
+    try{await detectBrowser()}catch(e){log("DETECT ERROR: "+(e?.message||String(e)))}
+   }
+   // Best-effort desktop polish after Firefox path started
+   prepareReadableDesktop().catch(e=>log("[desktop] prepare after Firefox ERROR: "+(e?.message||String(e))));
    // Display diagnostics after core apps + auto browser path settle (~3s).
    setTimeout(()=>{
     runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
