@@ -1,6 +1,9 @@
 # salp Linux v1.10.11 Firefox browser layer
 # Upstream already includes Xorg + i3 + LightDM. Add Firefox ESR as the primary browser.
 RUN set -eux; \
+    # Upstream installs sgt-puzzles@testing; drop that world tag before we pin
+    # main+community only, otherwise apk refuses further adds (exit 99).
+    sed -i '/@testing/d' /etc/apk/world || true; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/community' \
