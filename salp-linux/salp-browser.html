@@ -332,7 +332,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1111");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1112");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -548,7 +548,7 @@ async function detectCoreApps(){
 }
 async function launchTerminal(){
  if(await exists("/usr/local/bin/salp-terminal"))return run("/usr/local/bin/salp-terminal");
- if(await exists("/usr/bin/xterm"))return run("/usr/bin/xterm",["-fa","DejaVu Sans Mono","-fs","14","-title","salp Terminal"]);
+ if(await exists("/usr/bin/xterm"))return run("/usr/bin/xterm",["-fa","DejaVu Sans Mono","-fs","14","-title","salp Terminal","-e","/bin/sh"]);
  state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
@@ -721,7 +721,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1111",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1112",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";

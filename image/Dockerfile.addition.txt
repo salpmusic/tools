@@ -44,8 +44,9 @@ RUN set -eux; \
       '  sleep 0.4' \
       'done' \
       '' \
+      'export SHELL=/bin/sh' \
       'pcmanfm --no-desktop "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &' \
-      "xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 >/tmp/salp-xterm.log 2>&1 &" \
+      "xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh >/tmp/salp-xterm.log 2>&1 &" \
       'wait "$I3PID"' \
       > /usr/local/bin/salp-session; \
     printf '%s\n' \
@@ -53,9 +54,11 @@ RUN set -eux; \
       'set -u' \
       'export DISPLAY=:0' \
       'export HOME=/root' \
-      'mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user' \
+      'mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /home/user' \
       'chmod 1777 /tmp/.X11-unix 2>/dev/null || true' \
-      'chmod 700 /tmp/runtime-user 2>/dev/null || true' \
+      'chown 1000:1000 /tmp/runtime-user' \
+      'chmod 700 /tmp/runtime-user' \
+      'chown 1000:1000 /home/user' \
       '' \
       'grep -qs " /proc " /proc/mounts 2>/dev/null || mount -t proc proc /proc 2>/dev/null || true' \
       'grep -qs " /sys " /proc/mounts 2>/dev/null || mount -t sysfs sysfs /sys 2>/dev/null || true' \
@@ -108,7 +111,8 @@ RUN set -eux; \
       'set -eu' \
       'export DISPLAY="${DISPLAY:-:0}"' \
       'export HOME="${HOME:-/home/user}"' \
-      "exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28" \
+      'export SHELL=/bin/sh' \
+      "exec xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh" \
       > /usr/local/bin/salp-terminal; \
     printf '%s\n' \
       '#!/bin/sh' \
