@@ -1,4 +1,4 @@
-name: Build salp Linux v1.10.9 Firefox Image
+name: Build salp Linux v1.10.11 Firefox Image
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     outputs:
-      artifact_name: salp-firefox-v1.10.9-ext2
+      artifact_name: salp-firefox-v1.10.11-ext2
 
     steps:
       - name: Checkout repository
@@ -73,10 +73,44 @@ jobs:
           ls -lh salp-browser.ext2*
           cat salp-browser.ext2.manifest.txt
 
+      - name: Verify launchers inside ext2
+        run: |
+          set -eux
+          DEBUGFS=$(command -v debugfs || command -v /usr/sbin/debugfs)
+          echo "=== /usr/local/bin listing ==="
+          "$DEBUGFS" -R 'ls -l /usr/local/bin' salp-browser.ext2 || true
+          fail=0
+          for f in /usr/local/bin/salp-gui-start /usr/local/bin/salp-session; do
+            echo "=== stat $f ==="
+            STAT_OUT=$("$DEBUGFS" -R "stat $f" salp-browser.ext2 2>&1) || {
+              echo "FAIL: debugfs could not stat $f" >&2
+              echo "$STAT_OUT" >&2
+              fail=1
+              continue
+            }
+            echo "$STAT_OUT"
+            # debugfs prints e.g. "Mode:  100755"
+            MODE=$(echo "$STAT_OUT" | sed -n 's/.*Mode:[[:space:]]*\([0-7][0-7]*\).*/\1/p' | head -1)
+            if [ -z "$MODE" ]; then
+              echo "FAIL: could not parse Mode for $f" >&2
+              fail=1
+              continue
+            fi
+            # Exact 100755 or any mode whose low 9 bits include owner/group/other execute
+            PERM=$((8#$MODE & 0777))
+            if [ "$MODE" = "100755" ] || [ $((PERM & 0111)) -ne 0 ]; then
+              echo "OK: $f Mode=$MODE (executable)"
+            else
+              echo "FAIL: $f Mode=$MODE missing execute bits (want Mode:  100755)" >&2
+              fail=1
+            fi
+          done
+          test "$fail" -eq 0
+
       - name: Upload browser image
         uses: actions/upload-artifact@v4
         with:
-          name: salp-firefox-v1.10.9-ext2
+          name: salp-firefox-v1.10.11-ext2
           path: |
             salp-browser.ext2
             salp-browser.ext2.sha256
@@ -102,7 +136,7 @@ jobs:
         if: ${{ inputs.mode == 'build' }}
         uses: actions/download-artifact@v4
         with:
-          name: salp-firefox-v1.10.9-ext2
+          name: salp-firefox-v1.10.11-ext2
           path: _ext2_artifact
 
       - name: Download latest successful ext2 artifact
@@ -112,7 +146,7 @@ jobs:
         run: |
           set -eux
           mkdir -p _ext2_artifact
-          ARTIFACT=salp-firefox-v1.10.9-ext2
+          ARTIFACT=salp-firefox-v1.10.11-ext2
           RUN_ID=""
           for id in $(gh run list -R "$GITHUB_REPOSITORY" --workflow=build-salp-image.yml -L 30 \
             --json databaseId,conclusion --jq '.[]|select(.conclusion=="success")|.databaseId'); do
