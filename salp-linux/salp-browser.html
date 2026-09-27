@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1124</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1125</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1124");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1125");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -907,14 +907,38 @@ async function rewriteOverlayLaunchers(){
 "chmod 666 /tmp/salp-i3.log 2>/dev/null || true",
 "i3 -c /usr/local/share/salp/i3.config -V >/tmp/salp-i3.log 2>&1 &",
 "I3PID=$!",
+"I3_BG_EC=$?",
 "sleep 1",
+'# 04a minimal i3 startup diag (busybox-safe; never fail session)',
+'I3_ALIVE=0',
+'kill -0 "$I3PID" 2>/dev/null && I3_ALIVE=1 || true',
+'[ -d "/proc/$I3PID" ] && I3_ALIVE=1 || true',
+'step "04a i3 diag: I3PID=$I3PID alive=$I3_ALIVE i3_start_bg_ec=$I3_BG_EC (bg launch; alive=0=immediate exit; no pid/ps+empty log=not started; late appear=serialization wait)"',
+'step "04a DISPLAY=$DISPLAY"',
+'I3_PS=$(ps -o pid,args 2>/dev/null | grep -E "[i]3( |$)" || true)',
+'[ -z "$I3_PS" ] && I3_PS=$(ps w 2>/dev/null | grep -E "[i]3" || true)',
+'step "04a ps_i3: ${I3_PS:-none}"',
+'step "04a --- salp-i3.log tail ---"',
+'tail -n 40 /tmp/salp-i3.log 2>/dev/null | while IFS= read -r _l; do step "04a i3log: $_l"; done || step "04a i3log: MISSING"',
 'VER=$(i3-msg -t get_version 2>&1 || true)',
 'step "05 i3 version: $VER"',
 'if ! i3-msg -t get_version >/dev/null 2>&1; then',
 '  step "05 i3 retry"',
 "  i3 -c /usr/local/share/salp/i3.config -V >>/tmp/salp-i3.log 2>&1 &",
 "  I3PID=$!",
+"  I3_BG_EC=$?",
 "  sleep 1",
+'# 05a minimal i3 retry diag (busybox-safe; never fail session)',
+'  I3_ALIVE=0',
+'  kill -0 "$I3PID" 2>/dev/null && I3_ALIVE=1 || true',
+'  [ -d "/proc/$I3PID" ] && I3_ALIVE=1 || true',
+'  step "05a i3 diag: I3PID=$I3PID alive=$I3_ALIVE i3_start_bg_ec=$I3_BG_EC (bg retry; alive=0=immediate exit; no pid/ps+empty log=not started; late appear=serialization wait)"',
+'  step "05a DISPLAY=$DISPLAY"',
+'  I3_PS=$(ps -o pid,args 2>/dev/null | grep -E "[i]3( |$)" || true)',
+'  [ -z "$I3_PS" ] && I3_PS=$(ps w 2>/dev/null | grep -E "[i]3" || true)',
+'  step "05a ps_i3: ${I3_PS:-none}"',
+'  step "05a --- salp-i3.log tail ---"',
+'  tail -n 40 /tmp/salp-i3.log 2>/dev/null | while IFS= read -r _l; do step "05a i3log: $_l"; done || step "05a i3log: MISSING"',
 '  VER=$(i3-msg -t get_version 2>&1 || true)',
 '  step "05 i3 version after retry: $VER"',
 "fi",
@@ -1252,7 +1276,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1124",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1125",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1320,11 +1344,11 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // v1124: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // v1125: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
   // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
   const _qs=new URLSearchParams(location.search);
   const _cleanBoot=_qs.get("clean")==="1";
-  const idbName=_cleanBoot?("salp-linux-v1124-clean-"+Date.now()):"salp-linux-v1124-clean";
+  const idbName=_cleanBoot?("salp-linux-v1125-clean-"+Date.now()):"salp-linux-v1125-clean";
   const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1526,7 +1550,7 @@ sizeCanvas({refit:true});
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1124");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1125");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -1623,7 +1647,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1124");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1125");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
