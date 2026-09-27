@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1126</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1127</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1126");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1127");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -364,6 +364,8 @@ try{
 const $=id=>document.getElementById(id);
 window.salpStage?.("4/7 salp Linux UI初期化","DOM接続成功");
 let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
+const botChromeQuery=new URLSearchParams(location.search).get("botChrome");
+const botChromeOff=botChromeQuery==="0"||/^(false|off)$/i.test(botChromeQuery||"");
 let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")==="1";
 let autoCancelled=false;
 let initPromise=null;
@@ -405,6 +407,7 @@ function log(msg){
  $("log").textContent+=msg+"\n";
  $("log").scrollTop=$("log").scrollHeight;
 }
+if(botChromeOff)log("[botChrome] OFF — skip forceKms/diagnose/post-Ready load");
 function state(msg){$("browserState").textContent=msg}
 function markStep(id,kind){
  $(id).className="step"+(kind?" "+kind:"");
@@ -740,7 +743,7 @@ async function openCoreDesktopApps(){
   }catch(e){log("TERMINAL ERROR: "+(e?.message||String(e)))}
   log("[flow] Terminal after");
   // diagnose best-effort; never block Firefox path
-  diagnoseGuiPaint().catch(e=>log("[paint] after terminal ERROR: "+(e?.message||String(e))));
+  if(!botChromeOff)diagnoseGuiPaint().catch(e=>log("[paint] after terminal ERROR: "+(e?.message||String(e))));
  }
  if(core.files){
   try{await ensureFilesVisible()}catch(e){log("[files] ensure after openCore ERROR: "+(e?.message||String(e)))}
@@ -1248,7 +1251,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1126",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1127",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1316,11 +1319,11 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // v1126: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // v1127: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
   // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
   const _qs=new URLSearchParams(location.search);
   const _cleanBoot=_qs.get("clean")==="1";
-  const idbName=_cleanBoot?("salp-linux-v1126-clean-"+Date.now()):"salp-linux-v1126-clean";
+  const idbName=_cleanBoot?("salp-linux-v1127-clean-"+Date.now()):"salp-linux-v1127-clean";
   const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1456,16 +1459,20 @@ async function boot(){
      ].join("; "),true);
     }catch(e){log("[diag] session/i3 probe deferred/blocked: "+(e?.message||String(e)))}
    }
-   // Rebind KMS after X is up — forceKms:false left canvas transparent on desktop Chrome.
+   // Rebind KMS after X is up only in normal Chrome mode; botChrome=0 avoids
+   // the post-Ready host canvas hammer while retaining layout sizing.
    ensureScreenWrapLayout();
-   sizeCanvas({refit:true,forceKms:true,syncGuest:true});
-   // diagnoseGuiPaint after forceKms: best-effort, do not block Files→Terminal→Firefox
-   diagnoseGuiPaint().catch(e=>log("[paint] after forceKms ERROR: "+(e?.message||String(e))));
+   if(botChromeOff){
+    sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+   }else{
+    sizeCanvas({refit:true,forceKms:true,syncGuest:true});
+    diagnoseGuiPaint().catch(e=>log("[paint] after forceKms ERROR: "+(e?.message||String(e))));
+   }
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
    $("installBtn").disabled=false;
    // Brief settle for i3 IPC; skip second full rewrite before Firefox (already rewritten at boot).
    await new Promise(r=>setTimeout(r,600));
-   await openCoreDesktopApps();
+   if(!botChromeOff)await openCoreDesktopApps();
    // Firefox path BEFORE prepareReadableDesktop (i3 reload/restart can stall under CheerpX).
    if(autoLaunchEnabled&&!autoCancelled){
     log("[flow] Firefox before");
@@ -1476,11 +1483,13 @@ async function boot(){
     try{await detectBrowser()}catch(e){log("DETECT ERROR: "+(e?.message||String(e)))}
    }
    // Best-effort desktop polish after Firefox path started
-   prepareReadableDesktop().catch(e=>log("[desktop] prepare after Firefox ERROR: "+(e?.message||String(e))));
-   // Display diagnostics after core apps + auto browser path settle (~3s).
-   setTimeout(()=>{
-    runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
-   },3000);
+   if(!botChromeOff){
+    prepareReadableDesktop().catch(e=>log("[desktop] prepare after Firefox ERROR: "+(e?.message||String(e))));
+    // Display diagnostics after core apps + auto browser path settle (~3s).
+    setTimeout(()=>{
+     runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
+    },3000);
+   }
    try{$("diagBtn").disabled=false}catch(_){}
   },1800);
  }catch(e){
@@ -1522,7 +1531,7 @@ sizeCanvas({refit:true});
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1126");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1127");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -1619,7 +1628,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1126");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1127");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
