@@ -50,8 +50,8 @@ RUN set -eux; \
       'session_step() { echo "[session] $*"; echo "[session] $*" >> /tmp/salp-session.log; }' \
       'session_step "01 user session entered"' \
       '' \
-      '# Start one deterministic i3 session with project-owned config (no polybar/feh).' \
-      'i3 -c /home/user/.config/i3/config >/tmp/salp-i3.log 2>&1 &' \
+      '# Start one deterministic i3 session with salp-owned fixed config (no polybar/feh).' \
+      'i3 -c /usr/local/share/salp/i3.config >/tmp/salp-i3.log 2>&1 &' \
       'I3PID=$!' \
       'session_step "02 i3 requested pid=$I3PID"' \
       'I3READY=0' \
@@ -163,13 +163,14 @@ RUN set -eux; \
     command -v xterm; \
     command -v pcmanfm
 
-# Minimal i3 configuration owned by salp. No polybar/feh/i3status dependency.
+# Fixed salp i3 config at /usr/local/share/salp/i3.config (WM always uses -c this path).
+# No polybar/feh/alpine_bg. Home copy kept for tools; session must NOT prefer it.
 RUN set -eux; \
-    mkdir -p /home/user/.config/i3; \
+    mkdir -p /usr/local/share/salp /home/user/.config/i3; \
     printf '%s\n' \
-      '# salp Linux minimal i3 config' \
+      '# salp fixed i3 config (no polybar/feh/alpine_bg)' \
       'set $mod Mod1' \
-      'font pango:DejaVu Sans Mono 10' \
+      'font pango:DejaVu Sans 12' \
       'focus_follows_mouse no' \
       'floating_modifier $mod' \
       'workspace_layout default' \
@@ -177,11 +178,32 @@ RUN set -eux; \
       'bindsym $mod+f exec --no-startup-id /usr/local/bin/salp-files' \
       'bindsym $mod+b exec --no-startup-id /usr/local/bin/salp-browser' \
       'bindsym $mod+Shift+q kill' \
+      'bindsym $mod+1 workspace 1' \
+      'bindsym $mod+2 workspace 2' \
+      'bindsym $mod+3 workspace 3' \
+      'bindsym $mod+Shift+1 move container to workspace 1' \
+      'bindsym $mod+Shift+2 move container to workspace 2' \
+      'bindsym $mod+Shift+3 move container to workspace 3' \
+      'bindsym $mod+Shift+c reload' \
+      'bindsym $mod+Shift+r restart' \
       'client.focused          #4c7899 #285577 #ffffff #2e9ef4 #285577' \
       'client.focused_inactive #333333 #5f676a #ffffff #484e50 #5f676a' \
       'client.unfocused        #333333 #222222 #888888 #292d2e #222222' \
-      > /home/user/.config/i3/config; \
-    chown -R user:user /home/user/.config
+      'bar {' \
+      ' position top' \
+      ' font pango:DejaVu Sans 12' \
+      ' colors {' \
+      '  background #204a3a' \
+      '  statusline #ffffff' \
+      '  focused_workspace #3d8f6a #3d8f6a #ffffff' \
+      '  inactive_workspace #204a3a #204a3a #cce8d8' \
+      ' }' \
+      '}' \
+      > /usr/local/share/salp/i3.config; \
+    cp /usr/local/share/salp/i3.config /home/user/.config/i3/config; \
+    chmod 0644 /usr/local/share/salp/i3.config; \
+    chown -R user:user /home/user/.config; \
+    grep -nE 'polybar|feh|alpine_bg' /usr/local/share/salp/i3.config && exit 1 || echo SALP_I3_CLEAN
 
 # Core desktop apps: wrappers start process with & then exit 0 (never FG-wait).
 RUN set -eux; \
@@ -330,4 +352,5 @@ RUN set -eux; \
     test -x /usr/local/bin/salp-files; \
     test -x /usr/local/bin/salp-gui-start; \
     test -x /usr/local/bin/salp-session; \
+    test -f /usr/local/share/salp/i3.config;
     test -f /home/user/.config/i3/config

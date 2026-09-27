@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1123</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1124</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1123");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1124");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -846,6 +846,43 @@ async function rewriteOverlayLaunchers(){
 "SALPGUIEOF",
 "chmod 0755 /usr/local/bin/salp-gui-start",
 "",
+"mkdir -p /usr/local/share/salp",
+"cat > /usr/local/share/salp/i3.config << 'SALPI3EOF'",
+"# salp fixed i3 config (no polybar/feh/alpine_bg)",
+"set $mod Mod1",
+"font pango:DejaVu Sans 12",
+"focus_follows_mouse no",
+"floating_modifier $mod",
+"bindsym $mod+Return exec --no-startup-id /usr/local/bin/salp-terminal",
+"bindsym $mod+f exec --no-startup-id /usr/local/bin/salp-files",
+"bindsym $mod+Shift+q kill",
+"bindsym $mod+1 workspace 1",
+"bindsym $mod+2 workspace 2",
+"bindsym $mod+3 workspace 3",
+"bindsym $mod+Shift+1 move container to workspace 1",
+"bindsym $mod+Shift+2 move container to workspace 2",
+"bindsym $mod+Shift+3 move container to workspace 3",
+"bindsym $mod+Shift+c reload",
+"bindsym $mod+Shift+r restart",
+"client.focused          #4c7899 #285577 #ffffff #2e9ef4 #285577",
+"client.focused_inactive #333333 #5f676a #ffffff #484e50 #5f676a",
+"client.unfocused        #333333 #222222 #888888 #292d2e #222222",
+"bar {",
+" position top",
+" font pango:DejaVu Sans 12",
+" colors {",
+"  background #204a3a",
+"  statusline #ffffff",
+"  focused_workspace #3d8f6a #3d8f6a #ffffff",
+"  inactive_workspace #204a3a #204a3a #cce8d8",
+" }",
+"}",
+"SALPI3EOF",
+"chmod 0644 /usr/local/share/salp/i3.config",
+"echo '=== /usr/local/share/salp/i3.config ==='",
+"cat /usr/local/share/salp/i3.config",
+"grep -nE 'polybar|feh|alpine_bg' /usr/local/share/salp/i3.config && echo SALP_I3_DIRTY || echo SALP_I3_CLEAN",
+"",
 "cat > /usr/local/bin/salp-session << 'SALPSESEOF'",
 "#!/bin/sh",
 "set -u",
@@ -864,26 +901,28 @@ async function rewriteOverlayLaunchers(){
 'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
 ': > "$XDG_RUNTIME_DIR/gui-steps.log" 2>/dev/null || true',
 "",
-'step "04 i3 start"',
+'step "04 i3 config=/usr/local/share/salp/i3.config"',
 "rm -f /tmp/salp-i3.log",
 ": > /tmp/salp-i3.log",
 "chmod 666 /tmp/salp-i3.log 2>/dev/null || true",
-"if [ -f /home/user/.config/i3/config ]; then",
-"  i3 -c /home/user/.config/i3/config -V >/tmp/salp-i3.log 2>&1 &",
-"else",
-"  i3 -V >/tmp/salp-i3.log 2>&1 &",
-"fi",
+"i3 -c /usr/local/share/salp/i3.config -V >/tmp/salp-i3.log 2>&1 &",
 "I3PID=$!",
 "sleep 1",
 'VER=$(i3-msg -t get_version 2>&1 || true)',
 'step "05 i3 version: $VER"',
 'if ! i3-msg -t get_version >/dev/null 2>&1; then',
 '  step "05 i3 retry"',
-"  i3 -V >>/tmp/salp-i3.log 2>&1 &",
+"  i3 -c /usr/local/share/salp/i3.config -V >>/tmp/salp-i3.log 2>&1 &",
 "  I3PID=$!",
 "  sleep 1",
 '  VER=$(i3-msg -t get_version 2>&1 || true)',
 '  step "05 i3 version after retry: $VER"',
+"fi",
+"if grep -nE 'polybar|feh|alpine_bg' /usr/local/share/salp/i3.config >/tmp/salp-i3-clean-check.txt 2>&1; then",
+"  step \"05b I3_DIRTY $(tr '\\n' ' ' </tmp/salp-i3-clean-check.txt)\"",
+"else",
+'  step "05b SALP_I3_CLEAN"',
+"  echo SALP_I3_CLEAN >/tmp/salp-i3-clean-check.txt",
 "fi",
 "",
 'step "05 i3 ready"',
@@ -1213,7 +1252,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1123",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1124",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1281,11 +1320,15 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // Keep v1119 IDB overlay (save download); HTML rewrite still runs each boot for v1120 session/i3/KMS fixes.
-  const idb=await CheerpX.IDBDevice.create("salp-linux-v1119-kms-disk");
+  // v1124: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
+  const _qs=new URLSearchParams(location.search);
+  const _cleanBoot=_qs.get("clean")==="1";
+  const idbName=_cleanBoot?("salp-linux-v1124-clean-"+Date.now()):"salp-linux-v1124-clean";
+  const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
-  log("[2/4] Persistent overlay ready");
+  log("[2/4] Clean overlay (no prior persistent disk): "+idbName);
 
   window.salpStage?.("6/7 CheerpX Linux生成中","Linux.create()");
   const networkInterface={
@@ -1483,7 +1526,7 @@ sizeCanvas({refit:true});
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1123");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1124");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -1580,7 +1623,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1123");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1124");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
