@@ -1,8 +1,9 @@
-# salp Linux v1.10.11 Firefox browser layer
+# salp Linux v1.10.12 Firefox browser layer
 # Upstream is Alpine 3.17 with Xorg + i3 + LightDM (slimmed: xterm + pcmanfm only).
 # Stay on 3.17 main+community — slim upstream so sgt-puzzles@testing is never installed.
 # netsurf is absent from 3.17; install that one package from edge/community via --repository.
 # NOTE: avoid Dockerfile shell heredocs — buildah classic parser splits them into bogus STEPs.
+# v1.10.12: ZIP fonts/i3/salp-browser env + FG-wait fixes (session exit 0, gui-start wait XORGPID, wrappers &+exit).
 RUN set -eux; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
@@ -12,41 +13,68 @@ RUN set -eux; \
     apk add --no-cache \
       firefox-esr \
       ca-certificates \
+      font-noto \
+      font-noto-cjk \
       ttf-dejavu \
       dbus \
       dbus-x11 \
       xrandr \
+      xinit \
       xterm \
       pcmanfm \
+      adwaita-icon-theme \
       shared-mime-info \
-      curl; \
+      curl wget nano bash python3 git; \
     apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community netsurf; \
     update-ca-certificates; \
-    rm -rf /var/cache/apk/* /usr/share/man /usr/share/doc /usr/share/info
+    rm -rf /var/cache/apk/* /var/tmp/* /tmp/* /usr/share/doc/* /usr/share/man/* /usr/share/info/*
 
-# Deterministic salp GUI session (avoids depending on Alpine init/LightDM inside CheerpX).
+# Deterministic salp GUI session. Avoid Alpine init/LightDM inside CheerpX.
+# FG-wait fix: start i3/terminal/files in background then exit 0 (do NOT wait I3PID).
 RUN set -eux; \
     printf '%s\n' \
       '#!/bin/sh' \
       'set -u' \
       'export DISPLAY="${DISPLAY:-:0}"' \
       'export HOME="${HOME:-/home/user}"' \
+      'export USER=user' \
+      'export LOGNAME=user' \
+      'export SHELL=/bin/ash' \
       'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"' \
+      'export GDK_BACKEND=x11' \
+      'export MOZ_ENABLE_WAYLAND=0' \
+      'export LIBGL_ALWAYS_SOFTWARE=1' \
       'mkdir -p "$XDG_RUNTIME_DIR"' \
       'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true' \
+      ': > /tmp/salp-session.log' \
+      'session_step() { echo "[session] $*"; echo "[session] $*" >> /tmp/salp-session.log; }' \
+      'session_step "01 user session entered"' \
       '' \
-      '# i3 is the lightweight desktop shell. Start it first so GUI apps have a WM.' \
-      'mkdir -p "$HOME"' \
-      'i3 >/tmp/salp-i3.log 2>&1 &' \
+      '# Start one deterministic i3 session with project-owned config (no polybar/feh).' \
+      'i3 -c /home/user/.config/i3/config >/tmp/salp-i3.log 2>&1 &' \
       'I3PID=$!' \
+      'session_step "02 i3 requested pid=$I3PID"' \
+      'I3READY=0' \
       'for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do' \
-      '  i3-msg -t get_version >/dev/null 2>&1 && break' \
-      '  sleep 0.4' \
+      '  if i3-msg -t get_version >/dev/null 2>&1; then I3READY=1; break; fi' \
+      '  sleep 0.25' \
       'done' \
+      'if [ "$I3READY" -ne 1 ]; then' \
+      '  session_step "ERROR i3 did not become ready"' \
+      '  tail -n 80 /tmp/salp-i3.log 2>/dev/null || true' \
+      '  exit 30' \
+      'fi' \
+      'session_step "03 i3 ready"' \
       '' \
-      'export SHELL=/bin/sh' \
-      'pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &' \
-      "xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh >/tmp/salp-xterm.log 2>&1 &" \
+      '# Core desktop: Terminal first, Files second. Wrappers exit immediately.' \
+      '/usr/local/bin/salp-terminal >/tmp/salp-xterm.log 2>&1 &' \
+      'session_step "04 terminal requested"' \
+      'sleep 0.6' \
+      '/usr/local/bin/salp-files >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'session_step "05 files requested"' \
+      '' \
+      '# FG-wait fix: do NOT wait I3PID — return so CheerpX/JS can proceed.' \
+      'session_step "06 desktop ready"' \
       'exit 0' \
       > /usr/local/bin/salp-session; \
     printf '%s\n' \
@@ -54,47 +82,78 @@ RUN set -eux; \
       'set -u' \
       'export DISPLAY=:0' \
       'export HOME=/root' \
-      'mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /home/user' \
-      'chmod 1777 /tmp/.X11-unix 2>/dev/null || true' \
-      'chown 1000:1000 /tmp/runtime-user' \
-      'chmod 700 /tmp/runtime-user' \
-      'chown 1000:1000 /home/user' \
+      'export SHELL=/bin/ash' \
+      ': > /tmp/salp-gui-steps.log' \
+      'step() { echo "[gui-step] $*"; echo "[gui-step] $*" >> /tmp/salp-gui-steps.log; }' \
+      'step "01 launcher entered"' \
+      'mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /dev/shm /home/user' \
+      'chmod 1777 /tmp/.X11-unix /dev/shm 2>/dev/null || true' \
+      'if id user >/dev/null 2>&1; then' \
+      '  chown user:user /tmp/runtime-user 2>/dev/null || true' \
+      '  chown user:user /home/user 2>/dev/null || true' \
+      'fi' \
+      'chmod 700 /tmp/runtime-user 2>/dev/null || true' \
+      'step "02 runtime directories ready"' \
       '' \
       'grep -qs " /proc " /proc/mounts 2>/dev/null || mount -t proc proc /proc 2>/dev/null || true' \
       'grep -qs " /sys " /proc/mounts 2>/dev/null || mount -t sysfs sysfs /sys 2>/dev/null || true' \
       'grep -qs " /dev/pts " /proc/mounts 2>/dev/null || mount -t devpts devpts /dev/pts 2>/dev/null || true' \
+      'step "03 pseudo filesystems ready"' \
       '' \
       'if command -v dbus-daemon >/dev/null 2>&1 && [ ! -S /run/dbus/system_bus_socket ]; then' \
       '  dbus-uuidgen --ensure=/etc/machine-id >/dev/null 2>&1 || true' \
       '  dbus-daemon --system --fork >/tmp/salp-dbus.log 2>&1 || true' \
       'fi' \
+      'step "04 system dbus ready"' \
       '' \
-      '# -ac disables X access control so unprivileged user can attach to root-owned Xorg.' \
+      'XORGPID=' \
       'if ! pidof Xorg >/dev/null 2>&1 && ! pidof X >/dev/null 2>&1; then' \
       '  rm -f /tmp/.X0-lock /tmp/.X11-unix/X0' \
-      '  Xorg :0 -ac -noreset -nolisten tcp >/tmp/salp-xorg.log 2>&1 &' \
+      '  # ZIP Xorg flags intentional for this release (-noreset -nolisten tcp -ac).' \
+      '  Xorg :0 -noreset -nolisten tcp -ac >/tmp/salp-xorg.log 2>&1 &' \
+      '  XORGPID=$!' \
+      'else' \
+      '  XORGPID=`pidof Xorg 2>/dev/null`' \
+      '  XORGPID=${XORGPID%% *}' \
+      '  if [ -z "$XORGPID" ]; then XORGPID=`pidof X 2>/dev/null`; XORGPID=${XORGPID%% *}; fi' \
       'fi' \
+      'step "05 Xorg requested"' \
       '' \
       'n=0' \
-      'while [ ! -S /tmp/.X11-unix/X0 ] && [ "$n" -lt 50 ]; do' \
+      'while [ ! -S /tmp/.X11-unix/X0 ] && [ "$n" -lt 80 ]; do' \
       '  sleep 0.25' \
       '  n=$((n+1))' \
       'done' \
       'if [ ! -S /tmp/.X11-unix/X0 ]; then' \
+      '  step "ERROR Xorg socket missing"' \
       "  echo 'salp GUI: Xorg socket :0 did not appear' >&2" \
-      '  tail -n 80 /tmp/salp-xorg.log 2>/dev/null || true' \
+      '  tail -n 100 /tmp/salp-xorg.log 2>/dev/null || true' \
       '  exit 20' \
       'fi' \
+      'step "06 Xorg socket ready"' \
       '' \
       'if command -v xhost >/dev/null 2>&1; then' \
       '  DISPLAY=:0 xhost +SI:localuser:user >/dev/null 2>&1 || DISPLAY=:0 xhost +local: >/dev/null 2>&1 || true' \
       'fi' \
       '' \
+      '# FG-wait fix: start user session in BACKGROUND; keep wait on XORGPID (not exec su).' \
+      'step "07 starting user desktop session"' \
       'if command -v su >/dev/null 2>&1; then' \
-      "  exec su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user; if command -v dbus-launch >/dev/null 2>&1; then exec dbus-launch --exit-with-session /usr/local/bin/salp-session; else exec /usr/local/bin/salp-session; fi'" \
+      "  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user USER=user LOGNAME=user SHELL=/bin/ash XDG_RUNTIME_DIR=/tmp/runtime-user GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND=0 LIBGL_ALWAYS_SOFTWARE=1; if command -v dbus-launch >/dev/null 2>&1; then exec dbus-launch --exit-with-session /usr/local/bin/salp-session; else exec /usr/local/bin/salp-session; fi' &" \
+      'else' \
+      '  export HOME=/home/user USER=user LOGNAME=user SHELL=/bin/ash XDG_RUNTIME_DIR=/tmp/runtime-user GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND=0 LIBGL_ALWAYS_SOFTWARE=1' \
+      '  /usr/local/bin/salp-session &' \
       'fi' \
-      'export HOME=/home/user' \
-      'exec /usr/local/bin/salp-session' \
+      'sleep 0.3' \
+      'step "08 GUI startup complete (waiting on Xorg)"' \
+      'if [ -n "$XORGPID" ]; then' \
+      '  wait $XORGPID' \
+      '  exit $?' \
+      'fi' \
+      'while pidof Xorg >/dev/null 2>&1 || pidof X >/dev/null 2>&1; do' \
+      '  sleep 2' \
+      'done' \
+      'exit 0' \
       > /usr/local/bin/salp-gui-start; \
     chmod 0755 /usr/local/bin/salp-session /usr/local/bin/salp-gui-start; \
     test -x /usr/local/bin/salp-session; \
@@ -104,15 +163,37 @@ RUN set -eux; \
     command -v xterm; \
     command -v pcmanfm
 
-# Core desktop apps: terminal + file manager are mandatory in salp Linux.
+# Minimal i3 configuration owned by salp. No polybar/feh/i3status dependency.
+RUN set -eux; \
+    mkdir -p /home/user/.config/i3; \
+    printf '%s\n' \
+      '# salp Linux minimal i3 config' \
+      'set $mod Mod1' \
+      'font pango:DejaVu Sans Mono 10' \
+      'focus_follows_mouse no' \
+      'floating_modifier $mod' \
+      'workspace_layout default' \
+      'bindsym $mod+Return exec --no-startup-id /usr/local/bin/salp-terminal' \
+      'bindsym $mod+f exec --no-startup-id /usr/local/bin/salp-files' \
+      'bindsym $mod+b exec --no-startup-id /usr/local/bin/salp-browser' \
+      'bindsym $mod+Shift+q kill' \
+      'client.focused          #4c7899 #285577 #ffffff #2e9ef4 #285577' \
+      'client.focused_inactive #333333 #5f676a #ffffff #484e50 #5f676a' \
+      'client.unfocused        #333333 #222222 #888888 #292d2e #222222' \
+      > /home/user/.config/i3/config; \
+    chown -R user:user /home/user/.config
+
+# Core desktop apps: wrappers start process with & then exit 0 (never FG-wait).
 RUN set -eux; \
     printf '%s\n' \
       '#!/bin/sh' \
       'set -eu' \
       'export DISPLAY="${DISPLAY:-:0}"' \
       'export HOME="${HOME:-/home/user}"' \
-      'export SHELL=/bin/sh' \
-      "xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/sh >/tmp/salp-xterm.log 2>&1 &" \
+      'export USER="${USER:-user}"' \
+      'export LOGNAME="${LOGNAME:-user}"' \
+      'export SHELL=/bin/ash' \
+      "/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -e /bin/ash >/tmp/salp-xterm.log 2>&1 &" \
       'exit 0' \
       > /usr/local/bin/salp-terminal; \
     printf '%s\n' \
@@ -120,10 +201,20 @@ RUN set -eux; \
       'set -eu' \
       'export DISPLAY="${DISPLAY:-:0}"' \
       'export HOME="${HOME:-/home/user}"' \
+      'export USER="${USER:-user}"' \
+      'export LOGNAME="${LOGNAME:-user}"' \
+      'export SHELL=/bin/ash' \
       'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"' \
+      'export GDK_BACKEND=x11' \
       'mkdir -p "$XDG_RUNTIME_DIR"' \
       'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true' \
-      '( dbus-launch -- pcmanfm --no-desktop --new-win "${1:-$HOME}" || pcmanfm --no-desktop --new-win "${1:-$HOME}" ) >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'if [ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then' \
+      '  /usr/bin/pcmanfm --no-desktop "${1:-/home/user}" >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'elif command -v dbus-launch >/dev/null 2>&1; then' \
+      '  dbus-launch -- /usr/bin/pcmanfm --no-desktop "${1:-/home/user}" >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'else' \
+      '  /usr/bin/pcmanfm --no-desktop "${1:-/home/user}" >/tmp/salp-pcmanfm.log 2>&1 &' \
+      'fi' \
       'exit 0' \
       > /usr/local/bin/salp-files; \
     chmod 0755 /usr/local/bin/salp-terminal /usr/local/bin/salp-files; \
@@ -148,7 +239,7 @@ RUN set -eux; \
     test -x /usr/local/bin/salp-terminal; \
     test -x /usr/local/bin/salp-files
 
-# Firefox profile defaults chosen for software-rendered/browser-virtualized Linux.
+# Firefox profile defaults for software-rendered/browser-virtualized Linux.
 RUN set -eux; \
     mkdir -p /home/user/.mozilla/firefox/salp.default; \
     printf '%s\n' \
@@ -181,11 +272,22 @@ RUN set -eux; \
       'URL="${1:-https://www.google.com/}"' \
       'export DISPLAY="${DISPLAY:-:0}"' \
       'export HOME="${HOME:-/home/user}"' \
+      'export USER="${USER:-user}"' \
+      'export LOGNAME="${LOGNAME:-user}"' \
+      'export SHELL=/bin/ash' \
       'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"' \
+      'export GDK_BACKEND=x11' \
+      'export MOZ_ENABLE_WAYLAND=0' \
+      'export LIBGL_ALWAYS_SOFTWARE=1' \
+      'export TMPDIR=/tmp' \
       'mkdir -p "$XDG_RUNTIME_DIR"' \
       'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true' \
       '' \
-      '# Prefer real Linux Firefox. NetSurf remains as a lightweight safety fallback.' \
+      'if [ ! -S /tmp/.X11-unix/X0 ]; then' \
+      "  echo 'salp Browser: Xorg display :0 is not ready.' >&2" \
+      '  exit 70' \
+      'fi' \
+      '' \
       'for browser in firefox-esr firefox; do' \
       '  if command -v "$browser" >/dev/null 2>&1; then' \
       '    exec "$browser" --new-instance --no-remote "$URL"' \
@@ -211,7 +313,7 @@ RUN set -eux; \
       'Categories=Network;WebBrowser;' \
       > /usr/share/applications/salp-browser.desktop; \
     printf '%s\n' \
-      'salp Linux v1.10.11' \
+      'salp Linux v1.10.12' \
       'browser=firefox-esr' \
       'fallback=netsurf' \
       'homepage=https://www.google.com/' \
@@ -227,4 +329,5 @@ RUN set -eux; \
     test -x /usr/local/bin/salp-terminal; \
     test -x /usr/local/bin/salp-files; \
     test -x /usr/local/bin/salp-gui-start; \
-    test -x /usr/local/bin/salp-session
+    test -x /usr/local/bin/salp-session; \
+    test -f /home/user/.config/i3/config

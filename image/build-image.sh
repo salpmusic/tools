@@ -7,7 +7,7 @@ IMAGE_SIZE="${IMAGE_SIZE:-800M}"
 REPO_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ADDITION="$REPO_ROOT/image/Dockerfile.addition.txt"
 UPSTREAM="${UPSTREAM_REPO:-https://github.com/leaningtech/alpine-image.git}"
-IMAGE_TAG="salp-linux-browser:v1.10.11"
+IMAGE_TAG="salp-linux-browser:v1.10.12"
 # Soft Pages budget: refuse to mkfs if used rootfs is clearly too large for IMAGE_SIZE=800M.
 MAX_ROOTFS_MB="${MAX_ROOTFS_MB:-780}"
 container=""
@@ -95,6 +95,16 @@ fi
 [[ -x "$rootfs/usr/local/bin/salp-files" ]] || fail "salp-files launcher is missing"
 [[ -x "$rootfs/usr/local/bin/salp-gui-start" ]] || fail "salp-gui-start launcher is missing"
 [[ -x "$rootfs/usr/local/bin/salp-session" ]] || fail "salp-session launcher is missing"
+[[ -x "$rootfs/bin/ash" ]] || fail "/bin/ash is missing"
+[[ -f "$rootfs/home/user/.config/i3/config" ]] || fail "salp minimal i3 config is missing"
+grep -q "salp Linux minimal i3 config" "$rootfs/home/user/.config/i3/config" || fail "unexpected i3 config"
+# FG-wait sanity: session must exit 0, must not wait I3PID; gui-start must wait XORGPID not exec su
+grep -q 'wait "$I3PID"' "$rootfs/usr/local/bin/salp-session" && fail "salp-session still waits I3PID (FG hang)"
+grep -q 'exit 0' "$rootfs/usr/local/bin/salp-session" || fail "salp-session missing exit 0"
+grep -q 'wait \$XORGPID\|wait $XORGPID' "$rootfs/usr/local/bin/salp-gui-start" || fail "salp-gui-start missing wait XORGPID"
+grep -Eq 'exec su ' "$rootfs/usr/local/bin/salp-gui-start" && fail "salp-gui-start still uses exec su (FG hang)"
+grep -q 'exit 0' "$rootfs/usr/local/bin/salp-terminal" || fail "salp-terminal missing exit 0"
+grep -q 'exit 0' "$rootfs/usr/local/bin/salp-files" || fail "salp-files missing exit 0"
 
 log "Aggressive rootfs cleanup before mkfs"
 rm -rf \
@@ -133,7 +143,7 @@ fi
 
 sha256sum "$OUTPUT" > "$OUTPUT.sha256"
 {
-  echo 'salp Linux v1.10.11 Firefox Browser Image'
+  echo 'salp Linux v1.10.12 Firefox Browser Image'
   echo "built_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "image_size=$IMAGE_SIZE"
   echo "rootfs_used_mb=$used_mb"

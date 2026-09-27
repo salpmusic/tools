@@ -1,8 +1,31 @@
-# salp Linux v1.10.9 — CheerpX GUI Display Upgrade
+# salp Linux v1.10.12 — Minimum Usable GUI
+
+## v1.10.12 の目的
+
+「何でも入り」ではなく、まず iPhone 上で **PC 1366×768 + i3 + Terminal + Files + 手動 Firefox** が安定して使える最小構成を優先した版です。
+
+主な修正:
+- CheerpX `cx.run()` の非同期処理を修正。GUIアプリ終了まで誤って待ってしまう問題を解消。
+- `salp-terminal` は `/bin/ash` を明示して起動し、`No absolute path found for shell: xterm` を回避。
+- `/tmp/runtime-user` を `user:user` 所有にして PCManFM / D-Bus の実行環境を安定化。
+- `/dev/shm` を用意し、Firefox の共有メモリ不足警告を軽減。
+- upstream の polybar / feh 前提設定を使わず、salp 専用の最小 i3 config を使用。
+- Core GUI は salp-session から一度だけ起動し、HTML側の二重起動を防止。
+- Firefox 自動起動は初期値 OFF。まず Desktop / Terminal / Files を確認してから手動起動。
+- Firefox は `salp-browser` ラッパーを優先し、X11 + software rendering 向け環境を固定。
+- Xorg Ready 判定を i3 Ready まで確認するよう強化。
+
+## v1.10.12 GUI boot fix
+
+- CheerpX `Linux.create()` now mounts `/proc` using the native `proc` mount and `/dev/pts` using `devpts` before `/sbin/init` starts. This directly addresses the observed `/proc/filesystems: No such file or directory` boot failure.
+- GUI startup now waits for X display `:0` instead of declaring success after a fixed delay. If Xorg never appears, the UI reports `Xorg Not Ready` and keeps the Setup Log visible.
+- Once Xorg is ready, Files (PCManFM) and Terminal (xterm) are launched automatically as core desktop apps, regardless of browser Auto ON/OFF.
+- Local `salp-browser.ext2` gets a `?v=1112` cache-buster and v1.10.12 uses a fresh IndexedDB overlay namespace so stale blocks from older base images cannot mask newly rebuilt packages.
+- GitHub Actions/build defaults are aligned to an 800M Pages-friendly target, with a rootfs-size guard that fails clearly rather than silently creating an oversized image.
 
 ブラウザー上で動く salp Linux の表示・スマホ操作改善版です。v1.10.1 の Linux 起動、Firefox ESR、NetSurf fallback、Tailscale、外部 ext2、永続化、Builder を維持しつつ、**CheerpX の本物の Linux GUI Canvas** 側を修正しました。
 
-## v1.10.9 の主な更新
+## v1.10.12 の主な更新
 
 - `salp-browser.html` の CheerpX `setKmsCanvas()` を PC / Mobile 表示切替と連動
 - PC表示は Linux 仮想画面を **1366×768** に設定
@@ -13,11 +36,11 @@
 - `−` / `＋` で拡大縮小、`Fit` で全体表示、`◎` で中央へ復帰
 - 小画面向けに表示操作バーをコンパクト化
 - 画面回転・リサイズ時にフィットを再計算。Mobile表示では仮想解像度も再計算
-- Desktop / Browser OS / Builder / build scripts のバージョンとキャッシュクエリを v1.10.9 に更新
+- Desktop / Browser OS / Builder / build scripts のバージョンとキャッシュクエリを v1.10.12 に更新
 
 ## 重要：iframe と Linux GUI は別物
 
-`salp-linux.html` 内の通常Webブラウザー表示は iframe です。一方、Linuxデスクトップ / Firefox ESR は `salp-browser.html` 内の CheerpX Canvas (`setKmsCanvas`) です。v1.10.9 の PC/Mobile・移動・Fit は **後者の Linux GUI Canvas** に実装されています。
+`salp-linux.html` 内の通常Webブラウザー表示は iframe です。一方、Linuxデスクトップ / Firefox ESR は `salp-browser.html` 内の CheerpX Canvas (`setKmsCanvas`) です。v1.10.12 の PC/Mobile・移動・Fit は **後者の Linux GUI Canvas** に実装されています。
 
 ## 操作
 
@@ -42,7 +65,7 @@
 
 この環境では実機 iPhone / iOS Safari 上のタッチ操作と、実際に CheerpX + Xorg を最後まで起動した状態での表示確認はできません。HTML/JavaScript の静的構文、リンク、ZIP構成は生成時にチェックしています。特に CheerpX が CSS transform 後の Canvas pointer 座標をどのように扱うかは実機確認が必要です。問題がある場合でも `🖐 移動` をOFFにした通常入力と、Fit/中央復帰は独立しています。
 
-## v1.10.9 DEBUG diagnostics
+## v1.10.12 DEBUG diagnostics
 
 This build adds visible boot diagnostics to `salp-browser.html` so an iPhone/Safari failure can be located without opening developer tools.
 
@@ -58,11 +81,11 @@ The splash screen now reports these stages:
 If startup fails, keep the screen visible and report the last stage/error text shown in the diagnostic box.
 
 
-## v1.10.9 hotfix
+## v1.10.12 hotfix
 - Fixed startup blocker: missing `setReady()` helper caused Safari `Can't find variable: setReady` at diagnostic step 4/7.
 - Startup diagnostics are kept enabled so the next failure point remains visible on iPhone.
 
-## v1.10.9 layout + browser-image fix
+## v1.10.12 layout + browser-image fix
 - Fixed the mobile layout bug where `screenWrap` collapsed to zero height because the CSS grid had fewer declared rows than actual children and the canvas/overlays were absolutely positioned.
 - Mobile pages can now scroll and the real CheerpX Linux canvas receives a visible `68dvh` / minimum 420px viewport.
 - Desktop keeps a fixed full-height app with the Linux canvas using the remaining space.
@@ -73,6 +96,13 @@ If startup fails, keep the screen visible and report the last stage/error text s
 - Boot diagnostics now log the actual `screenWrap` size, canvas resolution, and fit scale after KMS setup.
 
 
-## v1.10.9 core desktop apps
+## v1.10.12 core desktop apps
 
 Terminal (xterm) and Files (PCManFM) are now mandatory parts of the Firefox ext2 image. The build fails if either app or its salp launcher is missing. When no browser is detected after GUI boot, salp Linux opens Files and Terminal as a visible GUI fallback instead of leaving the i3 desktop blank.
+
+## v1.10.12 merge notes (Pages / tools-deploy)
+
+- Kept battle-tested `salp-browser.html` Ready/flow/FG-wait fixes (`xorgReadyFromLog`, overlay rewrite, `[flow]` logs) and cache-busted to `?v=1123`.
+- Image layer taken from ZIP 1.10.12 (fonts, i3 config, `salp-browser` env, software GL) but **patched** so `salp-session` exits 0 (no `wait I3PID`), `salp-gui-start` backgrounds the user session and `wait`s `XORGPID`, and terminal/files wrappers `&` then `exit 0`.
+- Dockerfile uses `printf` (not shell heredocs) because buildah classic parser splits heredocs.
+- Workflow retains deploy-only + GitHub Pages publish paths; artifact name is `salp-firefox-v1.10.12-ext2`.

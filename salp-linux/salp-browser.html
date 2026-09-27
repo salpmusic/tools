@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.11</title>
+<title>salp Browser OS v1.10.12</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.11 GUI PAINT v1120</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1123</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -253,7 +253,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.11">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.12">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -266,7 +266,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Desktop v1.10.11</h1>
+   <h1>salp Linux Desktop v1.10.12</h1>
    <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -287,7 +287,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Desktop v1.10.11：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
+ salp Linux Desktop v1.10.12：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1122");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1123");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -580,7 +580,7 @@ async function detectCoreApps(){
   log("Core GUI apps ready: terminal + file manager");
  }else{
   setReady("coreReady","error",`Core Apps Missing${!term?" / Terminal":""}${!files?" / Files":""}`);
-  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.11.`);
+  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.12.`);
  }
  return {term,files};
 }
@@ -598,7 +598,7 @@ async function launchTerminal(){
   ].join(" ");
   return await shell(cmd,false);
  }
- state("Terminalがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
+ state("Terminalがありません。v1.10.12のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
  // Force DISPLAY=:0 via sh -lc; --new-win for mapped window.
@@ -623,7 +623,7 @@ async function launchFiles(){
   ].join(" ");
   return await shell(cmd,false);
  }
- state("Filesがありません。v1.10.11のsalp-browser.ext2を再ビルドしてください。");
+ state("Filesがありません。v1.10.12のsalp-browser.ext2を再ビルドしてください。");
 }
 
 async function diagnoseGuiPaint(){
@@ -797,7 +797,7 @@ async function rewriteOverlayLaunchers(){
 'step "02 Xorg start"',
 "if ! pidof Xorg >/dev/null 2>&1 && ! pidof X >/dev/null 2>&1; then",
 "  rm -f /tmp/.X0-lock /tmp/.X11-unix/X0",
-"  Xorg :0 -ac -noreset -nolisten tcp >/tmp/salp-xorg.log 2>&1 &",
+"  Xorg :0 -noreset -nolisten tcp -ac >/tmp/salp-xorg.log 2>&1 &",
 "  XORGPID=$!",
 "else",
 "  XORGPID=`pidof Xorg 2>/dev/null`",
@@ -827,9 +827,9 @@ async function rewriteOverlayLaunchers(){
 "# Background session WITHOUT redirecting stdout/stderr away from CheerpX console.",
 "# Steps 04-07 must reach setCustomConsole / Setup Log; step() still dual-writes files.",
 "if command -v su >/dev/null 2>&1; then",
-"  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash; exec /usr/local/bin/salp-session' &",
+"  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user USER=user LOGNAME=user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND=0 LIBGL_ALWAYS_SOFTWARE=1; exec /usr/local/bin/salp-session' &",
 "else",
-"  export HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash",
+"  export HOME=/home/user USER=user LOGNAME=user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND=0 LIBGL_ALWAYS_SOFTWARE=1",
 "  /usr/local/bin/salp-session &",
 "fi",
 "sleep 0.3",
@@ -853,8 +853,13 @@ async function rewriteOverlayLaunchers(){
 'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>"${XDG_RUNTIME_DIR:-/tmp/runtime-user}/gui-steps.log" 2>/dev/null || true; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log 2>/dev/null || true; }',
 'export DISPLAY="${DISPLAY:-:0}"',
 'export HOME="${HOME:-/home/user}"',
+'export USER="${USER:-user}"',
+'export LOGNAME="${LOGNAME:-user}"',
 'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
 "export SHELL=/bin/ash",
+"export GDK_BACKEND=x11",
+"export MOZ_ENABLE_WAYLAND=0",
+"export LIBGL_ALWAYS_SOFTWARE=1",
 'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
 'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
 ': > "$XDG_RUNTIME_DIR/gui-steps.log" 2>/dev/null || true',
@@ -863,7 +868,11 @@ async function rewriteOverlayLaunchers(){
 "rm -f /tmp/salp-i3.log",
 ": > /tmp/salp-i3.log",
 "chmod 666 /tmp/salp-i3.log 2>/dev/null || true",
-"i3 -V >/tmp/salp-i3.log 2>&1 &",
+"if [ -f /home/user/.config/i3/config ]; then",
+"  i3 -c /home/user/.config/i3/config -V >/tmp/salp-i3.log 2>&1 &",
+"else",
+"  i3 -V >/tmp/salp-i3.log 2>&1 &",
+"fi",
 "I3PID=$!",
 "sleep 1",
 'VER=$(i3-msg -t get_version 2>&1 || true)',
@@ -903,6 +912,8 @@ async function rewriteOverlayLaunchers(){
 "set -u",
 'export DISPLAY="${DISPLAY:-:0}"',
 'export HOME="${HOME:-/home/user}"',
+'export USER="${USER:-user}"',
+'export LOGNAME="${LOGNAME:-user}"',
 "export SHELL=/bin/ash",
 "/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
 "exit 0",
@@ -914,7 +925,10 @@ async function rewriteOverlayLaunchers(){
 "set -u",
 'export DISPLAY="${DISPLAY:-:0}"',
 'export HOME="${HOME:-/home/user}"',
+'export USER="${USER:-user}"',
+'export LOGNAME="${LOGNAME:-user}"',
 'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
+"export GDK_BACKEND=x11",
 'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
 'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
 '( dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "${1:-$HOME}" || /usr/bin/pcmanfm --no-desktop --new-win "${1:-$HOME}" ) >/tmp/salp-pcmanfm.log 2>&1 &',
@@ -1115,7 +1129,7 @@ async function detectBrowser(){
    state("現在は公式Alpineです。Firefoxは入っていません。salp-browser.ext2を同じフォルダへ置くか、⚙ ImageでFirefox入りext2のURLを設定してください。");
    setReady("browserReady","error","Browser Image Needed");
   }else{
-   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.11 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
+   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.12 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
    setReady("browserReady","error","Browser Not Found");
   }
   status("Browser未検出","error");
@@ -1199,14 +1213,14 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1122",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1123",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
  if(forceOfficial)return {url:"",name:"Official Alpine 3.17",source:"official"};
  const tries=[];
- if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.11",source:"saved"});
- else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.11",source:"local"});
+ if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.12",source:"saved"});
+ else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.12",source:"local"});
  for(const item of tries){
   try{
    let ok=false;
@@ -1234,7 +1248,7 @@ async function boot(){
  window.salpStage?.("5/7 Linux起動開始","boot() entered");
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.11...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.12...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const selectedImage=await resolveBrowserImage();
@@ -1440,7 +1454,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.11";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.12";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  if(url){$("sourceBadge").textContent="🦊 "+name;setReady("imageReady","ok","Custom Firefox Image")}
@@ -1469,13 +1483,13 @@ sizeCanvas({refit:true});
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1111");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1123");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.11";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.12";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -1566,7 +1580,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1111");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1123");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
