@@ -1,0 +1,3185 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SALP CARD GAMES - SEVEN BRIDGE</title>
+<style>
+:root{
+  --bg:#07141c;
+  --panel:#0d2430;
+  --panel2:#123746;
+  --ink:#eefcff;
+  --muted:#9bc4cf;
+  --accent:#31c7bd;
+  --accent2:#4aa6ff;
+  --danger:#ff6b7a;
+  --ok:#7ee787;
+
+  --card-w:clamp(46px,13vw,78px);
+  --card-h:calc(var(--card-w)*1.42);
+  --card-gap:clamp(4px,1.2vw,9px);
+
+  --radius:16px;
+  --shadow:0 12px 30px rgba(0,0,0,.28);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:
+    radial-gradient(circle at top,#0c2e3e 0,#07141c 48%,#040b10 100%);
+  color:var(--ink);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Hiragino Sans",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
+}
+
+body{
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+button,
+a{
+  font:inherit;
+}
+
+button{
+  touch-action:manipulation;
+}
+
+.app{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:10px;
+  max-width:1180px;
+  margin:0 auto;
+}
+
+header{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px;
+  align-items:center;
+  background:rgba(13,36,48,.92);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--radius);
+  padding:10px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+}
+
+.back{
+  color:var(--ink);
+  text-decoration:none;
+  background:#0a1d27;
+  border:1px solid rgba(255,255,255,.1);
+  padding:10px 12px;
+  border-radius:12px;
+  white-space:nowrap;
+}
+
+.titles{
+  text-align:center;
+  min-width:0;
+}
+
+.series{
+  font-weight:800;
+  letter-spacing:.04em;
+  font-size:clamp(13px,3vw,17px);
+  color:#bfeef1;
+}
+
+.game-title{
+  font-weight:900;
+  font-size:clamp(18px,5vw,28px);
+  line-height:1.1;
+}
+
+.sub{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:3px;
+}
+
+.header-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.icon-btn{
+  border:1px solid rgba(255,255,255,.12);
+  background:#102f3d;
+  color:var(--ink);
+  border-radius:11px;
+  padding:8px 10px;
+  min-height:42px;
+}
+
+button:focus-visible,
+a:focus-visible{
+  outline:3px solid #fff;
+  outline-offset:2px;
+}
+
+main{
+  display:grid;
+  gap:10px;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto 1fr auto;
+}
+
+.status{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.stat{
+  background:rgba(13,36,48,.88);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:8px;
+  text-align:center;
+}
+
+.stat b{
+  display:block;
+  font-size:14px;
+}
+
+.stat span{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.table{
+  position:relative;
+  min-height:420px;
+  background:
+    linear-gradient(180deg,#0b6b72,#084d5f);
+  border:3px solid #163845;
+  border-radius:24px;
+  box-shadow:
+    inset 0 0 45px rgba(0,0,0,.28),
+    var(--shadow);
+  padding:12px;
+  overflow:hidden;
+}
+
+.cpu-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.player-box{
+  background:rgba(0,0,0,.16);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:14px;
+  padding:8px;
+  min-height:94px;
+}
+
+.player-box.active{
+  box-shadow:0 0 0 3px rgba(49,199,189,.6) inset;
+}
+
+.player-box h3{
+  margin:0 0 6px;
+  font-size:13px;
+  display:flex;
+  justify-content:space-between;
+  gap:4px;
+}
+
+.mini-hand{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:48px;
+}
+
+.card-back{
+  width:31px;
+  height:44px;
+  border-radius:6px;
+  border:2px solid #e6f8ff;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #176a89 0 5px,
+      #0b4159 5px 10px
+    );
+  box-shadow:0 2px 5px rgba(0,0,0,.3);
+}
+
+.center{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  align-items:center;
+  max-width:540px;
+  margin:18px auto;
+}
+
+.pile{
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:16px;
+  padding:10px;
+  text-align:center;
+  min-height:150px;
+  display:grid;
+  place-items:center;
+}
+
+.pile button{
+  background:none;
+  border:0;
+  color:inherit;
+}
+
+.pile-label{
+  font-size:12px;
+  color:#d4f7fb;
+  margin-bottom:4px;
+}
+
+.stock-card{
+  width:var(--card-w);
+  height:var(--card-h);
+  border-radius:10px;
+  border:2px solid #eefcff;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #195f7a 0 8px,
+      #0a3649 8px 16px
+    );
+  box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+
+.card{
+  position:relative;
+  width:var(--card-w);
+  height:var(--card-h);
+  border-radius:10px;
+  border:2px solid #dce8ef;
+  background:#fff;
+  color:#101820;
+  box-shadow:0 5px 10px rgba(0,0,0,.25);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:5px;
+  user-select:none;
+  touch-action:manipulation;
+  transition:
+    transform .13s ease,
+    box-shadow .13s ease,
+    border-color .13s ease;
+}
+
+.card.red{
+  color:#c51d3a;
+}
+
+.card.joker{
+  color:#6c2bd9;
+  background:
+    linear-gradient(180deg,#fff,#f3ebff);
+}
+
+.card .rank{
+  font-weight:900;
+  font-size:clamp(15px,4vw,22px);
+  line-height:1;
+}
+
+.card .suit{
+  font-size:clamp(20px,6vw,34px);
+  line-height:1;
+  text-align:center;
+}
+
+.card .small{
+  font-size:11px;
+  font-weight:800;
+}
+
+.card.selected{
+  transform:translateY(-12px);
+  box-shadow:
+    0 0 0 4px #ffe66d,
+    0 8px 18px rgba(0,0,0,.3);
+  border-color:#ffe66d;
+}
+
+.card.disabled{
+  opacity:.45;
+  filter:saturate(.3);
+}
+
+.meld-area{
+  margin-top:8px;
+}
+
+.meld-title{
+  font-size:12px;
+  color:#d7fbff;
+  margin-bottom:5px;
+}
+
+.melds{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.meld{
+  display:flex;
+  gap:2px;
+  padding:4px;
+  background:rgba(0,0,0,.18);
+  border-radius:9px;
+}
+
+.meld .card{
+  --card-w:clamp(34px,8vw,50px);
+  padding:3px;
+}
+
+.meld .card .rank{
+  font-size:13px;
+}
+
+.meld .card .suit{
+  font-size:18px;
+}
+
+.bottom{
+  background:rgba(13,36,48,.92);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:10px;
+  box-shadow:var(--shadow);
+}
+
+.prompt{
+  text-align:center;
+  font-weight:800;
+  margin-bottom:8px;
+  min-height:24px;
+}
+
+.hand-wrap{
+  overflow-x:auto;
+  padding:12px 2px 4px;
+  scrollbar-width:thin;
+}
+
+.hand{
+  display:flex;
+  gap:var(--card-gap);
+  min-width:max-content;
+  justify-content:center;
+}
+
+.controls{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.action{
+  border:0;
+  border-radius:12px;
+  padding:11px 14px;
+  font-weight:900;
+  min-height:46px;
+}
+
+.primary{
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      var(--accent2)
+    );
+  color:#04151d;
+}
+
+.secondary{
+  background:#183f50;
+  color:#effcff;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.danger{
+  background:#5b2330;
+  color:#fff;
+}
+
+.action:disabled{
+  opacity:.4;
+  filter:grayscale(.5);
+}
+
+.log{
+  font-size:12px;
+  color:#c5e4ea;
+  text-align:center;
+  min-height:18px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:
+    calc(
+      18px + env(safe-area-inset-bottom)
+    );
+  transform:translateX(-50%);
+  background:#041219;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:999px;
+  padding:10px 14px;
+  z-index:50;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s;
+}
+
+.toast.show{
+  opacity:1;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.72);
+  z-index:100;
+  padding:16px;
+}
+
+.modal.open{
+  display:flex;
+}
+
+.sheet{
+  width:min(720px,100%);
+  max-height:88vh;
+  overflow:auto;
+  background:#0b202b;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.sheet h2{
+  margin-top:0;
+}
+
+.sheet p,
+.sheet li{
+  line-height:1.7;
+}
+
+.close-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:14px;
+}
+
+.score-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.score-table th,
+.score-table td{
+  border-bottom:
+    1px solid rgba(255,255,255,.1);
+  padding:8px;
+  text-align:right;
+}
+
+.score-table th:first-child,
+.score-table td:first-child{
+  text-align:left;
+}
+
+.easy{
+  --card-w:clamp(56px,16vw,92px);
+  --card-gap:7px;
+  --ink:#fff;
+  --muted:#d9f7ff;
+}
+
+.easy .app{
+  font-size:18px;
+}
+
+.easy .card{
+  border-width:3px;
+}
+
+.easy .card.red::after{
+  content:"赤";
+  position:absolute;
+  right:3px;
+  bottom:3px;
+  font-size:9px;
+  color:#8d1025;
+}
+
+.easy .card:not(.red):not(.joker)::after{
+  content:"黒";
+  position:absolute;
+  right:3px;
+  bottom:3px;
+  font-size:9px;
+  color:#000;
+}
+
+.easy .card.joker::after{
+  content:"JOKER";
+  position:absolute;
+  right:2px;
+  bottom:2px;
+  font-size:8px;
+}
+
+.easy *{
+  animation:none!important;
+  transition:none!important;
+}
+
+@media(max-width:760px){
+  header{
+    grid-template-columns:auto 1fr;
+  }
+
+  .header-actions{
+    grid-column:1/-1;
+    justify-content:center;
+  }
+
+  .status{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .cpu-row{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .player-box{
+    min-height:82px;
+    padding:6px;
+  }
+
+  .player-box h3{
+    font-size:11px;
+  }
+
+  .table{
+    min-height:390px;
+    padding:8px;
+  }
+
+  .center{
+    margin:12px auto;
+  }
+
+  .controls .action{
+    flex:1 1 42%;
+  }
+}
+
+@media(max-width:430px){
+  .back{
+    padding:8px 9px;
+  }
+
+  .header-actions .icon-btn{
+    padding:7px 8px;
+    font-size:12px;
+  }
+
+  .cpu-row{
+    gap:5px;
+  }
+
+  .card-back{
+    width:24px;
+    height:34px;
+  }
+
+  .center{
+    gap:6px;
+  }
+
+  .pile{
+    min-height:128px;
+    padding:6px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation:none!important;
+    transition:none!important;
+    scroll-behavior:auto!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+<header>
+
+<a
+  class="back"
+  href="./index.html#cardgames"
+  aria-label="トランプゲーム一覧へ戻る"
+>
+← 一覧
+</a>
+
+<div class="titles">
+  <div class="series">
+    🃏 SALP CARD GAMES
+  </div>
+
+  <div class="game-title">
+    SEVEN BRIDGE / セブンブリッジ
+  </div>
+
+  <div class="sub">
+    SALP版・4人戦
+  </div>
+</div>
+
+<div class="header-actions">
+
+<button
+  id="soundBtn"
+  class="icon-btn"
+  aria-label="効果音のオンオフ"
+>
+🔊 SOUND ON
+</button>
+
+<button
+  id="easyBtn"
+  class="icon-btn"
+  aria-label="見やすいモードのオンオフ"
+>
+👁 見やすい OFF
+</button>
+
+<button
+  id="newBtn"
+  class="icon-btn"
+  aria-label="新しいゲームを始める"
+>
+🔄 NEW GAME
+</button>
+
+<button
+  id="ruleBtn"
+  class="icon-btn"
+  aria-label="ルールを表示"
+>
+❓ ルール
+</button>
+
+</div>
+
+</header>
+
+<main>
+
+<section
+  class="status"
+  aria-label="ゲーム情報"
+>
+
+<div class="stat">
+  <b id="turnLabel">あなたの番</b>
+  <span>TURN</span>
+</div>
+
+<div class="stat">
+  <b id="stockCount">0</b>
+  <span>山札</span>
+</div>
+
+<div class="stat">
+  <b id="discardCount">0</b>
+  <span>捨て札</span>
+</div>
+
+<div class="stat">
+  <b id="roundLabel">1</b>
+  <span>ゲーム</span>
+</div>
+
+</section>
+
+<section
+  class="table"
+  aria-label="セブンブリッジの場"
+>
+
+<div
+  class="cpu-row"
+  id="cpuRow"
+></div>
+
+<div class="center">
+
+<div class="pile">
+
+<div>
+
+<div class="pile-label">
+山札
+</div>
+
+<button
+  id="drawStock"
+  aria-label="山札から1枚引く"
+>
+<div class="stock-card"></div>
+</button>
+
+</div>
+
+</div>
+
+<div class="pile">
+
+<div>
+
+<div class="pile-label">
+捨て札
+</div>
+
+<button
+  id="drawDiscard"
+  aria-label="捨て札の一番上を取る"
+>
+<div id="discardTop"></div>
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="meld-area">
+
+<div class="meld-title">
+場に出ている役
+</div>
+
+<div
+  class="melds"
+  id="melds"
+></div>
+
+</div>
+
+</section>
+
+<section class="bottom">
+
+<div
+  class="prompt"
+  id="prompt"
+>
+山札か捨て札から1枚取ってください。
+</div>
+
+<div class="hand-wrap">
+
+<div
+  class="hand"
+  id="hand"
+></div>
+
+</div>
+
+<div class="controls">
+
+<button
+  id="meldBtn"
+  class="action primary"
+  aria-label="選択したカードを役として出す"
+>
+選択を役として出す
+</button>
+
+<button
+  id="layoffBtn"
+  class="action secondary"
+  aria-label="選択したカードを既存の役に付ける"
+>
+役に付ける
+</button>
+
+<button
+  id="sortBtn"
+  class="action secondary"
+  aria-label="手札を並べ替える"
+>
+並べ替え
+</button>
+
+<button
+  id="discardBtn"
+  class="action danger"
+  aria-label="選択した1枚を捨てる"
+>
+1枚捨てる
+</button>
+
+</div>
+
+<div
+  class="log"
+  id="log"
+>
+準備完了
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<div
+  id="toast"
+  class="toast"
+  role="status"
+  aria-live="polite"
+></div>
+
+<div
+  id="ruleModal"
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="ruleTitle"
+>
+
+<div class="sheet">
+
+<h2 id="ruleTitle">
+SALP版 セブンブリッジのルール
+</h2>
+
+<ul>
+
+<li>
+4人戦：あなた1人＋CPU3人。
+54枚（通常52枚＋ジョーカー2枚）を使い、
+各7枚配ります。
+</li>
+
+<li>
+手番では山札か捨て札の一番上から1枚取り、
+必要なら役を出したり場の役へ付け足し、
+最後に必ず1枚捨てます。
+</li>
+
+<li>
+役は「同じ数字3枚以上」または
+「同じスートで3枚以上の連番」。
+Aは1としてA-2-3にのみ使い、
+K-Aはつながりません。
+</li>
+
+<li>
+7は特例で1枚だけでも場に出せます。
+また同じスートの6-7または7-8の
+2枚でも出せます。
+</li>
+
+<li>
+ジョーカーは2枚ともワイルド。
+任意の数字・スートを補えますが、
+ジョーカーだけの役は作れません。
+</li>
+
+<li>
+一度場に出た役には、
+自分の手番中に条件を満たすカードを
+付け足せます。
+</li>
+
+<li>
+SALP版ではスマホ操作を簡単にするため、
+ポン・チーの割り込みは採用しません。
+捨て札は次の手番の人が
+一番上だけ取れます。
+</li>
+
+<li>
+手札をすべて役に出しても、
+最後の1枚は捨てて
+上がる必要があります。
+捨てた時点で手札0枚なら勝ちです。
+</li>
+
+<li>
+山札が尽きたら、
+捨て札の一番上を残し、
+それ以外を混ぜ直して
+新しい山札にします。
+</li>
+
+<li>
+点数（SALP版）：
+A=1点、
+2〜6・8〜10=数字点、
+7=15点、
+J/Q/K=10点、
+Joker=20点。
+負けた人は残り手札の合計が失点です。
+</li>
+
+<li>
+ペナルティ：
+上がった人は0点。
+手札に7やJokerを残すと、
+上記の高い点数がそのまま失点になります。
+</li>
+
+</ul>
+
+<div class="close-row">
+
+<button
+  class="action primary"
+  id="closeRule"
+>
+閉じる
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div
+  id="resultModal"
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="resultTitle"
+>
+
+<div class="sheet">
+
+<h2 id="resultTitle">
+結果
+</h2>
+
+<div id="resultBody"></div>
+
+<div class="close-row">
+
+<button
+  id="againBtn"
+  class="action primary"
+>
+🔄 再戦
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const KEY=
+  'salp.cardgames.sevenbridge.v1';
+
+const SUITS=[
+  'S',
+  'H',
+  'D',
+  'C'
+];
+
+const SUIT_CHAR={
+  S:'♠',
+  H:'♥',
+  D:'♦',
+  C:'♣',
+  J:'★'
+};
+
+const SUIT_NAME={
+  S:'スペード',
+  H:'ハート',
+  D:'ダイヤ',
+  C:'クラブ',
+  J:'ジョーカー'
+};
+
+const RANK_TEXT={
+  1:'A',
+  11:'J',
+  12:'Q',
+  13:'K'
+};
+
+const names=[
+  'あなた',
+  'CPU 1',
+  'CPU 2',
+  'CPU 3'
+];
+
+const els=
+  id=>document.getElementById(id);
+
+const state={
+  players:[],
+  stock:[],
+  discard:[],
+  melds:[],
+  turn:0,
+  phase:'draw',
+  selected:new Set(),
+  over:false,
+  gameNo:1
+};
+
+const prefs=
+  loadPrefs();
+
+function loadPrefs(){
+
+  try{
+
+    return Object.assign(
+      {
+        wins:0,
+        losses:0,
+        games:0,
+        best:null,
+        sound:true,
+        easyMode:false
+      },
+      JSON.parse(
+        localStorage.getItem(KEY) || '{}'
+      )
+    );
+
+  }catch(e){
+
+    return{
+      wins:0,
+      losses:0,
+      games:0,
+      best:null,
+      sound:true,
+      easyMode:false
+    };
+
+  }
+
+}
+
+function savePrefs(){
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(prefs)
+  );
+
+}
+
+const Sound={
+
+  ctx:null,
+
+  on:prefs.sound,
+
+  init(){
+
+    if(!this.ctx){
+
+      const A=
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if(A){
+        this.ctx=new A();
+      }
+
+    }
+
+    if(
+      this.ctx &&
+      this.ctx.state==='suspended'
+    ){
+      this.ctx.resume();
+    }
+
+  },
+
+  tone(
+    f,
+    d=.07,
+    type='sine',
+    v=.03
+  ){
+
+    if(!this.on){
+      return;
+    }
+
+    this.init();
+
+    if(!this.ctx){
+      return;
+    }
+
+    const o=
+      this.ctx.createOscillator();
+
+    const g=
+      this.ctx.createGain();
+
+    o.type=type;
+    o.frequency.value=f;
+    g.gain.value=v;
+
+    o.connect(g);
+    g.connect(
+      this.ctx.destination
+    );
+
+    o.start();
+
+    g.gain
+      .exponentialRampToValueAtTime(
+        .0001,
+        this.ctx.currentTime+d
+      );
+
+    o.stop(
+      this.ctx.currentTime+d
+    );
+
+  },
+
+  tap(){
+    this.tone(
+      380,
+      .04
+    );
+  },
+
+  card(){
+    this.tone(
+      520,
+      .05,
+      'triangle'
+    );
+  },
+
+  success(){
+
+    this.tone(
+      660,
+      .08
+    );
+
+    setTimeout(
+      ()=>this.tone(
+        880,
+        .1
+      ),
+      70
+    );
+
+  },
+
+  error(){
+
+    this.tone(
+      150,
+      .12,
+      'sawtooth'
+    );
+
+  },
+
+  win(){
+
+    [
+      660,
+      880,
+      1040
+    ].forEach(
+      (f,i)=>
+        setTimeout(
+          ()=>this.tone(
+            f,
+            .16
+          ),
+          i*90
+        )
+    );
+
+  },
+
+  lose(){
+
+    [
+      330,
+      240,
+      180
+    ].forEach(
+      (f,i)=>
+        setTimeout(
+          ()=>this.tone(
+            f,
+            .16
+          ),
+          i*90
+        )
+    );
+
+  }
+
+};
+
+function uid(){
+
+  return Math
+    .random()
+    .toString(36)
+    .slice(2,9);
+
+}
+
+function deck(){
+
+  const d=[];
+
+  for(const s of SUITS){
+
+    for(
+      let r=1;
+      r<=13;
+      r++
+    ){
+
+      d.push({
+        id:uid(),
+        suit:s,
+        rank:r
+      });
+
+    }
+
+  }
+
+  d.push(
+    {
+      id:uid(),
+      suit:'J',
+      rank:0
+    },
+    {
+      id:uid(),
+      suit:'J',
+      rank:0
+    }
+  );
+
+  return shuffle(d);
+
+}
+
+function shuffle(a){
+
+  for(
+    let i=a.length-1;
+    i>0;
+    i--
+  ){
+
+    const j=
+      Math.floor(
+        Math.random()*
+        (i+1)
+      );
+
+    [
+      a[i],
+      a[j]
+    ]=[
+      a[j],
+      a[i]
+    ];
+
+  }
+
+  return a;
+
+}
+
+function sortHand(h){
+
+  h.sort(
+    (a,b)=>{
+
+      if(a.suit==='J'){
+        return 1;
+      }
+
+      if(b.suit==='J'){
+        return -1;
+      }
+
+      const sd=
+        SUITS.indexOf(a.suit)-
+        SUITS.indexOf(b.suit);
+
+      return sd || a.rank-b.rank;
+
+    }
+  );
+
+}
+
+function newGame(){
+
+  Sound.init();
+
+  state.players=
+    names.map(
+      name=>({
+        name,
+        hand:[]
+      })
+    );
+
+  state.stock=
+    deck();
+
+  state.discard=[];
+
+  state.melds=[];
+
+  state.turn=0;
+
+  state.phase='draw';
+
+  state.selected.clear();
+
+  state.over=false;
+
+  for(
+    let n=0;
+    n<7;
+    n++
+  ){
+
+    for(
+      const p of state.players
+    ){
+
+      p.hand.push(
+        state.stock.pop()
+      );
+
+    }
+
+  }
+
+  state.discard.push(
+    state.stock.pop()
+  );
+
+  state.players
+    .forEach(
+      p=>sortHand(p.hand)
+    );
+
+  state.gameNo=
+    prefs.games+1;
+
+  render();
+
+  log(
+    '新しいゲームを開始しました。'
+  );
+
+  prompt(
+    '山札か捨て札から1枚取ってください。'
+  );
+
+}
+
+function cardValue(c){
+
+  if(c.suit==='J'){
+    return 20;
+  }
+
+  if(c.rank===7){
+    return 15;
+  }
+
+  if(c.rank===1){
+    return 1;
+  }
+
+  if(c.rank>=11){
+    return 10;
+  }
+
+  return c.rank;
+
+}
+
+function cardHTML(c){
+
+  const red=
+    c.suit==='H' ||
+    c.suit==='D';
+
+  const r=
+    c.suit==='J'
+    ? 'JOKER'
+    : (
+      RANK_TEXT[c.rank] ||
+      c.rank
+    );
+
+  const aria=
+    c.suit==='J'
+    ? 'ジョーカー'
+    : SUIT_NAME[c.suit]+r;
+
+  return `
+    <div
+      class="card
+        ${red?'red':''}
+        ${c.suit==='J'?'joker':''}"
+      data-id="${c.id}"
+      role="button"
+      tabindex="0"
+      aria-label="${aria}"
+    >
+
+      <div class="rank">
+        ${r}
+      </div>
+
+      <div class="suit">
+        ${SUIT_CHAR[c.suit]}
+      </div>
+
+      <div class="small">
+        ${
+          c.suit==='J'
+          ? 'WILD'
+          : SUIT_CHAR[c.suit]
+        }
+      </div>
+
+    </div>
+  `;
+
+}
+
+function render(){
+
+  document.body
+    .classList
+    .toggle(
+      'easy',
+      prefs.easyMode
+    );
+
+  els('soundBtn')
+    .textContent=
+      prefs.sound
+      ? '🔊 SOUND ON'
+      : '🔇 SOUND OFF';
+
+  els('easyBtn')
+    .textContent=
+      prefs.easyMode
+      ? '👁 見やすい ON'
+      : '👁 見やすい OFF';
+
+  els('turnLabel')
+    .textContent=
+      state.over
+      ? '終了'
+      : names[state.turn]+'の番';
+
+  els('stockCount')
+    .textContent=
+      state.stock.length;
+
+  els('discardCount')
+    .textContent=
+      state.discard.length;
+
+  els('roundLabel')
+    .textContent=
+      state.gameNo;
+
+  renderCPU();
+  renderDiscard();
+  renderHand();
+  renderMelds();
+  updateControls();
+
+}
+
+function renderCPU(){
+
+  els('cpuRow')
+    .innerHTML=
+      state.players
+        .slice(1)
+        .map(
+          (p,i)=>`
+            <div
+              class="player-box
+              ${
+                state.turn===i+1
+                ? 'active'
+                : ''
+              }"
+            >
+
+              <h3>
+
+                <span>
+                  ${p.name}
+                </span>
+
+                <span>
+                  ${p.hand.length}枚
+                </span>
+
+              </h3>
+
+              <div class="mini-hand">
+
+                ${
+                  p.hand.length
+                  ? '<div class="card-back"></div>'
+                  : '上がり'
+                }
+
+              </div>
+
+            </div>
+          `
+        )
+        .join('');
+
+}
+
+function renderDiscard(){
+
+  const c=
+    state.discard.at(-1);
+
+  els('discardTop')
+    .innerHTML=
+      c
+      ? cardHTML(c)
+      : `
+        <div
+          style="color:#b7d8de"
+        >
+          なし
+        </div>
+      `;
+
+}
+
+function renderHand(){
+
+  const h=
+    state.players[0].hand;
+
+  els('hand')
+    .innerHTML=
+      h.map(
+        c=>cardHTML(c)
+      )
+      .join('');
+
+  els('hand')
+    .querySelectorAll(
+      '.card'
+    )
+    .forEach(
+      el=>{
+
+        if(
+          state.selected.has(
+            el.dataset.id
+          )
+        ){
+
+          el.classList.add(
+            'selected'
+          );
+
+        }
+
+        const choose=()=>{
+
+          if(
+            state.turn!==0 ||
+            state.over
+          ){
+            return;
+          }
+
+          Sound.tap();
+
+          if(
+            state.selected.has(
+              el.dataset.id
+            )
+          ){
+
+            state.selected.delete(
+              el.dataset.id
+            );
+
+          }else{
+
+            state.selected.add(
+              el.dataset.id
+            );
+
+          }
+
+          renderHand();
+          updateControls();
+
+        };
+
+        el.addEventListener(
+          'pointerup',
+          choose
+        );
+
+        el.addEventListener(
+          'keydown',
+          e=>{
+
+            if(
+              e.key==='Enter' ||
+              e.key===' '
+            ){
+
+              e.preventDefault();
+
+              choose();
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+}
+
+function renderMelds(){
+
+  els('melds')
+    .innerHTML=
+      state.melds.length
+
+      ? state.melds
+          .map(
+            (m,idx)=>`
+              <div
+                class="meld"
+                data-meld="${idx}"
+              >
+                ${
+                  m.cards
+                    .map(
+                      c=>cardHTML(c)
+                    )
+                    .join('')
+                }
+              </div>
+            `
+          )
+          .join('')
+
+      : `
+        <span
+          style="
+            color:#c5e4ea;
+            font-size:12px
+          "
+        >
+          まだ役はありません
+        </span>
+      `;
+
+}
+
+function updateControls(){
+
+  const my=
+    state.turn===0 &&
+    !state.over;
+
+  const draw=
+    state.phase==='draw';
+
+  const act=
+    state.phase==='action';
+
+  els('drawStock').disabled=
+    !my || !draw;
+
+  els('drawDiscard').disabled=
+    !my ||
+    !draw ||
+    !state.discard.length;
+
+  els('meldBtn').disabled=
+    !my ||
+    !act ||
+    state.selected.size<1;
+
+  els('layoffBtn').disabled=
+    !my ||
+    !act ||
+    state.selected.size!==1;
+
+  els('discardBtn').disabled=
+    !my ||
+    !act ||
+    state.selected.size!==1;
+
+  els('sortBtn').disabled=
+    !my;
+
+}
+
+function prompt(t){
+
+  els('prompt')
+    .textContent=t;
+
+}
+
+function log(t){
+
+  els('log')
+    .textContent=t;
+
+}
+
+function toast(t){
+
+  const x=
+    els('toast');
+
+  x.textContent=t;
+
+  x.classList.add(
+    'show'
+  );
+
+  setTimeout(
+    ()=>{
+      x.classList.remove(
+        'show'
+      );
+    },
+    1100
+  );
+
+}
+
+function ensureStock(){
+
+  if(
+    state.stock.length
+  ){
+    return true;
+  }
+
+  if(
+    state.discard.length<=1
+  ){
+    return false;
+  }
+
+  const top=
+    state.discard.pop();
+
+  state.stock=
+    shuffle(
+      state.discard.splice(0)
+    );
+
+  state.discard=[
+    top
+  ];
+
+  toast(
+    '捨て札を混ぜて山札に戻しました'
+  );
+
+  return true;
+
+}
+
+function humanDraw(
+  fromDiscard=false
+){
+
+  if(
+    state.turn!==0 ||
+    state.phase!=='draw' ||
+    state.over
+  ){
+    return;
+  }
+
+  Sound.card();
+
+  let c;
+
+  if(fromDiscard){
+
+    if(
+      !state.discard.length
+    ){
+      return;
+    }
+
+    c=
+      state.discard.pop();
+
+  }else{
+
+    if(
+      !ensureStock()
+    ){
+
+      endByPoints();
+      return;
+
+    }
+
+    c=
+      state.stock.pop();
+
+  }
+
+  state.players[0]
+    .hand
+    .push(c);
+
+  sortHand(
+    state.players[0].hand
+  );
+
+  state.phase='action';
+
+  state.selected.clear();
+
+  prompt(
+    '役を出す／付ける／1枚捨てる、の順で操作できます。'
+  );
+
+  render();
+
+}
+
+function selectedCards(){
+
+  const set=
+    state.selected;
+
+  return state.players[0]
+    .hand
+    .filter(
+      c=>set.has(c.id)
+    );
+
+}
+
+function classifyMeld(cards){
+
+  if(
+    !cards.length
+  ){
+    return null;
+  }
+
+  const jokers=
+    cards.filter(
+      c=>c.suit==='J'
+    );
+
+  const normal=
+    cards.filter(
+      c=>c.suit!=='J'
+    );
+
+  /*
+   * 7単独
+   */
+  if(
+    cards.length===1 &&
+    normal.length===1 &&
+    normal[0].rank===7
+  ){
+
+    return{
+      type:'seven'
+    };
+
+  }
+
+  /*
+   * 6-7 / 7-8
+   */
+  if(
+    cards.length===2 &&
+    jokers.length===0 &&
+    normal.some(
+      c=>c.rank===7
+    ) &&
+    normal[0].suit===
+      normal[1].suit &&
+    Math.abs(
+      normal[0].rank-
+      normal[1].rank
+    )===1
+  ){
+
+    return{
+      type:'run'
+    };
+
+  }
+
+  if(
+    cards.length<3
+  ){
+    return null;
+  }
+
+  if(
+    !normal.length
+  ){
+    return null;
+  }
+
+  /*
+   * 同位札
+   */
+  const sameRank=
+    normal.every(
+      c=>
+        c.rank===
+        normal[0].rank
+    );
+
+  if(
+    sameRank &&
+    cards.length<=4 &&
+    new Set(
+      normal.map(
+        c=>c.suit
+      )
+    ).size===
+      normal.length
+  ){
+
+    return{
+      type:'set',
+      rank:normal[0].rank
+    };
+
+  }
+
+  /*
+   * 順位札
+   */
+  const sameSuit=
+    normal.every(
+      c=>
+        c.suit===
+        normal[0].suit
+    );
+
+  if(sameSuit){
+
+    const rs=[
+      ...new Set(
+        normal.map(
+          c=>c.rank
+        )
+      )
+    ].sort(
+      (a,b)=>a-b
+    );
+
+    if(
+      rs.length!==
+      normal.length
+    ){
+      return null;
+    }
+
+    let gaps=0;
+
+    for(
+      let i=1;
+      i<rs.length;
+      i++
+    ){
+
+      gaps+=Math.max(
+        0,
+        rs[i]-
+        rs[i-1]-
+        1
+      );
+
+    }
+
+    if(
+      gaps<=jokers.length &&
+      rs[0]>=1 &&
+      rs.at(-1)<=13
+    ){
+
+      return{
+        type:'run',
+        suit:normal[0].suit
+      };
+
+    }
+
+  }
+
+  return null;
+
+}
+
+function playMeldHuman(){
+
+  const cards=
+    selectedCards();
+
+  const kind=
+    classifyMeld(cards);
+
+  if(!kind){
+
+    Sound.error();
+
+    toast(
+      'その組み合わせは役になりません'
+    );
+
+    return;
+
+  }
+
+  /*
+   * 最後の1枚は捨てて上がる必要がある。
+   * 役出しだけで手札ゼロになる操作は禁止。
+   */
+  if(
+    cards.length>=
+    state.players[0].hand.length
+  ){
+
+    Sound.error();
+
+    toast(
+      '最後の1枚は捨てて上がる必要があります'
+    );
+
+    return;
+
+  }
+
+  state.melds.push({
+    owner:0,
+    type:kind.type,
+    cards:[
+      ...cards
+    ]
+  });
+
+  removeFromHand(
+    0,
+    cards
+  );
+
+  state.selected.clear();
+
+  Sound.success();
+
+  log(
+    '役を出しました。'
+  );
+
+  render();
+
+}
+
+function canLayoff(
+  card,
+  meld
+){
+
+  const combo=[
+    ...meld.cards,
+    card
+  ];
+
+  return !!classifyMeld(
+    combo
+  );
+
+}
+
+function layoffHuman(){
+
+  const cards=
+    selectedCards();
+
+  if(
+    cards.length!==1
+  ){
+    return;
+  }
+
+  if(
+    state.players[0]
+      .hand
+      .length<=1
+  ){
+
+    Sound.error();
+
+    toast(
+      '最後の1枚は捨てて上がる必要があります'
+    );
+
+    return;
+
+  }
+
+  const c=
+    cards[0];
+
+  const idx=
+    state.melds
+      .findIndex(
+        m=>canLayoff(c,m)
+      );
+
+  if(idx<0){
+
+    Sound.error();
+
+    toast(
+      '付けられる役がありません'
+    );
+
+    return;
+
+  }
+
+  state.melds[idx]
+    .cards
+    .push(c);
+
+  removeFromHand(
+    0,
+    [c]
+  );
+
+  state.selected.clear();
+
+  Sound.success();
+
+  render();
+
+}
+
+function removeFromHand(
+  pi,
+  cards
+){
+
+  const ids=
+    new Set(
+      cards.map(
+        c=>c.id
+      )
+    );
+
+  state.players[pi]
+    .hand=
+      state.players[pi]
+        .hand
+        .filter(
+          c=>!ids.has(c.id)
+        );
+
+}
+
+function humanDiscard(){
+
+  const cards=
+    selectedCards();
+
+  if(
+    cards.length!==1
+  ){
+    return;
+  }
+
+  const c=
+    cards[0];
+
+  state.discard.push(c);
+
+  removeFromHand(
+    0,
+    [c]
+  );
+
+  state.selected.clear();
+
+  Sound.card();
+
+  if(
+    state.players[0]
+      .hand
+      .length===0
+  ){
+
+    finish(0);
+    return;
+
+  }
+
+  nextTurn();
+
+}
+
+function nextTurn(){
+
+  state.phase='draw';
+
+  state.turn=
+    (
+      state.turn+1
+    ) %
+    state.players.length;
+
+  render();
+
+  if(
+    state.turn===0
+  ){
+
+    prompt(
+      '山札か捨て札から1枚取ってください。'
+    );
+
+    return;
+
+  }
+
+  prompt(
+    state.players[state.turn]
+      .name+
+    'が考えています…'
+  );
+
+  setTimeout(
+    cpuTurn,
+    350
+  );
+
+}
+
+function findAllMeldOptions(
+  hand
+){
+
+  const res=[];
+
+  const n=
+    hand.length;
+
+  /*
+   * 手札は通常8枚前後なので
+   * 全組み合わせ探索でも十分軽い。
+   */
+  for(
+    let mask=1;
+    mask<(1<<n);
+    mask++
+  ){
+
+    const count=
+      bitCount(mask);
+
+    if(
+      count>7
+    ){
+      continue;
+    }
+
+    if(
+      count===1 ||
+      count===2 ||
+      count>=3
+    ){
+
+      const cards=[];
+
+      for(
+        let i=0;
+        i<n;
+        i++
+      ){
+
+        if(
+          mask>>i & 1
+        ){
+
+          cards.push(
+            hand[i]
+          );
+
+        }
+
+      }
+
+      if(
+        classifyMeld(cards)
+      ){
+
+        res.push(
+          cards
+        );
+
+      }
+
+    }
+
+  }
+
+  return res.sort(
+    (a,b)=>
+      b.length-
+      a.length
+  );
+
+}
+
+function bitCount(x){
+
+  let c=0;
+
+  while(x){
+
+    x&=
+      x-1;
+
+    c++;
+
+  }
+
+  return c;
+
+}
+
+function chooseDiscard(
+  hand
+){
+
+  const meldOpts=
+    findAllMeldOptions(
+      hand
+    );
+
+  const useful=
+    new Set(
+      meldOpts
+        .flat()
+        .map(
+          c=>c.id
+        )
+    );
+
+  const cand=
+    hand.filter(
+      c=>!useful.has(c.id)
+    );
+
+  const pool=
+    cand.length
+    ? cand
+    : hand;
+
+  return[
+    ...pool
+  ].sort(
+    (a,b)=>
+      cardValue(b)-
+      cardValue(a)
+  )[0];
+
+}
+
+function cpuShouldTakeDiscard(
+  pi
+){
+
+  const top=
+    state.discard.at(-1);
+
+  if(!top){
+    return false;
+  }
+
+  const h=
+    state.players[pi]
+      .hand;
+
+  /*
+   * 既存役に付けられるなら取る。
+   */
+  if(
+    state.melds.some(
+      m=>canLayoff(top,m)
+    )
+  ){
+    return true;
+  }
+
+  /*
+   * 捨て札を取ることで
+   * 新しい役が作れるなら取る。
+   */
+  const options=
+    findAllMeldOptions([
+      ...h,
+      top
+    ]);
+
+  return options.some(
+    o=>o.some(
+      c=>c.id===top.id
+    )
+  );
+
+}
+
+function cpuTurn(){
+
+  if(
+    state.over ||
+    state.turn===0
+  ){
+    return;
+  }
+
+  const pi=
+    state.turn;
+
+  const p=
+    state.players[pi];
+
+  let c;
+
+  /*
+   * 捨て札が即座に役へ使えるなら
+   * 優先して取る。
+   */
+  if(
+    cpuShouldTakeDiscard(pi) &&
+    state.discard.length
+  ){
+
+    c=
+      state.discard.pop();
+
+  }else{
+
+    if(
+      !ensureStock()
+    ){
+
+      endByPoints();
+      return;
+
+    }
+
+    c=
+      state.stock.pop();
+
+  }
+
+  p.hand.push(c);
+
+  sortHand(
+    p.hand
+  );
+
+  /*
+   * CPU役出し。
+   * 安全回数を設けて無限ループ防止。
+   */
+  let progress=true;
+  let safety=0;
+
+  while(
+    progress &&
+    safety++<8
+  ){
+
+    progress=false;
+
+    /*
+     * まず既存の役へ付ける。
+     * ただし最後の1枚は残す。
+     */
+    if(
+      p.hand.length>1
+    ){
+
+      for(
+        let i=
+          p.hand.length-1;
+        i>=0;
+        i--
+      ){
+
+        const card=
+          p.hand[i];
+
+        const mi=
+          state.melds
+            .findIndex(
+              m=>
+                canLayoff(
+                  card,
+                  m
+                )
+            );
+
+        if(
+          mi>=0 &&
+          p.hand.length>1
+        ){
+
+          state.melds[mi]
+            .cards
+            .push(card);
+
+          p.hand.splice(
+            i,
+            1
+          );
+
+          progress=true;
+
+          break;
+
+        }
+
+      }
+
+    }
+
+    if(progress){
+      continue;
+    }
+
+    /*
+     * 新規役。
+     * 最後の捨て札を1枚残せるものだけ出す。
+     */
+    const opts=
+      findAllMeldOptions(
+        p.hand
+      )
+      .filter(
+        option=>
+          option.length<
+          p.hand.length
+      );
+
+    if(
+      opts.length
+    ){
+
+      const chosen=
+        opts[0];
+
+      const type=
+        classifyMeld(
+          chosen
+        );
+
+      state.melds.push({
+        owner:pi,
+        type:type.type,
+        cards:[
+          ...chosen
+        ]
+      });
+
+      removeFromHand(
+        pi,
+        chosen
+      );
+
+      progress=true;
+
+    }
+
+  }
+
+  /*
+   * 必ず最後に1枚捨てる。
+   */
+  if(
+    !p.hand.length
+  ){
+
+    /*
+     * 通常ここには到達しないが、
+     * 安全措置として山札から1枚戻す。
+     */
+    if(
+      !ensureStock()
+    ){
+
+      endByPoints();
+      return;
+
+    }
+
+    p.hand.push(
+      state.stock.pop()
+    );
+
+  }
+
+  const d=
+    chooseDiscard(
+      p.hand
+    );
+
+  state.discard.push(d);
+
+  removeFromHand(
+    pi,
+    [d]
+  );
+
+  log(
+    `${p.name} は1枚捨てました。`
+  );
+
+  if(
+    p.hand.length===0
+  ){
+
+    finish(pi);
+    return;
+
+  }
+
+  nextTurn();
+
+}
+
+function scorePlayer(p){
+
+  return p.hand
+    .reduce(
+      (s,c)=>
+        s+
+        cardValue(c),
+      0
+    );
+
+}
+
+function finish(
+  winner
+){
+
+  if(
+    state.over
+  ){
+    return;
+  }
+
+  state.over=true;
+
+  const scores=
+    state.players
+      .map(
+        scorePlayer
+      );
+
+  prefs.games++;
+
+  if(
+    winner===0
+  ){
+
+    prefs.wins++;
+
+    const total=
+      scores
+        .slice(1)
+        .reduce(
+          (a,b)=>a+b,
+          0
+        );
+
+    if(
+      prefs.best==null ||
+      total>prefs.best
+    ){
+
+      prefs.best=
+        total;
+
+    }
+
+    Sound.win();
+
+  }else{
+
+    prefs.losses++;
+
+    Sound.lose();
+
+  }
+
+  savePrefs();
+
+  render();
+
+  showResult(
+    winner,
+    scores
+  );
+
+}
+
+function endByPoints(){
+
+  if(
+    state.over
+  ){
+    return;
+  }
+
+  const scores=
+    state.players
+      .map(
+        scorePlayer
+      );
+
+  const min=
+    Math.min(
+      ...scores
+    );
+
+  const winner=
+    scores.indexOf(
+      min
+    );
+
+  toast(
+    '山札を再生できないため点数判定'
+  );
+
+  finish(
+    winner
+  );
+
+}
+
+function showResult(
+  winner,
+  scores
+){
+
+  els('resultTitle')
+    .textContent=
+      winner===0
+      ? '🎉 あなたの勝ち！'
+      : `${names[winner]} の勝ち`;
+
+  els('resultBody')
+    .innerHTML=`
+
+      <p>
+        残り手札の点数が失点です。
+      </p>
+
+      <table class="score-table">
+
+        <tr>
+          <th>
+            プレイヤー
+          </th>
+          <th>
+            残り
+          </th>
+          <th>
+            失点
+          </th>
+        </tr>
+
+        ${
+          state.players
+            .map(
+              (p,i)=>`
+
+                <tr>
+
+                  <td>
+                    ${p.name}
+                  </td>
+
+                  <td>
+                    ${p.hand.length}枚
+                  </td>
+
+                  <td>
+                    ${scores[i]}点
+                  </td>
+
+                </tr>
+
+              `
+            )
+            .join('')
+        }
+
+      </table>
+
+      <p>
+        通算：
+        ${prefs.wins}勝
+        ${prefs.losses}敗 /
+        ${prefs.games}ゲーム
+        ${
+          prefs.best!=null
+          ? `　BEST ${prefs.best}点`
+          : ''
+        }
+      </p>
+
+    `;
+
+  els('resultModal')
+    .classList
+    .add(
+      'open'
+    );
+
+}
+
+function bind(){
+
+  /*
+   * 最初のユーザー操作で
+   * AudioContextを起動。
+   */
+  document.addEventListener(
+    'pointerdown',
+    ()=>Sound.init(),
+    {
+      once:true
+    }
+  );
+
+  els('drawStock')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+        humanDraw(false);
+      }
+    );
+
+  els('drawDiscard')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+        humanDraw(true);
+      }
+    );
+
+  els('meldBtn')
+    .addEventListener(
+      'pointerup',
+      playMeldHuman
+    );
+
+  els('layoffBtn')
+    .addEventListener(
+      'pointerup',
+      layoffHuman
+    );
+
+  els('discardBtn')
+    .addEventListener(
+      'pointerup',
+      humanDiscard
+    );
+
+  els('sortBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        sortHand(
+          state.players[0].hand
+        );
+
+        Sound.tap();
+
+        renderHand();
+
+      }
+    );
+
+  els('soundBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        prefs.sound=
+          !prefs.sound;
+
+        Sound.on=
+          prefs.sound;
+
+        savePrefs();
+
+        render();
+
+        if(
+          prefs.sound
+        ){
+          Sound.tap();
+        }
+
+      }
+    );
+
+  els('easyBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        prefs.easyMode=
+          !prefs.easyMode;
+
+        savePrefs();
+
+        Sound.tap();
+
+        render();
+
+      }
+    );
+
+  els('newBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        if(
+          confirm(
+            '現在のゲームをやめて新しく始めますか？'
+          )
+        ){
+
+          newGame();
+
+        }
+
+      }
+    );
+
+  els('ruleBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        els('ruleModal')
+          .classList
+          .add(
+            'open'
+          );
+
+      }
+    );
+
+  els('closeRule')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        els('ruleModal')
+          .classList
+          .remove(
+            'open'
+          );
+
+      }
+    );
+
+  els('againBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        els('resultModal')
+          .classList
+          .remove(
+            'open'
+          );
+
+        newGame();
+
+      }
+    );
+
+  els('ruleModal')
+    .addEventListener(
+      'pointerup',
+      e=>{
+
+        if(
+          e.target===
+          els('ruleModal')
+        ){
+
+          els('ruleModal')
+            .classList
+            .remove(
+              'open'
+            );
+
+        }
+
+      }
+    );
+
+  document.addEventListener(
+    'keydown',
+    e=>{
+
+      if(
+        e.key==='Escape'
+      ){
+
+        els('ruleModal')
+          .classList
+          .remove(
+            'open'
+          );
+
+      }
+
+    }
+  );
+
+}
+
+bind();
+
+newGame();
+
+})();
+</script>
+
+</body>
+</html>xclip -selection clipboard -o > /workspace/chatgpt-home-design.md && wc -c /workspace/chatgpt-home-design.md
