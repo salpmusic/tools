@@ -114,6 +114,38 @@ header{
   font-weight:700;
 }
 
+.sceneSwitcher{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:0 12px 10px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+
+.sceneSwitcher::-webkit-scrollbar{
+  display:none;
+}
+
+.sceneButton{
+  flex:1 0 auto;
+  min-width:138px;
+  min-height:50px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:14px;
+  padding:0 14px;
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.sceneButton[aria-pressed="true"]{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:#1e210f;
+}
+
 .controls{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
@@ -361,6 +393,7 @@ main{
 
 .easy select,
 .easy .modeButton,
+.easy .sceneButton,
 .easy .backLink{
   min-height:56px;
   font-size:1.02rem;
@@ -415,9 +448,15 @@ main{
 
     <div class="titleWrap">
       <h1 class="title">🗣 SALP WORDS</h1>
-      <div class="subtitle">単語学習 部屋編</div>
+      <div class="subtitle" id="subtitle">単語学習 部屋編</div>
     </div>
   </div>
+
+  <div
+    class="sceneSwitcher"
+    id="sceneSwitcher"
+    aria-label="学習シーンを切り替える"
+  ></div>
 
   <div class="controls">
     <select id="languageSelect" aria-label="学習する言語">
@@ -474,7 +513,7 @@ main{
 </header>
 
 <main>
-  <section class="sceneShell" aria-label="部屋の単語学習">
+  <section class="sceneShell" id="sceneShell" aria-label="部屋の単語学習">
     <div class="sceneInfo">
       <span id="sceneName">🏠 部屋</span>
       <span>物をタッチ</span>
@@ -490,7 +529,7 @@ main{
       >
     </div>
 
-    <div class="help">
+    <div class="help" id="helpText">
       絵の中の物をタッチすると、名前を表示して読み上げます。
       同じ物を何度タッチしても発音できます。
       「見やすい」をONにするとタッチ場所も表示します。
@@ -553,34 +592,13 @@ const STORAGE = {
 };
 
 const LANGS = {
-  ja: {
-    label: "日本語",
-    locale: "ja-JP"
-  },
-  en: {
-    label: "English",
-    locale: "en-US"
-  },
-  es: {
-    label: "Español",
-    locale: "es-ES"
-  },
-  fr: {
-    label: "Français",
-    locale: "fr-FR"
-  },
-  de: {
-    label: "Deutsch",
-    locale: "de-DE"
-  },
-  zh: {
-    label: "中文",
-    locale: "zh-CN"
-  },
-  ko: {
-    label: "한국어",
-    locale: "ko-KR"
-  }
+  ja: { label: "日本語", locale: "ja-JP" },
+  en: { label: "English", locale: "en-US" },
+  es: { label: "Español", locale: "es-ES" },
+  fr: { label: "Français", locale: "fr-FR" },
+  de: { label: "Deutsch", locale: "de-DE" },
+  zh: { label: "中文", locale: "zh-CN" },
+  ko: { label: "한국어", locale: "ko-KR" }
 };
 
 /*
@@ -589,11 +607,8 @@ const LANGS = {
   小さい物は見た目より少し広めにタッチ領域を設定。
   z が大きい物ほど前面でタッチ判定される。
 
-  将来:
-  SCENES.kitchen
-  SCENES.hotel
-  SCENES.street
-  などを追加可能。
+  将来は SCENES に追加するだけで、
+  シーン切替ボタンも自動的に増える。
 */
 
 const SCENES = {
@@ -610,9 +625,14 @@ const SCENES = {
     },
 
     background: "room.webp",
+    subtitle: "単語学習 部屋編",
+    documentTitle: "SALP WORDS | 単語学習 部屋編",
+    alt: "明るい部屋のイラスト",
+    ariaLabel: "部屋の単語学習",
+    help: "絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "部屋の物を選んでください",
 
     items: [
-
       {
         id: "window",
         emoji: "🪟",
@@ -621,7 +641,6 @@ const SCENES = {
         w: 33,
         h: 31.5,
         z: 10,
-
         words: {
           ja: { word: "窓", reading: "まど" },
           en: { word: "window", reading: "WIN-doh" },
@@ -641,7 +660,6 @@ const SCENES = {
         w: 25,
         h: 43,
         z: 12,
-
         words: {
           ja: { word: "ドア", reading: "どあ" },
           en: { word: "door", reading: "dor" },
@@ -661,7 +679,6 @@ const SCENES = {
         w: 22.5,
         h: 16.5,
         z: 30,
-
         words: {
           ja: { word: "時計", reading: "とけい" },
           en: { word: "clock", reading: "klok" },
@@ -681,7 +698,6 @@ const SCENES = {
         w: 10.5,
         h: 16,
         z: 35,
-
         words: {
           ja: { word: "ランプ", reading: "らんぷ" },
           en: { word: "lamp", reading: "lamp" },
@@ -701,7 +717,6 @@ const SCENES = {
         w: 19.5,
         h: 8.5,
         z: 50,
-
         words: {
           ja: { word: "ラジオ", reading: "らじお" },
           en: { word: "radio", reading: "RAY-dee-oh" },
@@ -721,7 +736,6 @@ const SCENES = {
         w: 47,
         h: 23,
         z: 15,
-
         words: {
           ja: { word: "椅子", reading: "いす" },
           en: { word: "chair", reading: "chair" },
@@ -741,7 +755,6 @@ const SCENES = {
         w: 23,
         h: 17,
         z: 75,
-
         words: {
           ja: { word: "花", reading: "はな" },
           en: { word: "flowers", reading: "FLOW-erz" },
@@ -761,7 +774,6 @@ const SCENES = {
         w: 13,
         h: 9,
         z: 90,
-
         words: {
           ja: { word: "カップ", reading: "かっぷ" },
           en: { word: "cup", reading: "kup" },
@@ -781,7 +793,6 @@ const SCENES = {
         w: 21,
         h: 8,
         z: 95,
-
         words: {
           ja: { word: "本", reading: "ほん" },
           en: { word: "book", reading: "book" },
@@ -801,7 +812,6 @@ const SCENES = {
         w: 13.5,
         h: 10,
         z: 110,
-
         words: {
           ja: { word: "りんご", reading: "りんご" },
           en: { word: "apple", reading: "AP-uhl" },
@@ -821,7 +831,6 @@ const SCENES = {
         w: 67.5,
         h: 32,
         z: 25,
-
         words: {
           ja: { word: "テーブル", reading: "てーぶる" },
           en: { word: "table", reading: "TAY-buhl" },
@@ -841,7 +850,6 @@ const SCENES = {
         w: 29,
         h: 29,
         z: 130,
-
         words: {
           ja: { word: "みけねこ", reading: "みけねこ" },
           en: { word: "calico cat", reading: "KAL-ih-koh cat" },
@@ -861,7 +869,6 @@ const SCENES = {
         w: 34,
         h: 12,
         z: 120,
-
         words: {
           ja: { word: "靴", reading: "くつ" },
           en: { word: "shoes", reading: "shooz" },
@@ -872,7 +879,314 @@ const SCENES = {
           ko: { word: "신발", reading: "sinbal" }
         }
       }
+    ]
+  },
 
+  station: {
+    id: "station",
+    title: {
+      ja: "🚉 駅のホーム",
+      en: "🚉 Station Platform",
+      es: "🚉 Andén",
+      fr: "🚉 Quai de gare",
+      de: "🚉 Bahnsteig",
+      zh: "🚉 站台",
+      ko: "🚉 승강장"
+    },
+
+    background: "station.webp",
+    subtitle: "単語学習 駅のホーム編",
+    documentTitle: "SALP WORDS | 単語学習 駅のホーム編",
+    alt: "明るい日本の駅のホームのイラスト",
+    ariaLabel: "駅のホームの単語学習",
+    help: "駅のホームの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "駅のホームの物を選んでください",
+
+    items: [
+      {
+        id: "train",
+        emoji: "🚆",
+        x: 0,
+        y: 17,
+        w: 28,
+        h: 72,
+        z: 70,
+        words: {
+          ja: { word: "電車", reading: "でんしゃ" },
+          en: { word: "train", reading: "trayn" },
+          es: { word: "tren", reading: "tren" },
+          fr: { word: "train", reading: "tran" },
+          de: { word: "Zug", reading: "tsook" },
+          zh: { word: "列车", reading: "lièchē" },
+          ko: { word: "전철", reading: "jeoncheol" }
+        }
+      },
+
+      {
+        id: "tracks",
+        emoji: "🛤️",
+        x: 27,
+        y: 46,
+        w: 16,
+        h: 46,
+        z: 15,
+        words: {
+          ja: { word: "線路", reading: "せんろ" },
+          en: { word: "train tracks", reading: "trayn traks" },
+          es: { word: "vías del tren", reading: "BEE-as del tren" },
+          fr: { word: "voies ferrées", reading: "vwa fe-RAY" },
+          de: { word: "Gleise", reading: "GLAI-ze" },
+          zh: { word: "铁轨", reading: "tiěguǐ" },
+          ko: { word: "선로", reading: "seonro" }
+        }
+      },
+
+      {
+        id: "platform",
+        emoji: "🚉",
+        x: 40,
+        y: 52,
+        w: 36,
+        h: 43,
+        z: 10,
+        words: {
+          ja: { word: "ホーム", reading: "ほーむ" },
+          en: { word: "platform", reading: "PLAT-form" },
+          es: { word: "andén", reading: "an-DEN" },
+          fr: { word: "quai", reading: "kay" },
+          de: { word: "Bahnsteig", reading: "BAHN-shtaig" },
+          zh: { word: "站台", reading: "zhàntái" },
+          ko: { word: "승강장", reading: "seunggangjang" }
+        }
+      },
+
+      {
+        id: "stationSign",
+        emoji: "🚏",
+        x: 63,
+        y: 5,
+        w: 36,
+        h: 17,
+        z: 45,
+        words: {
+          ja: { word: "駅名標", reading: "えきめいひょう" },
+          en: { word: "station name sign", reading: "STAY-shun naym sign" },
+          es: { word: "letrero de la estación", reading: "le-TRE-ro de la es-ta-SYON" },
+          fr: { word: "panneau de gare", reading: "pa-NO də gar" },
+          de: { word: "Bahnhofsschild", reading: "BAHN-hofs-shilt" },
+          zh: { word: "站名牌", reading: "zhànmíngpái" },
+          ko: { word: "역명판", reading: "yeongmyeongpan" }
+        }
+      },
+
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 43,
+        y: 8.5,
+        w: 16,
+        h: 11.5,
+        z: 65,
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "bench",
+        emoji: "🪑",
+        x: 66,
+        y: 62,
+        w: 34,
+        h: 37,
+        z: 35,
+        words: {
+          ja: { word: "ベンチ", reading: "べんち" },
+          en: { word: "bench", reading: "bench" },
+          es: { word: "banco", reading: "BAN-ko" },
+          fr: { word: "banc", reading: "ban" },
+          de: { word: "Bank", reading: "bank" },
+          zh: { word: "长椅", reading: "chángyǐ" },
+          ko: { word: "벤치", reading: "benchi" }
+        }
+      },
+
+      {
+        id: "vendingMachine",
+        emoji: "🥤",
+        x: 90.5,
+        y: 33,
+        w: 9.5,
+        h: 28.5,
+        z: 80,
+        words: {
+          ja: { word: "自動販売機", reading: "じどうはんばいき" },
+          en: { word: "vending machine", reading: "VEN-ding ma-SHEEN" },
+          es: { word: "máquina expendedora", reading: "MA-kee-na eks-pen-de-DO-ra" },
+          fr: { word: "distributeur automatique", reading: "dees-tree-bü-TER o-to-ma-TEEK" },
+          de: { word: "Verkaufsautomat", reading: "fer-KOWFS-ow-to-maat" },
+          zh: { word: "自动售货机", reading: "zìdòng shòuhuòjī" },
+          ko: { word: "자판기", reading: "japangi" }
+        }
+      },
+
+      {
+        id: "stairs",
+        emoji: "🪜",
+        x: 80,
+        y: 29,
+        w: 13,
+        h: 23,
+        z: 40,
+        words: {
+          ja: { word: "階段", reading: "かいだん" },
+          en: { word: "stairs", reading: "stairz" },
+          es: { word: "escaleras", reading: "es-ka-LE-ras" },
+          fr: { word: "escalier", reading: "es-ka-LYAY" },
+          de: { word: "Treppe", reading: "TREP-pe" },
+          zh: { word: "楼梯", reading: "lóutī" },
+          ko: { word: "계단", reading: "gyedan" }
+        }
+      },
+
+      {
+        id: "ticketGate",
+        emoji: "🎫",
+        x: 55,
+        y: 43,
+        w: 36,
+        h: 13,
+        z: 75,
+        words: {
+          ja: { word: "改札", reading: "かいさつ" },
+          en: { word: "ticket gate", reading: "TIK-it gayt" },
+          es: { word: "torniquete", reading: "tor-nee-KE-te" },
+          fr: { word: "portillon", reading: "por-tee-YON" },
+          de: { word: "Fahrkartensperre", reading: "FAR-kar-ten-shper-re" },
+          zh: { word: "检票闸机", reading: "jiǎnpiào zhájī" },
+          ko: { word: "개찰구", reading: "gaechalgu" }
+        }
+      },
+
+      {
+        id: "ticketMachine",
+        emoji: "🎟️",
+        x: 58,
+        y: 35,
+        w: 20,
+        h: 10,
+        z: 55,
+        words: {
+          ja: { word: "券売機", reading: "けんばいき" },
+          en: { word: "ticket machine", reading: "TIK-it ma-SHEEN" },
+          es: { word: "máquina de billetes", reading: "MA-kee-na de bee-YE-tes" },
+          fr: { word: "distributeur de billets de train", reading: "dees-tree-bü-TER də bee-YAY də tran" },
+          de: { word: "Fahrkartenautomat", reading: "FAR-kar-ten-ow-to-maat" },
+          zh: { word: "售票机", reading: "shòupiàojī" },
+          ko: { word: "발권기", reading: "balgwongi" }
+        }
+      },
+
+      {
+        id: "stationStaff",
+        emoji: "🧑‍✈️",
+        x: 52,
+        y: 40,
+        w: 8,
+        h: 16,
+        z: 95,
+        words: {
+          ja: { word: "駅員さん", reading: "えきいんさん" },
+          en: { word: "station attendant", reading: "STAY-shun uh-TEN-dunt" },
+          es: { word: "empleado de la estación", reading: "em-ple-A-do de la es-ta-SYON" },
+          fr: { word: "agent de gare", reading: "a-ZHAN də gar" },
+          de: { word: "Bahnhofsmitarbeiter", reading: "BAHN-hofs-mit-ar-bai-ter" },
+          zh: { word: "站务员", reading: "zhànwùyuán" },
+          ko: { word: "역무원", reading: "yeongmuwon" }
+        }
+      },
+
+      {
+        id: "umbrella",
+        emoji: "☂️",
+        x: 79,
+        y: 62.5,
+        w: 10,
+        h: 12,
+        z: 110,
+        words: {
+          ja: { word: "傘", reading: "かさ" },
+          en: { word: "umbrella", reading: "um-BREL-uh" },
+          es: { word: "paraguas", reading: "pa-RA-gwas" },
+          fr: { word: "parapluie", reading: "pa-ra-PLWEE" },
+          de: { word: "Regenschirm", reading: "RAY-gen-shirm" },
+          zh: { word: "雨伞", reading: "yǔsǎn" },
+          ko: { word: "우산", reading: "usan" }
+        }
+      },
+
+      {
+        id: "bag",
+        emoji: "👜",
+        x: 81.5,
+        y: 68,
+        w: 16.5,
+        h: 14,
+        z: 120,
+        words: {
+          ja: { word: "カバン", reading: "かばん" },
+          en: { word: "bag", reading: "bag" },
+          es: { word: "bolso", reading: "BOL-so" },
+          fr: { word: "sac", reading: "sak" },
+          de: { word: "Tasche", reading: "TASH-e" },
+          zh: { word: "手提包", reading: "shǒutíbāo" },
+          ko: { word: "가방", reading: "gabang" }
+        }
+      },
+
+      {
+        id: "signal",
+        emoji: "🚦",
+        x: 37.5,
+        y: 29.5,
+        w: 7,
+        h: 11,
+        z: 100,
+        words: {
+          ja: { word: "信号", reading: "しんごう" },
+          en: { word: "signal", reading: "SIG-nuhl" },
+          es: { word: "semáforo", reading: "se-MA-fo-ro" },
+          fr: { word: "signal", reading: "see-NYAL" },
+          de: { word: "Signal", reading: "zig-NAAL" },
+          zh: { word: "信号灯", reading: "xìnhàodēng" },
+          ko: { word: "신호기", reading: "sinhogi" }
+        }
+      },
+
+      {
+        id: "departureBoard",
+        emoji: "🪧",
+        x: 51,
+        y: 22,
+        w: 31,
+        h: 8.5,
+        z: 85,
+        words: {
+          ja: { word: "案内板", reading: "あんないばん" },
+          en: { word: "departure board", reading: "dee-PAR-cher bord" },
+          es: { word: "panel de salidas", reading: "pa-NEL de sa-LEE-das" },
+          fr: { word: "tableau des départs", reading: "ta-BLO day day-PAR" },
+          de: { word: "Abfahrtstafel", reading: "AP-fahrts-taa-fel" },
+          zh: { word: "列车信息屏", reading: "lièchē xìnxīpíng" },
+          ko: { word: "출발 안내판", reading: "chulbal annaepan" }
+        }
+      }
     ]
   }
 };
@@ -881,6 +1195,10 @@ const app = document.getElementById("app");
 const sceneEl = document.getElementById("scene");
 const sceneImage = document.getElementById("sceneImage");
 const sceneName = document.getElementById("sceneName");
+const sceneShell = document.getElementById("sceneShell");
+const sceneSwitcher = document.getElementById("sceneSwitcher");
+const subtitle = document.getElementById("subtitle");
+const helpText = document.getElementById("helpText");
 
 const languageSelect = document.getElementById("languageSelect");
 const easyButton = document.getElementById("easyButton");
@@ -993,6 +1311,66 @@ function getLocalizedItem(item){
   );
 }
 
+function setIdlePrompt(){
+  const scene = getScene();
+
+  bigWord.textContent =
+    currentLanguage === "ja"
+      ? "タッチしてね"
+      : "Touch";
+
+  reading.textContent =
+    currentLanguage === "ja"
+      ? scene.promptJa
+      : "Tap an object";
+}
+
+function renderSceneSwitcher(){
+  sceneSwitcher.textContent = "";
+
+  for(const scene of Object.values(SCENES)){
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "sceneButton";
+    button.dataset.sceneId = scene.id;
+
+    button.setAttribute(
+      "aria-pressed",
+      scene.id === currentSceneId ? "true" : "false"
+    );
+
+    button.textContent =
+      scene.title[currentLanguage] ||
+      scene.title.en ||
+      scene.id;
+
+    button.addEventListener("click", () => {
+      if(scene.id === currentSceneId){
+        return;
+      }
+
+      currentSceneId = scene.id;
+      currentItemId = null;
+
+      safeSet(
+        STORAGE.scene,
+        currentSceneId
+      );
+
+      if("speechSynthesis" in window){
+        window.speechSynthesis.cancel();
+      }
+
+      renderScene();
+      setIdlePrompt();
+      updateVoiceStatus(false);
+    });
+
+    sceneSwitcher.appendChild(button);
+  }
+}
+
 function createHotspot(item){
   const button = document.createElement("button");
 
@@ -1021,18 +1399,11 @@ function createHotspot(item){
 
   button.appendChild(tag);
 
-  /*
-    pointerupを使うことで
-    mouse / touch / pen を同じ処理で扱う。
-  */
   button.addEventListener("pointerup", event => {
     event.preventDefault();
     selectItem(item.id, true);
   });
 
-  /*
-    キーボード操作にも対応。
-  */
   button.addEventListener("keydown", event => {
     if(event.key === "Enter" || event.key === " "){
       event.preventDefault();
@@ -1047,21 +1418,34 @@ function renderScene(){
   const scene = getScene();
 
   sceneImage.src = scene.background;
+  sceneImage.alt = scene.alt || "";
 
   sceneName.textContent =
     scene.title[currentLanguage] ||
     scene.title.en ||
     scene.id;
 
+  subtitle.textContent =
+    scene.subtitle;
+
+  document.title =
+    scene.documentTitle;
+
+  helpText.textContent =
+    scene.help;
+
+  sceneShell.setAttribute(
+    "aria-label",
+    scene.ariaLabel
+  );
+
+  renderSceneSwitcher();
+
   const existing =
     sceneEl.querySelectorAll(".hotspot");
 
   existing.forEach(node => node.remove());
 
-  /*
-    z-index自体で前後関係を制御。
-    DOM順は低いzから追加。
-  */
   const sortedItems = [...scene.items].sort(
     (a,b) => (a.z || 0) - (b.z || 0)
   );
@@ -1141,14 +1525,6 @@ function chooseVoice(locale){
   const base =
     target.split("-")[0];
 
-  /*
-    1. 完全一致
-    2. 完全一致 + localService
-    3. 同言語
-    4. 同言語 + localService
-    の候補から自然に選ぶ。
-  */
-
   const exactLocal =
     availableVoices.find(voice =>
       normalizeLanguageTag(voice.lang) === target &&
@@ -1216,10 +1592,6 @@ function updateVoiceStatus(forceUnsupported){
   const voice =
     chooseVoice(locale);
 
-  /*
-    ブラウザによっては voice一覧が空でも
-    utterance.lang 指定だけで読み上げ可能な場合がある。
-  */
   if(!availableVoices.length){
     voiceStatus.textContent =
       "端末の音声一覧を読み込み中です。";
@@ -1311,10 +1683,6 @@ function speakCurrentItem(){
   };
 
   utterance.onerror = event => {
-    /*
-      cancel は通常操作なので
-      エラー扱いしない。
-    */
     if(
       event.error === "canceled" ||
       event.error === "interrupted"
@@ -1328,16 +1696,8 @@ function speakCurrentItem(){
       "</span>";
   };
 
-  /*
-    連続タッチでは古い発音を止め、
-    最新の単語を優先。
-  */
   window.speechSynthesis.cancel();
 
-  /*
-    iOS/Safari等でcancel直後のspeakが
-    飛ぶ場合を避けるため少しだけ遅らせる。
-  */
   window.setTimeout(() => {
     window.speechSynthesis.speak(utterance);
   }, 40);
@@ -1360,9 +1720,7 @@ languageSelect.addEventListener(
       currentLanguage
     );
 
-    if(
-      "speechSynthesis" in window
-    ){
+    if("speechSynthesis" in window){
       window.speechSynthesis.cancel();
     }
 
@@ -1387,7 +1745,6 @@ easyButton.addEventListener(
     );
 
     applySettings();
-
     renderScene();
   }
 );
@@ -1448,23 +1805,18 @@ sceneImage.addEventListener(
   () => {
     voiceStatus.innerHTML =
       '<span class="noSpeech">' +
-      "背景画像 room.webp を読み込めません。" +
+      "背景画像 " +
+      getScene().background +
+      " を読み込めません。" +
       "</span>";
   }
 );
 
-/*
-  Web Speech API はブラウザによって
-  voice一覧の読み込みタイミングが異なる。
-*/
 if("speechSynthesis" in window){
   window.speechSynthesis.onvoiceschanged =
     loadVoices;
 }
 
-/*
-  初期化
-*/
 function init(){
   loadSettings();
 
@@ -1474,19 +1826,7 @@ function init(){
 
   loadVoices();
 
-  /*
-    初回表示では発音させず、
-    ユーザーのタッチ操作から開始。
-  */
-  bigWord.textContent =
-    currentLanguage === "ja"
-      ? "タッチしてね"
-      : "Touch";
-
-  reading.textContent =
-    currentLanguage === "ja"
-      ? "部屋の物を選んでください"
-      : "Tap an object";
+  setIdlePrompt();
 
   updateVoiceStatus(false);
 }
