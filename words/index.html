@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#162018">
+<title>SALP WORDS | 単語学習 部屋編</title>
+
+<style>
+:root{
+  --bg:#101510;
+  --panel:rgba(18,27,20,.94);
+  --panel2:rgba(255,255,255,.95);
+  --text:#fffdf6;
+  --sub:#d5ddcf;
+  --accent:#ffd86a;
+  --accent2:#94d68b;
+  --danger:#ff9c8d;
+  --line:rgba(255,255,255,.18);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Noto Sans JP",
+    "Noto Sans",
+    sans-serif;
+}
+
+body{
+  overscroll-behavior:none;
+}
+
+button,
+select,
+input,
+a{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  padding-top:var(--safe-top);
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:rgba(12,18,14,.96);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+.headerTop{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px 8px;
+}
+
+.backLink{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:48px;
+  min-height:48px;
+  padding:0 12px;
+  color:white;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:14px;
+  background:rgba(255,255,255,.08);
+  font-weight:700;
+}
+
+.titleWrap{
+  min-width:0;
+  flex:1;
+}
+
+.title{
+  margin:0;
+  font-size:1.12rem;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+
+.subtitle{
+  margin-top:2px;
+  color:var(--sub);
+  font-size:.79rem;
+  font-weight:700;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  padding:0 12px 10px;
+}
+
+select,
+.modeButton{
+  min-height:48px;
+  border:none;
+  border-radius:14px;
+  color:#182018;
+  background:#fffdf6;
+  padding:0 12px;
+  font-weight:900;
+}
+
+.modeButton{
+  min-width:116px;
+}
+
+.modeButton[aria-pressed="true"]{
+  background:var(--accent);
+}
+
+.settingsRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:0 12px 10px;
+}
+
+.setting{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:8px 10px;
+}
+
+.setting label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:var(--sub);
+  font-size:.78rem;
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.setting output{
+  color:white;
+  font-variant-numeric:tabular-nums;
+}
+
+input[type="range"]{
+  width:100%;
+  accent-color:var(--accent);
+}
+
+main{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  padding:10px 8px calc(132px + var(--safe-bottom));
+}
+
+.sceneShell{
+  width:min(100%,620px);
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.sceneInfo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:2px 3px;
+  color:var(--sub);
+  font-size:.78rem;
+}
+
+.scene{
+  position:relative;
+  width:100%;
+  aspect-ratio:9 / 16;
+  overflow:hidden;
+  border-radius:22px;
+  background:#263027;
+  box-shadow:0 10px 35px rgba(0,0,0,.32);
+  user-select:none;
+  touch-action:manipulation;
+}
+
+.sceneImage{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  pointer-events:none;
+}
+
+.hotspot{
+  position:absolute;
+  border:0;
+  padding:0;
+  margin:0;
+  background:transparent;
+  border-radius:18px;
+  touch-action:manipulation;
+  cursor:pointer;
+}
+
+.hotspot::before{
+  content:"";
+  position:absolute;
+  inset:2px;
+  border:2px solid transparent;
+  border-radius:inherit;
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    transform .15s ease;
+}
+
+.hotspot:active::before{
+  transform:scale(.96);
+  background:rgba(255,222,97,.25);
+}
+
+.hotspot:focus-visible::before{
+  outline:4px solid #fff;
+  outline-offset:2px;
+  border-color:#ffd75e;
+  background:rgba(255,215,94,.18);
+}
+
+.easy .hotspot::before{
+  border-color:rgba(255,242,166,.62);
+  background:rgba(255,224,99,.09);
+  box-shadow:
+    0 0 0 2px rgba(0,0,0,.14),
+    inset 0 0 16px rgba(255,236,145,.10);
+}
+
+.hotspotTag{
+  display:none;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  white-space:nowrap;
+  pointer-events:none;
+  padding:4px 7px;
+  border-radius:999px;
+  background:rgba(10,15,11,.82);
+  color:white;
+  font-size:.67rem;
+  font-weight:900;
+  box-shadow:0 2px 8px rgba(0,0,0,.24);
+}
+
+.easy .hotspotTag{
+  display:block;
+}
+
+.wordPanel{
+  position:fixed;
+  z-index:1500;
+  left:50%;
+  bottom:calc(10px + var(--safe-bottom));
+  transform:translateX(-50%);
+  width:min(calc(100% - 16px),620px);
+  min-height:106px;
+  border-radius:22px;
+  padding:10px 12px;
+  background:rgba(14,20,15,.95);
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 10px 35px rgba(0,0,0,.38);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+.wordTop{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:8px;
+}
+
+.wordText{
+  min-width:0;
+}
+
+.bigWord{
+  font-size:clamp(2rem,8vw,3.2rem);
+  line-height:1.04;
+  font-weight:950;
+  overflow-wrap:anywhere;
+}
+
+.reading{
+  min-height:1.25em;
+  margin-top:4px;
+  color:#ffe891;
+  font-size:clamp(.9rem,3.8vw,1.12rem);
+  font-weight:800;
+}
+
+.speakAgain{
+  min-width:62px;
+  min-height:62px;
+  border:0;
+  border-radius:18px;
+  background:var(--accent);
+  color:#1e210f;
+  font-size:1.7rem;
+  font-weight:900;
+}
+
+.voiceStatus{
+  margin-top:7px;
+  font-size:.78rem;
+  color:var(--sub);
+  min-height:1em;
+}
+
+.easy .bigWord{
+  font-size:clamp(2.6rem,11vw,4.1rem);
+}
+
+.easy .reading{
+  font-size:clamp(1.15rem,4.8vw,1.45rem);
+}
+
+.easy .wordPanel{
+  min-height:128px;
+  border:3px solid #ffe278;
+}
+
+.easy select,
+.easy .modeButton,
+.easy .backLink{
+  min-height:56px;
+  font-size:1.02rem;
+}
+
+.help{
+  padding:9px 12px;
+  border-radius:14px;
+  color:#e8eee5;
+  background:rgba(255,255,255,.06);
+  font-size:.79rem;
+  line-height:1.5;
+}
+
+.noSpeech{
+  color:var(--danger);
+  font-weight:800;
+}
+
+@media (min-width:700px){
+  main{
+    padding-top:16px;
+  }
+
+  .scene{
+    border-radius:28px;
+  }
+}
+
+@media (max-width:420px){
+  .title{
+    font-size:1rem;
+  }
+
+  .subtitle{
+    font-size:.72rem;
+  }
+
+  .settingsRow{
+    gap:7px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app" id="app">
+
+<header>
+  <div class="headerTop">
+    <a class="backLink" href="../index.html" aria-label="indexに戻る">←</a>
+
+    <div class="titleWrap">
+      <h1 class="title">🗣 SALP WORDS</h1>
+      <div class="subtitle">単語学習 部屋編</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <select id="languageSelect" aria-label="学習する言語">
+      <option value="ja">日本語</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="de">Deutsch</option>
+      <option value="zh">中文</option>
+      <option value="ko">한국어</option>
+    </select>
+
+    <button
+      type="button"
+      class="modeButton"
+      id="easyButton"
+      aria-pressed="false"
+    >
+      👀 見やすい
+    </button>
+  </div>
+
+  <div class="settingsRow">
+    <div class="setting">
+      <label for="volume">
+        <span>🔊 音量</span>
+        <output id="volumeOutput">100%</output>
+      </label>
+      <input
+        id="volume"
+        type="range"
+        min="0"
+        max="1"
+        step="0.05"
+        value="1"
+      >
+    </div>
+
+    <div class="setting">
+      <label for="rate">
+        <span>🐢 速度</span>
+        <output id="rateOutput">1.0×</output>
+      </label>
+      <input
+        id="rate"
+        type="range"
+        min="0.6"
+        max="1.3"
+        step="0.05"
+        value="1"
+      >
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="sceneShell" aria-label="部屋の単語学習">
+    <div class="sceneInfo">
+      <span id="sceneName">🏠 部屋</span>
+      <span>物をタッチ</span>
+    </div>
+
+    <div class="scene" id="scene">
+      <img
+        id="sceneImage"
+        class="sceneImage"
+        src="room.webp"
+        alt="明るい部屋のイラスト"
+        draggable="false"
+      >
+    </div>
+
+    <div class="help">
+      絵の中の物をタッチすると、名前を表示して読み上げます。
+      同じ物を何度タッチしても発音できます。
+      「見やすい」をONにするとタッチ場所も表示します。
+    </div>
+  </section>
+</main>
+
+<section
+  class="wordPanel"
+  id="wordPanel"
+  aria-live="polite"
+  aria-atomic="true"
+>
+  <div class="wordTop">
+    <div class="wordText">
+      <div class="bigWord" id="bigWord">タッチしてね</div>
+      <div class="reading" id="reading">Touch an object</div>
+    </div>
+
+    <button
+      id="speakAgain"
+      class="speakAgain"
+      type="button"
+      aria-label="もう一度発音する"
+      title="もう一度発音する"
+    >
+      🔊
+    </button>
+  </div>
+
+  <div class="voiceStatus" id="voiceStatus">
+    音声を準備しています…
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/*
+  ============================================================
+  SALP WORDS
+  多言語タッチ式単語学習
+  ------------------------------------------------------------
+  ・外部通信なし
+  ・広告なし
+  ・解析なし
+  ・個人情報収集なし
+  ・設定はこのブラウザの localStorage のみ
+  ============================================================
+*/
+
+const STORAGE = {
+  language: "salpWords.language",
+  easy: "salpWords.easyMode",
+  volume: "salpWords.volume",
+  rate: "salpWords.rate",
+  scene: "salpWords.scene"
+};
+
+const LANGS = {
+  ja: {
+    label: "日本語",
+    locale: "ja-JP"
+  },
+  en: {
+    label: "English",
+    locale: "en-US"
+  },
+  es: {
+    label: "Español",
+    locale: "es-ES"
+  },
+  fr: {
+    label: "Français",
+    locale: "fr-FR"
+  },
+  de: {
+    label: "Deutsch",
+    locale: "de-DE"
+  },
+  zh: {
+    label: "中文",
+    locale: "zh-CN"
+  },
+  ko: {
+    label: "한국어",
+    locale: "ko-KR"
+  }
+};
+
+/*
+  x / y / w / h は画像全体に対する百分率。
+
+  小さい物は見た目より少し広めにタッチ領域を設定。
+  z が大きい物ほど前面でタッチ判定される。
+
+  将来:
+  SCENES.kitchen
+  SCENES.hotel
+  SCENES.street
+  などを追加可能。
+*/
+
+const SCENES = {
+  room: {
+    id: "room",
+    title: {
+      ja: "🏠 部屋",
+      en: "🏠 Room",
+      es: "🏠 Habitación",
+      fr: "🏠 Chambre",
+      de: "🏠 Zimmer",
+      zh: "🏠 房间",
+      ko: "🏠 방"
+    },
+
+    background: "room.webp",
+
+    items: [
+
+      {
+        id: "window",
+        emoji: "🪟",
+        x: 2,
+        y: 1.5,
+        w: 33,
+        h: 31.5,
+        z: 10,
+
+        words: {
+          ja: { word: "窓", reading: "まど" },
+          en: { word: "window", reading: "WIN-doh" },
+          es: { word: "ventana", reading: "ben-TA-na" },
+          fr: { word: "fenêtre", reading: "fə-NETR" },
+          de: { word: "Fenster", reading: "FEN-ster" },
+          zh: { word: "窗户", reading: "chuānghu" },
+          ko: { word: "창문", reading: "changmun" }
+        }
+      },
+
+      {
+        id: "door",
+        emoji: "🚪",
+        x: 44,
+        y: 4,
+        w: 25,
+        h: 43,
+        z: 12,
+
+        words: {
+          ja: { word: "ドア", reading: "どあ" },
+          en: { word: "door", reading: "dor" },
+          es: { word: "puerta", reading: "PWER-ta" },
+          fr: { word: "porte", reading: "port" },
+          de: { word: "Tür", reading: "tüür" },
+          zh: { word: "门", reading: "mén" },
+          ko: { word: "문", reading: "mun" }
+        }
+      },
+
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 69.5,
+        y: 4.5,
+        w: 22.5,
+        h: 16.5,
+        z: 30,
+
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "lamp",
+        emoji: "💡",
+        x: 89.5,
+        y: 20.5,
+        w: 10.5,
+        h: 16,
+        z: 35,
+
+        words: {
+          ja: { word: "ランプ", reading: "らんぷ" },
+          en: { word: "lamp", reading: "lamp" },
+          es: { word: "lámpara", reading: "LAM-pa-ra" },
+          fr: { word: "lampe", reading: "lamp" },
+          de: { word: "Lampe", reading: "LAM-pe" },
+          zh: { word: "台灯", reading: "táidēng" },
+          ko: { word: "램프", reading: "raempeu" }
+        }
+      },
+
+      {
+        id: "radio",
+        emoji: "📻",
+        x: 69.5,
+        y: 28,
+        w: 19.5,
+        h: 8.5,
+        z: 50,
+
+        words: {
+          ja: { word: "ラジオ", reading: "らじお" },
+          en: { word: "radio", reading: "RAY-dee-oh" },
+          es: { word: "radio", reading: "RA-dyo" },
+          fr: { word: "radio", reading: "ra-DYO" },
+          de: { word: "Radio", reading: "RA-di-o" },
+          zh: { word: "收音机", reading: "shōuyīnjī" },
+          ko: { word: "라디오", reading: "radio" }
+        }
+      },
+
+      {
+        id: "chair",
+        emoji: "🪑",
+        x: 0,
+        y: 35,
+        w: 47,
+        h: 23,
+        z: 15,
+
+        words: {
+          ja: { word: "椅子", reading: "いす" },
+          en: { word: "chair", reading: "chair" },
+          es: { word: "silla", reading: "SEE-ya" },
+          fr: { word: "chaise", reading: "shez" },
+          de: { word: "Stuhl", reading: "shtool" },
+          zh: { word: "椅子", reading: "yǐzi" },
+          ko: { word: "의자", reading: "uija" }
+        }
+      },
+
+      {
+        id: "flowers",
+        emoji: "🌼",
+        x: 12,
+        y: 45,
+        w: 23,
+        h: 17,
+        z: 75,
+
+        words: {
+          ja: { word: "花", reading: "はな" },
+          en: { word: "flowers", reading: "FLOW-erz" },
+          es: { word: "flores", reading: "FLO-res" },
+          fr: { word: "fleurs", reading: "flœr" },
+          de: { word: "Blumen", reading: "BLOO-men" },
+          zh: { word: "花", reading: "huā" },
+          ko: { word: "꽃", reading: "kkot" }
+        }
+      },
+
+      {
+        id: "cup",
+        emoji: "☕",
+        x: 37,
+        y: 54.5,
+        w: 13,
+        h: 9,
+        z: 90,
+
+        words: {
+          ja: { word: "カップ", reading: "かっぷ" },
+          en: { word: "cup", reading: "kup" },
+          es: { word: "taza", reading: "TA-sa" },
+          fr: { word: "tasse", reading: "tas" },
+          de: { word: "Tasse", reading: "TAS-se" },
+          zh: { word: "杯子", reading: "bēizi" },
+          ko: { word: "컵", reading: "keop" }
+        }
+      },
+
+      {
+        id: "book",
+        emoji: "📘",
+        x: 22,
+        y: 61,
+        w: 21,
+        h: 8,
+        z: 95,
+
+        words: {
+          ja: { word: "本", reading: "ほん" },
+          en: { word: "book", reading: "book" },
+          es: { word: "libro", reading: "LEE-bro" },
+          fr: { word: "livre", reading: "leevr" },
+          de: { word: "Buch", reading: "buukh" },
+          zh: { word: "书", reading: "shū" },
+          ko: { word: "책", reading: "chaek" }
+        }
+      },
+
+      {
+        id: "apple",
+        emoji: "🍎",
+        x: 49,
+        y: 59.5,
+        w: 13.5,
+        h: 10,
+        z: 110,
+
+        words: {
+          ja: { word: "りんご", reading: "りんご" },
+          en: { word: "apple", reading: "AP-uhl" },
+          es: { word: "manzana", reading: "man-SA-na" },
+          fr: { word: "pomme", reading: "pom" },
+          de: { word: "Apfel", reading: "AP-fel" },
+          zh: { word: "苹果", reading: "píngguǒ" },
+          ko: { word: "사과", reading: "sagwa" }
+        }
+      },
+
+      {
+        id: "table",
+        emoji: "🟤",
+        x: 1,
+        y: 55.5,
+        w: 67.5,
+        h: 32,
+        z: 25,
+
+        words: {
+          ja: { word: "テーブル", reading: "てーぶる" },
+          en: { word: "table", reading: "TAY-buhl" },
+          es: { word: "mesa", reading: "ME-sa" },
+          fr: { word: "table", reading: "tabl" },
+          de: { word: "Tisch", reading: "tish" },
+          zh: { word: "桌子", reading: "zhuōzi" },
+          ko: { word: "탁자", reading: "takja" }
+        }
+      },
+
+      {
+        id: "cat",
+        emoji: "🐱",
+        x: 69,
+        y: 56,
+        w: 29,
+        h: 29,
+        z: 130,
+
+        words: {
+          ja: { word: "みけねこ", reading: "みけねこ" },
+          en: { word: "calico cat", reading: "KAL-ih-koh cat" },
+          es: { word: "gato calicó", reading: "GA-to ka-lee-KO" },
+          fr: { word: "chat tricolore", reading: "sha tree-ko-LOR" },
+          de: { word: "Glückskatze", reading: "GLÜKS-kat-se" },
+          zh: { word: "三花猫", reading: "sānhuāmāo" },
+          ko: { word: "삼색 고양이", reading: "samsaek goyangi" }
+        }
+      },
+
+      {
+        id: "shoes",
+        emoji: "👟",
+        x: 11,
+        y: 85.5,
+        w: 34,
+        h: 12,
+        z: 120,
+
+        words: {
+          ja: { word: "靴", reading: "くつ" },
+          en: { word: "shoes", reading: "shooz" },
+          es: { word: "zapatos", reading: "sa-PA-tos" },
+          fr: { word: "chaussures", reading: "sho-SÜR" },
+          de: { word: "Schuhe", reading: "SHOO-e" },
+          zh: { word: "鞋子", reading: "xiézi" },
+          ko: { word: "신발", reading: "sinbal" }
+        }
+      }
+
+    ]
+  }
+};
+
+const app = document.getElementById("app");
+const sceneEl = document.getElementById("scene");
+const sceneImage = document.getElementById("sceneImage");
+const sceneName = document.getElementById("sceneName");
+
+const languageSelect = document.getElementById("languageSelect");
+const easyButton = document.getElementById("easyButton");
+
+const volumeInput = document.getElementById("volume");
+const rateInput = document.getElementById("rate");
+const volumeOutput = document.getElementById("volumeOutput");
+const rateOutput = document.getElementById("rateOutput");
+
+const bigWord = document.getElementById("bigWord");
+const reading = document.getElementById("reading");
+const voiceStatus = document.getElementById("voiceStatus");
+const speakAgain = document.getElementById("speakAgain");
+
+let currentSceneId = "room";
+let currentItemId = null;
+
+let currentLanguage = "ja";
+let easyMode = false;
+
+let volume = 1;
+let rate = 1;
+
+let availableVoices = [];
+
+function safeGet(key, fallback){
+  try{
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value;
+  }catch(error){
+    return fallback;
+  }
+}
+
+function safeSet(key, value){
+  try{
+    localStorage.setItem(key, String(value));
+  }catch(error){
+    /* 保存不可の場合でもアプリは動作継続 */
+  }
+}
+
+function clamp(value, min, max){
+  return Math.min(max, Math.max(min, value));
+}
+
+function loadSettings(){
+  const savedLanguage = safeGet(STORAGE.language, "ja");
+
+  if(LANGS[savedLanguage]){
+    currentLanguage = savedLanguage;
+  }
+
+  currentSceneId = safeGet(STORAGE.scene, "room");
+
+  if(!SCENES[currentSceneId]){
+    currentSceneId = "room";
+  }
+
+  easyMode = safeGet(STORAGE.easy, "false") === "true";
+
+  volume = clamp(
+    Number.parseFloat(safeGet(STORAGE.volume, "1")) || 1,
+    0,
+    1
+  );
+
+  rate = clamp(
+    Number.parseFloat(safeGet(STORAGE.rate, "1")) || 1,
+    0.6,
+    1.3
+  );
+}
+
+function applySettings(){
+  languageSelect.value = currentLanguage;
+
+  easyButton.setAttribute(
+    "aria-pressed",
+    easyMode ? "true" : "false"
+  );
+
+  app.classList.toggle("easy", easyMode);
+
+  volumeInput.value = String(volume);
+  rateInput.value = String(rate);
+
+  volumeOutput.value =
+    Math.round(volume * 100) + "%";
+
+  rateOutput.value =
+    rate.toFixed(2).replace(/0$/,"") + "×";
+}
+
+function getScene(){
+  return SCENES[currentSceneId];
+}
+
+function getItemById(id){
+  return getScene().items.find(item => item.id === id) || null;
+}
+
+function getLocalizedItem(item){
+  if(!item) return null;
+
+  return (
+    item.words[currentLanguage] ||
+    item.words.en ||
+    item.words.ja
+  );
+}
+
+function createHotspot(item){
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = "hotspot";
+  button.dataset.itemId = item.id;
+
+  button.style.left = item.x + "%";
+  button.style.top = item.y + "%";
+  button.style.width = item.w + "%";
+  button.style.height = item.h + "%";
+  button.style.zIndex = String(item.z || 1);
+
+  const localized = getLocalizedItem(item);
+
+  button.setAttribute(
+    "aria-label",
+    localized ? localized.word : item.id
+  );
+
+  const tag = document.createElement("span");
+  tag.className = "hotspotTag";
+  tag.textContent =
+    item.emoji + " " +
+    (localized ? localized.word : item.id);
+
+  button.appendChild(tag);
+
+  /*
+    pointerupを使うことで
+    mouse / touch / pen を同じ処理で扱う。
+  */
+  button.addEventListener("pointerup", event => {
+    event.preventDefault();
+    selectItem(item.id, true);
+  });
+
+  /*
+    キーボード操作にも対応。
+  */
+  button.addEventListener("keydown", event => {
+    if(event.key === "Enter" || event.key === " "){
+      event.preventDefault();
+      selectItem(item.id, true);
+    }
+  });
+
+  return button;
+}
+
+function renderScene(){
+  const scene = getScene();
+
+  sceneImage.src = scene.background;
+
+  sceneName.textContent =
+    scene.title[currentLanguage] ||
+    scene.title.en ||
+    scene.id;
+
+  const existing =
+    sceneEl.querySelectorAll(".hotspot");
+
+  existing.forEach(node => node.remove());
+
+  /*
+    z-index自体で前後関係を制御。
+    DOM順は低いzから追加。
+  */
+  const sortedItems = [...scene.items].sort(
+    (a,b) => (a.z || 0) - (b.z || 0)
+  );
+
+  for(const item of sortedItems){
+    sceneEl.appendChild(createHotspot(item));
+  }
+
+  if(currentItemId){
+    const selected = getItemById(currentItemId);
+
+    if(selected){
+      showItem(selected);
+    }
+  }
+}
+
+function showItem(item){
+  const localized = getLocalizedItem(item);
+
+  if(!localized) return;
+
+  bigWord.textContent = localized.word;
+
+  reading.textContent =
+    localized.reading
+      ? localized.reading
+      : "";
+
+  document.documentElement.lang = currentLanguage;
+
+  updateVoiceStatus(false);
+}
+
+function selectItem(itemId, shouldSpeak){
+  const item = getItemById(itemId);
+
+  if(!item) return;
+
+  currentItemId = itemId;
+
+  showItem(item);
+
+  if(shouldSpeak){
+    speakCurrentItem();
+  }
+}
+
+function loadVoices(){
+  if(!("speechSynthesis" in window)){
+    availableVoices = [];
+    updateVoiceStatus(true);
+    return;
+  }
+
+  availableVoices =
+    window.speechSynthesis.getVoices() || [];
+
+  updateVoiceStatus(false);
+}
+
+function normalizeLanguageTag(tag){
+  return String(tag || "")
+    .trim()
+    .toLowerCase()
+    .replace("_","-");
+}
+
+function chooseVoice(locale){
+  if(!availableVoices.length){
+    return null;
+  }
+
+  const target =
+    normalizeLanguageTag(locale);
+
+  const base =
+    target.split("-")[0];
+
+  /*
+    1. 完全一致
+    2. 完全一致 + localService
+    3. 同言語
+    4. 同言語 + localService
+    の候補から自然に選ぶ。
+  */
+
+  const exactLocal =
+    availableVoices.find(voice =>
+      normalizeLanguageTag(voice.lang) === target &&
+      voice.localService
+    );
+
+  if(exactLocal){
+    return exactLocal;
+  }
+
+  const exact =
+    availableVoices.find(voice =>
+      normalizeLanguageTag(voice.lang) === target
+    );
+
+  if(exact){
+    return exact;
+  }
+
+  const baseLocal =
+    availableVoices.find(voice =>
+      normalizeLanguageTag(voice.lang).split("-")[0] === base &&
+      voice.localService
+    );
+
+  if(baseLocal){
+    return baseLocal;
+  }
+
+  const baseMatch =
+    availableVoices.find(voice =>
+      normalizeLanguageTag(voice.lang).split("-")[0] === base
+    );
+
+  if(baseMatch){
+    return baseMatch;
+  }
+
+  return null;
+}
+
+function updateVoiceStatus(forceUnsupported){
+  if(
+    forceUnsupported ||
+    !("speechSynthesis" in window) ||
+    !("SpeechSynthesisUtterance" in window)
+  ){
+    voiceStatus.innerHTML =
+      '<span class="noSpeech">' +
+      "このブラウザでは音声読み上げを利用できません。" +
+      "</span>";
+
+    speakAgain.disabled = true;
+    speakAgain.setAttribute("aria-disabled","true");
+
+    return;
+  }
+
+  speakAgain.disabled = false;
+  speakAgain.setAttribute("aria-disabled","false");
+
+  const locale =
+    LANGS[currentLanguage].locale;
+
+  const voice =
+    chooseVoice(locale);
+
+  /*
+    ブラウザによっては voice一覧が空でも
+    utterance.lang 指定だけで読み上げ可能な場合がある。
+  */
+  if(!availableVoices.length){
+    voiceStatus.textContent =
+      "端末の音声一覧を読み込み中です。";
+    return;
+  }
+
+  if(!voice){
+    voiceStatus.innerHTML =
+      '<span class="noSpeech">' +
+      LANGS[currentLanguage].label +
+      " の対応音声が端末に見つかりません。" +
+      "</span>";
+
+    return;
+  }
+
+  voiceStatus.textContent =
+    "🔊 " +
+    LANGS[currentLanguage].label +
+    " / " +
+    voice.name;
+}
+
+function speakCurrentItem(){
+  if(!currentItemId){
+    return;
+  }
+
+  const item =
+    getItemById(currentItemId);
+
+  if(!item){
+    return;
+  }
+
+  const localized =
+    getLocalizedItem(item);
+
+  if(!localized){
+    return;
+  }
+
+  if(
+    !("speechSynthesis" in window) ||
+    !("SpeechSynthesisUtterance" in window)
+  ){
+    updateVoiceStatus(true);
+    return;
+  }
+
+  const langInfo =
+    LANGS[currentLanguage];
+
+  const utterance =
+    new SpeechSynthesisUtterance(localized.word);
+
+  utterance.lang =
+    langInfo.locale;
+
+  utterance.volume =
+    volume;
+
+  utterance.rate =
+    rate;
+
+  utterance.pitch =
+    1;
+
+  const voice =
+    chooseVoice(langInfo.locale);
+
+  if(voice){
+    utterance.voice = voice;
+  }
+
+  utterance.onstart = () => {
+    if(voice){
+      voiceStatus.textContent =
+        "🔊 発音中 / " +
+        voice.name;
+    }else{
+      voiceStatus.textContent =
+        "🔊 発音中";
+    }
+  };
+
+  utterance.onend = () => {
+    updateVoiceStatus(false);
+  };
+
+  utterance.onerror = event => {
+    /*
+      cancel は通常操作なので
+      エラー扱いしない。
+    */
+    if(
+      event.error === "canceled" ||
+      event.error === "interrupted"
+    ){
+      return;
+    }
+
+    voiceStatus.innerHTML =
+      '<span class="noSpeech">' +
+      "音声を再生できませんでした。" +
+      "</span>";
+  };
+
+  /*
+    連続タッチでは古い発音を止め、
+    最新の単語を優先。
+  */
+  window.speechSynthesis.cancel();
+
+  /*
+    iOS/Safari等でcancel直後のspeakが
+    飛ぶ場合を避けるため少しだけ遅らせる。
+  */
+  window.setTimeout(() => {
+    window.speechSynthesis.speak(utterance);
+  }, 40);
+}
+
+languageSelect.addEventListener(
+  "change",
+  () => {
+    const value =
+      languageSelect.value;
+
+    if(!LANGS[value]){
+      return;
+    }
+
+    currentLanguage = value;
+
+    safeSet(
+      STORAGE.language,
+      currentLanguage
+    );
+
+    if(
+      "speechSynthesis" in window
+    ){
+      window.speechSynthesis.cancel();
+    }
+
+    renderScene();
+
+    if(currentItemId){
+      speakCurrentItem();
+    }else{
+      updateVoiceStatus(false);
+    }
+  }
+);
+
+easyButton.addEventListener(
+  "click",
+  () => {
+    easyMode = !easyMode;
+
+    safeSet(
+      STORAGE.easy,
+      easyMode
+    );
+
+    applySettings();
+
+    renderScene();
+  }
+);
+
+volumeInput.addEventListener(
+  "input",
+  () => {
+    volume =
+      clamp(
+        Number.parseFloat(volumeInput.value),
+        0,
+        1
+      );
+
+    safeSet(
+      STORAGE.volume,
+      volume
+    );
+
+    volumeOutput.value =
+      Math.round(volume * 100) + "%";
+  }
+);
+
+rateInput.addEventListener(
+  "input",
+  () => {
+    rate =
+      clamp(
+        Number.parseFloat(rateInput.value),
+        0.6,
+        1.3
+      );
+
+    safeSet(
+      STORAGE.rate,
+      rate
+    );
+
+    rateOutput.value =
+      rate.toFixed(2).replace(/0$/,"") + "×";
+  }
+);
+
+speakAgain.addEventListener(
+  "pointerup",
+  event => {
+    event.preventDefault();
+
+    if(currentItemId){
+      speakCurrentItem();
+    }
+  }
+);
+
+sceneImage.addEventListener(
+  "error",
+  () => {
+    voiceStatus.innerHTML =
+      '<span class="noSpeech">' +
+      "背景画像 room.webp を読み込めません。" +
+      "</span>";
+  }
+);
+
+/*
+  Web Speech API はブラウザによって
+  voice一覧の読み込みタイミングが異なる。
+*/
+if("speechSynthesis" in window){
+  window.speechSynthesis.onvoiceschanged =
+    loadVoices;
+}
+
+/*
+  初期化
+*/
+function init(){
+  loadSettings();
+
+  applySettings();
+
+  renderScene();
+
+  loadVoices();
+
+  /*
+    初回表示では発音させず、
+    ユーザーのタッチ操作から開始。
+  */
+  bigWord.textContent =
+    currentLanguage === "ja"
+      ? "タッチしてね"
+      : "Touch";
+
+  reading.textContent =
+    currentLanguage === "ja"
+      ? "部屋の物を選んでください"
+      : "Tap an object";
+
+  updateVoiceStatus(false);
+}
+
+init();
+</script>
+</body>
+</html>
