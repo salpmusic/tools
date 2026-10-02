@@ -114,36 +114,90 @@ header{
   font-weight:700;
 }
 
-.sceneSwitcher{
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding:0 12px 10px;
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
+.sceneBand{
+  padding:8px 12px 12px;
+  background:#f1ecd6;
+  border-top:1px solid rgba(0,0,0,.2);
+  border-bottom:3px solid var(--accent);
 }
 
-.sceneSwitcher::-webkit-scrollbar{
-  display:none;
+.sceneLabel{
+  max-width:760px;
+  margin:0 auto 6px;
+  color:#2b3a2d;
+  font-size:.82rem;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+
+.sceneSwitcher{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:8px;
+  max-width:760px;
+  margin:0 auto;
 }
 
 .sceneButton{
-  flex:1 0 auto;
-  min-width:138px;
-  min-height:50px;
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:14px;
-  padding:0 14px;
-  background:rgba(255,255,255,.08);
-  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:56px;
+  border:3px solid #4d5f4f;
+  border-radius:16px;
+  padding:6px 10px;
+  background:#fff;
+  color:#17201a;
+  font-size:1.05rem;
+  font-weight:800;
+  line-height:1.2;
+  text-align:center;
+}
+
+.sceneIcon{
+  flex:none;
+  font-size:1.6rem;
+  line-height:1;
+}
+
+.sceneText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+
+.sceneCheck{
+  display:none;
+  flex:none;
+  font-size:1.2rem;
   font-weight:900;
-  white-space:nowrap;
 }
 
 .sceneButton[aria-pressed="true"]{
   border-color:var(--accent);
-  background:var(--accent);
-  color:#1e210f;
+  background:#12301c;
+  color:#ffe278;
+  font-weight:900;
+  box-shadow:0 4px 10px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,255,255,.25);
+}
+
+.sceneButton[aria-pressed="true"] .sceneCheck{
+  display:inline;
+}
+
+.sceneButton:focus-visible{
+  outline:4px solid #0b57d0;
+  outline-offset:2px;
+}
+
+.sceneButton[aria-pressed="true"]:focus-visible{
+  outline-color:#fff;
+}
+
+@media (prefers-reduced-motion:no-preference){
+  .sceneButton{
+    transition:background-color .15s,color .15s,box-shadow .15s;
+  }
 }
 
 .controls{
@@ -452,11 +506,15 @@ main{
     </div>
   </div>
 
-  <div
-    class="sceneSwitcher"
-    id="sceneSwitcher"
-    aria-label="学習シーンを切り替える"
-  ></div>
+  <div class="sceneBand">
+    <div class="sceneLabel" id="sceneLabel">場面をえらぶ / Choose a scene</div>
+    <div
+      class="sceneSwitcher"
+      id="sceneSwitcher"
+      role="group"
+      aria-labelledby="sceneLabel"
+    ></div>
+  </div>
 
   <div class="controls">
     <select id="languageSelect" aria-label="学習する言語">
@@ -614,6 +672,7 @@ const LANGS = {
 const SCENES = {
   room: {
     id: "room",
+    icon: "🏠",
     title: {
       ja: "🏠 部屋",
       en: "🏠 Room",
@@ -884,6 +943,7 @@ const SCENES = {
 
   station: {
     id: "station",
+    icon: "🚉",
     title: {
       ja: "🚉 駅のホーム",
       en: "🚉 Station Platform",
@@ -1197,6 +1257,17 @@ const sceneImage = document.getElementById("sceneImage");
 const sceneName = document.getElementById("sceneName");
 const sceneShell = document.getElementById("sceneShell");
 const sceneSwitcher = document.getElementById("sceneSwitcher");
+const sceneLabel = document.getElementById("sceneLabel");
+
+const SCENE_LABELS = {
+  ja: "場面をえらぶ / Choose a scene",
+  en: "Choose a scene",
+  es: "Elige una escena",
+  fr: "Choisis une scène",
+  de: "Wähle eine Szene",
+  zh: "选择场景",
+  ko: "장면을 고르세요"
+};
 const subtitle = document.getElementById("subtitle");
 const helpText = document.getElementById("helpText");
 
@@ -1326,7 +1397,14 @@ function setIdlePrompt(){
 }
 
 function renderSceneSwitcher(){
+  const focusedId =
+    sceneSwitcher.contains(document.activeElement)
+      ? document.activeElement.dataset.sceneId
+      : null;
+
   sceneSwitcher.textContent = "";
+  sceneLabel.textContent =
+    SCENE_LABELS[currentLanguage] || SCENE_LABELS.en;
 
   for(const scene of Object.values(SCENES)){
     const button = document.createElement("button");
@@ -1340,10 +1418,31 @@ function renderSceneSwitcher(){
       scene.id === currentSceneId ? "true" : "false"
     );
 
-    button.textContent =
+    const icon = scene.icon || "📍";
+    let name =
       scene.title[currentLanguage] ||
       scene.title.en ||
       scene.id;
+
+    if(name.startsWith(icon)){
+      name = name.slice(icon.length).trim();
+    }
+
+    const iconEl = document.createElement("span");
+    iconEl.className = "sceneIcon";
+    iconEl.setAttribute("aria-hidden", "true");
+    iconEl.textContent = icon;
+
+    const textEl = document.createElement("span");
+    textEl.className = "sceneText";
+    textEl.textContent = name;
+
+    const checkEl = document.createElement("span");
+    checkEl.className = "sceneCheck";
+    checkEl.setAttribute("aria-hidden", "true");
+    checkEl.textContent = "✓";
+
+    button.append(iconEl, textEl, checkEl);
 
     button.addEventListener("click", () => {
       if(scene.id === currentSceneId){
@@ -1368,6 +1467,10 @@ function renderSceneSwitcher(){
     });
 
     sceneSwitcher.appendChild(button);
+
+    if(scene.id === focusedId){
+      button.focus({ preventScroll: true });
+    }
   }
 }
 
