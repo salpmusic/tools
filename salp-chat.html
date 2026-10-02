@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#050805">
+<title>SALP NETWORK - Public Chat</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* =========================================================
+   SUPABASE SETTINGS
+   Replace only these two values.
+   NOTE: In newer Supabase projects the browser-safe key may be
+   called a "Publishable key". Put that value here too.
+   NEVER put a service_role / secret key in this HTML.
+   ========================================================= */
+const SUPABASE_URL = 'https://rufdlxiejtlbiclcwpaf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_AaAtwKIJR5L6envElFsmKQ_jUt48vYr';
+</script>
+
+<style>
+:root{
+  --bg:#030603;
+  --panel:#071007;
+  --green:#79ff70;
+  --green2:#29cc55;
+  --amber:#ffc45c;
+  --dim:#4a7a4a;
+  --line:#1f5728;
+  --danger:#ff6b5f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--green)}
+body{
+  font-family:"Courier New","MS Gothic","Osaka-mono",monospace;
+  overflow:hidden;
+  text-shadow:0 0 7px rgba(80,255,95,.18);
+}
+button,input,textarea{font:inherit}
+button{touch-action:manipulation}
+.shell{
+  width:min(900px,100%);
+  height:100dvh;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  border-left:1px solid var(--line);
+  border-right:1px solid var(--line);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.018) 0,
+      rgba(255,255,255,.018) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    var(--bg);
+}
+.topbar{
+  flex:0 0 auto;
+  padding:8px 10px 7px;
+  border-bottom:1px solid var(--line);
+  background:#050c05;
+}
+.logo{
+  color:var(--amber);
+  font-weight:bold;
+  letter-spacing:.08em;
+  font-size:clamp(17px,4.5vw,24px);
+  white-space:nowrap;
+}
+.sub{
+  margin-top:2px;
+  color:var(--dim);
+  font-size:11px;
+}
+.notice{
+  flex:0 0 auto;
+  padding:6px 10px;
+  color:var(--amber);
+  border-bottom:1px dashed #6b5121;
+  font-size:11px;
+  line-height:1.35;
+  background:#100c03;
+}
+.statusbar{
+  flex:0 0 auto;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:4px 10px;
+  border-bottom:1px solid var(--line);
+  font-size:12px;
+}
+#statusText{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#465346;box-shadow:none;flex:0 0 auto;
+}
+.dot.on{background:var(--green);box-shadow:0 0 9px var(--green)}
+.tinybtn{
+  border:1px solid var(--line);
+  color:var(--green);
+  background:#061006;
+  padding:3px 7px;
+  cursor:pointer;
+  font-size:11px;
+}
+.tinybtn:hover,.tinybtn:focus{border-color:var(--green);outline:none}
+.screen{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+  padding:9px 10px 18px;
+  scrollbar-color:var(--green2) #071007;
+  overscroll-behavior:contain;
+}
+.welcome{
+  color:var(--green2);
+  line-height:1.45;
+  font-size:12px;
+  margin-bottom:10px;
+}
+.message{
+  position:relative;
+  padding:5px 3px 7px;
+  border-bottom:1px dotted rgba(72,132,72,.38);
+}
+.meta{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  min-width:0;
+  color:var(--amber);
+  font-size:11px;
+}
+.nick{
+  color:var(--green);
+  font-weight:bold;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.time{color:#768c76;flex:0 0 auto}
+.body{
+  padding:3px 0 0 14px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  line-height:1.45;
+  font-size:13px;
+}
+.del{
+  margin-left:auto;
+  flex:0 0 auto;
+  border:1px solid #77322f;
+  background:#160706;
+  color:var(--danger);
+  padding:1px 6px;
+  font-size:10px;
+  cursor:pointer;
+}
+.loginBox{
+  flex:0 0 auto;
+  padding:10px;
+  border-top:1px solid var(--line);
+  background:#050b05;
+}
+.row{display:flex;gap:7px}
+.handleInput,.adminInput{
+  width:100%;
+  min-width:0;
+  color:var(--green);
+  background:#020702;
+  border:1px solid var(--line);
+  padding:10px;
+  outline:none;
+}
+.handleInput:focus,.adminInput:focus,textarea:focus{border-color:var(--green)}
+.connectBtn,.sendBtn,.adminLoginBtn{
+  border:1px solid var(--green2);
+  color:var(--bg);
+  background:var(--green);
+  font-weight:bold;
+  padding:8px 13px;
+  cursor:pointer;
+}
+.composer{
+  display:none;
+  flex:0 0 auto;
+  padding:7px 8px max(7px,env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);
+  background:#050b05;
+}
+.composer.on{display:block}
+.composeRow{display:flex;gap:7px;align-items:stretch}
+textarea{
+  flex:1;
+  min-width:0;
+  height:44px;
+  max-height:90px;
+  resize:none;
+  color:var(--green);
+  background:#020702;
+  border:1px solid var(--line);
+  padding:8px;
+  outline:none;
+  line-height:1.3;
+}
+.sendBtn{min-width:68px}
+.counter{
+  margin-top:3px;
+  text-align:right;
+  color:var(--dim);
+  font-size:10px;
+}
+.flash{
+  color:var(--amber);
+  padding:4px 0 0;
+  min-height:19px;
+  font-size:11px;
+}
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:none;
+  place-items:center;
+  padding:18px;
+  background:rgba(0,0,0,.82);
+}
+.modal.on{display:grid}
+.modalCard{
+  width:min(430px,100%);
+  border:1px solid var(--amber);
+  background:#050805;
+  box-shadow:0 0 26px rgba(255,196,92,.12);
+  padding:14px;
+}
+.modalTitle{color:var(--amber);font-weight:bold;margin-bottom:9px}
+.modalHint{font-size:11px;color:#7d987d;line-height:1.45;margin-bottom:10px}
+.adminInput{margin-bottom:7px}
+.modalActions{display:flex;gap:8px;margin-top:7px}
+.ghost{
+  border:1px solid var(--line);
+  background:#071007;
+  color:var(--green);
+  padding:8px 12px;
+  cursor:pointer;
+}
+.hidden{display:none!important}
+.blink{animation:blink 1s steps(2,start) infinite}
+@keyframes blink{50%{opacity:.25}}
+
+@media (max-width:520px){
+  .topbar{padding-top:max(7px,env(safe-area-inset-top))}
+  .sub{font-size:10px}
+  .notice{font-size:10px}
+  .screen{padding:7px 7px 14px}
+  .body{font-size:12px;padding-left:8px}
+  .message{padding-top:4px}
+  .loginBox{padding:8px}
+  .handleInput{padding:9px 8px}
+  .connectBtn{padding:8px 10px}
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="logo">◆ SALP NETWORK ◆</div>
+    <div class="sub">PUBLIC TERMINAL / ROOM #01 / Retro Communication System</div>
+  </header>
+
+  <div class="notice">
+    ⚠ 個人情報を書かないでください。本名・住所・電話番号・メール・勤務先などの投稿は禁止です。
+  </div>
+
+  <div class="statusbar">
+    <span id="statusDot" class="dot"></span>
+    <span id="statusText">OFFLINE / ハンドルネームを入力してください</span>
+    <button id="adminOpenBtn" class="tinybtn" type="button">SYSOP</button>
+    <button id="logoutBtn" class="tinybtn hidden" type="button">EXIT</button>
+  </div>
+
+  <main id="screen" class="screen" aria-live="polite">
+    <div class="welcome">
+      SALP NETWORK PUBLIC CHAT<br>
+      ----------------------------------------<br>
+      SYSTEM &gt; ここは公開チャットです。<br>
+      SYSTEM &gt; 1回200文字まで / 連投は5秒以上あけてください。<br>
+      SYSTEM &gt; ハンドルネームだけでゲスト接続できます。<br>
+      <span class="blink">_</span>
+    </div>
+    <div id="messages"></div>
+  </main>
+
+  <section id="loginBox" class="loginBox">
+    <div class="row">
+      <input
+        id="nickname"
+        class="handleInput"
+        type="text"
+        maxlength="20"
+        autocomplete="nickname"
+        placeholder="HANDLE NAME (1〜20文字)"
+        aria-label="ハンドルネーム">
+      <button id="connectBtn" class="connectBtn" type="button">CONNECT</button>
+    </div>
+    <div id="loginFlash" class="flash"></div>
+  </section>
+
+  <section id="composer" class="composer">
+    <div class="composeRow">
+      <textarea
+        id="messageInput"
+        maxlength="200"
+        rows="2"
+        enterkeyhint="send"
+        placeholder="MESSAGE >"
+        aria-label="メッセージ"></textarea>
+      <button id="sendBtn" class="sendBtn" type="button">SEND</button>
+    </div>
+    <div id="counter" class="counter">0 / 200</div>
+    <div id="chatFlash" class="flash"></div>
+  </section>
+</div>
+
+<div id="adminModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <div class="modalCard">
+    <div id="adminTitle" class="modalTitle">SYSOP LOGIN</div>
+    <div class="modalHint">
+      管理者専用。Supabase Authで作成したメール＋パスワードを使用します。
+      パスワードはこのHTMLには保存されません。
+    </div>
+    <input id="adminEmail" class="adminInput" type="email" autocomplete="username" placeholder="ADMIN EMAIL">
+    <input id="adminPassword" class="adminInput" type="password" autocomplete="current-password" placeholder="PASSWORD">
+    <div class="modalActions">
+      <button id="adminLoginBtn" class="adminLoginBtn" type="button">LOGIN</button>
+      <button id="adminCloseBtn" class="ghost" type="button">CANCEL</button>
+    </div>
+    <div id="adminFlash" class="flash"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const configured =
+    SUPABASE_URL &&
+    SUPABASE_ANON_KEY &&
+    SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+    SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+
+  const $ = (id) => document.getElementById(id);
+
+  const els = {
+    statusDot: $('statusDot'),
+    statusText: $('statusText'),
+    screen: $('screen'),
+    messages: $('messages'),
+    loginBox: $('loginBox'),
+    nickname: $('nickname'),
+    connectBtn: $('connectBtn'),
+    loginFlash: $('loginFlash'),
+    composer: $('composer'),
+    messageInput: $('messageInput'),
+    sendBtn: $('sendBtn'),
+    counter: $('counter'),
+    chatFlash: $('chatFlash'),
+    logoutBtn: $('logoutBtn'),
+    adminOpenBtn: $('adminOpenBtn'),
+    adminModal: $('adminModal'),
+    adminEmail: $('adminEmail'),
+    adminPassword: $('adminPassword'),
+    adminLoginBtn: $('adminLoginBtn'),
+    adminCloseBtn: $('adminCloseBtn'),
+    adminFlash: $('adminFlash')
+  };
+
+  if (!configured) {
+    els.loginFlash.textContent =
+      'SETUP REQUIRED > SUPABASE_URL と SUPABASE_ANON_KEY を差し替えてください。';
+    els.connectBtn.disabled = true;
+    els.statusText.textContent = 'CONFIG REQUIRED';
+    return;
+  }
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+
+  let currentUser = null;
+  let nickname = localStorage.getItem('salp_chat_nickname') || '';
+  let isAdmin = false;
+  let channel = null;
+  let lastClientSendAt = 0;
+  let reloadTimer = null;
+
+  els.nickname.value = nickname;
+
+  function setStatus(text, online = false) {
+    els.statusText.textContent = text;
+    els.statusDot.classList.toggle('on', online);
+  }
+
+  function flash(el, text, ms = 4500) {
+    el.textContent = text || '';
+    if (text && ms) {
+      const old = text;
+      setTimeout(() => {
+        if (el.textContent === old) el.textContent = '';
+      }, ms);
+    }
+  }
+
+  function normalizeError(error) {
+    const msg = String(error?.message || error || '');
+    if (msg.includes('RATE_LIMIT')) return '連投制限：5秒以上あけてください。';
+    if (msg.includes('NG_WORD')) return 'この投稿には使用できない語が含まれています。';
+    if (msg.includes('MESSAGE_LENGTH')) return 'メッセージは1〜200文字です。';
+    if (msg.includes('NICKNAME_LENGTH')) return 'ハンドルネームは1〜20文字です。';
+    if (msg.includes('INVALID_CONTROL_CHAR')) return '使用できない制御文字が含まれています。';
+    if (msg.includes('INVALID_NICKNAME')) return 'ハンドルネームに使用できない文字があります。';
+    if (msg.includes('JWT') || msg.includes('session')) return '認証セッションを確認できません。再接続してください。';
+    return msg || 'エラーが発生しました。';
+  }
+
+  function fmtTime(iso) {
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat('ja-JP', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(d);
+  }
+
+  function makeMessageNode(m) {
+    const wrap = document.createElement('article');
+    wrap.className = 'message';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    const time = document.createElement('span');
+    time.className = 'time';
+    time.textContent = fmtTime(m.created_at);
+
+    const nick = document.createElement('span');
+    nick.className = 'nick';
+    nick.textContent = m.nickname;
+
+    meta.append(time, nick);
+
+    if (isAdmin) {
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.type = 'button';
+      del.textContent = 'DELETE';
+      del.addEventListener('click', () => deleteMessage(m.id));
+      meta.appendChild(del);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'body';
+    body.textContent = '>> ' + m.body;
+
+    wrap.append(meta, body);
+    return wrap;
+  }
+
+  async function loadMessages(scrollBottom = false) {
+    const { data, error } = await sb
+      .from('chat_messages')
+      .select('id,user_id,nickname,body,created_at')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      flash(els.chatFlash, normalizeError(error));
+      return;
+    }
+
+    const rows = (data || []).slice().reverse();
+    const frag = document.createDocumentFragment();
+    for (const m of rows) frag.appendChild(makeMessageNode(m));
+
+    els.messages.replaceChildren(frag);
+
+    if (scrollBottom) {
+      requestAnimationFrame(() => {
+        els.screen.scrollTop = els.screen.scrollHeight;
+      });
+    }
+  }
+
+  function scheduleReload() {
+    clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(() => loadMessages(true), 120);
+  }
+
+  async function subscribeRealtime() {
+    if (channel) {
+      await sb.removeChannel(channel);
+      channel = null;
+    }
+
+    channel = sb
+      .channel('salp-room-01-db')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chat_messages' },
+        scheduleReload
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setStatus(
+            isAdmin
+              ? `ONLINE / SYSOP / ${nickname || 'ADMIN'}`
+              : `ONLINE / ${nickname}`,
+            true
+          );
+        }
+      });
+  }
+
+  async function checkAdmin() {
+    isAdmin = false;
+    if (!currentUser) return false;
+
+    const { data, error } = await sb.rpc('is_chat_admin');
+    if (!error) isAdmin = data === true;
+    return isAdmin;
+  }
+
+  async function activateChat() {
+    const n = (els.nickname.value || nickname || '').trim();
+
+    if (!n || n.length > 20) {
+      flash(els.loginFlash, 'ハンドルネームを1〜20文字で入力してください。');
+      return;
+    }
+
+    nickname = n;
+    localStorage.setItem('salp_chat_nickname', nickname);
+
+    const { data: sessionData } = await sb.auth.getSession();
+    let session = sessionData.session;
+
+    if (!session) {
+      const { data, error } = await sb.auth.signInAnonymously();
+      if (error) {
+        flash(els.loginFlash, '接続失敗 > ' + normalizeError(error));
+        return;
+      }
+      session = data.session;
+    }
+
+    currentUser = session?.user || null;
+    await checkAdmin();
+
+    els.loginBox.classList.add('hidden');
+    els.composer.classList.add('on');
+    els.logoutBtn.classList.remove('hidden');
+
+    await loadMessages(true);
+    await subscribeRealtime();
+    setStatus(
+      isAdmin ? `ONLINE / SYSOP / ${nickname}` : `ONLINE / ${nickname}`,
+      true
+    );
+
+    setTimeout(() => els.messageInput.focus(), 50);
+  }
+
+  async function sendMessage() {
+    if (!currentUser) {
+      flash(els.chatFlash, '接続されていません。');
+      return;
+    }
+
+    const body = els.messageInput.value.trim();
+    if (!body) return;
+    if (body.length > 200) {
+      flash(els.chatFlash, '200文字以内にしてください。');
+      return;
+    }
+
+    const now = Date.now();
+    const remain = 5000 - (now - lastClientSendAt);
+    if (remain > 0) {
+      flash(els.chatFlash, `連投制限：あと約${Math.ceil(remain / 1000)}秒です。`);
+      return;
+    }
+
+    els.sendBtn.disabled = true;
+
+    const { error } = await sb
+      .from('chat_messages')
+      .insert({
+        user_id: currentUser.id,
+        nickname,
+        body
+      });
+
+    if (error) {
+      flash(els.chatFlash, normalizeError(error));
+      els.sendBtn.disabled = false;
+      return;
+    }
+
+    lastClientSendAt = Date.now();
+    els.messageInput.value = '';
+    els.counter.textContent = '0 / 200';
+    els.sendBtn.disabled = false;
+    els.messageInput.focus();
+    await loadMessages(true);
+  }
+
+  async function deleteMessage(id) {
+    if (!isAdmin) return;
+    if (!confirm('このメッセージを削除しますか？')) return;
+
+    const { error } = await sb.from('chat_messages').delete().eq('id', id);
+
+    if (error) {
+      flash(els.chatFlash, '削除失敗 > ' + normalizeError(error));
+      return;
+    }
+    await loadMessages(false);
+  }
+
+  async function adminLogin() {
+    const email = els.adminEmail.value.trim();
+    const password = els.adminPassword.value;
+
+    if (!email || !password) {
+      flash(els.adminFlash, 'メールとパスワードを入力してください。');
+      return;
+    }
+
+    els.adminLoginBtn.disabled = true;
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      els.adminLoginBtn.disabled = false;
+      flash(els.adminFlash, 'LOGIN FAILED > ' + normalizeError(error));
+      return;
+    }
+
+    currentUser = data.user;
+    await checkAdmin();
+
+    if (!isAdmin) {
+      await sb.auth.signOut();
+      currentUser = null;
+      els.adminLoginBtn.disabled = false;
+      flash(els.adminFlash, 'このアカウントはSYSOP登録されていません。', 0);
+      return;
+    }
+
+    els.adminPassword.value = '';
+    els.adminLoginBtn.disabled = false;
+    els.adminModal.classList.remove('on');
+    flash(els.loginFlash, 'SYSOP AUTH OK');
+
+    if ((els.nickname.value || '').trim()) {
+      await activateChat();
+    } else {
+      setStatus('SYSOP AUTH OK / ハンドルネームを入力してください', true);
+    }
+  }
+
+  async function logout() {
+    if (channel) {
+      await sb.removeChannel(channel);
+      channel = null;
+    }
+    await sb.auth.signOut();
+    currentUser = null;
+    isAdmin = false;
+
+    els.composer.classList.remove('on');
+    els.loginBox.classList.remove('hidden');
+    els.logoutBtn.classList.add('hidden');
+    els.messages.replaceChildren();
+    setStatus('OFFLINE / ハンドルネームを入力してください', false);
+    flash(els.loginFlash, 'DISCONNECTED');
+  }
+
+  els.connectBtn.addEventListener('click', activateChat);
+  els.sendBtn.addEventListener('click', sendMessage);
+  els.logoutBtn.addEventListener('click', logout);
+
+  els.nickname.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') activateChat();
+  });
+
+  els.messageInput.addEventListener('input', () => {
+    els.counter.textContent = `${els.messageInput.value.length} / 200`;
+  });
+
+  els.messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  els.adminOpenBtn.addEventListener('click', () => {
+    els.adminModal.classList.add('on');
+    setTimeout(() => els.adminEmail.focus(), 30);
+  });
+
+  els.adminCloseBtn.addEventListener('click', () => {
+    els.adminModal.classList.remove('on');
+    els.adminPassword.value = '';
+    els.adminFlash.textContent = '';
+  });
+
+  els.adminLoginBtn.addEventListener('click', adminLogin);
+
+  els.adminPassword.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') adminLogin();
+  });
+
+  els.adminModal.addEventListener('click', (e) => {
+    if (e.target === els.adminModal) els.adminCloseBtn.click();
+  });
+
+  window.addEventListener('beforeunload', () => {
+    if (channel) sb.removeChannel(channel);
+  });
+
+  // Restore an existing persisted session (guest or admin).
+  (async () => {
+    const { data } = await sb.auth.getSession();
+    if (data.session?.user) {
+      currentUser = data.session.user;
+      await checkAdmin();
+
+      if (nickname) {
+        els.nickname.value = nickname;
+        await activateChat();
+      } else if (isAdmin) {
+        setStatus('SYSOP SESSION RESTORED / ハンドルネームを入力してください', true);
+      }
+    }
+  })();
+})();
+</script>
+</body>
+</html>
