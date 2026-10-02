@@ -567,10 +567,10 @@ main{
 }
 
 .speakAgain{
-  min-width:60px;
-  min-height:60px;
+  min-width:52px;
+  min-height:52px;
   border:0;
-  border-radius:18px;
+  border-radius:16px;
   background:var(--accent);
   color:#1e210f;
   font-size:1.6rem;
@@ -601,6 +601,31 @@ main{
   font-size:.85rem;
   font-weight:800;
   text-shadow:none;
+}
+
+/* 物をタッチして数秒たつと帯を薄くし、下端の物をタッチしやすくする */
+@media (prefers-reduced-motion:no-preference){
+  .wordPanel{
+    transition:opacity .4s ease;
+  }
+}
+
+.wordPanel.faded{
+  opacity:.3;
+}
+
+.wordPanel.faded:focus-within{
+  opacity:1;
+}
+
+.wordPanel.faded .speakAgain,
+.wordPanel.faded .panelToggle{
+  pointer-events:none;
+}
+
+.wordPanel.faded:focus-within .speakAgain,
+.wordPanel.faded:focus-within .panelToggle{
+  pointer-events:auto;
 }
 
 /* 未選択: 小さなヒントだけ */
@@ -678,6 +703,11 @@ main{
 
 .easy .wordPanel.idle .reading{
   font-size:1.05rem;
+}
+
+.easy .speakAgain{
+  min-width:60px;
+  min-height:60px;
 }
 
 .easy .wordPanel.collapsed{
@@ -855,6 +885,15 @@ main{
 
   .wordPanel.collapsed{
     left:auto;
+  }
+
+  .wordPanel.faded{
+    opacity:1;
+  }
+
+  .wordPanel.faded .speakAgain,
+  .wordPanel.faded .panelToggle{
+    pointer-events:auto;
   }
 
   .bigWord{
@@ -1667,6 +1706,624 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  classroom: {
+    id: "classroom",
+    icon: "🏫",
+    title: {
+      ja: "🏫 教室",
+      en: "🏫 Classroom",
+      es: "🏫 Aula",
+      fr: "🏫 Salle de classe",
+      de: "🏫 Klassenzimmer",
+      zh: "🏫 教室",
+      ko: "🏫 교실"
+    },
+
+    background: "classroom.webp",
+    subtitle: "単語学習 教室編",
+    documentTitle: "SALP WORDS | 単語学習 教室編",
+    alt: "明るい日本の学校の教室のイラスト",
+    ariaLabel: "教室の単語学習",
+    help: "教室の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "教室の物を選んでください",
+
+    items: [
+      {
+        id: "blackboard",
+        emoji: "📝",
+        x: 47,
+        y: 10.5,
+        w: 53,
+        h: 25.5,
+        z: 10,
+        words: {
+          ja: { word: "黒板", reading: "こくばん" },
+          en: { word: "blackboard", reading: "BLAK-bord" },
+          es: { word: "pizarra", reading: "pee-SA-rra" },
+          fr: { word: "tableau noir", reading: "ta-BLO nwar" },
+          de: { word: "Tafel", reading: "TAA-fel" },
+          zh: { word: "黑板", reading: "hēibǎn" },
+          ko: { word: "칠판", reading: "chilpan" }
+        }
+      },
+
+      {
+        id: "teachersDesk",
+        emoji: "🧑‍🏫",
+        x: 49,
+        y: 37.5,
+        w: 47,
+        h: 18.5,
+        z: 20,
+        words: {
+          ja: { word: "教卓", reading: "きょうたく" },
+          en: { word: "teacher's desk", reading: "TEE-cherz desk" },
+          es: { word: "escritorio del profesor", reading: "es-kree-TO-ryo del pro-fe-SOR" },
+          fr: { word: "bureau du professeur", reading: "bü-RO dü pro-fe-SŒR" },
+          de: { word: "Lehrertisch", reading: "LAY-rer-tish" },
+          zh: { word: "讲桌", reading: "jiǎngzhuō" },
+          ko: { word: "교탁", reading: "gyotak" }
+        }
+      },
+
+      {
+        id: "desk",
+        emoji: "🪵",
+        x: 0.5,
+        y: 57.5,
+        w: 99,
+        h: 42,
+        z: 15,
+        words: {
+          ja: { word: "机", reading: "つくえ" },
+          en: { word: "desk", reading: "desk" },
+          es: { word: "pupitre", reading: "poo-PEE-tre" },
+          fr: { word: "pupitre", reading: "pü-PEETR" },
+          de: { word: "Schultisch", reading: "SHOOL-tish" },
+          zh: { word: "课桌", reading: "kèzhuō" },
+          ko: { word: "책상", reading: "chaeksang" }
+        }
+      },
+
+      {
+        id: "chair",
+        emoji: "🪑",
+        x: 5,
+        y: 71,
+        w: 53,
+        h: 29,
+        z: 18,
+        words: {
+          ja: { word: "椅子", reading: "いす" },
+          en: { word: "chair", reading: "chair" },
+          es: { word: "silla", reading: "SEE-ya" },
+          fr: { word: "chaise", reading: "shez" },
+          de: { word: "Stuhl", reading: "shtool" },
+          zh: { word: "椅子", reading: "yǐzi" },
+          ko: { word: "의자", reading: "uija" }
+        }
+      },
+
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 77.5,
+        y: 0.5,
+        w: 17.5,
+        h: 11,
+        z: 70,
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "window",
+        emoji: "🪟",
+        x: 0,
+        y: 0,
+        w: 21,
+        h: 36,
+        z: 25,
+        words: {
+          ja: { word: "窓", reading: "まど" },
+          en: { word: "window", reading: "WIN-doh" },
+          es: { word: "ventana", reading: "ben-TA-na" },
+          fr: { word: "fenêtre", reading: "fə-NETR" },
+          de: { word: "Fenster", reading: "FEN-ster" },
+          zh: { word: "窗户", reading: "chuānghu" },
+          ko: { word: "창문", reading: "changmun" }
+        }
+      },
+
+      {
+        id: "curtain",
+        emoji: "🟨",
+        x: 21.5,
+        y: 0,
+        w: 9,
+        h: 36,
+        z: 45,
+        words: {
+          ja: { word: "カーテン", reading: "かーてん" },
+          en: { word: "curtain", reading: "KUR-tn" },
+          es: { word: "cortina", reading: "kor-TEE-na" },
+          fr: { word: "rideau", reading: "ree-DO" },
+          de: { word: "Vorhang", reading: "FOR-hang" },
+          zh: { word: "窗帘", reading: "chuānglián" },
+          ko: { word: "커튼", reading: "keoteun" }
+        }
+      },
+
+      {
+        id: "locker",
+        emoji: "🗄️",
+        x: 0,
+        y: 37,
+        w: 27,
+        h: 18,
+        z: 35,
+        words: {
+          ja: { word: "ロッカー", reading: "ろっかー" },
+          en: { word: "locker", reading: "LOK-er" },
+          es: { word: "taquilla", reading: "ta-KEE-ya" },
+          fr: { word: "casier", reading: "ka-ZYAY" },
+          de: { word: "Spind", reading: "shpint" },
+          zh: { word: "储物柜", reading: "chǔwùguì" },
+          ko: { word: "사물함", reading: "samulham" }
+        }
+      },
+
+      {
+        id: "bookshelf",
+        emoji: "📚",
+        x: 28.5,
+        y: 26,
+        w: 19,
+        h: 24,
+        z: 42,
+        words: {
+          ja: { word: "本棚", reading: "ほんだな" },
+          en: { word: "bookshelf", reading: "BOOK-shelf" },
+          es: { word: "estantería", reading: "es-tan-te-REE-a" },
+          fr: { word: "bibliothèque", reading: "bee-blee-o-TEK" },
+          de: { word: "Bücherregal", reading: "BÜ-kher-ray-gaal" },
+          zh: { word: "书架", reading: "shūjià" },
+          ko: { word: "책장", reading: "chaekjang" }
+        }
+      },
+
+      {
+        id: "globe",
+        emoji: "🌍",
+        x: 30.5,
+        y: 17.5,
+        w: 14.5,
+        h: 10,
+        z: 80,
+        words: {
+          ja: { word: "地球儀", reading: "ちきゅうぎ" },
+          en: { word: "globe", reading: "glohb" },
+          es: { word: "globo terráqueo", reading: "GLO-bo te-RRA-ke-o" },
+          fr: { word: "globe terrestre", reading: "glob te-RES-trə" },
+          de: { word: "Globus", reading: "GLO-bus" },
+          zh: { word: "地球仪", reading: "dìqiúyí" },
+          ko: { word: "지구본", reading: "jigubon" }
+        }
+      },
+
+      {
+        id: "randoseru",
+        emoji: "🎒",
+        x: 9,
+        y: 45,
+        w: 30,
+        h: 18,
+        z: 90,
+        words: {
+          ja: { word: "ランドセル", reading: "らんどせる" },
+          en: { word: "school backpack", reading: "skool BAK-pak" },
+          es: { word: "mochila escolar", reading: "mo-CHEE-la es-ko-LAR" },
+          fr: { word: "cartable", reading: "kar-TABL" },
+          de: { word: "Schulranzen", reading: "SHOOL-ran-tsen" },
+          zh: { word: "书包", reading: "shūbāo" },
+          ko: { word: "책가방", reading: "chaekgabang" }
+        }
+      },
+
+      {
+        id: "notebook",
+        emoji: "📓",
+        x: 19.5,
+        y: 58.5,
+        w: 57.5,
+        h: 11.8,
+        z: 110,
+        words: {
+          ja: { word: "ノート", reading: "のーと" },
+          en: { word: "notebook", reading: "NOTE-book" },
+          es: { word: "cuaderno", reading: "kwa-DER-no" },
+          fr: { word: "cahier", reading: "ka-YAY" },
+          de: { word: "Heft", reading: "heft" },
+          zh: { word: "笔记本", reading: "bǐjìběn" },
+          ko: { word: "공책", reading: "gongchaek" }
+        }
+      },
+
+      {
+        id: "pencil",
+        emoji: "✏️",
+        x: 67.5,
+        y: 64,
+        w: 20,
+        h: 8.5,
+        z: 125,
+        words: {
+          ja: { word: "鉛筆", reading: "えんぴつ" },
+          en: { word: "pencil", reading: "PEN-səl" },
+          es: { word: "lápiz", reading: "LA-pees" },
+          fr: { word: "crayon", reading: "kre-YON" },
+          de: { word: "Bleistift", reading: "BLAI-shtift" },
+          zh: { word: "铅笔", reading: "qiānbǐ" },
+          ko: { word: "연필", reading: "yeonpil" }
+        }
+      },
+
+      {
+        id: "pencilCase",
+        emoji: "🖊️",
+        x: 67,
+        y: 55.5,
+        w: 30,
+        h: 10,
+        z: 120,
+        words: {
+          ja: { word: "筆箱", reading: "ふでばこ" },
+          en: { word: "pencil case", reading: "PEN-səl kays" },
+          es: { word: "estuche", reading: "es-TOO-che" },
+          fr: { word: "trousse", reading: "troos" },
+          de: { word: "Federmäppchen", reading: "FAY-der-mep-khen" },
+          zh: { word: "铅笔盒", reading: "qiānbǐhé" },
+          ko: { word: "필통", reading: "piltong" }
+        }
+      },
+
+      {
+        id: "boardEraser",
+        emoji: "🧽",
+        x: 78,
+        y: 32,
+        w: 13,
+        h: 5.5,
+        z: 140,
+        words: {
+          ja: { word: "黒板消し", reading: "こくばんけし" },
+          en: { word: "board eraser", reading: "bord ih-RAY-ser" },
+          es: { word: "borrador de pizarra", reading: "bo-rra-DOR de pee-SA-rra" },
+          fr: { word: "brosse à tableau", reading: "bros a ta-BLO" },
+          de: { word: "Tafelwischer", reading: "TAA-fel-vi-sher" },
+          zh: { word: "黑板擦", reading: "hēibǎncā" },
+          ko: { word: "칠판지우개", reading: "chilpanjiugae" }
+        }
+      }
+    ]
+  },
+
+  office: {
+    id: "office",
+    icon: "🏢",
+    title: {
+      ja: "🏢 オフィス",
+      en: "🏢 Office",
+      es: "🏢 Oficina",
+      fr: "🏢 Bureau",
+      de: "🏢 Büro",
+      zh: "🏢 办公室",
+      ko: "🏢 사무실"
+    },
+
+    background: "office.webp",
+    subtitle: "単語学習 オフィス編",
+    documentTitle: "SALP WORDS | 単語学習 オフィス編",
+    alt: "明るい現代のオフィスのイラスト",
+    ariaLabel: "オフィスの単語学習",
+    help: "オフィスの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "オフィスの物を選んでください",
+
+    items: [
+      {
+        id: "computer",
+        emoji: "🖥️",
+        x: 17,
+        y: 43.5,
+        w: 36,
+        h: 21,
+        z: 75,
+        words: {
+          ja: { word: "パソコン", reading: "ぱそこん" },
+          en: { word: "computer", reading: "kum-PYOO-ter" },
+          es: { word: "ordenador", reading: "or-de-na-DOR" },
+          fr: { word: "ordinateur", reading: "or-dee-na-TŒR" },
+          de: { word: "Computer", reading: "kom-PYOO-ter" },
+          zh: { word: "电脑", reading: "diànnǎo" },
+          ko: { word: "컴퓨터", reading: "keompyuteo" }
+        }
+      },
+
+      {
+        id: "desk",
+        emoji: "🗄️",
+        x: 50,
+        y: 60.5,
+        w: 50,
+        h: 38.5,
+        z: 15,
+        words: {
+          ja: { word: "デスク", reading: "ですく" },
+          en: { word: "desk", reading: "desk" },
+          es: { word: "escritorio", reading: "es-kree-TO-ryo" },
+          fr: { word: "bureau", reading: "bü-RO" },
+          de: { word: "Schreibtisch", reading: "SHRAIB-tish" },
+          zh: { word: "办公桌", reading: "bàngōngzhuō" },
+          ko: { word: "책상", reading: "chaeksang" }
+        }
+      },
+
+      {
+        id: "chair",
+        emoji: "🪑",
+        x: 6,
+        y: 63.5,
+        w: 52,
+        h: 36.5,
+        z: 25,
+        words: {
+          ja: { word: "椅子", reading: "いす" },
+          en: { word: "chair", reading: "chair" },
+          es: { word: "silla", reading: "SEE-ya" },
+          fr: { word: "chaise", reading: "shez" },
+          de: { word: "Stuhl", reading: "shtool" },
+          zh: { word: "椅子", reading: "yǐzi" },
+          ko: { word: "의자", reading: "uija" }
+        }
+      },
+
+      {
+        id: "telephone",
+        emoji: "☎️",
+        x: 52,
+        y: 52.5,
+        w: 20,
+        h: 9.5,
+        z: 125,
+        words: {
+          ja: { word: "電話", reading: "でんわ" },
+          en: { word: "telephone", reading: "TEL-uh-fohn" },
+          es: { word: "teléfono", reading: "te-LE-fo-no" },
+          fr: { word: "téléphone", reading: "tay-lay-FON" },
+          de: { word: "Telefon", reading: "tay-lay-FOHN" },
+          zh: { word: "电话", reading: "diànhuà" },
+          ko: { word: "전화", reading: "jeonhwa" }
+        }
+      },
+
+      {
+        id: "documents",
+        emoji: "📄",
+        x: 0,
+        y: 56,
+        w: 23,
+        h: 9,
+        z: 100,
+        words: {
+          ja: { word: "書類", reading: "しょるい" },
+          en: { word: "documents", reading: "DOK-yuh-ments" },
+          es: { word: "documentos", reading: "do-koo-MEN-tos" },
+          fr: { word: "documents", reading: "do-kü-MAN" },
+          de: { word: "Dokumente", reading: "do-koo-MEN-te" },
+          zh: { word: "文件", reading: "wénjiàn" },
+          ko: { word: "서류", reading: "seoryu" }
+        }
+      },
+
+      {
+        id: "whiteboard",
+        emoji: "⬜",
+        x: 74.5,
+        y: 13.5,
+        w: 25.5,
+        h: 16,
+        z: 30,
+        words: {
+          ja: { word: "ホワイトボード", reading: "ほわいとぼーど" },
+          en: { word: "whiteboard", reading: "WAIT-bord" },
+          es: { word: "pizarra blanca", reading: "pee-SA-rra BLAN-ka" },
+          fr: { word: "tableau blanc", reading: "ta-BLO blan" },
+          de: { word: "Whiteboard", reading: "WAIT-bord" },
+          zh: { word: "白板", reading: "báibǎn" },
+          ko: { word: "화이트보드", reading: "hwaiteubodeu" }
+        }
+      },
+
+      {
+        id: "meetingTable",
+        emoji: "🪵",
+        x: 51,
+        y: 31.5,
+        w: 49,
+        h: 17,
+        z: 18,
+        words: {
+          ja: { word: "会議テーブル", reading: "かいぎてーぶる" },
+          en: { word: "conference table", reading: "KON-fer-ens TAY-buhl" },
+          es: { word: "mesa de reuniones", reading: "ME-sa de re-oo-NYO-nes" },
+          fr: { word: "table de réunion", reading: "tabl də ray-ü-NYON" },
+          de: { word: "Konferenztisch", reading: "kon-fe-RENTS-tish" },
+          zh: { word: "会议桌", reading: "huìyìzhuō" },
+          ko: { word: "회의 테이블", reading: "hoeui teibeul" }
+        }
+      },
+
+      {
+        id: "printer",
+        emoji: "🖨️",
+        x: 0,
+        y: 31.5,
+        w: 22.5,
+        h: 11,
+        z: 65,
+        words: {
+          ja: { word: "プリンター", reading: "ぷりんたー" },
+          en: { word: "printer", reading: "PRIN-ter" },
+          es: { word: "impresora", reading: "im-pre-SO-ra" },
+          fr: { word: "imprimante", reading: "an-pree-MANT" },
+          de: { word: "Drucker", reading: "DROO-ker" },
+          zh: { word: "打印机", reading: "dǎyìnjī" },
+          ko: { word: "프린터", reading: "peurinteo" }
+        }
+      },
+
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 78,
+        y: 5.5,
+        w: 14,
+        h: 8.5,
+        z: 80,
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "plant",
+        emoji: "🪴",
+        x: 28,
+        y: 19.5,
+        w: 20,
+        h: 22,
+        z: 55,
+        words: {
+          ja: { word: "観葉植物", reading: "かんようしょくぶつ" },
+          en: { word: "potted plant", reading: "POT-id plant" },
+          es: { word: "planta", reading: "PLAN-ta" },
+          fr: { word: "plante verte", reading: "plant vert" },
+          de: { word: "Pflanze", reading: "PFLAN-tse" },
+          zh: { word: "绿植", reading: "lǜzhí" },
+          ko: { word: "식물", reading: "sikmul" }
+        }
+      },
+
+      {
+        id: "coffeeCup",
+        emoji: "☕",
+        x: 59.5,
+        y: 64,
+        w: 11,
+        h: 8,
+        z: 130,
+        words: {
+          ja: { word: "コーヒーカップ", reading: "こーひーかっぷ" },
+          en: { word: "coffee cup", reading: "KAW-fee kup" },
+          es: { word: "taza de café", reading: "TA-sa de ka-FE" },
+          fr: { word: "tasse à café", reading: "tas a ka-FAY" },
+          de: { word: "Kaffeetasse", reading: "KA-fay-ta-se" },
+          zh: { word: "咖啡杯", reading: "kāfēibēi" },
+          ko: { word: "커피잔", reading: "keopijan" }
+        }
+      },
+
+      {
+        id: "laptop",
+        emoji: "💻",
+        x: 68,
+        y: 53.5,
+        w: 26.5,
+        h: 15,
+        z: 120,
+        words: {
+          ja: { word: "ノートパソコン", reading: "のーとぱそこん" },
+          en: { word: "laptop", reading: "LAP-top" },
+          es: { word: "portátil", reading: "por-TA-teel" },
+          fr: { word: "ordinateur portable", reading: "or-dee-na-TŒR por-TABL" },
+          de: { word: "Laptop", reading: "LEP-top" },
+          zh: { word: "笔记本电脑", reading: "bǐjìběn diànnǎo" },
+          ko: { word: "노트북", reading: "noteubuk" }
+        }
+      },
+
+      {
+        id: "window",
+        emoji: "🪟",
+        x: 0,
+        y: 0.5,
+        w: 43.5,
+        h: 31.5,
+        z: 22,
+        words: {
+          ja: { word: "窓", reading: "まど" },
+          en: { word: "window", reading: "WIN-doh" },
+          es: { word: "ventana", reading: "ben-TA-na" },
+          fr: { word: "fenêtre", reading: "fə-NETR" },
+          de: { word: "Fenster", reading: "FEN-ster" },
+          zh: { word: "窗户", reading: "chuānghu" },
+          ko: { word: "창문", reading: "changmun" }
+        }
+      },
+
+      {
+        id: "shelf",
+        emoji: "🗄️",
+        x: 50.5,
+        y: 13,
+        w: 22,
+        h: 19,
+        z: 40,
+        words: {
+          ja: { word: "棚", reading: "たな" },
+          en: { word: "shelf", reading: "shelf" },
+          es: { word: "estantería", reading: "es-tan-te-REE-a" },
+          fr: { word: "étagère", reading: "ay-ta-ZHER" },
+          de: { word: "Regal", reading: "RAY-gaal" },
+          zh: { word: "架子", reading: "jiàzi" },
+          ko: { word: "선반", reading: "seonban" }
+        }
+      },
+
+      {
+        id: "stickyNotes",
+        emoji: "🗒️",
+        x: 90.5,
+        y: 17.5,
+        w: 9.5,
+        h: 8.5,
+        z: 140,
+        words: {
+          ja: { word: "付箋", reading: "ふせん" },
+          en: { word: "sticky notes", reading: "STIK-ee nohts" },
+          es: { word: "notas adhesivas", reading: "NO-tas ad-e-SEE-bas" },
+          fr: { word: "notes autocollantes", reading: "not o-to-ko-LANT" },
+          de: { word: "Haftnotizen", reading: "HAFT-no-tee-tsen" },
+          zh: { word: "便利贴", reading: "biànlìtiē" },
+          ko: { word: "포스트잇", reading: "poseuteuit" }
+        }
+      }
+    ]
   }
 };
 
@@ -1809,9 +2466,24 @@ function getLocalizedItem(item){
   );
 }
 
+let fadeTimer = null;
+
+function wakePanel(){
+  window.clearTimeout(fadeTimer);
+  wordPanel.classList.remove("faded");
+}
+
+function schedulePanelFade(){
+  wakePanel();
+  fadeTimer = window.setTimeout(() => {
+    wordPanel.classList.add("faded");
+  }, 3500);
+}
+
 function setIdlePrompt(){
   const scene = getScene();
 
+  wakePanel();
   wordPanel.classList.add("idle");
 
   bigWord.textContent =
@@ -2003,6 +2675,7 @@ function showItem(item){
   if(!localized) return;
 
   wordPanel.classList.remove("idle");
+  schedulePanelFade();
 
   bigWord.textContent = localized.word;
 
@@ -2417,6 +3090,7 @@ speakAgain.addEventListener(
     event.preventDefault();
 
     if(currentItemId){
+      schedulePanelFade();
       speakCurrentItem();
     }
   }
