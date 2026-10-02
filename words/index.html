@@ -56,42 +56,131 @@ button{
   cursor:pointer;
 }
 
-.app{
-  min-height:100dvh;
-  display:flex;
-  flex-direction:column;
-  padding-top:var(--safe-top);
+:root{
+  --sw:min(100vw,calc(100vh * 9 / 16));
+  --safe-left:env(safe-area-inset-left,0px);
+  --safe-right:env(safe-area-inset-right,0px);
 }
 
+@supports (height:100dvh){
+  :root{
+    --sw:min(100vw,calc(100dvh * 9 / 16));
+  }
+}
+
+html,body{
+  height:100%;
+  overflow:hidden;
+}
+
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  margin:-1px;
+  padding:0;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+.app{
+  position:relative;
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
+}
+
+/* ---------- 上部コンパクトバー(絵に重ねる) ---------- */
 header{
-  position:sticky;
+  position:fixed;
+  z-index:2000;
   top:0;
-  z-index:1000;
-  background:rgba(12,18,14,.96);
-  border-bottom:1px solid var(--line);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  left:calc((100% - var(--sw)) / 2);
+  width:var(--sw);
+  padding:calc(var(--safe-top) + 6px) 8px 8px;
+  border-radius:0 0 18px 18px;
+  background:rgba(12,18,14,.62);
+  pointer-events:none;
+}
+
+header a,
+header button,
+header select,
+header input,
+.sceneBand,
+.menuPanel{
+  pointer-events:auto;
+}
+
+.sceneToggle{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  min-width:0;
+  min-height:48px;
+  padding:0 12px;
+  border:3px solid var(--accent);
+  border-radius:14px;
+  background:#12301c;
+  color:#ffe278;
+  font-weight:900;
+  font-size:.95rem;
+  text-align:left;
+}
+
+.sceneToggleText{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+header.scenesClosed .sceneBand{
+  display:none;
+}
+
+header.scenesClosed .headerTop{
+  padding-bottom:0;
+}
+
+header.scenesClosed{
+  padding-bottom:6px;
+}
+
+header::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  border-radius:inherit;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
 }
 
 .headerTop{
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:10px 12px 8px;
+  gap:8px;
+  padding:0 0 6px;
 }
 
 .backLink{
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  flex:none;
   min-width:48px;
   min-height:48px;
-  padding:0 12px;
+  padding:0 10px;
   color:white;
   text-decoration:none;
-  border:1px solid rgba(255,255,255,.22);
+  border:1px solid rgba(255,255,255,.28);
   border-radius:14px;
-  background:rgba(255,255,255,.08);
+  background:rgba(255,255,255,.12);
   font-weight:700;
 }
 
@@ -102,74 +191,82 @@ header{
 
 .title{
   margin:0;
-  font-size:1.12rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:1rem;
   font-weight:900;
   letter-spacing:.02em;
 }
 
 .subtitle{
-  margin-top:2px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  margin-top:1px;
   color:var(--sub);
-  font-size:.79rem;
+  font-size:.72rem;
   font-weight:700;
 }
 
 .sceneBand{
-  padding:8px 12px 12px;
-  background:#f1ecd6;
-  border-top:1px solid rgba(0,0,0,.2);
-  border-bottom:3px solid var(--accent);
+  padding:0;
 }
 
 .sceneLabel{
-  max-width:760px;
-  margin:0 auto 6px;
-  color:#2b3a2d;
-  font-size:.82rem;
-  font-weight:900;
-  letter-spacing:.04em;
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
 }
 
 .sceneSwitcher{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:8px;
-  max-width:760px;
-  margin:0 auto;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(0,1fr);
+  gap:6px;
 }
 
 .sceneButton{
+  position:relative;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:8px;
-  min-height:56px;
+  gap:2px;
+  min-width:0;
+  min-height:58px;
   border:3px solid #4d5f4f;
-  border-radius:16px;
-  padding:6px 10px;
+  border-radius:14px;
+  padding:4px 4px;
   background:#fff;
   color:#17201a;
-  font-size:1.05rem;
+  font-size:.8rem;
   font-weight:800;
-  line-height:1.2;
+  line-height:1.15;
   text-align:center;
 }
 
 .sceneIcon{
   flex:none;
-  font-size:1.6rem;
+  font-size:1.5rem;
   line-height:1;
 }
 
 .sceneText{
   min-width:0;
+  max-width:100%;
   overflow-wrap:anywhere;
 }
 
 .sceneCheck{
   display:none;
-  flex:none;
-  font-size:1.2rem;
+  position:absolute;
+  top:1px;
+  right:5px;
+  font-size:.9rem;
   font-weight:900;
 }
 
@@ -200,15 +297,9 @@ header{
   }
 }
 
-.controls{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:8px;
-  padding:0 12px 10px;
-}
-
 select,
-.modeButton{
+.modeButton,
+.menuButton{
   min-height:48px;
   border:none;
   border-radius:14px;
@@ -219,18 +310,58 @@ select,
 }
 
 .modeButton{
-  min-width:116px;
+  flex:none;
+  padding:0 10px;
+  font-size:.86rem;
+  white-space:nowrap;
 }
 
 .modeButton[aria-pressed="true"]{
   background:var(--accent);
 }
 
+.menuButton{
+  flex:none;
+  min-width:48px;
+  padding:0;
+  font-size:1.3rem;
+  line-height:1;
+}
+
+.menuButton[aria-expanded="true"]{
+  background:var(--accent);
+}
+
+/* ---------- 設定ドロワー(言語・音量・速度) ---------- */
+.menuPanel{
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
+  margin-top:6px;
+  max-height:calc(100vh - 140px);
+  max-height:calc(100dvh - 140px);
+  overflow-y:auto;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(12,18,14,.94);
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+}
+
+.menuPanel[hidden]{
+  display:none;
+}
+
+.menuPanel select{
+  width:100%;
+}
+
 .settingsRow{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:10px;
-  padding:0 12px 10px;
+  gap:8px;
+  margin-top:8px;
 }
 
 .setting{
@@ -261,38 +392,48 @@ input[type="range"]{
   accent-color:var(--accent);
 }
 
+/* ---------- 絵のステージ(全画面) ---------- */
 main{
-  flex:1;
+  position:absolute;
+  inset:0;
   display:flex;
+  align-items:center;
   justify-content:center;
-  padding:10px 8px calc(132px + var(--safe-bottom));
+  overflow:hidden;
+  background:#1d281f;
+}
+
+.stageBg{
+  position:absolute;
+  inset:-6%;
+  width:112%;
+  height:112%;
+  object-fit:cover;
+  filter:blur(22px) brightness(.55) saturate(1.1);
+  pointer-events:none;
 }
 
 .sceneShell{
-  width:min(100%,620px);
-  display:flex;
-  flex-direction:column;
-  gap:8px;
+  position:relative;
+  width:var(--sw);
 }
 
 .sceneInfo{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  padding:2px 3px;
-  color:var(--sub);
-  font-size:.78rem;
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
 }
 
 .scene{
   position:relative;
+  isolation:isolate;
   width:100%;
   aspect-ratio:9 / 16;
   overflow:hidden;
-  border-radius:22px;
   background:#263027;
-  box-shadow:0 10px 35px rgba(0,0,0,.32);
   user-select:none;
   touch-action:manipulation;
 }
@@ -371,26 +512,35 @@ main{
   display:block;
 }
 
+/* ---------- 単語オーバーレイ(絵の下部・タップを邪魔しない) ---------- */
 .wordPanel{
   position:fixed;
   z-index:1500;
   left:50%;
   bottom:calc(10px + var(--safe-bottom));
   transform:translateX(-50%);
-  width:min(calc(100% - 16px),620px);
-  min-height:106px;
-  border-radius:22px;
+  width:calc(var(--sw) - 16px);
+  max-height:42vh;
+  max-height:42dvh;
+  border-radius:20px;
   padding:10px 12px;
-  background:rgba(14,20,15,.95);
-  border:1px solid rgba(255,255,255,.2);
-  box-shadow:0 10px 35px rgba(0,0,0,.38);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  background:rgba(8,12,9,.66);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 8px 28px rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);
+  pointer-events:none;
+}
+
+.wordPanel button{
+  pointer-events:auto;
 }
 
 .wordTop{
   display:grid;
-  grid-template-columns:1fr auto;
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
   gap:8px;
 }
@@ -400,60 +550,174 @@ main{
 }
 
 .bigWord{
-  font-size:clamp(2rem,8vw,3.2rem);
-  line-height:1.04;
-  font-weight:950;
+  font-size:clamp(1.9rem,calc(var(--sw) * .08),2.9rem);
+  line-height:1.08;
+  font-weight:900;
   overflow-wrap:anywhere;
+  hyphens:auto;
 }
 
 .reading{
   min-height:1.25em;
-  margin-top:4px;
+  margin-top:3px;
   color:#ffe891;
-  font-size:clamp(.9rem,3.8vw,1.12rem);
+  font-size:clamp(.95rem,calc(var(--sw) * .04),1.15rem);
   font-weight:800;
+  overflow-wrap:anywhere;
 }
 
 .speakAgain{
-  min-width:62px;
-  min-height:62px;
+  min-width:60px;
+  min-height:60px;
   border:0;
   border-radius:18px;
   background:var(--accent);
   color:#1e210f;
-  font-size:1.7rem;
+  font-size:1.6rem;
   font-weight:900;
+  text-shadow:none;
 }
 
 .voiceStatus{
-  margin-top:7px;
-  font-size:.78rem;
+  margin-top:5px;
+  font-size:.7rem;
+  line-height:1.3;
   color:var(--sub);
   min-height:1em;
+  overflow-wrap:anywhere;
 }
 
+.panelToggle{
+  position:absolute;
+  right:12px;
+  bottom:100%;
+  margin-bottom:6px;
+  min-height:36px;
+  padding:0 14px;
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:999px;
+  background:rgba(8,12,9,.7);
+  color:#fff;
+  font-size:.85rem;
+  font-weight:800;
+  text-shadow:none;
+}
+
+/* 未選択: 小さなヒントだけ */
+.wordPanel.idle{
+  width:auto;
+  max-width:calc(var(--sw) - 16px);
+  padding:7px 16px;
+  border-radius:999px;
+  text-align:center;
+}
+
+.wordPanel.idle .bigWord{
+  font-size:1.05rem;
+  line-height:1.2;
+}
+
+.wordPanel.idle .reading{
+  min-height:0;
+  margin-top:1px;
+  font-size:.82rem;
+}
+
+.wordPanel.idle .speakAgain,
+.wordPanel.idle .panelToggle{
+  display:none;
+}
+
+.wordPanel.idle .wordTop{
+  grid-template-columns:minmax(0,1fr);
+}
+
+.wordPanel.idle .voiceStatus:not(:has(.noSpeech)){
+  display:none;
+}
+
+/* 畳んだ状態: ボタンだけ残す */
+.wordPanel.collapsed{
+  width:auto;
+  padding:0;
+  border:0;
+  background:none;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+
+.wordPanel.collapsed .wordBox{
+  display:none;
+}
+
+.wordPanel.collapsed .panelToggle{
+  position:static;
+  margin:0;
+  background:rgba(8,12,9,.78);
+}
+
+/* 見やすいモード */
 .easy .bigWord{
-  font-size:clamp(2.6rem,11vw,4.1rem);
+  font-size:clamp(2.2rem,calc(var(--sw) * .1),3.6rem);
+  font-weight:950;
 }
 
 .easy .reading{
-  font-size:clamp(1.15rem,4.8vw,1.45rem);
+  font-size:clamp(1.2rem,calc(var(--sw) * .05),1.5rem);
 }
 
 .easy .wordPanel{
-  min-height:128px;
+  background:rgba(4,7,5,.9);
   border:3px solid #ffe278;
+}
+
+.easy .wordPanel.idle .bigWord{
+  font-size:1.35rem;
+}
+
+.easy .wordPanel.idle .reading{
+  font-size:1.05rem;
+}
+
+.easy .wordPanel.collapsed{
+  border:0;
+  background:none;
+}
+
+.easy .voiceStatus{
+  font-size:.82rem;
+}
+
+.easy .sceneToggle{
+  min-height:56px;
+  font-size:1.05rem;
 }
 
 .easy select,
 .easy .modeButton,
-.easy .sceneButton,
+.easy .menuButton,
 .easy .backLink{
   min-height:56px;
   font-size:1.02rem;
 }
 
+.easy .menuButton,
+.easy .backLink{
+  min-width:56px;
+}
+
+.easy .sceneButton{
+  min-height:66px;
+  font-size:.95rem;
+}
+
+.easy .sceneIcon{
+  font-size:1.7rem;
+}
+
 .help{
+  margin-top:8px;
   padding:9px 12px;
   border-radius:14px;
   color:#e8eee5;
@@ -467,27 +731,146 @@ main{
   font-weight:800;
 }
 
-@media (min-width:700px){
-  main{
-    padding-top:16px;
-  }
-
-  .scene{
-    border-radius:28px;
+@media (max-width:480px){
+  .modeButton{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:0 7px;
+    font-size:.72rem;
+    line-height:1.15;
   }
 }
 
-@media (max-width:420px){
-  .title{
-    font-size:1rem;
+/* ---------- スマホ横向き: 左に操作レール、右に単語パネル、中央に絵 ---------- */
+@media (orientation:landscape) and (max-height:520px){
+  header{
+    top:0;
+    bottom:0;
+    left:0;
+    width:min(200px,calc((100vw - 100vh * 9 / 16) / 2 - 6px));
+    padding:calc(var(--safe-top) + 6px) 8px 6px calc(var(--safe-left) + 8px);
+    border-radius:0 18px 18px 0;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    pointer-events:auto;
   }
 
-  .subtitle{
-    font-size:.72rem;
+  .sceneToggle{
+    display:none;
   }
 
-  .settingsRow{
-    gap:7px;
+  header.scenesClosed .sceneBand{
+    display:block;
+  }
+
+  .headerTop{
+    padding:0;
+    gap:6px;
+  }
+
+  .titleWrap{
+    display:none;
+  }
+
+  .backLink,
+  .menuButton{
+    min-width:0;
+    flex:1;
+    min-height:44px;
+  }
+
+  .modeButton{
+    flex-direction:row;
+    gap:3px;
+    min-height:44px;
+    padding:0 8px;
+    font-size:.78rem;
+  }
+
+  .sceneBand{
+    flex:1;
+    min-height:0;
+  }
+
+  .sceneSwitcher{
+    grid-auto-flow:row;
+    grid-auto-rows:minmax(44px,1fr);
+    grid-auto-columns:auto;
+    height:100%;
+    max-height:260px;
+  }
+
+  .sceneButton{
+    flex-direction:row;
+    gap:6px;
+    min-height:44px;
+    padding:2px 6px;
+    font-size:.85rem;
+    justify-content:flex-start;
+  }
+
+  .sceneIcon{
+    font-size:1.3rem;
+  }
+
+  .sceneCheck{
+    top:auto;
+    right:6px;
+  }
+
+  .easy .sceneButton{
+    min-height:48px;
+    font-size:.9rem;
+  }
+
+  .easy .backLink,
+  .easy .menuButton,
+  .easy .modeButton{
+    min-height:48px;
+  }
+
+  .menuPanel{
+    top:6px;
+    left:100%;
+    right:auto;
+    margin:0 0 0 6px;
+    width:min(340px,calc(100vw - 100% - 16px));
+    max-height:calc(100vh - 12px);
+    max-height:calc(100dvh - 12px);
+  }
+
+  .wordPanel,
+  .wordPanel.idle{
+    left:calc(50% + var(--sw) / 2 + 10px);
+    right:calc(10px + var(--safe-right));
+    width:auto;
+    max-width:none;
+    transform:none;
+    max-height:calc(100vh - 70px);
+    max-height:calc(100dvh - 70px);
+  }
+
+  .wordPanel.collapsed{
+    left:auto;
+  }
+
+  .bigWord{
+    font-size:clamp(1.5rem,8.5vh,2.3rem);
+  }
+
+  .easy .bigWord{
+    font-size:clamp(1.8rem,10.5vh,2.9rem);
+  }
+
+  .reading{
+    font-size:clamp(.9rem,4.5vh,1.1rem);
+  }
+
+  .easy .reading{
+    font-size:clamp(1.05rem,5.5vh,1.3rem);
   }
 }
 </style>
@@ -500,13 +883,45 @@ main{
   <div class="headerTop">
     <a class="backLink" href="../index.html" aria-label="indexに戻る">←</a>
 
-    <div class="titleWrap">
+    <div class="titleWrap sr-only">
       <h1 class="title">🗣 SALP WORDS</h1>
       <div class="subtitle" id="subtitle">単語学習 部屋編</div>
     </div>
+
+    <button
+      type="button"
+      class="sceneToggle"
+      id="sceneToggle"
+      aria-expanded="true"
+      aria-controls="sceneBand"
+    >
+      <span class="sceneToggleText" id="sceneToggleText">🗣 場面</span>
+      <span aria-hidden="true">▾</span>
+    </button>
+
+    <button
+      type="button"
+      class="modeButton"
+      id="easyButton"
+      aria-pressed="false"
+    >
+      <span aria-hidden="true">👀</span>
+      <span>見やすい</span>
+    </button>
+
+    <button
+      type="button"
+      class="menuButton"
+      id="menuButton"
+      aria-expanded="false"
+      aria-controls="menuPanel"
+      aria-label="設定(言語・音量・速度)"
+    >
+      ⚙
+    </button>
   </div>
 
-  <div class="sceneBand">
+  <div class="sceneBand" id="sceneBand">
     <div class="sceneLabel" id="sceneLabel">場面をえらぶ / Choose a scene</div>
     <div
       class="sceneSwitcher"
@@ -516,7 +931,7 @@ main{
     ></div>
   </div>
 
-  <div class="controls">
+  <div class="menuPanel" id="menuPanel" hidden>
     <select id="languageSelect" aria-label="学習する言語">
       <option value="ja">日本語</option>
       <option value="en">English</option>
@@ -527,54 +942,52 @@ main{
       <option value="ko">한국어</option>
     </select>
 
-    <button
-      type="button"
-      class="modeButton"
-      id="easyButton"
-      aria-pressed="false"
-    >
-      👀 見やすい
-    </button>
-  </div>
+    <div class="settingsRow">
+      <div class="setting">
+        <label for="volume">
+          <span>🔊 音量</span>
+          <output id="volumeOutput">100%</output>
+        </label>
+        <input
+          id="volume"
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value="1"
+        >
+      </div>
 
-  <div class="settingsRow">
-    <div class="setting">
-      <label for="volume">
-        <span>🔊 音量</span>
-        <output id="volumeOutput">100%</output>
-      </label>
-      <input
-        id="volume"
-        type="range"
-        min="0"
-        max="1"
-        step="0.05"
-        value="1"
-      >
+      <div class="setting">
+        <label for="rate">
+          <span>🐢 速度</span>
+          <output id="rateOutput">1.0×</output>
+        </label>
+        <input
+          id="rate"
+          type="range"
+          min="0.6"
+          max="1.3"
+          step="0.05"
+          value="1"
+        >
+      </div>
     </div>
 
-    <div class="setting">
-      <label for="rate">
-        <span>🐢 速度</span>
-        <output id="rateOutput">1.0×</output>
-      </label>
-      <input
-        id="rate"
-        type="range"
-        min="0.6"
-        max="1.3"
-        step="0.05"
-        value="1"
-      >
+    <div class="help" id="helpText">
+      絵の中の物をタッチすると、名前を表示して読み上げます。
+      同じ物を何度タッチしても発音できます。
+      「見やすい」をONにするとタッチ場所も表示します。
     </div>
   </div>
 </header>
 
 <main>
+  <img id="stageBg" class="stageBg" alt="" aria-hidden="true" draggable="false">
+
   <section class="sceneShell" id="sceneShell" aria-label="部屋の単語学習">
     <div class="sceneInfo">
       <span id="sceneName">🏠 部屋</span>
-      <span>物をタッチ</span>
     </div>
 
     <div class="scene" id="scene">
@@ -586,40 +999,46 @@ main{
         draggable="false"
       >
     </div>
-
-    <div class="help" id="helpText">
-      絵の中の物をタッチすると、名前を表示して読み上げます。
-      同じ物を何度タッチしても発音できます。
-      「見やすい」をONにするとタッチ場所も表示します。
-    </div>
   </section>
 </main>
 
 <section
-  class="wordPanel"
+  class="wordPanel idle"
   id="wordPanel"
   aria-live="polite"
   aria-atomic="true"
 >
-  <div class="wordTop">
-    <div class="wordText">
-      <div class="bigWord" id="bigWord">タッチしてね</div>
-      <div class="reading" id="reading">Touch an object</div>
+  <button
+    id="panelToggle"
+    class="panelToggle"
+    type="button"
+    aria-expanded="true"
+    aria-controls="wordBox"
+  >
+    ▾ 閉じる
+  </button>
+
+  <div class="wordBox" id="wordBox">
+    <div class="wordTop">
+      <div class="wordText">
+        <div class="bigWord" id="bigWord">タッチしてね</div>
+        <div class="reading" id="reading">Touch an object</div>
+      </div>
+
+      <button
+        id="speakAgain"
+        class="speakAgain"
+        type="button"
+        aria-label="もう一度発音する"
+        title="もう一度発音する"
+      >
+        🔊
+      </button>
     </div>
 
-    <button
-      id="speakAgain"
-      class="speakAgain"
-      type="button"
-      aria-label="もう一度発音する"
-      title="もう一度発音する"
-    >
-      🔊
-    </button>
-  </div>
-
-  <div class="voiceStatus" id="voiceStatus">
-    音声を準備しています…
+    <div class="voiceStatus" id="voiceStatus">
+      音声を準備しています…
+    </div>
   </div>
 </section>
 
@@ -1254,6 +1673,14 @@ const SCENES = {
 const app = document.getElementById("app");
 const sceneEl = document.getElementById("scene");
 const sceneImage = document.getElementById("sceneImage");
+const stageBg = document.getElementById("stageBg");
+const menuButton = document.getElementById("menuButton");
+const menuPanel = document.getElementById("menuPanel");
+const wordPanel = document.getElementById("wordPanel");
+const panelToggle = document.getElementById("panelToggle");
+const sceneToggle = document.getElementById("sceneToggle");
+const sceneToggleText = document.getElementById("sceneToggleText");
+const headerEl = document.querySelector("header");
 const sceneName = document.getElementById("sceneName");
 const sceneShell = document.getElementById("sceneShell");
 const sceneSwitcher = document.getElementById("sceneSwitcher");
@@ -1384,6 +1811,8 @@ function getLocalizedItem(item){
 
 function setIdlePrompt(){
   const scene = getScene();
+
+  wordPanel.classList.add("idle");
 
   bigWord.textContent =
     currentLanguage === "ja"
@@ -1521,6 +1950,7 @@ function renderScene(){
   const scene = getScene();
 
   sceneImage.src = scene.background;
+  stageBg.src = scene.background;
   sceneImage.alt = scene.alt || "";
 
   sceneName.textContent =
@@ -1543,6 +1973,7 @@ function renderScene(){
   );
 
   renderSceneSwitcher();
+  updateSceneToggle();
 
   const existing =
     sceneEl.querySelectorAll(".hotspot");
@@ -1571,6 +2002,8 @@ function showItem(item){
 
   if(!localized) return;
 
+  wordPanel.classList.remove("idle");
+
   bigWord.textContent = localized.word;
 
   reading.textContent =
@@ -1583,12 +2016,98 @@ function showItem(item){
   updateVoiceStatus(false);
 }
 
+function setPanelCollapsed(collapsed){
+  wordPanel.classList.toggle("collapsed", collapsed);
+
+  panelToggle.setAttribute(
+    "aria-expanded",
+    collapsed ? "false" : "true"
+  );
+
+  panelToggle.textContent =
+    collapsed ? "▴ 単語" : "▾ 閉じる";
+}
+
+function updateSceneToggle(){
+  const scene = getScene();
+  const icon = scene.icon || "📍";
+  let name =
+    scene.title[currentLanguage] ||
+    scene.title.en ||
+    scene.id;
+
+  if(name.startsWith(icon)){
+    name = name.slice(icon.length).trim();
+  }
+
+  sceneToggleText.textContent = icon + " " + name;
+}
+
+function setScenesOpen(open){
+  headerEl.classList.toggle("scenesClosed", !open);
+
+  sceneToggle.setAttribute(
+    "aria-expanded",
+    open ? "true" : "false"
+  );
+}
+
+sceneToggle.addEventListener("click", () => {
+  setScenesOpen(headerEl.classList.contains("scenesClosed"));
+});
+
+sceneSwitcher.addEventListener("click", () => {
+  setScenesOpen(false);
+});
+
+sceneEl.addEventListener("pointerdown", () => {
+  setScenesOpen(false);
+});
+
+function setMenuOpen(open){
+  menuPanel.hidden = !open;
+
+  menuButton.setAttribute(
+    "aria-expanded",
+    open ? "true" : "false"
+  );
+}
+
+panelToggle.addEventListener("click", () => {
+  setPanelCollapsed(
+    !wordPanel.classList.contains("collapsed")
+  );
+});
+
+menuButton.addEventListener("click", () => {
+  setMenuOpen(menuPanel.hidden);
+});
+
+document.addEventListener("pointerdown", event => {
+  if(
+    !menuPanel.hidden &&
+    !menuPanel.contains(event.target) &&
+    !menuButton.contains(event.target)
+  ){
+    setMenuOpen(false);
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if(event.key === "Escape" && !menuPanel.hidden){
+    setMenuOpen(false);
+    menuButton.focus();
+  }
+});
+
 function selectItem(itemId, shouldSpeak){
   const item = getItemById(itemId);
 
   if(!item) return;
 
   currentItemId = itemId;
+
+  setPanelCollapsed(false);
 
   showItem(item);
 
