@@ -1029,5 +1029,270 @@ body.easyView .diaryDesc,body.easyView .roomCopy>span{font-size:20px}body.easyVi
     ||localStorage.getItem('salpToolsLanguage_v273');
   applyLanguage(saved||detectLanguage());
 })();
-</script></body>
+</script>
+<script id="salp-finder-meta">
+/* SALP Tools Finder metadata.
+   新作を追加したら、この辞書に1行足すだけで 検索 / 並べ替え / NEW / 更新日 / バージョン が付きます。
+   キー = カードの href（HTMLに書いてある文字列そのまま。./xxx.html と https://salpmusic.github.io/tools/xxx.html は同一扱い）
+   added   = 公開日 YYYY-MM-DD（変えない。60日以内なら NEW 表示）
+   updated = 更新日 YYYY-MM-DD（更新したらここだけ変える）
+   ver     = ページ内に実在する表記のみ（無ければ ""。推測で書かない）
+   rec     = true で「おすすめ」（手動フラグ。閲覧数ではない）
+   kw      = 検索補助語（カード本文に無い別名）
+   出典: added/updated は git log（外部APKは GitHub release 公開日）、ver は各ページ内の表記。 */
+window.SALP_FINDER_META = {
+  "./music.html": { added: "2026-07-23", updated: "2026-08-07", ver: "1.4", rec: true, kw: ["音楽", "ミュージック"] },
+  "https://salpmusic.github.io/tools/salp-linux/salp-linux.html": { added: "2026-07-19", updated: "2026-09-27", ver: "1.10.12", rec: true, kw: ["リナックス", "ブラウザ", "ターミナル"] },
+  "https://github.com/salpmusic/salp-linux-mobile-pc/releases/download/v0.2.0/Android-Linux.apk": { added: "2026-09-20", updated: "2026-09-20", ver: "0.2.0", rec: true, kw: ["アンドロイド", "リナックス", "スマホ"] },
+  "./salp-s26-basic.html": { added: "2026-07-18", updated: "2026-07-25", ver: "0.9.3", rec: true, kw: ["ベーシック", "レトロ"] },
+  "https://salpmusic.github.io/tools/salp-basic-mini.html": { added: "2026-07-22", updated: "2026-07-25", ver: "0.1.1", rec: true, kw: ["ベーシック", "ミニ"] },
+  "https://salpmusic.github.io/tools/video.html": { added: "2026-07-12", updated: "2026-09-17", ver: "3.9", kw: ["動画", "ビデオ", "音声"] },
+  "https://salpmusic.github.io/tools/html-runner.html": { added: "2026-07-08", updated: "2026-07-08", ver: "", kw: ["ランナー", "実行"] },
+  "https://salpmusic.github.io/tools/qrcode.html": { added: "2026-07-08", updated: "2026-07-12", ver: "2.1", kw: ["QRコード", "二次元コード"] },
+  "https://salpmusic.github.io/tools/Pixel.html": { added: "2026-07-10", updated: "2026-07-10", ver: "", kw: ["ピクセル", "ドット絵"] },
+  "https://salpmusic.github.io/tools/Frame.html": { added: "2026-07-10", updated: "2026-07-10", ver: "", kw: ["フレーム", "写真"] },
+  "https://salpmusic.github.io/tools/Resize.html": { added: "2026-07-10", updated: "2026-07-10", ver: "", kw: ["リサイズ", "一括", "画像"] },
+  "https://salpmusic.github.io/tools/salpcode.html": { added: "2026-07-08", updated: "2026-07-08", ver: "0.4", kw: ["コード", "ねこ"] },
+  "https://salpmusic.github.io/tools/video-v4.html": { added: "2026-07-18", updated: "2026-07-18", ver: "4.0", kw: ["動画", "ビデオ", "タイムライン"] },
+  "https://salpmusic.github.io/tools/terminal/index.html": { added: "2026-07-11", updated: "2026-07-19", ver: "", kw: ["ターミナル", "オーエス"] },
+  "./chat.html": { added: "2026-08-23", updated: "2026-08-23", ver: "", kw: ["チャット", "掲示板"] },
+  "./3sss.html": { added: "2026-08-22", updated: "2026-08-22", ver: "", kw: ["太陽系", "惑星", "宇宙"] },
+  "./probability.html": { added: "2026-08-23", updated: "2026-08-23", ver: "", kw: ["確率", "サイコロ", "コイン"] },
+  "./green_leaf_shark_music_game_v0.1.html": { added: "2026-08-11", updated: "2026-08-11", ver: "", kw: ["音ゲー", "リズムゲーム", "ゲーム"] },
+  "https://salpmusic.github.io/tools/color/": { added: "2026-07-11", updated: "2026-07-12", ver: "5.2", kw: ["塗り絵", "ぬりえ", "ゲーム"] },
+  "./retro-star-shooter.html": { added: "2026-08-10", updated: "2026-08-11", ver: "", kw: ["シューティング", "ゲーム"] },
+  "./zpz.html": { added: "2026-08-17", updated: "2026-08-19", ver: "", kw: ["ジグソー", "パズル", "ゲーム"] },
+  "./td.html": { added: "2026-08-21", updated: "2026-08-21", ver: "", kw: ["タワーディフェンス", "ゲーム"] },
+  "./salp_block_breaker_fixed.html": { added: "2026-08-24", updated: "2026-08-24", ver: "", kw: ["ブロック崩し", "ブロックくずし", "ゲーム"] },
+  "./pbl.html": { added: "2026-08-30", updated: "2026-08-30", ver: "", kw: ["ピンボール", "ゲーム"] },
+  "./solitaire.html": { added: "2026-08-19", updated: "2026-08-19", ver: "", kw: ["ソリティア", "クロンダイク", "トランプ", "カード", "ゲーム"] },
+  "./memory.html": { added: "2026-08-23", updated: "2026-08-23", ver: "", kw: ["神経衰弱", "メモリー", "トランプ", "カード", "ゲーム"] },
+  "./sevenbridge.html": { added: "2026-10-02", updated: "2026-10-02", ver: "", kw: ["セブンブリッジ", "トランプ", "カード", "ゲーム"] },
+  "./salp-anemone-morning-v1.0.html": { added: "2026-10-02", updated: "2026-10-02", ver: "1.0", kw: ["猫", "ねこ", "部屋", "秋明菊", "ふわふわ日記"] },
+  "./salp-snowberry-moonlight-v1.0.html": { added: "2026-10-01", updated: "2026-10-02", ver: "1.0", kw: ["猫", "ねこ", "部屋", "月あかり", "ふわふわ日記"] },
+  "./salp-coffee-cat-v1.0.html": { added: "2026-09-30", updated: "2026-10-01", ver: "1.0", kw: ["猫", "ねこ", "部屋", "コーヒー", "ふわふわ日記"] },
+  "./salp-snowberry-reggae-v1.0.html": { added: "2026-09-30", updated: "2026-09-30", ver: "1.1", kw: ["猫", "ねこ", "部屋", "レゲエ", "ふわふわ日記"] },
+  "./salp-snowberry-cat-v1.2.html": { added: "2026-09-30", updated: "2026-09-30", ver: "1.8", kw: ["猫", "ねこ", "部屋", "朝", "ふわふわ日記"] }
+};
+</script>
+<script id="salp-finder">
+(()=>{
+"use strict";
+/* SALP Tools Finder: search / sort / category filter / NEW / updated / version.
+   既存DOMは移動・書き換えしない。絞り込み・並べ替え中だけ別の結果リスト(#salpFinderResults)に複製を並べ、
+   既存セクション(details#diaryRooms を含む)は表示を隠すだけ。解除すると従来の表示にそのまま戻る。 */
+const BASE="https://salpmusic.github.io/tools/";
+const NEW_DAYS=60;
+const HID="salpFinderHid";
+const CATS=["all","recommended","featured","creative","labs","chat","simulation","games","cardgames","diary"];
+const CARD_CATS=CATS.slice(2);
+const SORTS=[["default","sortDefault"],["recommended","sortRecommended"],["newest","sortNewest"],["updated","sortUpdated"],["version","sortVersion"],["category","sortCategory"]];
+
+const I18N={
+ja:{title:"🔎 ツールを探す",searchLabel:"検索",searchPlaceholder:"ツール・ゲームを検索",sortLabel:"並び順",sortDefault:"標準",sortRecommended:"おすすめ",sortNewest:"新着順",sortUpdated:"更新日",sortVersion:"バージョン",sortCategory:"カテゴリ別",catLabel:"カテゴリ",all:"すべて",recommended:"おすすめ",featured:"注目",creative:"制作ツール",labs:"Labs",chat:"チャット",simulation:"シミュレーション",games:"ゲーム",cardgames:"トランプ",diary:"猫タッチ",results:"件",noResults:"見つかりませんでした",newBadge:"NEW",recommendedBadge:"おすすめ",updated:"更新",version:"バージョン",clear:"クリア"},
+vi:{title:"🔎 Tìm công cụ",searchLabel:"Tìm kiếm",searchPlaceholder:"Tìm công cụ hoặc trò chơi",sortLabel:"Sắp xếp",sortDefault:"Mặc định",sortRecommended:"Đề xuất",sortNewest:"Mới nhất",sortUpdated:"Cập nhật",sortVersion:"Phiên bản",sortCategory:"Theo danh mục",catLabel:"Danh mục",all:"Tất cả",recommended:"Đề xuất",featured:"Nổi bật",creative:"Công cụ sáng tạo",labs:"Labs",chat:"Trò chuyện",simulation:"Mô phỏng",games:"Trò chơi",cardgames:"Bài",diary:"Phòng mèo",results:"kết quả",noResults:"Không tìm thấy kết quả",newBadge:"MỚI",recommendedBadge:"Đề xuất",updated:"Cập nhật",version:"Phiên bản",clear:"Xóa"},
+en:{title:"🔎 Find a Tool",searchLabel:"Search",searchPlaceholder:"Search tools and games",sortLabel:"Sort",sortDefault:"Default",sortRecommended:"Recommended",sortNewest:"Newest",sortUpdated:"Recently updated",sortVersion:"Version",sortCategory:"By category",catLabel:"Category",all:"All",recommended:"Recommended",featured:"Featured",creative:"Creative Tools",labs:"Labs",chat:"Chat",simulation:"Simulation",games:"Games",cardgames:"Card Games",diary:"Cat Rooms",results:"results",noResults:"No matching tools found",newBadge:"NEW",recommendedBadge:"Recommended",updated:"Updated",version:"Version",clear:"Clear"},
+tl:{title:"🔎 Maghanap ng Tool",searchLabel:"Maghanap",searchPlaceholder:"Maghanap ng tool o laro",sortLabel:"Ayusin",sortDefault:"Karaniwan",sortRecommended:"Inirerekomenda",sortNewest:"Pinakabago",sortUpdated:"Huling na-update",sortVersion:"Bersyon",sortCategory:"Ayon sa kategorya",catLabel:"Kategorya",all:"Lahat",recommended:"Inirerekomenda",featured:"Tampok",creative:"Creative Tools",labs:"Labs",chat:"Chat",simulation:"Simulation",games:"Mga Laro",cardgames:"Card Games",diary:"Cat Rooms",results:"resulta",noResults:"Walang nakitang tugma",newBadge:"BAGO",recommendedBadge:"Inirerekomenda",updated:"Na-update",version:"Bersyon",clear:"I-clear"}
+};
+
+const lang=()=>{const l=(document.documentElement.lang||"ja").toLowerCase().split("-")[0];return I18N[l]?l:"ja"};
+const t=k=>I18N[lang()][k]||I18N.ja[k]||k;
+
+const norm=s=>String(s||"").normalize("NFKC").toLowerCase().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+0x60)).replace(/\s+/g," ").trim();
+const keyOf=href=>{try{const s=new URL(href,BASE).href;return s.indexOf(BASE)===0?s.slice(BASE.length):s}catch(e){return String(href||"")}};
+const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
+
+const RAW=window.SALP_FINDER_META||{};
+const META={};
+Object.keys(RAW).forEach(k=>{META[keyOf(k)]=RAW[k]});
+
+const parseDay=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");return m?new Date(+m[1],+m[2]-1,+m[3]).getTime():NaN};
+const isNewByDate=meta=>{
+  if(!meta)return false;const a=parseDay(meta.added);if(isNaN(a))return false;
+  const n=new Date(),today=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  const d=Math.round((today-a)/86400000);return d>=0&&d<=NEW_DAYS;
+};
+const verParts=v=>String(v||"").replace(/^v/i,"").split(/[^0-9]+/).filter(Boolean).map(Number);
+const cmpVerDesc=(a,b)=>{const x=verParts(a),y=verParts(b),n=Math.max(x.length,y.length);for(let i=0;i<n;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return q-p}return 0};
+
+let items=[],finder,results,main,cat="all",sortMode="default";
+let q,sel,count,clearBtn;
+
+function collect(){
+  const out=[];
+  document.querySelectorAll("article.card").forEach(a=>{
+    if(a.closest("#salpFinderResults"))return;
+    const l=a.querySelector("a.open[href]");if(!l)return;
+    const sec=a.closest("section[id]");const id=sec?sec.id:"";
+    const meta=META[keyOf(l.getAttribute("href"))]||null;
+    out.push({kind:"card",el:a,link:l,meta,cat:CARD_CATS.indexOf(id)>=0?id:"other"});
+  });
+  document.querySelectorAll("#diaryRooms a.roomCard[href]").forEach(a=>{
+    const meta=META[keyOf(a.getAttribute("href"))]||null;
+    out.push({kind:"room",el:a,link:a,meta,cat:"diary"});
+  });
+  out.forEach((it,i)=>{it.idx=i});
+  return out;
+}
+const titleOf=it=>{const n=it.kind==="card"?it.el.querySelector("h3"):it.el.querySelector(".roomCopy strong");return n?n.textContent.trim():""};
+const descOf=it=>{const n=it.kind==="card"?it.el.querySelector("p"):it.el.querySelector(".roomCopy>span");return n?n.textContent.trim():""};
+const enterOf=it=>{const n=it.el.querySelector(".roomCopy b");return n?n.textContent.trim():""};
+const tagsOf=it=>it.kind==="card"?[...it.el.querySelectorAll(".tag")].map(x=>x.textContent).join(" "):"";
+const hasNewStatus=card=>{const s=card.querySelector(".status");return !!s&&norm(s.textContent)==="new"};
+const catLabels=c=>Object.keys(I18N).map(l=>I18N[l][c]||"").join(" ");
+
+function haystack(it){
+  const m=it.meta||{};
+  return norm([titleOf(it),descOf(it),tagsOf(it),(m.kw||[]).join(" "),m.ver||"",catLabels(it.cat),it.meta&&it.meta.rec?catLabels("recommended"):""].join(" "));
+}
+
+/* ---- meta row (NEW / おすすめ / 更新日 / バージョン) ---- */
+function metaRow(it,cardEl){
+  const m=it.meta;if(!m)return null;
+  const row=el("div","salpFinderMeta");row.setAttribute("data-salp-meta","");
+  if(isNewByDate(m)&&!hasNewStatus(cardEl))row.appendChild(el("span","salpFinderBadge salpFinderBadgeNew",t("newBadge")));
+  if(m.rec===true)row.appendChild(el("span","salpFinderBadge salpFinderBadgeRec",t("recommendedBadge")));
+  if(m.updated){const s=el("span");s.appendChild(document.createTextNode(t("updated")+" "));const tm=el("time",null,m.updated);tm.setAttribute("datetime",m.updated);s.appendChild(tm);row.appendChild(s)}
+  if(m.ver)row.appendChild(el("span",null,t("version")+" v"+String(m.ver).replace(/^v/i,"")));
+  return row.childNodes.length?row:null;
+}
+function putRow(card,row){if(!row)return;const open=card.querySelector("a.open");open?card.insertBefore(row,open):card.appendChild(row)}
+function decorateOriginals(){
+  document.querySelectorAll("[data-salp-meta]").forEach(r=>{if(!r.closest("#salpFinderResults"))r.remove()});
+  items.forEach(it=>{if(it.kind==="card")putRow(it.el,metaRow(it,it.el))});
+}
+
+/* ---- result cards (複製。元のカードは動かさない) ---- */
+function cloneCard(it){
+  const c=it.el.cloneNode(true);
+  c.removeAttribute("id");c.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+  c.querySelectorAll("[data-salp-meta]").forEach(n=>n.remove());
+  putRow(c,metaRow(it,c));
+  return c;
+}
+function roomCard(it){
+  const a=el("article","card salpRoomResult");
+  const title=titleOf(it),m=/^(\p{Extended_Pictographic}\uFE0F?)\s*([\s\S]*)$/u.exec(title);
+  const top=el("div","cardTop");top.appendChild(el("div","icon",m?m[1]:"🐈"));top.appendChild(el("h3",null,m?m[2]:title));
+  a.appendChild(top);a.appendChild(el("p",null,descOf(it)));
+  const tags=el("div","tags");tags.appendChild(el("span","tag",t("diary")));a.appendChild(tags);
+  putRow(a,metaRow(it,a));
+  const open=el("a","open",enterOf(it)||title);open.setAttribute("href",it.link.getAttribute("href"));a.appendChild(open);
+  return a;
+}
+
+/* ---- filter / sort ---- */
+function sortList(list){
+  const by=(f)=>list.sort((a,b)=>f(a,b)||a.idx-b.idx);
+  const str=(x)=>x||"";
+  if(sortMode==="recommended")by((a,b)=>(b.meta&&b.meta.rec?1:0)-(a.meta&&a.meta.rec?1:0));
+  else if(sortMode==="newest")by((a,b)=>{const x=str(a.meta&&a.meta.added),y=str(b.meta&&b.meta.added);return x===y?0:!x?1:!y?-1:y<x?-1:1});
+  else if(sortMode==="updated")by((a,b)=>{const x=str(a.meta&&a.meta.updated),y=str(b.meta&&b.meta.updated);return x===y?0:!x?1:!y?-1:y<x?-1:1});
+  else if(sortMode==="version")by((a,b)=>{const x=a.meta&&a.meta.ver,y=b.meta&&b.meta.ver;return !x&&!y?0:!x?1:!y?-1:cmpVerDesc(x,y)});
+  else if(sortMode==="category")by((a,b)=>{const r=i=>{const n=CARD_CATS.indexOf(i.cat);return n<0?99:n};return r(a)-r(b)});
+  else by(()=>0);
+  /* 猫タッチの部屋は常に「新しい順」(HTML上の並び)のまま。並べ替えてもこの順序は崩さない */
+  const slots=[],rooms=[];list.forEach((it,i)=>{if(it.kind==="room"){slots.push(i);rooms.push(it)}});
+  rooms.sort((a,b)=>a.idx-b.idx);slots.forEach((p,k)=>{list[p]=rooms[k]});
+  return list;
+}
+const isActive=()=>q.value.trim()!==""||cat!=="all"||sortMode!=="default";
+
+function run(){
+  if(!finder)return;
+  clearBtn.hidden=!isActive();
+  if(!isActive()){showOriginal();count.textContent=items.length+" "+t("results");return}
+  const toks=norm(q.value).split(" ").filter(Boolean);
+  let list=items.filter(it=>{
+    if(cat==="recommended"&&!(it.meta&&it.meta.rec===true))return false;
+    if(cat!=="all"&&cat!=="recommended"&&it.cat!==cat)return false;
+    if(toks.length){const h=haystack(it);return toks.every(x=>h.indexOf(x)>=0)}
+    return true;
+  });
+  list=sortList(list);
+  render(list);count.textContent=list.length+" "+t("results");
+}
+function render(list){
+  hideOriginal();results.hidden=false;results.textContent="";
+  if(!list.length){results.appendChild(el("div","salpNoResults",t("noResults")));return}
+  const f=document.createDocumentFragment();
+  list.forEach(it=>f.appendChild(it.kind==="room"?roomCard(it):cloneCard(it)));
+  results.appendChild(f);
+}
+function containers(){
+  const s=new Set();items.forEach(it=>{const c=it.kind==="room"?document.getElementById("diaryRooms"):it.el.closest("section");if(c)s.add(c)});return [...s];
+}
+function hideOriginal(){containers().forEach(c=>c.classList.add(HID))}
+function showOriginal(){document.querySelectorAll("."+HID).forEach(c=>c.classList.remove(HID));results.hidden=true;results.textContent=""}
+function resetAll(){q.value="";sortMode="default";sel.value="default";setCat("all");run()}
+
+/* ---- UI ---- */
+function setCat(c){cat=c;finder.querySelectorAll(".salpCatChip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cat===c?"true":"false"))}
+function build(){
+  finder=el("section");finder.id="salpFinder";finder.setAttribute("role","search");finder.setAttribute("aria-labelledby","salpFinderTitle");
+  const h=el("h2","salpFinderTitle");h.id="salpFinderTitle";finder.appendChild(h);
+  const top=el("div","salpFinderTop");
+  const f1=el("div","salpFinderField"),l1=el("label","salpFinderLabel");l1.setAttribute("for","salpFinderSearch");l1.id="salpFinderSearchLabel";
+  q=el("input");q.id="salpFinderSearch";q.type="search";q.autocomplete="off";q.setAttribute("enterkeyhint","search");
+  f1.appendChild(l1);f1.appendChild(q);
+  const f2=el("div","salpFinderField"),l2=el("label","salpFinderLabel");l2.setAttribute("for","salpFinderSort");l2.id="salpFinderSortLabel";
+  sel=el("select");sel.id="salpFinderSort";SORTS.forEach(s=>{const o=el("option");o.value=s[0];sel.appendChild(o)});
+  f2.appendChild(l2);f2.appendChild(sel);top.appendChild(f1);top.appendChild(f2);finder.appendChild(top);
+  const cats=el("div","salpFinderCats");cats.id="salpFinderCats";cats.setAttribute("role","group");
+  CATS.forEach(c=>{
+    if(c!=="all"&&c!=="recommended"&&!items.some(i=>i.cat===c))return;
+    if(c==="recommended"&&!items.some(i=>i.meta&&i.meta.rec===true))return;
+    const b=el("button","salpCatChip");b.type="button";b.dataset.cat=c;b.setAttribute("aria-pressed","false");cats.appendChild(b);
+  });
+  finder.appendChild(cats);
+  const foot=el("div","salpFinderFoot");
+  count=el("div");count.id="salpFinderCount";count.setAttribute("role","status");count.setAttribute("aria-live","polite");
+  clearBtn=el("button");clearBtn.id="salpFinderClear";clearBtn.type="button";clearBtn.hidden=true;
+  foot.appendChild(count);foot.appendChild(clearBtn);finder.appendChild(foot);
+  results=el("section","grid");results.id="salpFinderResults";results.hidden=true;
+  main.insertBefore(results,main.firstChild);main.insertBefore(finder,results);
+  setCat("all");
+  q.addEventListener("input",run);
+  q.addEventListener("keydown",e=>{if(e.key==="Escape"&&q.value){q.value="";run()}});
+  sel.addEventListener("change",()=>{sortMode=sel.value;run()});
+  cats.addEventListener("click",e=>{const b=e.target.closest(".salpCatChip");if(!b)return;setCat(b.dataset.cat);run()});
+  clearBtn.addEventListener("click",()=>{resetAll();q.focus()});
+  /* 絞り込み中に #games などのページ内リンクを押したら、従来表示に戻してから移動 */
+  document.addEventListener("click",e=>{
+    const a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||!isActive())return;
+    let id="";try{id=decodeURIComponent(a.getAttribute("href").slice(1))}catch(x){}
+    const tg=id&&document.getElementById(id);
+    if(tg&&(tg.classList.contains(HID)||tg.closest("."+HID))){resetAll()}
+  });
+}
+function applyLang(){
+  if(!finder)return;
+  const set=(id,k)=>{const n=document.getElementById(id);if(n)n.textContent=t(k)};
+  set("salpFinderTitle","title");set("salpFinderSearchLabel","searchLabel");set("salpFinderSortLabel","sortLabel");set("salpFinderClear","clear");
+  q.placeholder=t("searchPlaceholder");
+  finder.querySelector("#salpFinderCats").setAttribute("aria-label",t("catLabel"));
+  [...sel.options].forEach((o,i)=>{o.textContent=t(SORTS[i][1])});
+  finder.querySelectorAll(".salpCatChip").forEach(b=>{b.textContent=t(b.dataset.cat)});
+  decorateOriginals();run();
+}
+function cleanup(){
+  document.querySelectorAll("."+HID).forEach(c=>c.classList.remove(HID));
+  document.querySelectorAll("[data-salp-meta]").forEach(n=>n.remove());
+  [finder,results].forEach(n=>{if(n&&n.parentNode)n.parentNode.removeChild(n)});
+}
+function init(){
+  try{
+    main=document.getElementById("main")||document.querySelector("main");if(!main)return;
+    items=collect();if(!items.length)return;
+    build();applyLang();
+    new MutationObserver(applyLang).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+  }catch(err){
+    if(window.console)console.error("SALP Finder disabled:",err);
+    try{cleanup()}catch(e){}
+  }
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+</body>
 </html>
