@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <title>salpbot Jr.</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="appHeader">
+      <div class="brandRow">
+        <span class="botMark" aria-hidden="true">🤖</span>
+        <div>
+          <h1 id="botName">salpbot Jr.</h1>
+          <p id="botSubtitle">カネちゃん専用アシスタント</p>
+        </div>
+      </div>
+      <span id="brainStatus" class="statusBadge offline">LOCAL</span>
+    </header>
+
+    <section class="personalityPanel">
+      <div class="panelTitle">PERSONALITY</div>
+      <p id="personalityText">人格を読み込んでいます…</p>
+    </section>
+
+    <main id="chatArea" class="chatArea" aria-live="polite"></main>
+
+    <section class="composer">
+      <label class="srOnly" for="messageInput">メッセージ</label>
+      <textarea id="messageInput" rows="2" maxlength="2000" placeholder="Jr.に話しかける..."></textarea>
+      <button id="sendButton" class="primaryButton" type="button">送信</button>
+    </section>
+
+    <section class="memoryTools">
+      <div class="toolsHeader">
+        <div>
+          <div class="panelTitle">MEMORY</div>
+          <p>端末内保存 / JSONバックアップ</p>
+        </div>
+        <span id="messageCount" class="countBadge">0 messages</span>
+      </div>
+      <div class="toolButtons">
+        <button id="exportButton" type="button">JSONを書き出す</button>
+        <button id="importButton" type="button">JSONを読み込む</button>
+        <button id="clearButton" class="dangerButton" type="button">履歴を消去</button>
+      </div>
+      <input id="importFileInput" type="file" accept=".json,application/json" hidden>
+      <p id="memoryMessage" class="memoryMessage"></p>
+    </section>
+
+    <footer>
+      <span>salpbot-jr v0.1</span>
+      <span>Brain: not connected</span>
+    </footer>
+  </div>
+  <script src="./memory.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+:root{color-scheme:dark;--bg:#080b10;--panel:#111720;--panel-2:#171f2b;--border:#293241;--text:#eef2f7;--muted:#8c99aa;--accent:#73e2a7;--user:#19334f;--assistant:#17261f;--danger:#ff8b8b;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+body{min-height:100dvh}
+button,textarea,input{font:inherit}
+button{cursor:pointer}
+.app{width:min(100%,760px);min-height:100dvh;margin:0 auto;padding:calc(16px + var(--safe-top)) 14px calc(20px + var(--safe-bottom))}
+.appHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 4px 18px}
+.brandRow{display:flex;align-items:center;gap:12px}
+.botMark{display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--border);border-radius:14px;background:var(--panel);font-size:26px}
+h1{margin:0;font-size:1.35rem;letter-spacing:.02em}
+#botSubtitle{margin:3px 0 0;color:var(--muted);font-size:.82rem}
+.statusBadge{padding:7px 10px;border:1px solid var(--border);border-radius:999px;font-size:.69rem;font-weight:800;letter-spacing:.08em}
+.statusBadge.offline{color:#f6c875;background:#382b12}
+.statusBadge.online{color:#73e2a7;background:#123525}
+.personalityPanel,.memoryTools{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:14px}
+.panelTitle{color:var(--accent);font-size:.7rem;font-weight:800;letter-spacing:.12em}
+.personalityPanel p{margin:7px 0 0;color:#d5dde7;line-height:1.6;font-size:.88rem}
+.chatArea{min-height:300px;max-height:52dvh;margin:14px 0;padding:4px;overflow-y:auto;overscroll-behavior:contain}
+.emptyState{padding:50px 22px;text-align:center;color:var(--muted)}
+.emptyState strong{display:block;margin-bottom:8px;color:var(--text);font-size:1rem}
+.message{display:flex;margin:10px 0}
+.message.user{justify-content:flex-end}
+.message.assistant{justify-content:flex-start}
+.bubble{width:fit-content;max-width:min(84%,600px);padding:11px 13px;border:1px solid var(--border);border-radius:17px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}
+.user .bubble{background:var(--user);border-bottom-right-radius:5px}
+.assistant .bubble{background:var(--assistant);border-bottom-left-radius:5px}
+.messageMeta{margin-top:6px;color:var(--muted);font-size:.65rem}
+.composer{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:14px}
+textarea{width:100%;min-height:52px;max-height:150px;resize:vertical;padding:12px 13px;border:1px solid var(--border);border-radius:14px;outline:none;background:var(--panel);color:var(--text)}
+textarea:focus{border-color:var(--accent)}
+.primaryButton{min-width:72px;border:0;border-radius:14px;padding:0 18px;background:var(--accent);color:#062316;font-weight:800}
+.primaryButton:active{transform:translateY(1px)}
+.primaryButton:disabled{opacity:.5;cursor:default}
+.memoryTools{margin-top:8px}
+.toolsHeader{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.toolsHeader p{margin:4px 0 0;color:var(--muted);font-size:.77rem}
+.countBadge{white-space:nowrap;color:var(--muted);font-size:.7rem}
+.toolButtons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.toolButtons button{min-height:42px;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:var(--panel-2);color:var(--text);font-size:.78rem}
+.toolButtons button:hover{border-color:#4a596c}
+.toolButtons .dangerButton{color:var(--danger)}
+.memoryMessage{min-height:1.3em;margin:10px 2px 0;color:var(--muted);font-size:.75rem}
+footer{display:flex;justify-content:space-between;gap:8px;padding:18px 4px 0;color:#657184;font-size:.67rem}
+.srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media (max-width:520px){.app{padding-left:10px;padding-right:10px}.composer{grid-template-columns:1fr}.primaryButton{min-height:46px}.toolButtons{grid-template-columns:1fr}.bubble{max-width:90%}}
