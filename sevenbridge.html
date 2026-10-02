@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -29,11 +29,17 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-html,body{
+html,
+body{
   margin:0;
   min-height:100%;
   background:
-    radial-gradient(circle at top,#0c2e3e 0,#07141c 48%,#040b10 100%);
+    radial-gradient(
+      circle at top,
+      #0c2e3e 0,
+      #07141c 48%,
+      #040b10 100%
+    );
   color:var(--ink);
   font-family:
     -apple-system,
@@ -92,6 +98,9 @@ header{
   padding:10px 12px;
   border-radius:12px;
   white-space:nowrap;
+  min-height:44px;
+  display:flex;
+  align-items:center;
 }
 
 .titles{
@@ -131,13 +140,15 @@ header{
   color:var(--ink);
   border-radius:11px;
   padding:8px 10px;
-  min-height:42px;
+  min-height:44px;
+  min-width:44px;
 }
 
 button:focus-visible,
-a:focus-visible{
+a:focus-visible,
+.card:focus-visible{
   outline:3px solid #fff;
-  outline-offset:2px;
+  outline-offset:3px;
 }
 
 main{
@@ -175,7 +186,11 @@ main{
   position:relative;
   min-height:420px;
   background:
-    linear-gradient(180deg,#0b6b72,#084d5f);
+    linear-gradient(
+      180deg,
+      #0b6b72,
+      #084d5f
+    );
   border:3px solid #163845;
   border-radius:24px;
   box-shadow:
@@ -200,7 +215,8 @@ main{
 }
 
 .player-box.active{
-  box-shadow:0 0 0 3px rgba(49,199,189,.6) inset;
+  box-shadow:
+    0 0 0 3px rgba(49,199,189,.6) inset;
 }
 
 .player-box h3{
@@ -229,7 +245,8 @@ main{
       #176a89 0 5px,
       #0b4159 5px 10px
     );
-  box-shadow:0 2px 5px rgba(0,0,0,.3);
+  box-shadow:
+    0 2px 5px rgba(0,0,0,.3);
 }
 
 .center{
@@ -256,6 +273,8 @@ main{
   background:none;
   border:0;
   color:inherit;
+  min-width:44px;
+  min-height:44px;
 }
 
 .pile-label{
@@ -275,24 +294,28 @@ main{
       #195f7a 0 8px,
       #0a3649 8px 16px
     );
-  box-shadow:0 6px 14px rgba(0,0,0,.25);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.25);
 }
 
 .card{
   position:relative;
   width:var(--card-w);
   height:var(--card-h);
+  flex:0 0 var(--card-w);
   border-radius:10px;
   border:2px solid #dce8ef;
   background:#fff;
   color:#101820;
-  box-shadow:0 5px 10px rgba(0,0,0,.25);
+  box-shadow:
+    0 5px 10px rgba(0,0,0,.25);
   display:flex;
   flex-direction:column;
   justify-content:space-between;
   padding:5px;
   user-select:none;
   touch-action:manipulation;
+  cursor:pointer;
   transition:
     transform .13s ease,
     box-shadow .13s ease,
@@ -306,7 +329,11 @@ main{
 .card.joker{
   color:#6c2bd9;
   background:
-    linear-gradient(180deg,#fff,#f3ebff);
+    linear-gradient(
+      180deg,
+      #fff,
+      #f3ebff
+    );
 }
 
 .card .rank{
@@ -332,6 +359,20 @@ main{
     0 0 0 4px #ffe66d,
     0 8px 18px rgba(0,0,0,.3);
   border-color:#ffe66d;
+}
+
+.card.move-source{
+  transform:translateY(-9px);
+  box-shadow:
+    0 0 0 4px #55e7ff,
+    0 8px 18px rgba(0,0,0,.35);
+  border-color:#55e7ff;
+}
+
+.card.move-target{
+  box-shadow:
+    0 0 0 3px rgba(85,231,255,.55),
+    0 5px 10px rgba(0,0,0,.25);
 }
 
 .card.disabled{
@@ -366,6 +407,7 @@ main{
 .meld .card{
   --card-w:clamp(34px,8vw,50px);
   padding:3px;
+  cursor:default;
 }
 
 .meld .card .rank{
@@ -393,15 +435,79 @@ main{
 
 .hand-wrap{
   overflow-x:auto;
-  padding:12px 2px 4px;
+  overflow-y:visible;
+  padding:14px 2px 8px;
   scrollbar-width:thin;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
 }
 
 .hand{
   display:flex;
   gap:var(--card-gap);
-  min-width:max-content;
+  width:max-content;
+  min-width:100%;
   justify-content:center;
+  align-items:flex-end;
+}
+
+.reorder-panel{
+  margin-top:10px;
+  padding:10px;
+  background:rgba(4,18,25,.58);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+}
+
+.reorder-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+  font-size:12px;
+  color:#d8f8ff;
+  font-weight:800;
+}
+
+.reorder-help{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:500;
+  text-align:right;
+}
+
+.reorder-controls{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:7px;
+}
+
+.reorder-btn{
+  border:1px solid rgba(255,255,255,.14);
+  background:#143d4c;
+  color:#f1fdff;
+  border-radius:11px;
+  min-height:44px;
+  padding:9px 12px;
+  font-weight:800;
+}
+
+.reorder-btn.active{
+  background:
+    linear-gradient(
+      135deg,
+      #21b7c1,
+      #3b8cff
+    );
+  color:#04141c;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.18) inset;
+}
+
+.reorder-btn:disabled{
+  opacity:.4;
 }
 
 .controls{
@@ -451,6 +557,19 @@ main{
   color:#c5e4ea;
   text-align:center;
   min-height:18px;
+  margin-top:7px;
+}
+
+.sr-status{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
 }
 
 .toast{
@@ -470,6 +589,8 @@ main{
   opacity:0;
   pointer-events:none;
   transition:opacity .2s;
+  max-width:calc(100vw - 32px);
+  text-align:center;
 }
 
 .toast.show{
@@ -556,8 +677,12 @@ main{
   position:absolute;
   right:3px;
   bottom:3px;
-  font-size:9px;
+  font-size:10px;
+  font-weight:900;
   color:#8d1025;
+  background:#fff;
+  padding:1px 3px;
+  border-radius:4px;
 }
 
 .easy .card:not(.red):not(.joker)::after{
@@ -565,8 +690,12 @@ main{
   position:absolute;
   right:3px;
   bottom:3px;
-  font-size:9px;
+  font-size:10px;
+  font-weight:900;
   color:#000;
+  background:#fff;
+  padding:1px 3px;
+  border-radius:4px;
 }
 
 .easy .card.joker::after{
@@ -574,7 +703,23 @@ main{
   position:absolute;
   right:2px;
   bottom:2px;
-  font-size:8px;
+  font-size:9px;
+  font-weight:900;
+  color:#4c1696;
+  background:#fff;
+  padding:1px 3px;
+  border-radius:4px;
+}
+
+.easy .icon-btn,
+.easy .action,
+.easy .reorder-btn{
+  min-height:50px;
+  font-size:16px;
+}
+
+.easy .reorder-panel{
+  border:2px solid rgba(255,255,255,.28);
 }
 
 .easy *{
@@ -621,6 +766,19 @@ main{
   .controls .action{
     flex:1 1 42%;
   }
+
+  .reorder-btn{
+    flex:1 1 29%;
+  }
+
+  .reorder-title{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .reorder-help{
+    text-align:left;
+  }
 }
 
 @media(max-width:430px){
@@ -649,6 +807,10 @@ main{
   .pile{
     min-height:128px;
     padding:6px;
+  }
+
+  .reorder-btn{
+    flex:1 1 44%;
   }
 }
 
@@ -679,17 +841,19 @@ main{
 </a>
 
 <div class="titles">
-  <div class="series">
-    🃏 SALP CARD GAMES
-  </div>
 
-  <div class="game-title">
-    SEVEN BRIDGE / セブンブリッジ
-  </div>
+<div class="series">
+🃏 SALP CARD GAMES
+</div>
 
-  <div class="sub">
-    SALP版・4人戦
-  </div>
+<div class="game-title">
+SEVEN BRIDGE / セブンブリッジ
+</div>
+
+<div class="sub">
+SALP版・4人戦
+</div>
+
 </div>
 
 <div class="header-actions">
@@ -738,23 +902,23 @@ main{
 >
 
 <div class="stat">
-  <b id="turnLabel">あなたの番</b>
-  <span>TURN</span>
+<b id="turnLabel">あなたの番</b>
+<span>TURN</span>
 </div>
 
 <div class="stat">
-  <b id="stockCount">0</b>
-  <span>山札</span>
+<b id="stockCount">0</b>
+<span>山札</span>
 </div>
 
 <div class="stat">
-  <b id="discardCount">0</b>
-  <span>捨て札</span>
+<b id="discardCount">0</b>
+<span>捨て札</span>
 </div>
 
 <div class="stat">
-  <b id="roundLabel">1</b>
-  <span>ゲーム</span>
+<b id="roundLabel">1</b>
+<span>ゲーム</span>
 </div>
 
 </section>
@@ -783,7 +947,9 @@ main{
   id="drawStock"
   aria-label="山札から1枚引く"
 >
+
 <div class="stock-card"></div>
+
 </button>
 
 </div>
@@ -802,7 +968,9 @@ main{
   id="drawDiscard"
   aria-label="捨て札の一番上を取る"
 >
+
 <div id="discardTop"></div>
+
 </button>
 
 </div>
@@ -835,12 +1003,84 @@ main{
 山札か捨て札から1枚取ってください。
 </div>
 
-<div class="hand-wrap">
+<div
+  class="hand-wrap"
+  id="handWrap"
+  aria-label="あなたの手札"
+>
 
 <div
   class="hand"
   id="hand"
+  role="group"
+  aria-label="あなたの手札"
 ></div>
+
+</div>
+
+<div
+  class="reorder-panel"
+  role="group"
+  aria-label="手札の並べ替え"
+>
+
+<div class="reorder-title">
+
+<span>
+🖐 手札の並べ替え
+</span>
+
+<span class="reorder-help">
+移動モードでカード→移動先をタップ。
+Alt＋←→でも移動できます。
+</span>
+
+</div>
+
+<div class="reorder-controls">
+
+<button
+  id="moveModeBtn"
+  class="reorder-btn"
+  aria-label="手札の移動モードを切り替える"
+  aria-pressed="false"
+>
+↔ 移動モード OFF
+</button>
+
+<button
+  id="moveLeftBtn"
+  class="reorder-btn"
+  aria-label="移動対象のカードを左へ1枚動かす"
+>
+◀ 左へ
+</button>
+
+<button
+  id="moveRightBtn"
+  class="reorder-btn"
+  aria-label="移動対象のカードを右へ1枚動かす"
+>
+右へ ▶
+</button>
+
+<button
+  id="sortBtn"
+  class="reorder-btn"
+  aria-label="手札をスート順に並べ替える"
+>
+♠ スート順
+</button>
+
+<button
+  id="rankSortBtn"
+  class="reorder-btn"
+  aria-label="手札を数字順に並べ替える"
+>
+123 数字順
+</button>
+
+</div>
 
 </div>
 
@@ -863,14 +1103,6 @@ main{
 </button>
 
 <button
-  id="sortBtn"
-  class="action secondary"
-  aria-label="手札を並べ替える"
->
-並べ替え
-</button>
-
-<button
   id="discardBtn"
   class="action danger"
   aria-label="選択した1枚を捨てる"
@@ -886,6 +1118,13 @@ main{
 >
 準備完了
 </div>
+
+<div
+  id="reorderLive"
+  class="sr-status"
+  aria-live="polite"
+  aria-atomic="true"
+></div>
 
 </section>
 
@@ -989,6 +1228,19 @@ Joker=20点。
 上がった人は0点。
 手札に7やJokerを残すと、
 上記の高い点数がそのまま失点になります。
+</li>
+
+<li>
+手札は自由に並べ替えられます。
+「移動モード」をONにして移動したいカードをタップし、
+移動先のカードをタップすると位置を移動できます。
+◀／▶ボタンや、スート順・数字順の自動整列も使えます。
+</li>
+
+<li>
+キーボードでは手札上で←／→を押すとフォーカス移動、
+Space／Enterで通常のカード選択、
+Alt＋←／Alt＋→でカードを左右に移動できます。
 </li>
 
 </ul>
@@ -1095,7 +1347,10 @@ const state={
   phase:'draw',
   selected:new Set(),
   over:false,
-  gameNo:1
+  gameNo:1,
+  moveMode:false,
+  moveCardId:null,
+  handFocusIndex:0
 };
 
 const prefs=
@@ -1138,7 +1393,14 @@ function savePrefs(){
 
   localStorage.setItem(
     KEY,
-    JSON.stringify(prefs)
+    JSON.stringify({
+      wins:prefs.wins,
+      losses:prefs.losses,
+      games:prefs.games,
+      best:prefs.best,
+      sound:prefs.sound,
+      easyMode:prefs.easyMode
+    })
   );
 
 }
@@ -1158,7 +1420,8 @@ const Sound={
         window.webkitAudioContext;
 
       if(A){
-        this.ctx=new A();
+        this.ctx=
+          new A();
       }
 
     }
@@ -1167,7 +1430,9 @@ const Sound={
       this.ctx &&
       this.ctx.state==='suspended'
     ){
+
       this.ctx.resume();
+
     }
 
   },
@@ -1200,6 +1465,7 @@ const Sound={
     g.gain.value=v;
 
     o.connect(g);
+
     g.connect(
       this.ctx.destination
     );
@@ -1219,18 +1485,22 @@ const Sound={
   },
 
   tap(){
+
     this.tone(
       380,
       .04
     );
+
   },
 
   card(){
+
     this.tone(
       520,
       .05,
       'triangle'
     );
+
   },
 
   success(){
@@ -1313,7 +1583,9 @@ function deck(){
 
   const d=[];
 
-  for(const s of SUITS){
+  for(
+    const s of SUITS
+  ){
 
     for(
       let r=1;
@@ -1376,6 +1648,18 @@ function shuffle(a){
 
 }
 
+function suitOrderValue(c){
+
+  if(c.suit==='J'){
+    return 99;
+  }
+
+  return SUITS.indexOf(
+    c.suit
+  );
+
+}
+
 function sortHand(h){
 
   h.sort(
@@ -1393,10 +1677,112 @@ function sortHand(h){
         SUITS.indexOf(a.suit)-
         SUITS.indexOf(b.suit);
 
-      return sd || a.rank-b.rank;
+      return sd ||
+        a.rank-
+        b.rank;
 
     }
   );
+
+}
+
+function sortHumanBySuit(){
+
+  const hand=
+    state.players[0].hand;
+
+  hand.sort(
+    (a,b)=>{
+
+      if(
+        a.suit==='J' &&
+        b.suit==='J'
+      ){
+        return 0;
+      }
+
+      if(a.suit==='J'){
+        return 1;
+      }
+
+      if(b.suit==='J'){
+        return -1;
+      }
+
+      const sd=
+        suitOrderValue(a)-
+        suitOrderValue(b);
+
+      if(sd){
+        return sd;
+      }
+
+      return a.rank-b.rank;
+
+    }
+  );
+
+  state.moveCardId=null;
+  state.handFocusIndex=0;
+
+  announceReorder(
+    '手札をスート順に並べ替えました。ジョーカーは末尾です。'
+  );
+
+  Sound.tap();
+
+  renderHand();
+  updateControls();
+
+}
+
+function sortHumanByRank(){
+
+  const hand=
+    state.players[0].hand;
+
+  hand.sort(
+    (a,b)=>{
+
+      if(
+        a.suit==='J' &&
+        b.suit==='J'
+      ){
+        return 0;
+      }
+
+      if(a.suit==='J'){
+        return 1;
+      }
+
+      if(b.suit==='J'){
+        return -1;
+      }
+
+      if(
+        a.rank!==
+        b.rank
+      ){
+        return a.rank-b.rank;
+      }
+
+      return suitOrderValue(a)-
+        suitOrderValue(b);
+
+    }
+  );
+
+  state.moveCardId=null;
+  state.handFocusIndex=0;
+
+  announceReorder(
+    '手札を数字順に並べ替えました。ジョーカーは末尾です。'
+  );
+
+  Sound.tap();
+
+  renderHand();
+  updateControls();
 
 }
 
@@ -1426,6 +1812,12 @@ function newGame(){
   state.selected.clear();
 
   state.over=false;
+
+  state.moveMode=false;
+
+  state.moveCardId=null;
+
+  state.handFocusIndex=0;
 
   for(
     let n=0;
@@ -1471,19 +1863,27 @@ function newGame(){
 
 function cardValue(c){
 
-  if(c.suit==='J'){
+  if(
+    c.suit==='J'
+  ){
     return 20;
   }
 
-  if(c.rank===7){
+  if(
+    c.rank===7
+  ){
     return 15;
   }
 
-  if(c.rank===1){
+  if(
+    c.rank===1
+  ){
     return 1;
   }
 
-  if(c.rank>=11){
+  if(
+    c.rank>=11
+  ){
     return 10;
   }
 
@@ -1491,7 +1891,28 @@ function cardValue(c){
 
 }
 
-function cardHTML(c){
+function cardName(c){
+
+  if(
+    c.suit==='J'
+  ){
+    return 'ジョーカー';
+  }
+
+  return (
+    SUIT_NAME[c.suit]+
+    (
+      RANK_TEXT[c.rank] ||
+      c.rank
+    )
+  );
+
+}
+
+function cardHTML(
+  c,
+  options={}
+){
 
   const red=
     c.suit==='H' ||
@@ -1506,9 +1927,17 @@ function cardHTML(c){
     );
 
   const aria=
-    c.suit==='J'
-    ? 'ジョーカー'
-    : SUIT_NAME[c.suit]+r;
+    cardName(c);
+
+  const tabindex=
+    options.focusable===false
+    ? '-1'
+    : '0';
+
+  const role=
+    options.focusable===false
+    ? ''
+    : 'role="button"';
 
   return `
     <div
@@ -1516,8 +1945,8 @@ function cardHTML(c){
         ${red?'red':''}
         ${c.suit==='J'?'joker':''}"
       data-id="${c.id}"
-      role="button"
-      tabindex="0"
+      ${role}
+      tabindex="${tabindex}"
       aria-label="${aria}"
     >
 
@@ -1582,9 +2011,13 @@ function render(){
       state.gameNo;
 
   renderCPU();
+
   renderDiscard();
+
   renderHand();
+
   renderMelds();
+
   updateControls();
 
 }
@@ -1643,7 +2076,12 @@ function renderDiscard(){
   els('discardTop')
     .innerHTML=
       c
-      ? cardHTML(c)
+      ? cardHTML(
+          c,
+          {
+            focusable:false
+          }
+        )
       : `
         <div
           style="color:#b7d8de"
@@ -1659,91 +2097,769 @@ function renderHand(){
   const h=
     state.players[0].hand;
 
+  if(
+    state.handFocusIndex>=
+    h.length
+  ){
+
+    state.handFocusIndex=
+      Math.max(
+        0,
+        h.length-1
+      );
+
+  }
+
   els('hand')
     .innerHTML=
       h.map(
-        c=>cardHTML(c)
+        (
+          c,
+          index
+        )=>
+          cardHTML(c)
       )
       .join('');
 
-  els('hand')
-    .querySelectorAll(
-      '.card'
-    )
-    .forEach(
-      el=>{
+  const cards=
+    [
+      ...els('hand')
+        .querySelectorAll(
+          '.card'
+        )
+    ];
+
+  cards.forEach(
+    (
+      el,
+      index
+    )=>{
+
+      const id=
+        el.dataset.id;
+
+      if(
+        state.selected.has(
+          id
+        )
+      ){
+
+        el.classList.add(
+          'selected'
+        );
+
+      }
+
+      if(
+        state.moveCardId===
+        id
+      ){
+
+        el.classList.add(
+          'move-source'
+        );
+
+        el.setAttribute(
+          'aria-pressed',
+          'true'
+        );
+
+      }else{
+
+        el.setAttribute(
+          'aria-pressed',
+          'false'
+        );
+
+      }
+
+      if(
+        state.moveMode &&
+        state.moveCardId &&
+        state.moveCardId!==
+        id
+      ){
+
+        el.classList.add(
+          'move-target'
+        );
+
+      }
+
+      el.setAttribute(
+        'aria-label',
+        buildHandCardAria(
+          h[index],
+          index
+        )
+      );
+
+      const choose=()=>{
+
+        if(
+          state.over
+        ){
+          return;
+        }
+
+        state.handFocusIndex=
+          index;
+
+        if(
+          state.moveMode
+        ){
+
+          handleMoveModeTap(
+            id
+          );
+
+          return;
+
+        }
+
+        if(
+          state.turn!==0
+        ){
+          return;
+        }
+
+        Sound.tap();
 
         if(
           state.selected.has(
-            el.dataset.id
+            id
           )
         ){
 
-          el.classList.add(
-            'selected'
+          state.selected.delete(
+            id
+          );
+
+        }else{
+
+          state.selected.add(
+            id
           );
 
         }
 
-        const choose=()=>{
+        renderHand();
+
+        updateControls();
+
+      };
+
+      el.addEventListener(
+        'pointerup',
+        e=>{
 
           if(
-            state.turn!==0 ||
-            state.over
+            e.pointerType==='touch'
           ){
+
+            e.preventDefault();
+
+          }
+
+          choose();
+
+        }
+      );
+
+      el.addEventListener(
+        'keydown',
+        e=>{
+
+          if(
+            e.altKey &&
+            e.key==='ArrowLeft'
+          ){
+
+            e.preventDefault();
+
+            state.handFocusIndex=
+              index;
+
+            moveCardByIndex(
+              index,
+              -1,
+              true
+            );
+
             return;
-          }
 
-          Sound.tap();
+          }
 
           if(
-            state.selected.has(
-              el.dataset.id
-            )
+            e.altKey &&
+            e.key==='ArrowRight'
           ){
 
-            state.selected.delete(
-              el.dataset.id
+            e.preventDefault();
+
+            state.handFocusIndex=
+              index;
+
+            moveCardByIndex(
+              index,
+              1,
+              true
             );
 
-          }else{
-
-            state.selected.add(
-              el.dataset.id
-            );
+            return;
 
           }
 
-          renderHand();
-          updateControls();
+          if(
+            e.key==='ArrowLeft'
+          ){
 
-        };
+            e.preventDefault();
 
-        el.addEventListener(
-          'pointerup',
-          choose
-        );
+            focusHandIndex(
+              index-1
+            );
 
-        el.addEventListener(
-          'keydown',
-          e=>{
+            return;
+
+          }
+
+          if(
+            e.key==='ArrowRight'
+          ){
+
+            e.preventDefault();
+
+            focusHandIndex(
+              index+1
+            );
+
+            return;
+
+          }
+
+          if(
+            e.key==='Enter' ||
+            e.key===' '
+          ){
+
+            e.preventDefault();
+
+            choose();
 
             if(
-              e.key==='Enter' ||
-              e.key===' '
+              document.activeElement===
+              document.body
             ){
 
-              e.preventDefault();
-
-              choose();
+              focusHandIndex(
+                state.handFocusIndex
+              );
 
             }
 
           }
-        );
 
-      }
+        }
+      );
+
+      el.addEventListener(
+        'focus',
+        ()=>{
+
+          state.handFocusIndex=
+            index;
+
+        }
+      );
+
+    }
+  );
+
+}
+
+function buildHandCardAria(
+  card,
+  index
+){
+
+  const total=
+    state.players[0].hand.length;
+
+  let text=
+    `${cardName(card)}、${index+1}枚目、全${total}枚`;
+
+  if(
+    state.moveMode
+  ){
+
+    if(
+      state.moveCardId===
+      card.id
+    ){
+
+      text+=
+        '、移動対象として選択中';
+
+    }else if(
+      state.moveCardId
+    ){
+
+      text+=
+        '、タップするとこの位置へ移動';
+
+    }else{
+
+      text+=
+        '、タップすると移動対象に設定';
+
+    }
+
+  }else if(
+    state.selected.has(
+      card.id
+    )
+  ){
+
+    text+=
+      '、ゲーム操作用に選択中';
+
+  }
+
+  text+=
+    '。左右矢印でフォーカス移動、Altと左右矢印で並べ替え';
+
+  return text;
+
+}
+
+function focusHandIndex(
+  index
+){
+
+  const cards=
+    [
+      ...els('hand')
+        .querySelectorAll(
+          '.card'
+        )
+    ];
+
+  if(
+    !cards.length
+  ){
+    return;
+  }
+
+  const next=
+    Math.max(
+      0,
+      Math.min(
+        cards.length-1,
+        index
+      )
     );
+
+  state.handFocusIndex=
+    next;
+
+  cards[next].focus({
+    preventScroll:false
+  });
+
+}
+
+function handleMoveModeTap(
+  id
+){
+
+  const hand=
+    state.players[0].hand;
+
+  const targetIndex=
+    hand.findIndex(
+      c=>c.id===id
+    );
+
+  if(
+    targetIndex<0
+  ){
+    return;
+  }
+
+  if(
+    !state.moveCardId
+  ){
+
+    state.moveCardId=
+      id;
+
+    Sound.tap();
+
+    announceReorder(
+      `${cardName(hand[targetIndex])}を移動対象にしました。移動先のカードをタップするか、左右ボタンを使ってください。`
+    );
+
+    renderHand();
+
+    updateControls();
+
+    return;
+
+  }
+
+  if(
+    state.moveCardId===
+    id
+  ){
+
+    state.moveCardId=
+      null;
+
+    Sound.tap();
+
+    announceReorder(
+      '移動対象の選択を解除しました。'
+    );
+
+    renderHand();
+
+    updateControls();
+
+    return;
+
+  }
+
+  moveSelectedCardToIndex(
+    targetIndex
+  );
+
+}
+
+function moveSelectedCardToIndex(
+  targetIndex
+){
+
+  const hand=
+    state.players[0].hand;
+
+  const fromIndex=
+    hand.findIndex(
+      c=>
+        c.id===
+        state.moveCardId
+    );
+
+  if(
+    fromIndex<0 ||
+    targetIndex<0 ||
+    targetIndex>=hand.length
+  ){
+
+    state.moveCardId=
+      null;
+
+    renderHand();
+
+    updateControls();
+
+    return;
+
+  }
+
+  const [
+    card
+  ]=
+    hand.splice(
+      fromIndex,
+      1
+    );
+
+  let insertIndex=
+    targetIndex;
+
+  if(
+    fromIndex<
+    targetIndex
+  ){
+
+    insertIndex=
+      targetIndex-1;
+
+  }
+
+  insertIndex=
+    Math.max(
+      0,
+      Math.min(
+        hand.length,
+        insertIndex
+      )
+    );
+
+  hand.splice(
+    insertIndex,
+    0,
+    card
+  );
+
+  state.handFocusIndex=
+    insertIndex;
+
+  state.moveCardId=
+    card.id;
+
+  Sound.card();
+
+  announceReorder(
+    `${cardName(card)}を${insertIndex+1}番目へ移動しました。`
+  );
+
+  renderHand();
+
+  updateControls();
+
+  requestAnimationFrame(
+    ()=>focusHandIndex(
+      insertIndex
+    )
+  );
+
+}
+
+function moveCardByIndex(
+  index,
+  delta,
+  keyboard=false
+){
+
+  const hand=
+    state.players[0].hand;
+
+  if(
+    hand.length<2 ||
+    index<0 ||
+    index>=hand.length
+  ){
+
+    return false;
+
+  }
+
+  const target=
+    index+
+    delta;
+
+  if(
+    target<0 ||
+    target>=hand.length
+  ){
+
+    Sound.error();
+
+    announceReorder(
+      delta<0
+      ? 'これ以上左には移動できません。'
+      : 'これ以上右には移動できません。'
+    );
+
+    return false;
+
+  }
+
+  const card=
+    hand[index];
+
+  [
+    hand[index],
+    hand[target]
+  ]=[
+    hand[target],
+    hand[index]
+  ];
+
+  state.handFocusIndex=
+    target;
+
+  if(
+    state.moveMode
+  ){
+
+    state.moveCardId=
+      card.id;
+
+  }
+
+  Sound.card();
+
+  announceReorder(
+    `${cardName(card)}を${target+1}番目へ移動しました。`
+  );
+
+  renderHand();
+
+  updateControls();
+
+  if(
+    keyboard
+  ){
+
+    requestAnimationFrame(
+      ()=>focusHandIndex(
+        target
+      )
+    );
+
+  }
+
+  return true;
+
+}
+
+function currentMoveIndex(){
+
+  const hand=
+    state.players[0].hand;
+
+  if(
+    state.moveMode &&
+    state.moveCardId
+  ){
+
+    const index=
+      hand.findIndex(
+        c=>
+          c.id===
+          state.moveCardId
+      );
+
+    if(
+      index>=0
+    ){
+
+      return index;
+
+    }
+
+  }
+
+  if(
+    hand.length
+  ){
+
+    return Math.max(
+      0,
+      Math.min(
+        hand.length-1,
+        state.handFocusIndex
+      )
+    );
+
+  }
+
+  return -1;
+
+}
+
+function moveCurrent(
+  delta
+){
+
+  const index=
+    currentMoveIndex();
+
+  if(
+    index<0
+  ){
+
+    Sound.error();
+
+    announceReorder(
+      '移動するカードを選んでください。'
+    );
+
+    return;
+
+  }
+
+  if(
+    state.moveMode &&
+    !state.moveCardId
+  ){
+
+    state.moveCardId=
+      state.players[0]
+        .hand[index]
+        .id;
+
+  }
+
+  moveCardByIndex(
+    index,
+    delta,
+    false
+  );
+
+}
+
+function toggleMoveMode(){
+
+  if(
+    state.over
+  ){
+    return;
+  }
+
+  state.moveMode=
+    !state.moveMode;
+
+  state.moveCardId=
+    null;
+
+  state.selected.clear();
+
+  Sound.tap();
+
+  if(
+    state.moveMode
+  ){
+
+    announceReorder(
+      '移動モードをオンにしました。移動したいカードをタップしてください。'
+    );
+
+  }else{
+
+    announceReorder(
+      '移動モードをオフにしました。通常のカード選択に戻りました。'
+    );
+
+  }
+
+  renderHand();
+
+  updateControls();
+
+}
+
+function announceReorder(
+  text
+){
+
+  els('reorderLive')
+    .textContent='';
+
+  requestAnimationFrame(
+    ()=>{
+
+      els('reorderLive')
+        .textContent=
+          text;
+
+    }
+  );
+
+  log(text);
 
 }
 
@@ -1763,7 +2879,12 @@ function renderMelds(){
                 ${
                   m.cards
                     .map(
-                      c=>cardHTML(c)
+                      c=>cardHTML(
+                        c,
+                        {
+                          focusable:false
+                        }
+                      )
                     )
                     .join('')
                 }
@@ -1797,45 +2918,111 @@ function updateControls(){
   const act=
     state.phase==='action';
 
-  els('drawStock').disabled=
-    !my || !draw;
+  const hand=
+    state.players[0]
+      ? state.players[0].hand
+      : [];
 
-  els('drawDiscard').disabled=
-    !my ||
-    !draw ||
-    !state.discard.length;
+  els('drawStock')
+    .disabled=
+      !my ||
+      !draw;
 
-  els('meldBtn').disabled=
-    !my ||
-    !act ||
-    state.selected.size<1;
+  els('drawDiscard')
+    .disabled=
+      !my ||
+      !draw ||
+      !state.discard.length;
 
-  els('layoffBtn').disabled=
-    !my ||
-    !act ||
-    state.selected.size!==1;
+  els('meldBtn')
+    .disabled=
+      !my ||
+      !act ||
+      state.moveMode ||
+      state.selected.size<1;
 
-  els('discardBtn').disabled=
-    !my ||
-    !act ||
-    state.selected.size!==1;
+  els('layoffBtn')
+    .disabled=
+      !my ||
+      !act ||
+      state.moveMode ||
+      state.selected.size!==1;
 
-  els('sortBtn').disabled=
-    !my;
+  els('discardBtn')
+    .disabled=
+      !my ||
+      !act ||
+      state.moveMode ||
+      state.selected.size!==1;
+
+  els('moveModeBtn')
+    .disabled=
+      state.over ||
+      hand.length<1;
+
+  els('moveModeBtn')
+    .classList
+    .toggle(
+      'active',
+      state.moveMode
+    );
+
+  els('moveModeBtn')
+    .setAttribute(
+      'aria-pressed',
+      state.moveMode
+      ? 'true'
+      : 'false'
+    );
+
+  els('moveModeBtn')
+    .textContent=
+      state.moveMode
+      ? '↔ 移動モード ON'
+      : '↔ 移動モード OFF';
+
+  const moveIndex=
+    currentMoveIndex();
+
+  els('moveLeftBtn')
+    .disabled=
+      state.over ||
+      hand.length<2 ||
+      moveIndex<=0;
+
+  els('moveRightBtn')
+    .disabled=
+      state.over ||
+      hand.length<2 ||
+      moveIndex<0 ||
+      moveIndex>=
+        hand.length-1;
+
+  els('sortBtn')
+    .disabled=
+      state.over ||
+      hand.length<2;
+
+  els('rankSortBtn')
+    .disabled=
+      state.over ||
+      hand.length<2;
 
 }
 
 function prompt(t){
 
   els('prompt')
-    .textContent=t;
+    .textContent=
+      t;
 
 }
 
 function log(t){
 
   els('log')
-    .textContent=t;
+    .textContent=
+      t;
 
 }
 
@@ -1844,7 +3031,8 @@ function toast(t){
   const x=
     els('toast');
 
-  x.textContent=t;
+  x.textContent=
+    t;
 
   x.classList.add(
     'show'
@@ -1852,9 +3040,11 @@ function toast(t){
 
   setTimeout(
     ()=>{
+
       x.classList.remove(
         'show'
       );
+
     },
     1100
   );
@@ -1866,13 +3056,17 @@ function ensureStock(){
   if(
     state.stock.length
   ){
+
     return true;
+
   }
 
   if(
     state.discard.length<=1
   ){
+
     return false;
+
   }
 
   const top=
@@ -1904,19 +3098,25 @@ function humanDraw(
     state.phase!=='draw' ||
     state.over
   ){
+
     return;
+
   }
 
   Sound.card();
 
   let c;
 
-  if(fromDiscard){
+  if(
+    fromDiscard
+  ){
 
     if(
       !state.discard.length
     ){
+
       return;
+
     }
 
     c=
@@ -1929,6 +3129,7 @@ function humanDraw(
     ){
 
       endByPoints();
+
       return;
 
     }
@@ -1942,16 +3143,25 @@ function humanDraw(
     .hand
     .push(c);
 
-  sortHand(
-    state.players[0].hand
-  );
+  state.handFocusIndex=
+    state.players[0]
+      .hand
+      .length-1;
 
-  state.phase='action';
+  state.phase=
+    'action';
 
   state.selected.clear();
 
+  state.moveCardId=
+    null;
+
   prompt(
     '役を出す／付ける／1枚捨てる、の順で操作できます。'
+  );
+
+  log(
+    `${cardName(c)}を手札の末尾に追加しました。`
   );
 
   render();
@@ -1966,7 +3176,10 @@ function selectedCards(){
   return state.players[0]
     .hand
     .filter(
-      c=>set.has(c.id)
+      c=>
+        set.has(
+          c.id
+        )
     );
 
 }
@@ -1976,22 +3189,23 @@ function classifyMeld(cards){
   if(
     !cards.length
   ){
+
     return null;
+
   }
 
   const jokers=
     cards.filter(
-      c=>c.suit==='J'
+      c=>
+        c.suit==='J'
     );
 
   const normal=
     cards.filter(
-      c=>c.suit!=='J'
+      c=>
+        c.suit!=='J'
     );
 
-  /*
-   * 7単独
-   */
   if(
     cards.length===1 &&
     normal.length===1 &&
@@ -2004,9 +3218,6 @@ function classifyMeld(cards){
 
   }
 
-  /*
-   * 6-7 / 7-8
-   */
   if(
     cards.length===2 &&
     jokers.length===0 &&
@@ -2030,18 +3241,19 @@ function classifyMeld(cards){
   if(
     cards.length<3
   ){
+
     return null;
+
   }
 
   if(
     !normal.length
   ){
+
     return null;
+
   }
 
-  /*
-   * 同位札
-   */
   const sameRank=
     normal.every(
       c=>
@@ -2067,9 +3279,6 @@ function classifyMeld(cards){
 
   }
 
-  /*
-   * 順位札
-   */
   const sameSuit=
     normal.every(
       c=>
@@ -2077,7 +3286,9 @@ function classifyMeld(cards){
         normal[0].suit
     );
 
-  if(sameSuit){
+  if(
+    sameSuit
+  ){
 
     const rs=[
       ...new Set(
@@ -2093,7 +3304,9 @@ function classifyMeld(cards){
       rs.length!==
       normal.length
     ){
+
       return null;
+
     }
 
     let gaps=0;
@@ -2104,17 +3317,19 @@ function classifyMeld(cards){
       i++
     ){
 
-      gaps+=Math.max(
-        0,
-        rs[i]-
-        rs[i-1]-
-        1
-      );
+      gaps+=
+        Math.max(
+          0,
+          rs[i]-
+          rs[i-1]-
+          1
+        );
 
     }
 
     if(
-      gaps<=jokers.length &&
+      gaps<=
+        jokers.length &&
       rs[0]>=1 &&
       rs.at(-1)<=13
     ){
@@ -2134,13 +3349,31 @@ function classifyMeld(cards){
 
 function playMeldHuman(){
 
+  if(
+    state.moveMode
+  ){
+
+    Sound.error();
+
+    toast(
+      '移動モードをOFFにしてください'
+    );
+
+    return;
+
+  }
+
   const cards=
     selectedCards();
 
   const kind=
-    classifyMeld(cards);
+    classifyMeld(
+      cards
+    );
 
-  if(!kind){
+  if(
+    !kind
+  ){
 
     Sound.error();
 
@@ -2152,13 +3385,11 @@ function playMeldHuman(){
 
   }
 
-  /*
-   * 最後の1枚は捨てて上がる必要がある。
-   * 役出しだけで手札ゼロになる操作は禁止。
-   */
   if(
     cards.length>=
-    state.players[0].hand.length
+    state.players[0]
+      .hand
+      .length
   ){
 
     Sound.error();
@@ -2185,6 +3416,11 @@ function playMeldHuman(){
   );
 
   state.selected.clear();
+
+  state.moveCardId=
+    null;
+
+  clampHumanFocus();
 
   Sound.success();
 
@@ -2214,13 +3450,29 @@ function canLayoff(
 
 function layoffHuman(){
 
+  if(
+    state.moveMode
+  ){
+
+    Sound.error();
+
+    toast(
+      '移動モードをOFFにしてください'
+    );
+
+    return;
+
+  }
+
   const cards=
     selectedCards();
 
   if(
     cards.length!==1
   ){
+
     return;
+
   }
 
   if(
@@ -2245,10 +3497,16 @@ function layoffHuman(){
   const idx=
     state.melds
       .findIndex(
-        m=>canLayoff(c,m)
+        m=>
+          canLayoff(
+            c,
+            m
+          )
       );
 
-  if(idx<0){
+  if(
+    idx<0
+  ){
 
     Sound.error();
 
@@ -2270,6 +3528,11 @@ function layoffHuman(){
   );
 
   state.selected.clear();
+
+  state.moveCardId=
+    null;
+
+  clampHumanFocus();
 
   Sound.success();
 
@@ -2294,12 +3557,48 @@ function removeFromHand(
       state.players[pi]
         .hand
         .filter(
-          c=>!ids.has(c.id)
+          c=>
+            !ids.has(
+              c.id
+            )
         );
 
 }
 
+function clampHumanFocus(){
+
+  const hand=
+    state.players[0].hand;
+
+  state.handFocusIndex=
+    Math.max(
+      0,
+      Math.min(
+        Math.max(
+          0,
+          hand.length-1
+        ),
+        state.handFocusIndex
+      )
+    );
+
+}
+
 function humanDiscard(){
+
+  if(
+    state.moveMode
+  ){
+
+    Sound.error();
+
+    toast(
+      '移動モードをOFFにしてください'
+    );
+
+    return;
+
+  }
 
   const cards=
     selectedCards();
@@ -2307,13 +3606,17 @@ function humanDiscard(){
   if(
     cards.length!==1
   ){
+
     return;
+
   }
 
   const c=
     cards[0];
 
-  state.discard.push(c);
+  state.discard.push(
+    c
+  );
 
   removeFromHand(
     0,
@@ -2321,6 +3624,11 @@ function humanDiscard(){
   );
 
   state.selected.clear();
+
+  state.moveCardId=
+    null;
+
+  clampHumanFocus();
 
   Sound.card();
 
@@ -2331,6 +3639,7 @@ function humanDiscard(){
   ){
 
     finish(0);
+
     return;
 
   }
@@ -2341,7 +3650,8 @@ function humanDiscard(){
 
 function nextTurn(){
 
-  state.phase='draw';
+  state.phase=
+    'draw';
 
   state.turn=
     (
@@ -2364,8 +3674,9 @@ function nextTurn(){
   }
 
   prompt(
-    state.players[state.turn]
-      .name+
+    state.players[
+      state.turn
+    ].name+
     'が考えています…'
   );
 
@@ -2385,10 +3696,6 @@ function findAllMeldOptions(
   const n=
     hand.length;
 
-  /*
-   * 手札は通常8枚前後なので
-   * 全組み合わせ探索でも十分軽い。
-   */
   for(
     let mask=1;
     mask<(1<<n);
@@ -2396,12 +3703,16 @@ function findAllMeldOptions(
   ){
 
     const count=
-      bitCount(mask);
+      bitCount(
+        mask
+      );
 
     if(
       count>7
     ){
+
       continue;
+
     }
 
     if(
@@ -2419,7 +3730,8 @@ function findAllMeldOptions(
       ){
 
         if(
-          mask>>i & 1
+          mask>>i &
+          1
         ){
 
           cards.push(
@@ -2431,7 +3743,9 @@ function findAllMeldOptions(
       }
 
       if(
-        classifyMeld(cards)
+        classifyMeld(
+          cards
+        )
       ){
 
         res.push(
@@ -2489,7 +3803,10 @@ function chooseDiscard(
 
   const cand=
     hand.filter(
-      c=>!useful.has(c.id)
+      c=>
+        !useful.has(
+          c.id
+        )
     );
 
   const pool=
@@ -2514,29 +3831,32 @@ function cpuShouldTakeDiscard(
   const top=
     state.discard.at(-1);
 
-  if(!top){
+  if(
+    !top
+  ){
+
     return false;
+
   }
 
   const h=
     state.players[pi]
       .hand;
 
-  /*
-   * 既存役に付けられるなら取る。
-   */
   if(
     state.melds.some(
-      m=>canLayoff(top,m)
+      m=>
+        canLayoff(
+          top,
+          m
+        )
     )
   ){
+
     return true;
+
   }
 
-  /*
-   * 捨て札を取ることで
-   * 新しい役が作れるなら取る。
-   */
   const options=
     findAllMeldOptions([
       ...h,
@@ -2544,9 +3864,12 @@ function cpuShouldTakeDiscard(
     ]);
 
   return options.some(
-    o=>o.some(
-      c=>c.id===top.id
-    )
+    o=>
+      o.some(
+        c=>
+          c.id===
+          top.id
+      )
   );
 
 }
@@ -2557,7 +3880,9 @@ function cpuTurn(){
     state.over ||
     state.turn===0
   ){
+
     return;
+
   }
 
   const pi=
@@ -2568,12 +3893,10 @@ function cpuTurn(){
 
   let c;
 
-  /*
-   * 捨て札が即座に役へ使えるなら
-   * 優先して取る。
-   */
   if(
-    cpuShouldTakeDiscard(pi) &&
+    cpuShouldTakeDiscard(
+      pi
+    ) &&
     state.discard.length
   ){
 
@@ -2587,6 +3910,7 @@ function cpuTurn(){
     ){
 
       endByPoints();
+
       return;
 
     }
@@ -2596,17 +3920,16 @@ function cpuTurn(){
 
   }
 
-  p.hand.push(c);
+  p.hand.push(
+    c
+  );
 
   sortHand(
     p.hand
   );
 
-  /*
-   * CPU役出し。
-   * 安全回数を設けて無限ループ防止。
-   */
   let progress=true;
+
   let safety=0;
 
   while(
@@ -2616,10 +3939,6 @@ function cpuTurn(){
 
     progress=false;
 
-    /*
-     * まず既存の役へ付ける。
-     * ただし最後の1枚は残す。
-     */
     if(
       p.hand.length>1
     ){
@@ -2651,7 +3970,9 @@ function cpuTurn(){
 
           state.melds[mi]
             .cards
-            .push(card);
+            .push(
+              card
+            );
 
           p.hand.splice(
             i,
@@ -2668,14 +3989,14 @@ function cpuTurn(){
 
     }
 
-    if(progress){
+    if(
+      progress
+    ){
+
       continue;
+
     }
 
-    /*
-     * 新規役。
-     * 最後の捨て札を1枚残せるものだけ出す。
-     */
     const opts=
       findAllMeldOptions(
         p.hand
@@ -2717,22 +4038,16 @@ function cpuTurn(){
 
   }
 
-  /*
-   * 必ず最後に1枚捨てる。
-   */
   if(
     !p.hand.length
   ){
 
-    /*
-     * 通常ここには到達しないが、
-     * 安全措置として山札から1枚戻す。
-     */
     if(
       !ensureStock()
     ){
 
       endByPoints();
+
       return;
 
     }
@@ -2748,7 +4063,9 @@ function cpuTurn(){
       p.hand
     );
 
-  state.discard.push(d);
+  state.discard.push(
+    d
+  );
 
   removeFromHand(
     pi,
@@ -2763,7 +4080,10 @@ function cpuTurn(){
     p.hand.length===0
   ){
 
-    finish(pi);
+    finish(
+      pi
+    );
+
     return;
 
   }
@@ -2791,10 +4111,16 @@ function finish(
   if(
     state.over
   ){
+
     return;
+
   }
 
   state.over=true;
+
+  state.moveMode=false;
+
+  state.moveCardId=null;
 
   const scores=
     state.players
@@ -2814,13 +4140,15 @@ function finish(
       scores
         .slice(1)
         .reduce(
-          (a,b)=>a+b,
+          (a,b)=>
+            a+b,
           0
         );
 
     if(
       prefs.best==null ||
-      total>prefs.best
+      total>
+      prefs.best
     ){
 
       prefs.best=
@@ -2854,7 +4182,9 @@ function endByPoints(){
   if(
     state.over
   ){
+
     return;
+
   }
 
   const scores=
@@ -2907,9 +4237,11 @@ function showResult(
           <th>
             プレイヤー
           </th>
+
           <th>
             残り
           </th>
+
           <th>
             失点
           </th>
@@ -2967,10 +4299,38 @@ function showResult(
 
 function bind(){
 
-  /*
-   * 最初のユーザー操作で
-   * AudioContextを起動。
-   */
+  [
+    'drawStock','drawDiscard',
+    'meldBtn','layoffBtn','discardBtn',
+    'moveModeBtn','moveLeftBtn','moveRightBtn',
+    'sortBtn','rankSortBtn',
+    'soundBtn','easyBtn','newBtn','ruleBtn',
+    'closeRule','againBtn'
+  ].forEach(
+    id=>{
+
+      els(id).addEventListener(
+        'click',
+        e=>{
+
+          if(
+            e.detail===0
+          ){
+
+            els(id).dispatchEvent(
+              new PointerEvent(
+                'pointerup'
+              )
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
   document.addEventListener(
     'pointerdown',
     ()=>Sound.init(),
@@ -2983,7 +4343,11 @@ function bind(){
     .addEventListener(
       'pointerup',
       ()=>{
-        humanDraw(false);
+
+        humanDraw(
+          false
+        );
+
       }
     );
 
@@ -2991,7 +4355,11 @@ function bind(){
     .addEventListener(
       'pointerup',
       ()=>{
-        humanDraw(true);
+
+        humanDraw(
+          true
+        );
+
       }
     );
 
@@ -3013,18 +4381,52 @@ function bind(){
       humanDiscard
     );
 
+  els('moveModeBtn')
+    .addEventListener(
+      'pointerup',
+      toggleMoveMode
+    );
+
+  els('moveLeftBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        moveCurrent(
+          -1
+        );
+
+      }
+    );
+
+  els('moveRightBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        moveCurrent(
+          1
+        );
+
+      }
+    );
+
   els('sortBtn')
     .addEventListener(
       'pointerup',
       ()=>{
 
-        sortHand(
-          state.players[0].hand
-        );
+        sortHumanBySuit();
 
-        Sound.tap();
+      }
+    );
 
-        renderHand();
+  els('rankSortBtn')
+    .addEventListener(
+      'pointerup',
+      ()=>{
+
+        sortHumanByRank();
 
       }
     );
@@ -3047,7 +4449,9 @@ function bind(){
         if(
           prefs.sound
         ){
+
           Sound.tap();
+
         }
 
       }
@@ -3158,14 +4562,45 @@ function bind(){
     e=>{
 
       if(
-        e.key==='Escape'
+        e.key===
+        'Escape'
       ){
 
-        els('ruleModal')
-          .classList
-          .remove(
-            'open'
+        if(
+          els('ruleModal')
+            .classList
+            .contains(
+              'open'
+            )
+        ){
+
+          els('ruleModal')
+            .classList
+            .remove(
+              'open'
+            );
+
+          return;
+
+        }
+
+        if(
+          state.moveMode
+        ){
+
+          state.moveMode=false;
+
+          state.moveCardId=null;
+
+          announceReorder(
+            '移動モードをオフにしました。'
           );
+
+          renderHand();
+
+          updateControls();
+
+        }
 
       }
 
@@ -3182,4 +4617,4 @@ newGame();
 </script>
 
 </body>
-</html>xclip -selection clipboard -o > /workspace/chatgpt-home-design.md && wc -c /workspace/chatgpt-home-design.md
+</html>
