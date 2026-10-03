@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#e8f6ff">
+<meta name="description" content="寝ている猫はそのまま、起きている猫だけタッチ。途中で「寝ている猫をタッチ」に指示が逆になる、かわいい反応ゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応。">
+<title>起きている猫だけタッチ | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#e8f6ff;color:#3a4a5a;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{
+  max-width:640px;margin:0 auto;display:grid;gap:10px;justify-items:center;
+  grid-template-areas:"head" "rule" "info" "board" "ctrl";
+}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1.1rem;letter-spacing:.04em}
+.home{color:#2f7fb8;font-size:.85rem;text-decoration:none;border:2px solid #a9d4f2;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:8px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #a9d4f2;border-radius:14px;padding:6px 10px;text-align:center}
+.pcard .name{font-size:.8rem;color:#6a8aa5}
+.pcard .val{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:.85rem;color:#5a7a95}
+.stats b{color:#2a3a4a;font-variant-numeric:tabular-nums}
+.timer{height:12px;background:#fff;border-radius:6px;overflow:hidden;border:2px solid #a9d4f2}
+.timer i{display:block;height:100%;width:100%;background:#ff9f43;transform-origin:left}
+#msg{min-height:2.9em;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #a9d4f2;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus{min-height:1.3em;text-align:center;color:#e0661f;font-size:.9rem;font-weight:700}
+
+#rule{grid-area:rule;display:flex;align-items:center;justify-content:center;gap:10px;min-height:64px;border-radius:16px;border:4px solid;font-weight:900;font-size:1.45rem;text-align:center;padding:6px 10px;letter-spacing:.03em}
+#rule.aw{background:#fff0c9;border-color:#ff9f1c;color:#b35a00}
+#rule.sl{background:#d8e6ff;border-color:#4f78d8;color:#1f3f9a}
+#rule.idle{background:#fff;border-color:#a9d4f2;color:#5a7a95;font-size:1.05rem}
+#rule.flip{animation:flip .7s}
+body.large #rule{font-size:1.9rem;min-height:84px}
+@keyframes flip{0%{transform:scale(1)}20%{transform:scale(1.12) rotate(-2deg)}40%{transform:scale(1.12) rotate(2deg)}60%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1)}}
+#boardWrap{grid-area:board;display:flex;justify-content:center}
+#board{
+  --cols:2;--rows:2;
+  --cell:min(calc((100vw - 44px)/var(--cols)),calc((100dvh - 410px)/var(--rows)),150px);
+  width:calc(var(--cell)*var(--cols) + 16px);display:grid;gap:6px;padding:8px;
+  grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:var(--cell);
+  background:#cfe7d0;border-radius:20px;
+}
+body.large #board{--cell:min(calc((100vw - 44px)/var(--cols)),calc((100dvh - 480px)/var(--rows)),170px)}
+.tile{position:relative;border:3px solid transparent;border-radius:14px;padding:0;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none;transition:background .15s,transform .1s}
+.tile svg{position:absolute;left:6%;top:4%;width:88%;height:80%;pointer-events:none;transition:transform .2s}
+.tile .eo{display:inline}.tile .ec,.tile .mv,.tile .zt{display:none}
+.tile.aw{background:#fff3c4;border-color:#ffb43a}
+.tile.sl{background:#cfdcf5;border-color:#6f8fd8}
+.tile.sl .eo{display:none}.tile.sl .ec{display:inline}.tile.sl .zt{display:inline}
+.tile.sl svg{transform:translateY(6%) rotate(7deg);filter:saturate(.7) brightness(.93)}
+.tile .cap{position:absolute;left:0;right:0;bottom:2%;text-align:center;font-size:calc(var(--cell)*.13);font-weight:800;line-height:1.1}
+.tile.aw .cap{color:#b35a00}.tile.sl .cap{color:#2f4fa0}
+.tile .pop{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:calc(var(--cell)*.55);font-weight:900;pointer-events:none}
+.tile.done{opacity:.5}
+.tile.done .pop{display:flex;color:#27a05a;text-shadow:0 0 4px #fff}
+.tile.bad .pop{display:flex;color:#ff3030;text-shadow:0 0 4px #fff}
+.tile.bad{animation:shake .3s}
+.tile.hold{filter:brightness(.82)}
+.tile:disabled{cursor:default}
+.tile:not(:disabled):active{transform:scale(.95)}
+@keyframes shake{25%{translate:-4px 0}75%{translate:4px 0}}
+.tile.pulse{animation:pulse .3s}
+@keyframes pulse{50%{transform:scale(1.08)}}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff;border:2px solid #a9d4f2;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#6a8aa5;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#8aa0b5;box-shadow:0 4px 0 #62788c}
+.tog{background:#fff;border:2px solid #a9d4f2;border-radius:999px;padding:6px 14px;font-weight:700;color:#4a6a85}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d2561f;margin-bottom:4px}
+.note{font-size:.75rem;color:#6a8aa5;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc #board{background:#fff}
+body.hc #rule.aw{background:#000;color:#ffff00;border-color:#ffff00}body.hc #rule.sl{background:#000;color:#00ffff;border-color:#00ffff}body.hc #rule.idle{background:#000;color:#fff;border-color:#fff}
+body.hc .tile{background:#000!important}body.hc .tile.aw{border:4px solid #ffff00}body.hc .tile.sl{border:4px dashed #00ffff}
+body.hc .tile.aw .cap{color:#ffff00}body.hc .tile.sl .cap{color:#00ffff}body.hc .tile .zt{fill:#00ffff}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#ffff00}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog{background:#000;border-color:#fff;color:#fff}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:landscape) and (max-height:620px){
+  .app{max-width:1000px;align-items:start;justify-items:stretch;grid-template-columns:auto 1fr;column-gap:14px;
+    grid-template-areas:"board head" "board rule" "board info" "board ctrl";grid-template-rows:auto auto auto 1fr}
+  #board{--cell:min(calc((100dvh - 40px)/var(--rows)),calc((100vw - 400px)/var(--cols)),150px)}
+  body.large #board{--cell:min(calc((100dvh - 40px)/var(--rows)),calc((100vw - 440px)/var(--cols)),170px)}
+  #boardWrap{align-self:start}
+  #rule{min-height:52px;font-size:1.2rem}
+}
+@media (prefers-reduced-motion:reduce){#rule.flip,.tile.bad,.tile.pulse{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>💤 起きている猫だけタッチ</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <div id="rule" class="idle" role="status" aria-live="assertive">「はじめる」で開始!</div>
+  <section class="info" aria-label="得点">
+    <div class="top">
+      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="timer" id="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>指示 <b id="stSeg">-</b> / のこり <b id="stCats">-</b>匹</span>
+      <span>モード <b id="stMode">ふつう</b></span>
+      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。上の指示どおりの猫だけタッチ!途中で指示が逆になるよ。</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="boardWrap"><div id="board" role="group" aria-label="猫"></div></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">はじめる</button>
+    <section class="box">
+      <h2>あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード(制限時間が長い)</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">画面上部の指示(「起きている猫をタッチ」または「寝ている猫をタッチ」)の猫を、制限時間内に全部タッチ。ちがう猫をタッチしたり、時間切れになるとハートがへります(ハートは3つ)。途中で指示が逆になるので、画面上部を見のがさないで。ラウンドが進むと猫が増え、制限時間が短くなり、指示が逆になる回数も増えます。得点は 10点×ラウンド+クリアボーナス。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpCatAwake_best_v1', LS_SET='salpCatAwake_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+var LIVES=3;
+
+/* ラウンドごとの設定。進むほど猫が増え、制限時間が短くなり、指示が逆になる回数が増える(15〜20ラウンドで厳しくなりミスで終わる設計) */
+function levelOf(r){
+  var cols,rows;
+  if(r<=2){cols=2;rows=2}else if(r<=5){cols=3;rows=2}else if(r<=8){cols=3;rows=3}else if(r<=12){cols=4;rows=3}else{cols=4;rows=4}
+  var segs=r<=3?2:r<=7?3:r<=12?4:5;                       /* 指示の回数(反転回数 = segs-1) */
+  var base=Math.max(700,2200-(r-1)*110);                  /* 1回の指示の基本時間(ms) */
+  var per=Math.max(220,560-(r-1)*28);                      /* ねらう猫1匹あたりの時間(ms) */
+  var pause=Math.max(450,900-(r-1)*30);                    /* 指示が切り替わってから触れるまでの待ち(ms) */
+  if(G.mode==='slow'){base=Math.round(base*1.7);per=Math.round(per*1.7);pause=Math.round(pause*1.4)}
+  return {cols:cols,rows:rows,n:cols*rows,segs:segs,base:base,per:per,pause:pause};
+}
+
+/* ===== 共通部品: 猫SVG (catmemory9 と同じ) ===== */
+var CATS=[
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#e8454b',eye:'#3b2a1e',stripe:'#c97a2e'},
+  {fur:'#f7f4ef',dark:'#cfc8bd',ear:'#ffc9d6',collar:'#3d7be8',eye:'#2b4a7a',stripe:null,patch:'#b9b2a6'},
+  {fur:'#4b4551',dark:'#2f2a34',ear:'#d98ba4',collar:'#f2c230',eye:'#ffd84a',stripe:null},
+  {fur:'#9fb3c8',dark:'#7f93a9',ear:'#ffc9d6',collar:'#43b36b',eye:'#27384a',stripe:'#7f93a9'},
+  {fur:'#f6e3b4',dark:'#d9bb7a',ear:'#ffc2b0',collar:'#ff7ab8',eye:'#5a3a1e',stripe:'#d9bb7a'},
+  {fur:'#ffffff',dark:'#ddd',ear:'#ffc9d6',collar:'#8a5be8',eye:'#3a2a6a',stripe:null,patch:'#f4a259'},
+  {fur:'#7a5a44',dark:'#5a3f2e',ear:'#e8a8a0',collar:'#2fc4c4',eye:'#ffd84a',stripe:'#5a3f2e'},
+  {fur:'#d9d9de',dark:'#b0b0b8',ear:'#ffc9d6',collar:'#ff8a3d',eye:'#2a2a3a',stripe:null,patch:'#8a8a94'},
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#7ad04a',eye:'#3b2a1e',stripe:null,patch:'#fff'}
+];
+function svgCat(c,v){
+  /* v 指定: ボタン用(口を静止状態で表示) / 指定なし: 舞台用(口はCSSでアニメーション) */
+  var st=c.stripe?'<path d="M92 48q4 12 0 22M100 45v26M108 48q-4 12 0 22" stroke="'+c.stripe+'" stroke-width="5" stroke-linecap="round" fill="none"/>':'';
+  var pa=c.patch?'<ellipse cx="62" cy="78" rx="20" ry="16" fill="'+c.patch+'"/>':'';
+  var light=c.eye==='#ffd84a';
+  var er=light?'rx="10" ry="12"':'rx="8" ry="10"';
+  var mouth=v?'<ellipse cx="100" cy="144" rx="'+(10*v.sx)+'" ry="'+(10*v.sy)+'" fill="'+v.color+'" stroke="#7a2a3a" stroke-width="3"/>':'<ellipse class="mv" cx="100" cy="144" rx="10" ry="10"/>';
+  return ''+
+    '<ellipse cx="120" cy="222" rx="74" ry="44" fill="'+c.fur+'"/>'+
+    '<path d="M62 184Q120 214 178 184" fill="none" stroke="'+c.collar+'" stroke-width="12" stroke-linecap="round"/><circle cx="120" cy="204" r="9" fill="#ffd34a" stroke="#c99a1a" stroke-width="2"/>'+
+    '<g transform="translate(20 20)"><g class="head">'+
+    '<polygon points="34,78 44,14 96,46" fill="'+c.fur+'"/><polygon points="166,78 156,14 104,46" fill="'+c.fur+'"/>'+
+    '<polygon points="48,66 52,30 82,48" fill="'+c.ear+'"/><polygon points="152,66 148,30 118,48" fill="'+c.ear+'"/>'+
+    '<ellipse cx="100" cy="102" rx="72" ry="60" fill="'+c.fur+'"/>'+pa+st+
+    '<g class="eo"><ellipse cx="70" cy="104" '+er+' fill="'+c.eye+'"/><ellipse cx="130" cy="104" '+er+' fill="'+c.eye+'"/>'+
+    (light?'<ellipse cx="70" cy="104" rx="3.5" ry="9" fill="#000"/><ellipse cx="130" cy="104" rx="3.5" ry="9" fill="#000"/>':'')+
+    '<circle cx="73" cy="100" r="3" fill="#fff"/><circle cx="133" cy="100" r="3" fill="#fff"/></g>'+
+    '<g class="ec" fill="none" stroke="'+(light?'#222':c.eye)+'" stroke-width="5" stroke-linecap="round"><path d="M56 106q14 -14 28 0M116 106q14 -14 28 0"/></g>'+
+    '<ellipse cx="50" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/><ellipse cx="150" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/>'+
+    '<path d="M92 118h16l-8 9z" fill="#ff7a96"/>'+
+    (v?'':'<g class="mc" fill="none" stroke="#5a3a2a" stroke-width="3.5" stroke-linecap="round"><path d="M100 127q-9 11-18 4M100 127q9 11 18 4"/></g>')+
+    mouth+
+    '<g stroke="#5a3a2a" stroke-width="2" stroke-linecap="round" opacity=".6"><path d="M30 118l-22-5M30 128l-22 4M170 118l22-5M170 128l22 4"/></g>'+
+    '</g></g>';
+}
+
+/* ---------- 効果音(Web Audio) ---------- */
+var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+var BASE=[440,494,554,622,698,784,880,988,1109]; /* 猫ごとの基本の高さ(Hz) */ /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* にゃん!風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.4,Math.max(0.16,dur||0.28));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+
+sfx.show=function(){melody([784,988],0.08,0.09,'triangle',.8)};
+sfx.hide=function(){melody([988,784,659],0.06,0.07,'triangle',.7)};
+sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
+
+/* ---------- ゲーム ---------- */
+sfx.flip=function(){if(!ready())return;var t=ctx.currentTime+0.01;[880,520,880,520,880].forEach(function(f,k){blip(f,t+k*0.09,0.08,'square',.45)})};
+sfx.tap=function(){if(!ready())return;blip(1200,ctx.currentTime+0.01,0.05,'square',.3)};
+var board=$('board'), cells=[], ruleEl=$('rule');
+var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,L:null,rule:'aw',seg:0,need:0,got:0,wrong:0,fails:0,segEnd:0,segMs:0,timer:null,iv:null,newBest:false};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function render(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  var on=G.round>0;
+  $('stRound').textContent=on?G.round:'-';$('stSeg').textContent=on?(G.seg+1)+'/'+G.L.segs:'-';$('stCats').textContent=on?Math.max(0,G.need-G.got):'-';
+  var m=G.phase==='idle'?modeKey():G.mode;$('stMode').textContent=m==='slow'?'ゆっくり':'ふつう';
+  var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+}
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function setTimerBar(f){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')'}
+function setRuleUI(rule,flip){
+  ruleEl.className=rule;ruleEl.textContent=rule==='aw'?'☀️ 起きている猫をタッチ!':'💤 寝ている猫をタッチ!';
+  if(flip){void ruleEl.offsetWidth;ruleEl.classList.add('flip')}
+}
+function paint(c){
+  var t=c.el;t.classList.remove('aw','sl','done','bad');t.classList.add(c.st);
+  if(c.done)t.classList.add('done');if(c.bad)t.classList.add('bad');
+  t.querySelector('.cap').textContent=c.st==='aw'?'おきてる':'ねてる';
+  t.querySelector('.pop').textContent=c.bad?'✕':'✓';
+}
+function buildBoard(L){
+  board.style.setProperty('--cols',L.cols);board.style.setProperty('--rows',L.rows);board.innerHTML='';cells=[];
+  var fur=shuffle(range(CATS.length));
+  for(var i=0;i<L.n;i++){
+    var el=document.createElement('button');el.type='button';el.className='tile';el.disabled=true;el.setAttribute('aria-label','猫'+(i+1));
+    el.innerHTML='<svg viewBox="0 0 240 220" aria-hidden="true">'+svgCat(CATS[fur[i%fur.length]])+'<text class="zt" x="190" y="40" font-size="40" font-weight="900" fill="#2f4fa0">Zzz</text></svg><span class="cap"></span><span class="pop"></span>';
+    var c={el:el,st:'aw',done:false,bad:false,fur:fur[i%fur.length]};cells.push(c);
+    (function(cc,k){
+      el.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();tap(cc)});
+      el.addEventListener('contextmenu',function(e){e.preventDefault()});
+    })(c,i);
+    board.appendChild(el);
+  }
+}
+function range(n){var a=[];for(var i=0;i<n;i++)a.push(i);return a}
+var lastTE=0;
+board.addEventListener('touchend',function(e){var n=Date.now();if(n-lastTE<400)e.preventDefault();lastTE=n},{passive:false});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.mode=modeKey();G.round=0;G.score=0;G.lives=LIVES;G.newBest=false;G.phase='between';
+  $('result').hidden=true;var st=$('start');st.textContent='やめる';st.classList.add('stop');$('tSlow').disabled=true;
+  sfx.start();say('スタート!画面上部の指示をよく見てね');bonusSay('');setRuleUI('idle');ruleEl.textContent='よーい…';render();after(1000,nextRound);
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.phase='idle';G.round=0;bonusSay('');setTimerBar(1);
+  cells.forEach(function(c){c.el.disabled=true});
+  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
+  ruleEl.className='idle';ruleEl.textContent='「はじめる」で開始!';
+  say('やめました。「はじめる」でもう一度あそべます。');render();
+}
+function nextRound(){
+  G.round++;var L=levelOf(G.round);G.L=L;G.seg=0;G.wrong=0;G.fails=0;
+  buildBoard(L);cells.forEach(function(c){c.st='aw';c.done=false;c.bad=false});
+  G.rule=Math.random()<0.5?'aw':'sl';
+  startSeg(false);
+}
+/* 1つの指示を始める。2回目以降は指示が逆になる(終わった猫は新しくシャッフル) */
+function startSeg(flip){
+  var L=G.L;
+  cells.forEach(function(c){
+    if(G.seg===0||c.done){c.st=Math.random()<0.5?'aw':'sl';c.done=false;c.bad=false}
+    else if(c.bad){c.bad=false}
+  });
+  /* ねらう猫が0匹/全部にならないように調整 */
+  function targets(){return cells.filter(function(c){return !c.done&&c.st===G.rule})}
+  function others(){return cells.filter(function(c){return c.st!==G.rule})}
+  var other=G.rule==='aw'?'sl':'aw';
+  if(targets().length===0){cells[rnd(cells.length)].st=G.rule}
+  if(others().length===0){cells[rnd(cells.length)].st=other}
+  if(targets().length===0){cells[0].st=G.rule}
+  G.need=targets().length;G.got=0;G.phase='pause';
+  G.segMs=L.base+G.need*L.per;
+  cells.forEach(function(c){paint(c);c.el.disabled=true;c.el.classList.add('hold')});
+  setRuleUI(G.rule,flip);render();setTimerBar(1);
+  if(flip){sfx.flip();say('指示が逆になったよ!上の表示を見てね')}
+  else{sfx.show();say('ラウンド'+G.round+':指示の猫をぜんぶタッチ('+G.need+'匹)')}
+  after(L.pause,function(){
+    cells.forEach(function(c){c.el.disabled=false;c.el.classList.remove('hold')});
+    G.phase='play';G.segEnd=performance.now()+G.segMs;say(flip?'指示の猫をぜんぶタッチ!('+G.need+'匹)':'いまの指示の猫をぜんぶタッチ!('+G.need+'匹)');
+    var run=G.run;clearInterval(G.iv);
+    G.iv=setInterval(function(){
+      if(run!==G.run){clearInterval(G.iv);return}
+      var f=(G.segEnd-performance.now())/G.segMs;setTimerBar(f);
+      if(f<=0){clearInterval(G.iv);if(G.phase==='play')segTimeout()}
+    },40);
+  });
+}
+function tap(c){
+  if(G.phase!=='play'||c.done||c.bad)return;
+  var mul=G.mode==='slow'?0.7:1;
+  if(c.st===G.rule){
+    c.done=true;paint(c);c.el.classList.add('pulse');setTimeout(function(){c.el.classList.remove('pulse')},320);
+    G.got++;G.score+=Math.round(10*G.round*mul);meow(c.fur%9,0.22);render();
+    if(G.got>=G.need)segClear();else say('そのちょうし!のこり '+(G.need-G.got)+'匹');
+  }else{
+    c.bad=true;paint(c);G.lives--;G.wrong++;sfx.miss();render();
+    say((G.rule==='aw'?'寝ている猫':'起きている猫')+'はタッチしないよ!(のこりハート'+Math.max(0,G.lives)+'こ)');
+    if(G.lives<=0)endGame('お手つきでハートがなくなりました');
+  }
+}
+function segClear(){
+  clearInterval(G.iv);G.phase='between';
+  var left=Math.max(0,G.segEnd-performance.now())/G.segMs,mul=G.mode==='slow'?0.7:1,tb=Math.round(left*20*G.round*mul);
+  G.score+=tb;render();sfx.clear();bonusSay(tb>0?'スピードボーナス +'+tb:'');
+  nextSegOrRound();
+}
+function segTimeout(){
+  G.phase='between';G.lives--;G.fails++;sfx.miss();render();
+  cells.forEach(function(c){c.el.disabled=true});
+  say('時間切れ…!(のこりハート'+Math.max(0,G.lives)+'こ)');
+  if(G.lives<=0){endGame('時間切れでハートがなくなりました');return}
+  nextSegOrRound();
+}
+function nextSegOrRound(){
+  after(700,function(){
+    bonusSay('');
+    if(G.seg+1<G.L.segs){G.seg++;G.rule=G.rule==='aw'?'sl':'aw';startSeg(true)}
+    else roundClear();
+  });
+}
+function roundClear(){
+  var mul=G.mode==='slow'?0.7:1,bonus=Math.round(50*G.round*mul),txt='クリアボーナス +'+bonus;
+  if(G.wrong===0&&G.fails===0){var pb=Math.round(30*G.round*mul);bonus+=pb;txt+=' / ノーミス +'+pb}
+  G.score+=bonus;render();say('ラウンド'+G.round+' クリア!');bonusSay(txt);
+  setTimeout(sfx.clear,150);after(1500,function(){bonusSay('');nextRound()});
+}
+function endGame(why){
+  clearInterval(G.iv);G.phase='between';cells.forEach(function(c){c.el.disabled=true});
+  say('ざんねん…'+why);after(1800,gameOver);
+}
+function gameOver(){
+  var k=G.mode,b=bestOf(k),cleared=Math.max(0,G.round-1),nb={score:b.score,round:b.round};
+  if(G.score>nb.score){nb.score=G.score;G.newBest=true}
+  if(cleared>nb.round){nb.round=cleared;G.newBest=true}
+  if(G.newBest){best[k]=nb;lsSet(LS_BEST,best)}
+  G.phase='idle';b=bestOf(k);
+  $('result').innerHTML='<h2>ゲームおわり('+(k==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
+    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
+  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
+  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  ruleEl.className='idle';ruleEl.textContent='おつかれさま!';
+  G.round=0;setTimerBar(1);render();
+}
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;applyVol();
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+
+/* 待機画面: 2x2のお家を表示 */
+G.L=levelOf(1);buildBoard(G.L);cells.forEach(function(c,i){c.st=i%2?"sl":"aw";paint(c)});applySet();render();
+})();
+</script>
+</body>
+</html>
