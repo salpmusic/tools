@@ -3264,6 +3264,315 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  veggie: {
+    id: "veggie",
+    icon: "🥬",
+    title: {
+      ja: "🥬 スーパーの野菜売り場",
+      en: "🥬 Supermarket Produce",
+      es: "🥬 Sección de verduras",
+      fr: "🥬 Rayon légumes",
+      de: "🥬 Gemüseabteilung",
+      zh: "🥬 超市蔬菜区",
+      ko: "🥬 마트 채소 코너"
+    },
+
+    background: "veggie.webp",
+    subtitle: "単語学習 スーパーの野菜売り場編",
+    documentTitle: "SALP WORDS | 単語学習 スーパーの野菜売り場編",
+    alt: "明るいスーパーマーケットの野菜売り場のイラスト",
+    ariaLabel: "スーパーの野菜売り場の単語学習",
+    help: "スーパーの野菜売り場の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "野菜売り場の物を選んでください",
+
+    items: [
+      {
+        id: "tomato",
+        emoji: "🍅",
+        x: 3,
+        y: 48.5,
+        w: 31,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "トマト", reading: "とまと" },
+          en: { word: "tomato", reading: "tuh-MAY-toh" },
+          es: { word: "tomate", reading: "to-MA-te" },
+          fr: { word: "tomate", reading: "to-MAT" },
+          de: { word: "Tomate", reading: "to-MAA-te" },
+          zh: { word: "西红柿", reading: "xīhóngshì" },
+          ko: { word: "토마토", reading: "tomato" }
+        }
+      },
+
+      {
+        id: "cucumber",
+        emoji: "🥒",
+        x: 36.5,
+        y: 48,
+        w: 28.5,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "きゅうり", reading: "きゅうり" },
+          en: { word: "cucumber", reading: "KYOO-kum-ber" },
+          es: { word: "pepino", reading: "pe-PEE-no" },
+          fr: { word: "concombre", reading: "kon-KONBR" },
+          de: { word: "Gurke", reading: "GOOR-ke" },
+          zh: { word: "黄瓜", reading: "huángguā" },
+          ko: { word: "오이", reading: "oi" }
+        }
+      },
+
+      {
+        id: "carrot",
+        emoji: "🥕",
+        x: 68,
+        y: 48,
+        w: 29,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "にんじん", reading: "にんじん" },
+          en: { word: "carrot", reading: "KA-rut" },
+          es: { word: "zanahoria", reading: "sa-na-O-rya" },
+          fr: { word: "carotte", reading: "ka-ROT" },
+          de: { word: "Karotte", reading: "ka-ROT-te" },
+          zh: { word: "胡萝卜", reading: "húluóbo" },
+          ko: { word: "당근", reading: "danggeun" }
+        }
+      },
+
+      {
+        id: "onion",
+        emoji: "🧅",
+        x: 3,
+        y: 58,
+        w: 40.5,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "たまねぎ", reading: "たまねぎ" },
+          en: { word: "onion", reading: "UN-yun" },
+          es: { word: "cebolla", reading: "se-BO-ya" },
+          fr: { word: "oignon", reading: "o-NYON" },
+          de: { word: "Zwiebel", reading: "TSVEE-bel" },
+          zh: { word: "洋葱", reading: "yángcōng" },
+          ko: { word: "양파", reading: "yangpa" }
+        }
+      },
+
+      {
+        id: "potato",
+        emoji: "🥔",
+        x: 57.5,
+        y: 58,
+        w: 39.5,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "じゃがいも", reading: "じゃがいも" },
+          en: { word: "potato", reading: "puh-TAY-toh" },
+          es: { word: "patata", reading: "pa-TA-ta" },
+          fr: { word: "pomme de terre", reading: "pom də TER" },
+          de: { word: "Kartoffel", reading: "kar-TO-fel" },
+          zh: { word: "土豆", reading: "tǔdòu" },
+          ko: { word: "감자", reading: "gamja" }
+        }
+      },
+
+      {
+        id: "cabbage",
+        emoji: "🥬",
+        x: 66,
+        y: 26,
+        w: 29,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "キャベツ", reading: "きゃべつ" },
+          en: { word: "cabbage", reading: "KAB-ij" },
+          es: { word: "repollo", reading: "re-PO-yo" },
+          fr: { word: "chou", reading: "shoo" },
+          de: { word: "Kohl", reading: "kohl" },
+          zh: { word: "卷心菜", reading: "juǎnxīncài" },
+          ko: { word: "양배추", reading: "yangbaechu" }
+        }
+      },
+
+      {
+        id: "lettuce",
+        emoji: "🥗",
+        x: 3.5,
+        y: 38,
+        w: 31.5,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "レタス", reading: "れたす" },
+          en: { word: "lettuce", reading: "LET-is" },
+          es: { word: "lechuga", reading: "le-CHOO-ga" },
+          fr: { word: "laitue", reading: "lay-TÜ" },
+          de: { word: "Kopfsalat", reading: "KOPF-za-laat" },
+          zh: { word: "生菜", reading: "shēngcài" },
+          ko: { word: "양상추", reading: "yangsangchu" }
+        }
+      },
+
+      {
+        id: "greenPepper",
+        emoji: "🫑",
+        x: 37.5,
+        y: 38.5,
+        w: 27.5,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "ピーマン", reading: "ぴーまん" },
+          en: { word: "green pepper", reading: "GREEN PEP-er" },
+          es: { word: "pimiento", reading: "pee-MYEN-to" },
+          fr: { word: "poivron", reading: "pwa-VRON" },
+          de: { word: "Paprika", reading: "PA-pree-ka" },
+          zh: { word: "青椒", reading: "qīngjiāo" },
+          ko: { word: "피망", reading: "pimang" }
+        }
+      },
+
+      {
+        id: "eggplant",
+        emoji: "🍆",
+        x: 68,
+        y: 39,
+        w: 29,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "ナス", reading: "なす" },
+          en: { word: "eggplant", reading: "EG-plant" },
+          es: { word: "berenjena", reading: "be-ren-KHE-na" },
+          fr: { word: "aubergine", reading: "o-ber-ZHEEN" },
+          de: { word: "Aubergine", reading: "o-ber-ZHEE-ne" },
+          zh: { word: "茄子", reading: "qiézi" },
+          ko: { word: "가지", reading: "gaji" }
+        }
+      },
+
+      {
+        id: "broccoli",
+        emoji: "🥦",
+        x: 37,
+        y: 26,
+        w: 27,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ブロッコリー", reading: "ぶろっこりー" },
+          en: { word: "broccoli", reading: "BROK-uh-lee" },
+          es: { word: "brócoli", reading: "BRO-ko-lee" },
+          fr: { word: "brocoli", reading: "bro-ko-LEE" },
+          de: { word: "Brokkoli", reading: "BRO-ko-lee" },
+          zh: { word: "西兰花", reading: "xīlánhuā" },
+          ko: { word: "브로콜리", reading: "beurokolli" }
+        }
+      },
+
+      {
+        id: "daikon",
+        emoji: "🌱",
+        x: 5,
+        y: 21.5,
+        w: 30,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "大根", reading: "だいこん" },
+          en: { word: "daikon radish", reading: "DY-kon RAD-ish" },
+          es: { word: "rábano daikon", reading: "RRA-ba-no DAI-kon" },
+          fr: { word: "radis daikon", reading: "ra-DEE dai-KON" },
+          de: { word: "Rettich", reading: "RET-tish" },
+          zh: { word: "白萝卜", reading: "báiluóbo" },
+          ko: { word: "무", reading: "mu" }
+        }
+      },
+
+      {
+        id: "basket",
+        emoji: "🧺",
+        x: 64,
+        y: 76.5,
+        w: 33,
+        h: 18,
+        z: 40,
+        words: {
+          ja: { word: "買い物かご", reading: "かいものかご" },
+          en: { word: "shopping basket", reading: "SHOP-ing BAS-kit" },
+          es: { word: "cesta", reading: "SES-ta" },
+          fr: { word: "panier", reading: "pa-NYAY" },
+          de: { word: "Einkaufskorb", reading: "AIN-kowfs-korp" },
+          zh: { word: "购物篮", reading: "gòuwùlán" },
+          ko: { word: "장바구니", reading: "jangbaguni" }
+        }
+      },
+
+      {
+        id: "priceTag",
+        emoji: "🏷️",
+        x: 43.5,
+        y: 63.5,
+        w: 14,
+        h: 5,
+        z: 90,
+        words: {
+          ja: { word: "値札", reading: "ねふだ" },
+          en: { word: "price tag", reading: "PRYS tag" },
+          es: { word: "etiqueta de precio", reading: "e-tee-KE-ta de PRE-syo" },
+          fr: { word: "étiquette de prix", reading: "ay-tee-KET də pree" },
+          de: { word: "Preisschild", reading: "PRAIS-shilt" },
+          zh: { word: "价签", reading: "jiàqiān" },
+          ko: { word: "가격표", reading: "gagyeokpyo" }
+        }
+      },
+
+      {
+        id: "refrigeratedCase",
+        emoji: "🧊",
+        x: 9,
+        y: 12,
+        w: 85,
+        h: 13.5,
+        z: 10,
+        words: {
+          ja: { word: "冷蔵ケース", reading: "れいぞうけーす" },
+          en: { word: "refrigerated case", reading: "ri-FRIJ-er-ay-tid kays" },
+          es: { word: "vitrina refrigerada", reading: "bee-TREE-na re-free-khe-RA-da" },
+          fr: { word: "vitrine réfrigérée", reading: "vee-TREEN ray-free-zhay-RAY" },
+          de: { word: "Kühlregal", reading: "KÜL-re-gaal" },
+          zh: { word: "冷藏柜", reading: "lěngcángguì" },
+          ko: { word: "냉장 진열대", reading: "naengjang jinyeoldae" }
+        }
+      },
+
+      {
+        id: "cart",
+        emoji: "🛒",
+        x: 4,
+        y: 68.5,
+        w: 45,
+        h: 26.5,
+        z: 40,
+        words: {
+          ja: { word: "カート", reading: "かーと" },
+          en: { word: "shopping cart", reading: "SHOP-ing kart" },
+          es: { word: "carrito", reading: "ka-RREE-to" },
+          fr: { word: "chariot", reading: "sha-RYO" },
+          de: { word: "Einkaufswagen", reading: "AIN-kowfs-vaa-gen" },
+          zh: { word: "购物车", reading: "gòuwùchē" },
+          ko: { word: "카트", reading: "kateu" }
+        }
+      }
+    ]
   }
 };
 
