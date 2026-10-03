@@ -62,6 +62,7 @@ body.large #board{--cell:min(calc((100vw - 44px)/var(--cols)),calc((100dvh - 400
 .place.meow .pc .mo{display:inline}.place.meow .pc .mc{display:none}
 .place.show .pc,.place.found .pc,.place.reveal .pc{opacity:1;transform:none}
 .place.reveal .pc{opacity:.6}
+.place.mv{box-shadow:0 0 0 3px #ffb347;animation:bob .3s}
 .place.found{box-shadow:inset 0 0 0 4px #ffb347,0 0 12px #ffb347;transform:scale(1.03);z-index:1}
 .place.empty::after{content:"×";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cell)*.6);font-weight:800;color:#ff4d4d;background:rgba(255,255,255,.55)}
 .place.bad{animation:shake .3s}
@@ -157,7 +158,7 @@ body.hc .main.stop{background:#fff;color:#000}
         <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
       </div>
     </section>
-    <p class="note">猫のいるお家を数秒だけ見て覚えます。ラウンドが進むとお家も猫も増えます。ハートは3つ(はずれるとへります)。得点は 10点×ラウンド+クリアボーナス。</p>
+    <p class="note">猫のいるお家を数秒だけ見て覚えます。ラウンドが進むとお家も猫も増え、見る時間も短くなります。高いラウンドでは見ている途中で猫が引っこすことも。ハートは3つ(はずれるとへります)。得点は 10点×ラウンド+クリアボーナス。</p>
   </div>
 </div>
 
@@ -176,12 +177,17 @@ var LIVES=3;
 
 /* ラウンドごとの盤面: 列数・行数・猫の数。進むほどお家と猫が増える */
 function levelOf(r){
-  var t=[null,[2,2,1],[2,2,2],[3,2,2],[3,2,3],[3,3,3],[3,3,4],[4,3,4],[4,3,5]];
-  if(r<=8)return t[r];
-  return [4,3,Math.min(7,5+Math.floor((r-7)/2))];
+  /* [列, 行, 猫の数, 途中で引っこす猫の数] 15〜20ラウンドで厳しくなり、ミスで終わる設計 */
+  var cols,rows;
+  if(r<=2){cols=2;rows=2}else if(r<=4){cols=3;rows=2}else if(r<=6){cols=3;rows=3}
+  else if(r<=8){cols=4;rows=3}else if(r<=11){cols=4;rows=4}else{cols=5;rows=4}
+  var cats=[0,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10][Math.min(r,18)];
+  var moves=r<11?0:Math.min(4,1+Math.floor((r-11)/3));
+  return [cols,rows,cats,moves];
 }
-/* 見る時間(ms): 猫が多いほど長め。ゆっくりは約1.8倍 */
-function showMs(cats){var b=1800+cats*650;return G.mode==='slow'?Math.round(b*1.8):b}
+/* 見る時間(ms): ラウンドが進むほど猫1匹あたりの時間と基本時間が短くなる(猫1匹あたり下限330ms)。引っこしがあるラウンドは+900ms。ゆっくりは1.8倍 */
+function perCat(r){return Math.max(330,800-(r-1)*30)}
+function showMs(cats,r,moves){var b=Math.max(600,1000-Math.max(0,r-8)*35)+cats*perCat(r)+(moves?900:0);return G.mode==='slow'?Math.round(b*1.8):b}
 
 /* ===== 共通部品: 猫SVG (catmemory9 と同じ) ===== */
 var CATS=[
@@ -343,13 +349,14 @@ var sfx={
 };
 
 
+sfx.move=function(){melody([660,880,1100],0.06,0.07,'triangle',.8)};
 sfx.show=function(){melody([784,988],0.08,0.09,'triangle',.8)};
 sfx.hide=function(){melody([988,784,659],0.06,0.07,'triangle',.7)};
 sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
 
 /* ---------- ゲーム ---------- */
 var board=$('board'), places=[];
-var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,cats:[],found:0,need:0,wrong:0,timer:null,iv:null,newBest:false};
+var G={moves:0,run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,cats:[],found:0,need:0,wrong:0,timer:null,iv:null,newBest:false};
 function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
 function say(t){$('msg').textContent=t}
 function bonusSay(t){$('bonus').textContent=t||''}
@@ -401,18 +408,34 @@ function stopGame(){
   say('やめました。「はじめる」でもう一度あそべます。');render();
 }
 function nextRound(){
-  G.round++;var L=levelOf(G.round);G.need=L[2];G.found=0;G.wrong=0;
+  G.round++;var L=levelOf(G.round);G.need=L[2];G.moves=L[3];G.found=0;G.wrong=0;
   buildBoard(L[0],L[1],L[2]);render();
-  G.phase='show';say('ラウンド'+G.round+':猫がいるお家を覚えてね('+G.need+'匹)');
+  G.phase='show';say('ラウンド'+G.round+':猫がいるお家を覚えてね('+G.need+'匹)'+(G.moves?' ※途中で引っこす猫がいるよ!':''));
   after(500,function(){
     places.forEach(function(p,i){if(G.cats[i]!==undefined)p.classList.add('show')});sfx.show();
-    var ms=showMs(G.need),t0=performance.now(),r=G.run;clearInterval(G.iv);
+    var ms=showMs(G.need,G.round,G.moves),t0=performance.now(),r=G.run;clearInterval(G.iv);
+    if(G.moves)setTimeout(function(){if(r===G.run&&G.phase==='show')doMoves()},Math.round(ms*0.45));
     G.iv=setInterval(function(){
       if(r!==G.run){clearInterval(G.iv);return}
       var f=1-(performance.now()-t0)/ms;setTimerBar(f);if(f<=0){clearInterval(G.iv)}
     },60);
     after(ms,hideCats);
   });
+}
+/* 高ラウンド: 見ている途中で、何匹かの猫が別のお家へ引っこす */
+function doMoves(){
+  var src=shuffle(Object.keys(G.cats).map(Number)).slice(0,G.moves);
+  var empty=shuffle(places.map(function(_,i){return i}).filter(function(i){return G.cats[i]===undefined}));
+  src.forEach(function(from,k){
+    var to=empty[k];if(to===undefined)return;
+    var f=places[from],t=places[to];
+    t.querySelector('.pc').innerHTML=f.querySelector('.pc').innerHTML;
+    f.querySelector('.pc').innerHTML='';
+    f.classList.remove('show');t.classList.add('show','mv');
+    G.cats[to]=G.cats[from];delete G.cats[from];
+    setTimeout(function(){t.classList.remove('mv')},500);
+  });
+  sfx.move();say('引っこし!猫が動いたよ。新しい場所を覚えてね');
 }
 function hideCats(){
   clearInterval(G.iv);setTimerBar(0);
