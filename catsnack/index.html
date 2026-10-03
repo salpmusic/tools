@@ -64,6 +64,7 @@ body.large #scene{--cell:min(calc((100vw - 44px)/var(--cols)),calc((100dvh - 500
 .ch{width:clamp(62px,19vw,92px);height:clamp(62px,19vw,92px);border:3px solid #f2c98f;border-radius:16px;background:#fff;padding:2px;touch-action:manipulation;-webkit-user-select:none;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1}
 body.large .ch{width:clamp(70px,21vw,104px);height:clamp(70px,21vw,104px)}
 .ch .em{font-size:clamp(1.8rem,8.5vw,2.8rem)}
+.many .ch{width:clamp(48px,14vw,68px);height:clamp(48px,14vw,68px)}.many .ch .em{font-size:clamp(1.4rem,6.5vw,2rem)}.many .ch .tx{font-size:.6rem}
 .ch .tx{font-size:.7rem;font-weight:700;color:#8a6040;margin-top:2px}
 .ch.sel{border-color:#ff9a3d;background:#fff0d9;box-shadow:0 0 0 3px #ff9a3d}
 .ch:disabled{opacity:.5}
@@ -160,7 +161,7 @@ body.hc .main.stop{background:#fff;color:#000}
         <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
       </div>
     </section>
-    <p class="note">どの猫が何を食べたいか、吹き出しを見て覚えます。隠れたあと、下のおやつを1つタップして、届けたい猫をタップ(猫→おやつの順でもOK)。ハートは3つ。得点は 10点×ラウンド+クリアボーナス。</p>
+    <p class="note">どの猫が何を食べたいか、吹き出しを見て覚えます。隠れたあと、下のおやつを1つタップして、届けたい猫をタップ(猫→おやつの順でもOK)。ラウンドが進むと猫もおやつも増え、見る時間は短くなります。ハートは3つ。得点は 10点×ラウンド+クリアボーナス。</p>
   </div>
 </div>
 
@@ -177,10 +178,11 @@ function modeKey(){return set.slow?'slow':'normal'}
 function bestOf(k){return best[k]||{score:0,round:0}}
 var LIVES=3;
 
-/* ラウンドごと: 注文の数N(1→6匹)、おやつの種類S(3→8) */
-function nOf(r){return Math.min(6,r)}
-function sOf(r){return Math.min(8,3+Math.floor(r/2))}
-function showMs(n,r){var b=1500+n*800-Math.min(1000,Math.max(0,r-6)*120);return G.mode==='slow'?Math.round(b*1.8):b}
+/* ラウンドごと: 注文の数N(1→9匹)、おやつの種類S(3→12)、見る時間は猫1匹あたり800→450ms(下限)へ短縮。15〜20ラウンドで厳しくなりミスで終わる設計 */
+function nOf(r){return [1,2,3,4,5,6,6,7,7,8,8,9][Math.min(r,12)-1]}
+function sOf(r){return Math.min(12,3+Math.floor(r/2))}
+function perOrder(r){return Math.max(450,800-Math.max(0,r-3)*25)}
+function showMs(n,r){var b=Math.max(900,1500-(r-1)*30)+n*perOrder(r);return G.mode==='slow'?Math.round(b*1.8):b}
 
 /* ===== 共通部品: 猫SVG ===== */
 function svgCat(c){
@@ -205,18 +207,22 @@ function svgCat(c){
     '</svg>';
 }
 
-/* ---------- 猫たち(名前つき・見分けやすい6匹) ---------- */
+/* ---------- 猫たち(名前つき・見分けやすい9匹) ---------- */
 var CATS=[
   {name:'みけねこ',fur:'#fbf3e6',dark:'#f4a259',ear:'#ffc2b0',collar:'#e8454b',eye:'#3b2a1e',patch:'#f4a259',stripe:null},
   {name:'白猫',fur:'#ffffff',dark:'#ddd',ear:'#ffc9d6',collar:'#3d7be8',eye:'#2b4a7a',patch:null,stripe:null},
   {name:'黒猫',fur:'#4b4551',dark:'#2f2a34',ear:'#d98ba4',collar:'#f2c230',eye:'#ffd84a',patch:null,stripe:null},
   {name:'茶トラ',fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#43b36b',eye:'#3b2a1e',patch:null,stripe:'#c97a2e'},
   {name:'グレー猫',fur:'#9fb3c8',dark:'#7f93a9',ear:'#ffc9d6',collar:'#8a5be8',eye:'#27384a',patch:null,stripe:null},
-  {name:'サバ猫',fur:'#8a8a94',dark:'#4a4a54',ear:'#ffc9d6',collar:'#ff7ab8',eye:'#ffd84a',patch:null,stripe:'#4a4a54'}
+  {name:'サバ猫',fur:'#8a8a94',dark:'#4a4a54',ear:'#ffc9d6',collar:'#ff7ab8',eye:'#ffd84a',patch:null,stripe:'#4a4a54'},
+  {name:'クリーム猫',fur:'#f6e3b4',dark:'#d9bb7a',ear:'#ffc2b0',collar:'#2fc4c4',eye:'#5a3a1e',patch:null,stripe:'#d9bb7a'},
+  {name:'こげ茶猫',fur:'#7a5a44',dark:'#5a3f2e',ear:'#e8a8a0',collar:'#ff8a3d',eye:'#ffd84a',patch:null,stripe:'#5a3f2e'},
+  {name:'ぶち猫',fur:'#ffffff',dark:'#ddd',ear:'#ffc9d6',collar:'#7ad04a',eye:'#2a2a3a',patch:'#4b4551',stripe:null}
 ];
 var SNACKS=[
   {em:'🐟',name:'さかな'},{em:'🍗',name:'チキン'},{em:'🥛',name:'ミルク'},{em:'🧀',name:'チーズ'},
-  {em:'🍤',name:'えび'},{em:'🍪',name:'クッキー'},{em:'🍖',name:'おにく'},{em:'🥚',name:'たまご'}
+  {em:'🍤',name:'えび'},{em:'🍪',name:'クッキー'},{em:'🍖',name:'おにく'},{em:'🥚',name:'たまご'},
+  {em:'🍣',name:'おすし'},{em:'🦑',name:'いか'},{em:'🍰',name:'ケーキ'},{em:'🍩',name:'ドーナツ'}
 ];
 function rint(n){return Math.floor(Math.random()*n)}
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rint(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
@@ -382,7 +388,7 @@ function render(){
   var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
 }
 function setTimerBar(f){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')'}
-function layout(n){var cols=n===1?1:n===2?2:3,rows=Math.ceil(n/cols);scene.style.setProperty('--cols',cols);scene.style.setProperty('--rows',rows)}
+function layout(n){var cols=n===1?1:(n===2||n===4)?2:3,rows=Math.ceil(n/cols);scene.style.setProperty('--cols',cols);scene.style.setProperty('--rows',rows)}
 function buildScene(cats,orders){
   layout(cats.length);scene.innerHTML='';G.slots=[];
   cats.forEach(function(ci,k){
@@ -432,7 +438,7 @@ function hideOrders(){
   clearInterval(G.iv);setTimerBar(0);sfx.hide();
   G.slots.forEach(function(s){s.querySelector('.bub').textContent='?'});
   /* おやつパレット */
-  choicesEl.hidden=false;choicesEl.innerHTML='';
+  choicesEl.hidden=false;choicesEl.innerHTML='';choicesEl.classList.toggle('many',G.q.S>8);
   for(var i=0;i<G.q.S;i++){
     var b=document.createElement('button');b.type='button';b.className='ch';
     b.innerHTML='<span class="em">'+SNACKS[i].em+'</span><span class="tx">'+SNACKS[i].name+'</span>';
