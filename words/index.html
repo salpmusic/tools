@@ -3573,6 +3573,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  city: {
+    id: "city",
+    icon: "🌆",
+    title: {
+      ja: "🌆 街の高架道路",
+      en: "🌆 City Overpass",
+      es: "🌆 Paso elevado",
+      fr: "🌆 Viaduc urbain",
+      de: "🌆 Hochstraße",
+      zh: "🌆 城市高架桥",
+      ko: "🌆 도시 고가도로"
+    },
+
+    background: "city.webp",
+    subtitle: "単語学習 街の高架道路編",
+    documentTitle: "SALP WORDS | 単語学習 街の高架道路編",
+    alt: "青空の下、高架道路とビルが並ぶ都会のイラスト",
+    ariaLabel: "街の高架道路の単語学習",
+    help: "街の高架道路の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "街の物を選んでください",
+
+    items: [
+      {
+        id: "sky",
+        emoji: "🌤️",
+        x: 36,
+        y: 12.5,
+        w: 25,
+        h: 38,
+        z: 10,
+        words: {
+          ja: { word: "空", reading: "そら" },
+          en: { word: "sky", reading: "SKY" },
+          es: { word: "cielo", reading: "SYE-lo" },
+          fr: { word: "ciel", reading: "SYEL" },
+          de: { word: "Himmel", reading: "HIM-el" },
+          zh: { word: "天空", reading: "tiānkōng" },
+          ko: { word: "하늘", reading: "haneul" }
+        }
+      },
+
+      {
+        id: "cloud",
+        emoji: "☁️",
+        x: 8,
+        y: 15,
+        w: 27,
+        h: 24,
+        z: 30,
+        words: {
+          ja: { word: "雲", reading: "くも" },
+          en: { word: "cloud", reading: "KLOWD" },
+          es: { word: "nube", reading: "NOO-be" },
+          fr: { word: "nuage", reading: "nü-AZH" },
+          de: { word: "Wolke", reading: "VOL-ke" },
+          zh: { word: "云", reading: "yún" },
+          ko: { word: "구름", reading: "gureum" }
+        }
+      },
+
+      {
+        id: "skyscraper",
+        emoji: "🏢",
+        x: 67,
+        y: 15,
+        w: 30,
+        h: 31,
+        z: 20,
+        words: {
+          ja: { word: "高層ビル", reading: "こうそうびる" },
+          en: { word: "skyscraper", reading: "SKY-skray-per" },
+          es: { word: "rascacielos", reading: "rras-ka-SYE-los" },
+          fr: { word: "gratte-ciel", reading: "grat-SYEL" },
+          de: { word: "Hochhaus", reading: "HOHK-hows" },
+          zh: { word: "高楼", reading: "gāolóu" },
+          ko: { word: "고층 빌딩", reading: "gocheung bilding" }
+        }
+      },
+
+      {
+        id: "overpass",
+        emoji: "🌉",
+        x: 58,
+        y: 47,
+        w: 39,
+        h: 9,
+        z: 25,
+        words: {
+          ja: { word: "高架道路", reading: "こうかどうろ" },
+          en: { word: "overpass", reading: "OH-ver-pass" },
+          es: { word: "paso elevado", reading: "PA-so e-le-BA-do" },
+          fr: { word: "viaduc", reading: "vyah-DÜK" },
+          de: { word: "Hochstraße", reading: "HOHK-shtraa-se" },
+          zh: { word: "高架桥", reading: "gāojiàqiáo" },
+          ko: { word: "고가도로", reading: "gogadoro" }
+        }
+      },
+
+      {
+        id: "railing",
+        emoji: "🚧",
+        x: 3,
+        y: 55.5,
+        w: 94,
+        h: 4,
+        z: 35,
+        words: {
+          ja: { word: "欄干", reading: "らんかん" },
+          en: { word: "railing", reading: "RAYL-ing" },
+          es: { word: "barandilla", reading: "ba-ran-DEE-ya" },
+          fr: { word: "garde-corps", reading: "gard-KOR" },
+          de: { word: "Geländer", reading: "ge-LEN-der" },
+          zh: { word: "栏杆", reading: "lángān" },
+          ko: { word: "난간", reading: "nangan" }
+        }
+      },
+
+      {
+        id: "streetlamp",
+        emoji: "💡",
+        x: 79.5,
+        y: 38,
+        w: 6.5,
+        h: 18,
+        z: 80,
+        words: {
+          ja: { word: "街灯", reading: "がいとう" },
+          en: { word: "street lamp", reading: "STREET lamp" },
+          es: { word: "farola", reading: "fa-RO-la" },
+          fr: { word: "lampadaire", reading: "lan-pa-DAIR" },
+          de: { word: "Straßenlaterne", reading: "SHTRAA-sen-la-TER-ne" },
+          zh: { word: "路灯", reading: "lùdēng" },
+          ko: { word: "가로등", reading: "garodeung" }
+        }
+      },
+
+      {
+        id: "roadSign",
+        emoji: "🚫",
+        x: 51.2,
+        y: 47,
+        w: 4.2,
+        h: 5.3,
+        z: 90,
+        words: {
+          ja: { word: "標識", reading: "ひょうしき" },
+          en: { word: "road sign", reading: "ROHD syn" },
+          es: { word: "señal de tráfico", reading: "se-NYAL de TRA-fee-ko" },
+          fr: { word: "panneau de signalisation", reading: "pa-NO de see-nya-lee-za-SYON" },
+          de: { word: "Verkehrsschild", reading: "fer-KEHRS-shilt" },
+          zh: { word: "交通标志", reading: "jiāotōng biāozhì" },
+          ko: { word: "표지판", reading: "pyojipan" }
+        }
+      },
+
+      {
+        id: "pillar",
+        emoji: "🏛️",
+        x: 29,
+        y: 63.5,
+        w: 7,
+        h: 7.5,
+        z: 40,
+        words: {
+          ja: { word: "柱", reading: "はしら" },
+          en: { word: "pillar", reading: "PIL-er" },
+          es: { word: "pilar", reading: "pee-LAR" },
+          fr: { word: "pilier", reading: "pee-LYAY" },
+          de: { word: "Pfeiler", reading: "PFY-ler" },
+          zh: { word: "柱子", reading: "zhùzi" },
+          ko: { word: "기둥", reading: "gidung" }
+        }
+      },
+
+      {
+        id: "tree",
+        emoji: "🌳",
+        x: 13.5,
+        y: 63.5,
+        w: 10,
+        h: 7,
+        z: 40,
+        words: {
+          ja: { word: "木", reading: "き" },
+          en: { word: "tree", reading: "tree" },
+          es: { word: "árbol", reading: "AR-bol" },
+          fr: { word: "arbre", reading: "ARBR" },
+          de: { word: "Baum", reading: "bowm" },
+          zh: { word: "树", reading: "shù" },
+          ko: { word: "나무", reading: "namu" }
+        }
+      },
+
+      {
+        id: "hedge",
+        emoji: "🌿",
+        x: 3,
+        y: 70.8,
+        w: 94,
+        h: 9.5,
+        z: 30,
+        words: {
+          ja: { word: "植え込み", reading: "うえこみ" },
+          en: { word: "hedge", reading: "HEJ" },
+          es: { word: "seto", reading: "SE-to" },
+          fr: { word: "haie", reading: "AY" },
+          de: { word: "Hecke", reading: "HE-ke" },
+          zh: { word: "绿篱", reading: "lǜlí" },
+          ko: { word: "생울타리", reading: "saengultari" }
+        }
+      },
+
+      {
+        id: "curb",
+        emoji: "🧱",
+        x: 3,
+        y: 80.3,
+        w: 94,
+        h: 3.2,
+        z: 35,
+        words: {
+          ja: { word: "縁石", reading: "えんせき" },
+          en: { word: "curb", reading: "KURB" },
+          es: { word: "bordillo", reading: "bor-DEE-yo" },
+          fr: { word: "bordure", reading: "bor-DÜR" },
+          de: { word: "Bordstein", reading: "BORD-shtyn" },
+          zh: { word: "路缘石", reading: "lùyuánshí" },
+          ko: { word: "연석", reading: "yeonseok" }
+        }
+      },
+
+      {
+        id: "road",
+        emoji: "🛣️",
+        x: 3,
+        y: 83.5,
+        w: 94,
+        h: 4.8,
+        z: 30,
+        words: {
+          ja: { word: "道路", reading: "どうろ" },
+          en: { word: "road", reading: "ROHD" },
+          es: { word: "calle", reading: "KA-ye" },
+          fr: { word: "route", reading: "ROOT" },
+          de: { word: "Straße", reading: "SHTRAA-se" },
+          zh: { word: "马路", reading: "mǎlù" },
+          ko: { word: "도로", reading: "doro" }
+        }
+      },
+
+      {
+        id: "whiteLine",
+        emoji: "➖",
+        x: 20.5,
+        y: 82.5,
+        w: 16.5,
+        h: 4,
+        z: 90,
+        words: {
+          ja: { word: "白線", reading: "はくせん" },
+          en: { word: "white line", reading: "WYT lyn" },
+          es: { word: "línea blanca", reading: "LEE-ne-a BLAN-ka" },
+          fr: { word: "ligne blanche", reading: "LEE-nyə BLANSH" },
+          de: { word: "weiße Linie", reading: "VY-se LEEN-ye" },
+          zh: { word: "白线", reading: "báixiàn" },
+          ko: { word: "흰색 선", reading: "huinsaek seon" }
+        }
+      },
+
+      {
+        id: "window",
+        emoji: "🪟",
+        x: 5,
+        y: 41.5,
+        w: 17,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "窓", reading: "まど" },
+          en: { word: "window", reading: "WIN-doh" },
+          es: { word: "ventana", reading: "ben-TA-na" },
+          fr: { word: "fenêtre", reading: "fə-NETR" },
+          de: { word: "Fenster", reading: "FEN-ster" },
+          zh: { word: "窗户", reading: "chuānghu" },
+          ko: { word: "창문", reading: "changmun" }
+        }
+      }
+    ]
   }
 };
 
