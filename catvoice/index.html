@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#e8f6ff">
+<meta name="description" content="猫の「高い声・低い声・長い声」などの鳴き声を順番に聞いて覚え、同じ順に猫ボタンで再現する、かわいい音まねゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応。">
+<title>にゃんこ音まね | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#e8f6ff;color:#3a4a5a;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{
+  max-width:640px;margin:0 auto;display:grid;gap:10px;justify-items:center;
+  grid-template-areas:"head" "info" "board" "dots" "pal" "ctrl";
+}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1.25rem;letter-spacing:.04em}
+.home{color:#2f7fb8;font-size:.85rem;text-decoration:none;border:2px solid #a9d4f2;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:8px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #a9d4f2;border-radius:14px;padding:6px 10px;text-align:center}
+.pcard .name{font-size:.8rem;color:#6a8aa5}
+.pcard .val{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:.85rem;color:#5a7a95}
+.stats b{color:#2a3a4a;font-variant-numeric:tabular-nums}
+.timer{height:12px;background:#fff;border-radius:6px;overflow:hidden;border:2px solid #a9d4f2}
+.timer i{display:block;height:100%;width:100%;background:#ff9f43;transform-origin:left}
+#msg{min-height:2.9em;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #a9d4f2;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus{min-height:1.3em;text-align:center;color:#e0661f;font-size:.9rem;font-weight:700}
+
+#stageWrap{grid-area:board;display:flex;justify-content:center}
+#stage{
+  --sz:max(170px,min(calc(100vw - 44px),calc(100dvh - 590px),330px));--d:800ms;
+  position:relative;width:var(--sz);height:var(--sz);background:#fff3d6;border:4px solid #f2c98f;border-radius:24px;overflow:hidden;
+}
+body.large #stage{--sz:max(170px,min(calc(100vw - 44px),calc(100dvh - 650px),360px))}
+#stage svg.cs{position:absolute;inset:0;width:100%;height:100%}
+#bub{position:absolute;left:50%;top:4%;transform:translateX(-50%);background:#fff;border:3px solid #ffb35c;border-radius:16px;padding:2px 14px;font-weight:800;color:#d2661f;font-size:calc(var(--sz)*.085);opacity:0;white-space:nowrap;z-index:2}
+#bub.on{opacity:1}
+body.large #bub{font-size:calc(var(--sz)*.11);border-width:4px}
+#nt{position:absolute;right:6%;top:40%;font-size:calc(var(--sz)*.16);font-weight:800;opacity:0;color:#888;z-index:2}
+body.large #nt{font-size:calc(var(--sz)*.22)}
+.cs *{transform-box:fill-box}
+.cs .head{transform-origin:50% 90%}
+.cs .mv{transform-origin:50% 50%;transform:scale(0);stroke:#7a2a3a;stroke-width:2.5}
+.cs .ec{display:none}
+.v-high{--vc:#ff7aa8}.v-low{--vc:#4f78d8}.v-long{--vc:#ffa43a}.v-short{--vc:#5cc45a}.v-vib{--vc:#a56be0}.v-stac{--vc:#19b3c4}
+.vo .mv{fill:var(--vc)}
+.vo #nt{opacity:1;color:var(--vc);animation:ntpop var(--d) ease-out both}
+.vo .mc{display:none}
+.v-high #nt{top:6%}.v-short #nt{top:24%}.v-long #nt,.v-vib #nt,.v-stac #nt{top:40%}.v-low #nt{top:66%}
+.v-low .ec,.v-long .ec{display:inline}.v-low .eo,.v-long .eo{display:none}
+.v-high .head{animation:hiHead var(--d) ease-in-out both}
+.v-low .head{animation:loHead var(--d) ease-in-out both}
+.v-long .head{animation:hiHead var(--d) ease-in-out both}
+.v-high .mv{animation:mvHigh var(--d) ease-in-out both}
+.v-low .mv{animation:mvLow var(--d) ease-in-out both}
+.v-long .mv{animation:mvLong var(--d) ease-in-out both}
+.v-short .mv{animation:mvShort var(--d) ease-in-out both}
+.v-vib .mv{animation:mvVib var(--d) ease-in-out both}
+.v-stac .mv{animation:mvStac var(--d) ease-in-out both}
+@keyframes hiHead{0%,100%{transform:none}25%,75%{transform:translateY(-4%) rotate(-5deg)}}
+@keyframes loHead{0%,100%{transform:none}25%,75%{transform:translateY(5%) rotate(3deg) scale(1.03)}}
+@keyframes mvHigh{0%{transform:scale(0)}20%,75%{transform:scale(.9,1.35)}100%{transform:scale(0)}}
+@keyframes mvLow{0%{transform:scale(0)}20%,75%{transform:scale(2.6,2.1)}100%{transform:scale(0)}}
+@keyframes mvLong{0%{transform:scale(0)}12%,88%{transform:scale(1.2,2.5)}100%{transform:scale(0)}}
+@keyframes mvShort{0%{transform:scale(0)}30%,60%{transform:scale(.9)}100%{transform:scale(0)}}
+@keyframes mvVib{0%{transform:scale(0)}10%{transform:scale(1.5)}20%{transform:scale(1.05)}30%{transform:scale(1.5)}40%{transform:scale(1.05)}50%{transform:scale(1.5)}60%{transform:scale(1.05)}70%{transform:scale(1.5)}80%{transform:scale(1.05)}90%{transform:scale(1.5)}100%{transform:scale(0)}}
+@keyframes mvStac{0%{transform:scale(0)}6%,22%{transform:scale(1.2)}30%{transform:scale(0)}40%,56%{transform:scale(1.2)}64%{transform:scale(0)}74%,90%{transform:scale(1.2)}100%{transform:scale(0)}}
+@keyframes ntpop{0%{transform:scale(.4);opacity:0}15%{transform:scale(1.2);opacity:1}100%{transform:scale(1);opacity:1}}
+#sndwarn{background:#fff3cd;border:2px solid #f0b429;border-radius:12px;padding:6px 10px;text-align:center;font-weight:700;font-size:.85rem;color:#7a5200}
+#sndwarn[hidden]{display:none}
+body.hc #sndwarn{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .vo #nt{text-shadow:0 0 0 #000}
+#dots{grid-area:dots;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:20px}
+#dots i{width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #a9d4f2}
+#dots i.on{background:#ffb347;border-color:#d5822f}
+#pal{grid-area:pal;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gb{background:#fff;border:3px solid #a9d4f2;border-radius:16px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:0;min-height:96px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.gb svg{width:min(64px,18vw);height:auto;display:block;pointer-events:none}
+.gb .tx{font-size:.8rem;font-weight:800;color:#4a6a85;line-height:1.2}
+.gb .sy{font-size:.7rem;font-weight:800}
+body.large .gb{min-height:118px}body.large .gb svg{width:min(80px,22vw)}body.large .gb .tx{font-size:1rem}body.large .gb .sy{font-size:.9rem}
+.gb:disabled{opacity:.55}
+.gb:not(:disabled):active{transform:scale(.95)}
+.gb.ok{border-color:#43b36b;background:#e5f8ea}.gb.ng{border-color:#e8454b;background:#ffe5e5;animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff;border:2px solid #a9d4f2;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#6a8aa5;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#8aa0b5;box-shadow:0 4px 0 #62788c}
+.tog{background:#fff;border:2px solid #a9d4f2;border-radius:999px;padding:6px 14px;font-weight:700;color:#4a6a85}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d2561f;margin-bottom:4px}
+.note{font-size:.75rem;color:#6a8aa5;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc #stage{background:#000;border-color:#fff}
+body.hc #bub{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc #dots i{background:#000;border-color:#fff}body.hc #dots i.on{background:#ffff00;border-color:#ffff00}
+body.hc .gb{background:#000;border-color:#fff}body.hc .gb .tx{color:#fff}body.hc .bub,body.hc .cs .mv{stroke:#fff}
+body.hc .gb.ok{border-color:#00ff66}body.hc .gb.ng{border-color:#ff3030}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#ffff00}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog{background:#000;border-color:#fff;color:#fff}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:landscape) and (max-height:620px){
+  .app{max-width:1000px;align-items:start;justify-items:stretch;grid-template-columns:auto 1fr;column-gap:14px;
+    grid-template-areas:"board head" "board info" "board dots" "board pal" "board ctrl";grid-template-rows:auto auto auto auto 1fr}
+  #stage{--sz:max(150px,min(calc(100dvh - 24px),calc(100vw - 420px),360px))}
+  body.large #stage{--sz:max(150px,min(calc(100dvh - 24px),calc(100vw - 460px),360px))}
+  #stageWrap{align-self:start}
+  .gb{min-height:76px}.gb svg{width:46px}.gb .tx{font-size:.7rem}
+}
+@media (prefers-reduced-motion:reduce){.cs *,#nt{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🎵 にゃんこ音まね</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="top">
+      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="timer" id="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>声 <b id="stLen">-</b>こ / <b id="stKinds">-</b>種類</span>
+      <span>モード <b id="stMode">ふつう</b></span>
+      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="sndwarn" hidden>🔈 音がOFFです。「音 ON」にすると猫の声が聞こえます(口の大きさ・色・音符の高さでも声の高低がわかります)</div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。猫の鳴き声を順番に聞いて覚えて、同じ順に猫ボタンをタップしよう。</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="stageWrap"><div id="stage" aria-label="猫"><svg class="cs" viewBox="0 0 240 220" aria-hidden="true"></svg><div id="bub"></div><div id="nt" aria-hidden="true">♪</div></div></div>
+  <div id="dots" aria-hidden="true"></div>
+  <div id="pal" role="group" aria-label="鳴き声"></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">はじめる</button>
+    <section class="box">
+      <h2>あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード(声がゆっくり・間が長い)</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">猫が鳴き声を順番に聞かせてくれます。聞き終わったら、同じ順番に猫ボタンをタップ。音が主役のゲームなので「音 ON」で遊んでね(音が出せない場合も、猫の口の大きさ・色・音符の高さで声の高低がわかります)。ラウンドが進むと順番が長く、声の種類が増え、再生も速くなります。まちがえるとハートがへって、同じ順番をもう一度聞かせます(ハートは3つ)。得点は 10点×ラウンド+クリアボーナス。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpCatVoice_best_v1', LS_SET='salpCatVoice_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+var LIVES=3;
+
+/* ラウンドごとの設定。進むほど順番が長く・種類が増え・速くなる(15〜20ラウンドで厳しくなりミスで終わる設計) */
+function levelOf(r){
+  var K=r<=4?4:r<=8?5:6;                                 /* 声の種類 */
+  var len=Math.min(12,2+Math.floor(r*0.7));              /* 順番の長さ */
+  var sp=Math.max(0.55,1-(r-1)*0.03);                    /* 再生の速さ(声の長さにかける倍率。小さいほど速い) */
+  var gap=Math.max(90,320-r*14);                         /* 声と声の間(ms) */
+  var L={K:K,len:len,sp:sp,gap:gap,shufPal:r>=10};
+  if(G.mode==='slow'){L.sp=Math.min(1.5,sp*1.35+0.15);L.gap=Math.round(gap*1.5)}
+  return L;
+}
+
+/* ===== 共通部品: 猫SVG (catmemory9 と同じ) ===== */
+var CATS=[
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#e8454b',eye:'#3b2a1e',stripe:'#c97a2e'},
+  {fur:'#f7f4ef',dark:'#cfc8bd',ear:'#ffc9d6',collar:'#3d7be8',eye:'#2b4a7a',stripe:null,patch:'#b9b2a6'},
+  {fur:'#4b4551',dark:'#2f2a34',ear:'#d98ba4',collar:'#f2c230',eye:'#ffd84a',stripe:null},
+  {fur:'#9fb3c8',dark:'#7f93a9',ear:'#ffc9d6',collar:'#43b36b',eye:'#27384a',stripe:'#7f93a9'},
+  {fur:'#f6e3b4',dark:'#d9bb7a',ear:'#ffc2b0',collar:'#ff7ab8',eye:'#5a3a1e',stripe:'#d9bb7a'},
+  {fur:'#ffffff',dark:'#ddd',ear:'#ffc9d6',collar:'#8a5be8',eye:'#3a2a6a',stripe:null,patch:'#f4a259'},
+  {fur:'#7a5a44',dark:'#5a3f2e',ear:'#e8a8a0',collar:'#2fc4c4',eye:'#ffd84a',stripe:'#5a3f2e'},
+  {fur:'#d9d9de',dark:'#b0b0b8',ear:'#ffc9d6',collar:'#ff8a3d',eye:'#2a2a3a',stripe:null,patch:'#8a8a94'},
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#7ad04a',eye:'#3b2a1e',stripe:null,patch:'#fff'}
+];
+function svgCat(c,v){
+  /* v 指定: ボタン用(口を静止状態で表示) / 指定なし: 舞台用(口はCSSでアニメーション) */
+  var st=c.stripe?'<path d="M92 48q4 12 0 22M100 45v26M108 48q-4 12 0 22" stroke="'+c.stripe+'" stroke-width="5" stroke-linecap="round" fill="none"/>':'';
+  var pa=c.patch?'<ellipse cx="62" cy="78" rx="20" ry="16" fill="'+c.patch+'"/>':'';
+  var light=c.eye==='#ffd84a';
+  var er=light?'rx="10" ry="12"':'rx="8" ry="10"';
+  var mouth=v?'<ellipse cx="100" cy="144" rx="'+(10*v.sx)+'" ry="'+(10*v.sy)+'" fill="'+v.color+'" stroke="#7a2a3a" stroke-width="3"/>':'<ellipse class="mv" cx="100" cy="144" rx="10" ry="10"/>';
+  return ''+
+    '<ellipse cx="120" cy="222" rx="74" ry="44" fill="'+c.fur+'"/>'+
+    '<path d="M62 184Q120 214 178 184" fill="none" stroke="'+c.collar+'" stroke-width="12" stroke-linecap="round"/><circle cx="120" cy="204" r="9" fill="#ffd34a" stroke="#c99a1a" stroke-width="2"/>'+
+    '<g transform="translate(20 20)"><g class="head">'+
+    '<polygon points="34,78 44,14 96,46" fill="'+c.fur+'"/><polygon points="166,78 156,14 104,46" fill="'+c.fur+'"/>'+
+    '<polygon points="48,66 52,30 82,48" fill="'+c.ear+'"/><polygon points="152,66 148,30 118,48" fill="'+c.ear+'"/>'+
+    '<ellipse cx="100" cy="102" rx="72" ry="60" fill="'+c.fur+'"/>'+pa+st+
+    '<g class="eo"><ellipse cx="70" cy="104" '+er+' fill="'+c.eye+'"/><ellipse cx="130" cy="104" '+er+' fill="'+c.eye+'"/>'+
+    (light?'<ellipse cx="70" cy="104" rx="3.5" ry="9" fill="#000"/><ellipse cx="130" cy="104" rx="3.5" ry="9" fill="#000"/>':'')+
+    '<circle cx="73" cy="100" r="3" fill="#fff"/><circle cx="133" cy="100" r="3" fill="#fff"/></g>'+
+    '<g class="ec" fill="none" stroke="'+(light?'#222':c.eye)+'" stroke-width="5" stroke-linecap="round"><path d="M56 106q14 -14 28 0M116 106q14 -14 28 0"/></g>'+
+    '<ellipse cx="50" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/><ellipse cx="150" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/>'+
+    '<path d="M92 118h16l-8 9z" fill="#ff7a96"/>'+
+    (v?'':'<g class="mc" fill="none" stroke="#5a3a2a" stroke-width="3.5" stroke-linecap="round"><path d="M100 127q-9 11-18 4M100 127q9 11 18 4"/></g>')+
+    mouth+
+    '<g stroke="#5a3a2a" stroke-width="2" stroke-linecap="round" opacity=".6"><path d="M30 118l-22-5M30 128l-22 4M170 118l22-5M170 128l22 4"/></g>'+
+    '</g></g>';
+}
+
+/* ---------- 効果音(Web Audio) ---------- */
+var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+var BASE=[440,494,554,622,698,784,880,988,1109]; /* 猫ごとの基本の高さ(Hz) */ /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* にゃん!風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.4,Math.max(0.16,dur||0.28));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+
+sfx.show=function(){melody([784,988],0.08,0.09,'triangle',.8)};
+sfx.hide=function(){melody([988,784,659],0.06,0.07,'triangle',.7)};
+sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
+
+/* ---------- ゲーム ---------- */
+/* 声(合成): ns=ふつうの長さ(秒), sx/sy=口の大きさ, color=口の色, sym=高さ記号 */
+var VOICES=[
+  {id:'high',name:'高い声',sym:'▲',cap:'▲ 高い声',ns:0.30,sx:.9,sy:1.35,color:'#ff7aa8',cat:3},
+  {id:'low',name:'低い声',sym:'▼',cap:'▼ 低い声',ns:0.45,sx:2.6,sy:2.1,color:'#4f78d8',cat:2},
+  {id:'long',name:'長い声',sym:'━',cap:'━ 長い声',ns:0.85,sx:1.2,sy:2.5,color:'#ffa43a',cat:0},
+  {id:'short',name:'短い声',sym:'・',cap:'・ 短い声',ns:0.13,sx:.9,sy:.9,color:'#5cc45a',cat:4},
+  {id:'vib',name:'ビブラート',sym:'〰',cap:'〰 ビブラート',ns:0.65,sx:1.5,sy:1.5,color:'#a56be0',cat:5},
+  {id:'stac',name:'スタッカート',sym:'・・・',cap:'・・・ スタッカート',ns:0.55,sx:1.2,sy:1.2,color:'#19b3c4',cat:6}
+];
+var stage=$('stage'), svgEl=stage.querySelector('svg'), bub=$('bub'), pal=$('pal'), dots=$('dots'), warn=$('sndwarn');
+var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,L:null,seq:[],pos:0,wrong:0,timer:null,iv:null,newBest:false,furIdx:0};
+/* にゃん声を合成: f=基本の高さ, dur=長さ(秒), o={c:[始,山,終]の倍率, vr:ビブラート速さ, vd:深さ} */
+function vocal(f,dur,t,o){
+  o=o||{};var c=o.c||[0.85,1.25,0.9];
+  var osc=ctx.createOscillator();osc.type='sawtooth';
+  osc.frequency.setValueAtTime(f*c[0],t);osc.frequency.linearRampToValueAtTime(f*c[1],t+dur*0.3);osc.frequency.linearRampToValueAtTime(f*c[2],t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=o.vr||6;lg.gain.value=f*(o.vd||0.012);lfo.connect(lg);lg.connect(osc.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();g1.gain.value=1.4;g2.gain.value=0.7;
+  var at=Math.min(0.04,dur*0.25);
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+at);eg.gain.setValueAtTime(0.5,t+dur*0.65);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  osc.connect(f1);osc.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  osc.start(t);lfo.start(t);osc.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+var SV={
+  high:function(sp){vocal(1050,0.30*sp,ctx.currentTime+0.01,{c:[0.85,1.25,1.0]})},
+  low:function(sp){vocal(230,0.45*sp,ctx.currentTime+0.01,{c:[1.1,1.0,0.8],vd:0.01})},
+  long:function(sp){vocal(520,0.85*sp,ctx.currentTime+0.01,{c:[0.9,1.1,1.0]})},
+  short:function(sp){vocal(720,0.13*sp,ctx.currentTime+0.01,{c:[0.95,1.1,0.9]})},
+  vib:function(sp){vocal(620,0.65*sp,ctx.currentTime+0.01,{c:[1,1.05,1],vr:9,vd:0.07})},
+  stac:function(sp){var t=ctx.currentTime+0.01;for(var k=0;k<3;k++)vocal(660,0.09*sp,t+k*0.23*sp,{c:[0.95,1.1,0.95]})}
+};
+sfx.voice=function(id,sp){if(!ready())return;SV[id](sp)};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function render(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  $('stRound').textContent=G.round>0?G.round:'-';$('stLen').textContent=G.round>0?G.L.len:'-';$('stKinds').textContent=G.round>0?G.L.K:'-';
+  var m=G.phase==='idle'?modeKey():G.mode;$('stMode').textContent=m==='slow'?'ゆっくり':'ふつう';
+  var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function setCat(idx){svgEl.innerHTML=svgCat(CATS[idx])}
+function setTimerBar(f){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')'}
+function clearV(){stage.className=stage.className.replace(/\b(v-\w+|vo)\b/g,'').replace(/\s+/g,' ').trim();bub.classList.remove('on')}
+function vidx(id){for(var i=0;i<VOICES.length;i++)if(VOICES[i].id===id)return i;return 0}
+function playV(id,sp,withCap){
+  clearV();void stage.offsetWidth;var v=VOICES[vidx(id)];
+  stage.style.setProperty('--d',Math.round(v.ns*sp*1000)+'ms');
+  stage.classList.add('v-'+id,'vo');
+  if(withCap){bub.textContent=v.cap;bub.classList.add('on')}
+  sfx.voice(id,sp);
+}
+function applyWarn(){warn.hidden=set.sound}
+function buildPal(L){
+  pal.innerHTML='';var order=[];for(var i=0;i<L.K;i++)order.push(i);if(L.shufPal)shuffle(order);
+  order.forEach(function(vi){
+    var v=VOICES[vi],b=document.createElement('button');b.type='button';b.className='gb';b.disabled=true;b.dataset.g=v.id;
+    b.innerHTML='<svg viewBox="0 0 240 220" aria-hidden="true">'+svgCat(CATS[v.cat],v)+'</svg><span class="sy" style="color:'+v.color+'">'+v.sym+'</span><span class="tx">'+v.name+'</span>';
+    b.setAttribute('aria-label',v.name);
+    b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();tap(vi,b)});
+    b.addEventListener('contextmenu',function(e){e.preventDefault()});
+    pal.appendChild(b);
+  });
+}
+function setDots(n,on){dots.innerHTML='';for(var i=0;i<n;i++){var d=document.createElement('i');if(i<on)d.className='on';dots.appendChild(d)}}
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+var lastTE=0;
+document.addEventListener('touchend',function(e){var n=Date.now();if(n-lastTE<350&&e.target&&e.target.closest&&e.target.closest('#pal'))e.preventDefault();lastTE=n},{passive:false});
+
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.mode=modeKey();G.round=0;G.score=0;G.lives=LIVES;G.newBest=false;
+  $('result').hidden=true;var st=$('start');st.textContent='やめる';st.classList.add('stop');$('tSlow').disabled=true;
+  sfx.start();applyWarn();
+  if(!set.sound)say('音をONにしてね!(「音 ON」ボタン)。音なしでも、口の大きさ・色・音符の高さで声がわかるよ');
+  else say('スタート!猫の声をよく聞いてね');
+  bonusSay('');render();after(set.sound?900:3200,nextRound);
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.phase='idle';G.round=0;bonusSay('');setTimerBar(1);clearV();
+  [].forEach.call(pal.children,function(b){b.disabled=true});setDots(0,0);
+  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
+  say('やめました。「はじめる」でもう一度あそべます。');render();
+}
+function nextRound(){
+  G.round++;var L=levelOf(G.round);G.L=L;G.wrong=0;G.pos=0;clearV();
+  var seq=[];for(var i=0;i<L.len;i++){var g;do{g=Math.floor(Math.random()*L.K)}while(G.round<=3&&i>0&&g===seq[i-1]);seq.push(g)}
+  G.seq=seq;G.furIdx=Math.floor(Math.random()*CATS.length);setCat(G.furIdx);
+  buildPal(L);setDots(L.len,0);render();playSeq();
+}
+function playSeq(){
+  var L=G.L,i=0;G.phase='show';G.pos=0;setDots(L.len,0);
+  [].forEach.call(pal.children,function(b){b.disabled=true;b.classList.remove('ok','ng')});
+  say('ラウンド'+G.round+':猫の声を順番に聞いて覚えてね('+L.len+'こ)');
+  after(800,function step(){
+    if(i>=L.len){
+      clearV();setTimerBar(1);G.phase='input';G.pos=0;
+      [].forEach.call(pal.children,function(b){b.disabled=false});sfx.hide();
+      say('同じ順番に猫ボタンをタップ!(1こ目から)');return;
+    }
+    var v=VOICES[G.seq[i]];
+    playV(v.id,L.sp,true);setTimerBar(1-i/L.len);i++;
+    after(Math.round(v.ns*L.sp*1000)+L.gap,function(){clearV();after(60,step)});
+  });
+}
+function tap(vi,btn){
+  if(G.phase!=='input')return;
+  var mul=G.mode==='slow'?0.7:1,v=VOICES[vi];
+  playV(v.id,1,true);setTimeout(function(){if(G.phase!=='show')clearV()},Math.round(v.ns*1000)+120);
+  if(vi===G.seq[G.pos]){
+    G.pos++;setDots(G.L.len,G.pos);btn.classList.add('ok');setTimeout(function(){btn.classList.remove('ok')},250);
+    G.score+=Math.round(10*G.round*mul);render();
+    if(G.pos>=G.L.len)roundClear();else say('そのとおり!あと '+(G.L.len-G.pos)+'こ');
+  }else{
+    G.lives--;G.wrong++;btn.classList.add('ng');sfx.miss();render();
+    G.phase='between';[].forEach.call(pal.children,function(b){b.disabled=true});
+    var ans=VOICES[G.seq[G.pos]].name;
+    if(G.lives<=0){
+      say('ざんねん…ハートがなくなりました。'+(G.pos+1)+'こ目は「'+ans+'」だったよ');after(2600,gameOver);
+    }else{
+      say('ちがうよ…(ハート'+G.lives+'こ)。もう一度聞いてね。'+(G.pos+1)+'こ目は「'+ans+'」');
+      after(2400,function(){clearV();playSeq()});
+    }
+  }
+}
+function roundClear(){
+  G.phase='between';[].forEach.call(pal.children,function(b){b.disabled=true});
+  var mul=G.mode==='slow'?0.7:1,bonus=Math.round(50*G.round*mul),txt='クリアボーナス +'+bonus;
+  if(G.wrong===0){var pb=Math.round(30*G.round*mul);bonus+=pb;txt+=' / ノーミス +'+pb}
+  G.score+=bonus;render();say('ラウンド'+G.round+' クリア!');bonusSay(txt);
+  setTimeout(sfx.clear,200);after(1700,function(){bonusSay('');nextRound()});
+}
+function gameOver(){
+  var k=G.mode,b=bestOf(k),cleared=Math.max(0,G.round-1),nb={score:b.score,round:b.round};
+  if(G.score>nb.score){nb.score=G.score;G.newBest=true}
+  if(cleared>nb.round){nb.round=cleared;G.newBest=true}
+  if(G.newBest){best[k]=nb;lsSet(LS_BEST,best)}
+  G.phase='idle';b=bestOf(k);
+  $('result').innerHTML='<h2>ゲームおわり('+(k==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
+    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
+  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
+  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.round=0;setTimerBar(1);clearV();render();
+}
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;applyVol();
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();applyWarn();unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+
+/* 待機画面: 2x2のお家を表示 */
+setCat(0);G.L=levelOf(1);applySet();applyWarn();render();
+})();
+</script>
+</body>
+</html>
