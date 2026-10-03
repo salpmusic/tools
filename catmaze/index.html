@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#eaf7e2">
+<meta name="description" content="猫からおやつまで、指でなぞって足あとをつなぐ迷路ゲーム。ラウンドが進むと盤面が広がり、通れない場所が増え、途中で岩が落ちてくることも。最短に近いほど高得点。ゆっくりモード、見やすいモード、ベスト記録保存に対応。">
+<title>猫の足あと迷路 | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#eaf7e2;color:#3a4a3a;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{max-width:640px;margin:0 auto;display:grid;gap:8px;justify-items:center;grid-template-areas:"head" "info" "play" "ctrl"}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1rem;letter-spacing:.04em}
+.home{color:#2f7f4a;font-size:.85rem;text-decoration:none;border:2px solid #aadcb4;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:5px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #aadcb4;border-radius:14px;padding:2px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pcard .name{font-size:.8rem;color:#5a8a65}
+.pcard .val{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 12px;font-size:.78rem;color:#4f7a5a}
+.stats b{color:#2a3a2a;font-variant-numeric:tabular-nums}
+.timer{height:12px;background:#fff;border-radius:6px;overflow:hidden;border:2px solid #aadcb4}
+.timer i{display:block;height:100%;width:100%;background:#ff9f43;transform-origin:left}
+.timer.off i{background:#cfe6d4}
+#msg{min-height:2.5em;font-size:.9rem;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #aadcb4;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus:empty{display:none}
+#bonus{min-height:1.2em;text-align:center;color:#e0661f;font-size:.9rem;font-weight:700}
+
+#play{grid-area:play;display:grid;gap:6px;justify-items:center}
+#boardWrap{display:flex;justify-content:center;width:100%}
+#board{
+  --cols:5;--rows:5;
+  --cell:min(calc((100vw - 38px)/var(--cols)),calc((100dvh - 330px)/var(--rows)),58px);
+  width:calc(var(--cell)*var(--cols) + 12px);padding:6px;background:#8cc98f;border-radius:16px;touch-action:none;
+}
+body.large #board{--cell:min(calc((100vw - 38px)/var(--cols)),calc((100dvh - 380px)/var(--rows)),66px)}
+#grid{display:grid;grid-template-columns:repeat(var(--cols),var(--cell));grid-auto-rows:var(--cell);border-radius:10px;overflow:hidden;touch-action:none}
+.c{position:relative;background:#f3fbe8;box-shadow:inset 0 0 0 1px #cfe8c0;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.c:nth-child(even){background:#ecf7de}
+.c svg{width:92%;height:92%;display:block;pointer-events:none}
+.c.p{background:#fff1c9!important}
+.c.hd{background:#ffe29a!important}
+.c.go{background:#ffe0ea!important}
+.c.st::after{content:"S";position:absolute;left:3%;top:0;font-size:calc(var(--cell)*.26);font-weight:900;color:#b8731f}
+.c.bump{animation:shake .25s}
+.c.pend svg{animation:blink .6s infinite}
+.c.drop{animation:drop .35s}
+.c .eo{display:inline}.c .ec,.c .mv{display:none}
+.c.sleep .eo{display:none}.c.sleep .ec{display:inline}
+.c.sleep svg{filter:saturate(.75) brightness(.95)}
+@keyframes shake{25%{translate:-3px 0}75%{translate:3px 0}}
+@keyframes blink{50%{opacity:.35}}
+@keyframes drop{0%{transform:translateY(-60%);opacity:0}70%{transform:translateY(8%)}100%{transform:none;opacity:1}}
+#board.bad{animation:shake .4s}
+.undo{width:100%;max-width:420px;border:2px solid #aadcb4;background:#fff;border-radius:12px;padding:3px;font-size:.85rem;font-weight:700;color:#3f7a4f}
+.undo:disabled{opacity:.5}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff;border:2px solid #aadcb4;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#5a8a65;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#8aa59a;box-shadow:0 4px 0 #62806f}
+.tog{background:#fff;border:2px solid #aadcb4;border-radius:999px;padding:6px 14px;font-weight:700;color:#3f6a4f}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.tog:disabled{opacity:.5}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d2561f;margin-bottom:4px}
+.note{font-size:.75rem;color:#5a8a65;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc #board{background:#fff}
+body.hc .c,body.hc .c:nth-child(even){background:#000;box-shadow:inset 0 0 0 1px #666}
+body.hc .c.p{background:#5a4a00!important}
+body.hc .c.hd{background:#8a7400!important}
+body.hc .c.go{background:#7a1a4a!important}
+body.hc .c.st::after{color:#ffff00}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#ffff00}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog,body.hc .undo{background:#000;border-color:#fff;color:#fff}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:landscape) and (max-height:620px){
+  .app{max-width:1000px;align-items:start;justify-items:stretch;grid-template-columns:1fr minmax(250px,36vw);column-gap:12px;
+    grid-template-areas:"play head" "play info" "play ctrl";grid-template-rows:auto auto 1fr}
+  #board{--cell:min(calc((100dvh - 60px)/var(--rows)),calc((100vw - 36vw - 60px)/var(--cols)),58px)}
+  body.large #board{--cell:min(calc((100dvh - 60px)/var(--rows)),calc((100vw - 36vw - 60px)/var(--cols)),66px)}
+}
+@media (prefers-reduced-motion:reduce){.c.bump,.c.pend svg,.c.drop,#board.bad{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🐾 猫の足あと迷路</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="top">
+      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="timer off" id="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>手数 <b id="stMoves">-</b> / <b id="stLimit">-</b></span>
+      <span>さいたん <b id="stBestPath">-</b>手</span>
+      <span>時間 <b id="stTime">-</b></span>
+      <span>モード <b id="stMode">ふつう</b></span>
+      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。猫から指でなぞって、おやつまで足あとをつなごう!</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="play">
+    <div id="boardWrap"><div id="board" role="application" aria-label="迷路。猫からとなりのマスへ、なぞるかタップで進みます"><div id="grid"></div></div></div>
+    <button type="button" class="undo" id="undo" disabled>↩ スタートにもどる(手数はそのまま)</button>
+  </div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">はじめる</button>
+    <section class="box">
+      <h2>あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード(制限時間が長い)</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">猫から、となりのマスへ指でなぞる(またはタップ)と足あとがつながり、おやつにとどけば成功です。岩・水たまり・ほかの猫のいるマスは通れません。なぞった足あとをもどるのは自由ですが、「進んだ回数(手数)」は数えられ、制限の手数を使いきると失敗です。最短の手数に近いほど高得点。ラウンドが進むと盤面が広がり、通れない場所が増え、途中で「!」のマスに岩が落ちてくることも。ラウンド3からは制限時間つき。失敗・時間切れでハートがへり、3つでおしまい。パソコンでは矢印キーでも進めます。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpCatMaze_best_v1', LS_SET='salpCatMaze_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+var LIVES=3, SLOWX=1.8;
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function range(a,b){var r=[];for(var i=a;i<=b;i++)r.push(i);return r}
+
+/* ラウンドごとの設定: 進むほど盤面が広がり・通れない場所が増え・遠回りが必要になり・手数/時間の余裕が減り・岩が落ちてくる */
+function levelOf(r){
+  var cols,rows;
+  if(r<=2){cols=5;rows=5}else if(r<=4){cols=6;rows=6}else if(r<=6){cols=7;rows=7}else if(r<=8){cols=8;rows=8}else if(r<=10){cols=8;rows=9}else{cols=9;rows=10}
+  var dens=r<=2?.10:r<=4?.16:r<=6?.22:r<=8?.27:r<=10?.31:Math.min(.37,.34+.004*(r-11));
+  var extra=r<=2?0:r<=4?2:r<=6?4:r<=8?6:r<=10?8:Math.min(14,10+(r-11));           /* 最短経路が「まっすぐ」よりどれだけ遠回りか(最低値) */
+  var every=r<7?0:r<=8?6:r<=10?5:r<=13?4:3;                                      /* 何手ごとに岩が落ちるか */
+  var maxDyn=every?Math.min(8,2+Math.floor((r-7)/2)):0;
+  var mult=Math.max(1.15,3.0-0.17*(r-1)),add=Math.max(1,4-Math.floor((r-1)/3));    /* 手数の制限 = 最短×mult + add */
+  var sps=Math.max(0.55,3.0-0.15*(r-3)),base=Math.max(3,8-0.4*(r-3));              /* 時間 = 最短×sps + base 秒 */
+  return {cols:cols,rows:rows,dens:dens,extra:extra,every:every,maxDyn:maxDyn,mult:mult,add:add,sps:sps,base:base,timed:r>=3,cats:r>=3};
+}
+
+/* ===== 共通部品: 猫SVG (catmemory9 と同じ) ===== */
+var CATS=[
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#e8454b',eye:'#3b2a1e',stripe:'#c97a2e'},
+  {fur:'#f7f4ef',dark:'#cfc8bd',ear:'#ffc9d6',collar:'#3d7be8',eye:'#2b4a7a',stripe:null,patch:'#b9b2a6'},
+  {fur:'#4b4551',dark:'#2f2a34',ear:'#d98ba4',collar:'#f2c230',eye:'#ffd84a',stripe:null},
+  {fur:'#9fb3c8',dark:'#7f93a9',ear:'#ffc9d6',collar:'#43b36b',eye:'#27384a',stripe:'#7f93a9'},
+  {fur:'#f6e3b4',dark:'#d9bb7a',ear:'#ffc2b0',collar:'#ff7ab8',eye:'#5a3a1e',stripe:'#d9bb7a'},
+  {fur:'#ffffff',dark:'#ddd',ear:'#ffc9d6',collar:'#8a5be8',eye:'#3a2a6a',stripe:null,patch:'#f4a259'},
+  {fur:'#7a5a44',dark:'#5a3f2e',ear:'#e8a8a0',collar:'#2fc4c4',eye:'#ffd84a',stripe:'#5a3f2e'},
+  {fur:'#d9d9de',dark:'#b0b0b8',ear:'#ffc9d6',collar:'#ff8a3d',eye:'#2a2a3a',stripe:null,patch:'#8a8a94'},
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#7ad04a',eye:'#3b2a1e',stripe:null,patch:'#fff'}
+];
+function svgCat(c,v){
+  /* v 指定: ボタン用(口を静止状態で表示) / 指定なし: 舞台用(口はCSSでアニメーション) */
+  var st=c.stripe?'<path d="M92 48q4 12 0 22M100 45v26M108 48q-4 12 0 22" stroke="'+c.stripe+'" stroke-width="5" stroke-linecap="round" fill="none"/>':'';
+  var pa=c.patch?'<ellipse cx="62" cy="78" rx="20" ry="16" fill="'+c.patch+'"/>':'';
+  var light=c.eye==='#ffd84a';
+  var er=light?'rx="10" ry="12"':'rx="8" ry="10"';
+  var mouth=v?'<ellipse cx="100" cy="144" rx="'+(10*v.sx)+'" ry="'+(10*v.sy)+'" fill="'+v.color+'" stroke="#7a2a3a" stroke-width="3"/>':'<ellipse class="mv" cx="100" cy="144" rx="10" ry="10"/>';
+  return ''+
+    '<ellipse cx="120" cy="222" rx="74" ry="44" fill="'+c.fur+'"/>'+
+    '<path d="M62 184Q120 214 178 184" fill="none" stroke="'+c.collar+'" stroke-width="12" stroke-linecap="round"/><circle cx="120" cy="204" r="9" fill="#ffd34a" stroke="#c99a1a" stroke-width="2"/>'+
+    '<g transform="translate(20 20)"><g class="head">'+
+    '<polygon points="34,78 44,14 96,46" fill="'+c.fur+'"/><polygon points="166,78 156,14 104,46" fill="'+c.fur+'"/>'+
+    '<polygon points="48,66 52,30 82,48" fill="'+c.ear+'"/><polygon points="152,66 148,30 118,48" fill="'+c.ear+'"/>'+
+    '<ellipse cx="100" cy="102" rx="72" ry="60" fill="'+c.fur+'"/>'+pa+st+
+    '<g class="eo"><ellipse cx="70" cy="104" '+er+' fill="'+c.eye+'"/><ellipse cx="130" cy="104" '+er+' fill="'+c.eye+'"/>'+
+    (light?'<ellipse cx="70" cy="104" rx="3.5" ry="9" fill="#000"/><ellipse cx="130" cy="104" rx="3.5" ry="9" fill="#000"/>':'')+
+    '<circle cx="73" cy="100" r="3" fill="#fff"/><circle cx="133" cy="100" r="3" fill="#fff"/></g>'+
+    '<g class="ec" fill="none" stroke="'+(light?'#222':c.eye)+'" stroke-width="5" stroke-linecap="round"><path d="M56 106q14 -14 28 0M116 106q14 -14 28 0"/></g>'+
+    '<ellipse cx="50" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/><ellipse cx="150" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/>'+
+    '<path d="M92 118h16l-8 9z" fill="#ff7a96"/>'+
+    (v?'':'<g class="mc" fill="none" stroke="#5a3a2a" stroke-width="3.5" stroke-linecap="round"><path d="M100 127q-9 11-18 4M100 127q9 11 18 4"/></g>')+
+    mouth+
+    '<g stroke="#5a3a2a" stroke-width="2" stroke-linecap="round" opacity=".6"><path d="M30 118l-22-5M30 128l-22 4M170 118l22-5M170 128l22 4"/></g>'+
+    '</g></g>';
+}
+
+/* ---------- 効果音(Web Audio) ---------- */
+var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+var BASE=[440,494,554,622,698,784,880,988,1109]; /* 猫ごとの基本の高さ(Hz) */ /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* にゃん!風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.4,Math.max(0.16,dur||0.28));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+sfx.step=function(n){if(!ready())return;blip(380+Math.min(24,n||0)*28,ctx.currentTime+0.005,0.05,'square',.35)};
+sfx.back=function(){if(!ready())return;blip(240,ctx.currentTime+0.005,0.05,'square',.3)};
+sfx.bump=function(){if(!ready())return;blip(150,ctx.currentTime+0.005,0.09,'square',.5)};
+sfx.warn=function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(880,t,0.06,'square',.4);blip(880,t+0.12,0.06,'square',.4)};
+sfx.rock=function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(200,t,0.18,'sawtooth',.6,60)};
+sfx.goal=function(){melody([784,988,1175,1568,1976],0.08,0.11,'square',.5)};
+sfx.over=function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)};
+sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
+sfx.tick=function(){if(!ready())return;blip(1500,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.miss=function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)};
+
+/* ---------- 絵(SVG) ---------- */
+var PAW='<svg viewBox="0 0 40 40" aria-hidden="true" style="transform:rotate(DEGdeg)"><ellipse cx="20" cy="27" rx="9" ry="7.5" fill="#d98c5f"/><circle cx="8.5" cy="18" r="4" fill="#d98c5f"/><circle cx="15.5" cy="11.5" r="4.2" fill="#d98c5f"/><circle cx="24.5" cy="11.5" r="4.2" fill="#d98c5f"/><circle cx="31.5" cy="18" r="4" fill="#d98c5f"/></svg>';
+var ROCK='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 31L9 16L19 7L31 10L36 25L30 34L11 34Z" fill="#9aa3ad" stroke="#5f6872" stroke-width="2.5" stroke-linejoin="round"/><path d="M13 17L19 12L26 14" fill="none" stroke="#d4dae0" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="26" r="2" fill="#7b848d"/></svg>';
+var PUD='<svg viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="20" cy="23" rx="16" ry="11" fill="#8fd0f5" stroke="#4a9fd0" stroke-width="2.5"/><path d="M11 22q4 -4 8 0M21 26q4 -4 8 0" fill="none" stroke="#e6f6ff" stroke-width="2.2" stroke-linecap="round"/></svg>';
+var WARN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 31L9 16L19 7L31 10L36 25L30 34L11 34Z" fill="rgba(154,163,173,.35)" stroke="#e0301e" stroke-width="2.5" stroke-dasharray="4 3" stroke-linejoin="round"/><text x="20" y="28" text-anchor="middle" font-size="22" font-weight="900" fill="#e0301e">!</text></svg>';
+var SNACK='<svg viewBox="0 0 64 40" aria-hidden="true"><polygon points="16,20 1,5 3,35" fill="#ff9db4" stroke="#b5405e" stroke-width="2" stroke-linejoin="round"/><ellipse cx="37" cy="20" rx="25" ry="16" fill="#ffb3c6" stroke="#b5405e" stroke-width="2.5"/><circle cx="54" cy="16" r="2.6" fill="#222"/><path d="M30 17c0-4 6-4 6 0c0-4 6-4 6 0c0 5-6 9-6 9s-6-4-6-9z" fill="#ff5a82"/></svg>';
+function catSvg(fur){return '<svg viewBox="32 30 176 160" aria-hidden="true">'+svgCat(CATS[fur])+'</svg>'}
+
+/* ---------- 迷路の生成(経路を保証) ---------- */
+function bfs(cols,rows,blocked,src){
+  var n=cols*rows,dist=new Array(n).fill(-1),par=new Array(n).fill(-1),q=[src];dist[src]=0;
+  for(var h=0;h<q.length;h++){
+    var c=q[h],x=c%cols,y=(c-x)/cols,nb=[];
+    if(x>0)nb.push(c-1);if(x<cols-1)nb.push(c+1);if(y>0)nb.push(c-cols);if(y<rows-1)nb.push(c+cols);
+    for(var k=0;k<nb.length;k++){var d=nb[k];if(dist[d]<0&&!blocked[d]){dist[d]=dist[c]+1;par[d]=c;q.push(d)}}
+  }
+  return {dist:dist,par:par};
+}
+function genMaze(L){
+  var cols=L.cols,rows=L.rows,n=cols*rows,best=null;
+  for(var t=0;t<400;t++){
+    var need=Math.max(0,L.extra-2*Math.floor(t/80));                  /* 作りにくいときは少しずつ遠回り条件をゆるめる */
+    var sy=rnd(rows),gy=rnd(rows),start=sy*cols,goal=gy*cols+cols-1;
+    if(rows>=5&&Math.abs(sy-gy)<Math.floor(rows/3))continue;
+    var types=new Array(n).fill(''),blocked=new Array(n).fill(false);
+    for(var i=0;i<n;i++){
+      if(i===start||i===goal)continue;
+      if(Math.random()<L.dens){blocked[i]=true;var q=Math.random();types[i]=(L.cats&&q>.8)?'cat':q>.5?'pud':'rock'}
+    }
+    var f=bfs(cols,rows,blocked,start);
+    if(f.dist[goal]<0)continue;
+    var man=Math.abs(sy-gy)+cols-1,S=f.dist[goal];
+    if(S-man<need)continue;
+    var R=[],c=goal;while(c>=0){R.unshift(c);c=f.par[c]}
+    best={types:types,blocked:blocked,start:start,goal:goal,S:S,R:R,ds:f.dist,dg:bfs(cols,rows,blocked,goal).dist};
+    break;
+  }
+  if(!best){ /* 念のための保険: 障害物なしの盤面 */
+    var types2=new Array(n).fill(''),b2=new Array(n).fill(false),st=0,go=cols*rows-1,f2=bfs(cols,rows,b2,st),R2=[],c2=go;
+    while(c2>=0){R2.unshift(c2);c2=f2.par[c2]}
+    best={types:types2,blocked:b2,start:st,goal:go,S:f2.dist[go],R:R2,ds:f2.dist,dg:bfs(cols,rows,b2,go).dist};
+  }
+  return best;
+}
+
+/* ---------- ゲーム ---------- */
+var grid=$('grid'), board=$('board');
+var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,cleared:0,L:null,M:null,cols:5,rows:5,cells:[],keys:[],path:[],used:0,limit:0,pend:-1,dyn:0,timeMs:0,deadline:0,timer:null,iv:null,newBest:false,furs:[],lastSec:-1,lastBump:-1};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function mul(){return G.mode==='slow'?0.7:1}
+function setTimerBar(f,off){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')';$('timer').classList.toggle('off',!!off)}
+function render(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  var on=G.round>0;
+  $('stRound').textContent=on?G.round:'-';
+  $('stMoves').textContent=on?G.used:'-';$('stLimit').textContent=on?G.limit:'-';$('stBestPath').textContent=on?G.M.S:'-';
+  var m=G.phase==='idle'?modeKey():G.mode;$('stMode').textContent=m==='slow'?'ゆっくり':'ふつう';
+  var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+}
+function inPath(c){return G.path.indexOf(c)}
+function dirDeg(a,b){ /* 足あとの向き: 上が0度 */
+  var d=b-a;return d===1?90:d===-1?270:d>0?180:0;
+}
+function paint(){
+  var M=G.M,head=G.path[G.path.length-1];
+  for(var i=0;i<G.cells.length;i++){
+    var el=G.cells[i],pi=inPath(i),cls='c',key='';
+    var type=M.types[i];
+    if(type&&M.blocked[i]){key=type;if(type==='cat')cls+=' sleep'}
+    else if(i===head){key='head';cls+=' hd'}
+    else if(pi>=0){key='p'+dirDeg(i,G.path[pi+1]);cls+=' p'}
+    else if(i===M.goal){key='goal';cls+=' go'}
+    else if(i===G.pend){key='pend';cls+=' pend'}
+    if(i===M.start)cls+=' st';
+    if(i===M.goal&&i!==head)cls+=' go';
+    if(el._k!==key){
+      el._k=key;
+      var h='';
+      if(key==='rock')h=ROCK;else if(key==='pud')h=PUD;else if(key==='cat')h=catSvg(G.furs[i%G.furs.length]);
+      else if(key==='head')h=catSvg(0);else if(key==='goal')h=SNACK;else if(key==='pend')h=WARN;
+      else if(key[0]==='p')h=PAW.replace('DEG',key.slice(1));
+      el.innerHTML=h;
+    }
+    var keep=el.className.match(/\b(bump|drop)\b/);el.className=cls+(keep?' '+keep[0]:'');
+  }
+  $('stMoves').textContent=G.round>0?G.used:'-';
+  $('undo').disabled=!(G.phase==='play'&&G.path.length>1);
+}
+function buildBoard(L,M){
+  G.L=L;G.M=M;G.cols=L.cols;G.rows=L.rows;
+  board.style.setProperty('--cols',L.cols);board.style.setProperty('--rows',L.rows);
+  grid.innerHTML='';G.cells=[];
+  G.furs=shuffle(range(1,CATS.length-1));
+  for(var i=0;i<L.cols*L.rows;i++){var d=document.createElement('div');d.className='c';grid.appendChild(d);G.cells.push(d)}
+  G.path=[M.start];G.used=0;G.pend=-1;G.dyn=0;G.lastBump=-1;
+  /* 動的ブロックの再作成に備えて blocked/types は複製して使う */
+  M.types=M.types.slice();M.blocked=M.blocked.slice();
+  paint();
+}
+function cellAt(x,y){
+  var r=grid.getBoundingClientRect();if(x<r.left||x>=r.right||y<r.top||y>=r.bottom)return -1;
+  var cx=Math.floor((x-r.left)/(r.width/G.cols)),cy=Math.floor((y-r.top)/(r.height/G.rows));
+  return cy*G.cols+cx;
+}
+function adjacent(a,b){
+  var ax=a%G.cols,ay=(a-ax)/G.cols,bx=b%G.cols,by=(b-bx)/G.cols;return Math.abs(ax-bx)+Math.abs(ay-by)===1;
+}
+function stepTo(c){
+  if(G.phase!=='play'||c<0)return;
+  var M=G.M,last=G.path.length-1,head=G.path[last];
+  if(c===head)return;
+  var pi=inPath(c);
+  if(pi>=0){ /* 足あとの上: そこまでもどる(手数は返らない) */
+    G.path.length=pi+1;sfx.back();G.lastBump=-1;say('もどったよ。手数は '+G.used+' / '+G.limit);paint();return;
+  }
+  if(!adjacent(head,c))return;
+  if(M.blocked[c]){
+    if(G.lastBump!==c){G.lastBump=c;var el=G.cells[c];el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');sfx.bump();
+      say((M.types[c]==='rock'?'岩':M.types[c]==='pud'?'水たまり':'ほかの猫')+'があって通れないよ');}
+    return;
+  }
+  G.lastBump=-1;G.used++;G.path.push(c);sfx.step(G.path.length);
+  if(c===M.goal){paint();render();win();return}
+  /* 途中で岩が落ちる */
+  var L=G.L;
+  if(L.every&&G.dyn<L.maxDyn){
+    if(G.used%L.every===0)dropRock();
+    if(G.dyn<L.maxDyn&&G.used%L.every===L.every-1)warnRock();
+  }
+  render();paint();
+  if(G.used>=G.limit){lose('手数を使いきりました')}
+  else{var left=G.limit-G.used;say('手数 '+G.used+' / '+G.limit+(left<=3?'(あと'+left+'手!)':'')+(G.pend>=0?' 「!」のマスに岩が落ちるよ':''))}
+}
+function candidates(strict){
+  var M=G.M,onR={};M.R.forEach(function(c){onR[c]=1});
+  var out=[];
+  for(var i=0;i<M.types.length;i++){
+    if(M.blocked[i]||i===M.start||i===M.goal||onR[i]||inPath(i)>=0||i===G.pend)continue;
+    if(strict&&!(M.ds[i]>=0&&M.dg[i]>=0&&M.ds[i]+M.dg[i]<=M.S+4))continue;   /* 最短に近い別ルートをねらう */
+    out.push(i);
+  }
+  return out;
+}
+function warnRock(){
+  var c=candidates(true);if(!c.length)c=candidates(false);if(!c.length)return;
+  G.pend=c[rnd(c.length)];sfx.warn();
+}
+function dropRock(){
+  var M=G.M,c=G.pend;
+  var okp=c>=0&&!M.blocked[c]&&inPath(c)<0&&M.R.indexOf(c)<0&&c!==M.start&&c!==M.goal;
+  if(!okp){var cs=candidates(true);if(!cs.length)cs=candidates(false);c=cs.length?cs[rnd(cs.length)]:-1}
+  G.pend=-1;if(c<0)return;
+  M.blocked[c]=true;M.types[c]=Math.random()<.5?'rock':'pud';G.dyn++;sfx.rock();
+  var el=G.cells[c];el._k='';paint();el.classList.add('drop');setTimeout(function(){el.classList.remove('drop')},400);
+  say('ドスン!途中に'+(M.types[c]==='rock'?'岩':'水たまり')+'が出たよ');
+}
+var dragging=false,lastPt=null;
+function ptCell(e){return cellAt(e.clientX,e.clientY)}
+board.addEventListener('pointerdown',function(e){
+  e.preventDefault();unlockAudio();
+  if(G.phase!=='play'){if(G.phase==='idle')say('「はじめる」を押してね。');return}
+  dragging=true;lastPt={x:e.clientX,y:e.clientY};try{board.setPointerCapture(e.pointerId)}catch(_){}
+  var c=ptCell(e);
+  if(c>=0){
+    var head=G.path[G.path.length-1];
+    if(c!==head&&inPath(c)<0&&!adjacent(head,c)&&!G.M.blocked[c])say('猫のとなりのマスをなぞってね');
+    stepTo(c);
+  }
+});
+board.addEventListener('pointermove',function(e){
+  if(!dragging||G.phase!=='play')return;
+  var r=grid.getBoundingClientRect(),cs=Math.min(r.width/G.cols,r.height/G.rows),
+      dx=e.clientX-lastPt.x,dy=e.clientY-lastPt.y,dist=Math.sqrt(dx*dx+dy*dy),n=Math.max(1,Math.ceil(dist/(cs/3)));
+  for(var k=1;k<=n;k++){
+    if(G.phase!=='play')break;
+    stepTo(cellAt(lastPt.x+dx*k/n,lastPt.y+dy*k/n));
+  }
+  lastPt={x:e.clientX,y:e.clientY};
+});
+function endDrag(){dragging=false;G.lastBump=-1}
+board.addEventListener('pointerup',endDrag);board.addEventListener('pointercancel',endDrag);
+board.addEventListener('contextmenu',function(e){e.preventDefault()});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+document.addEventListener('keydown',function(e){
+  if(G.phase!=='play')return;
+  var d={ArrowUp:-G.cols,ArrowDown:G.cols,ArrowLeft:-1,ArrowRight:1,w:-G.cols,s:G.cols,a:-1,d:1}[e.key];
+  if(d===undefined)return;
+  e.preventDefault();unlockAudio();
+  var head=G.path[G.path.length-1],c=head+d,x=head%G.cols;
+  if((d===-1&&x===0)||(d===1&&x===G.cols-1)||c<0||c>=G.cols*G.rows)return;
+  stepTo(c);
+});
+$('undo').onclick=function(){
+  unlockAudio();if(G.phase!=='play'||G.path.length<2)return;
+  G.path.length=1;sfx.back();G.lastBump=-1;say('スタートにもどったよ。手数は '+G.used+' / '+G.limit);paint();
+};
+
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.mode=modeKey();G.round=0;G.score=0;G.lives=LIVES;G.cleared=0;G.newBest=false;G.phase='between';
+  $('result').hidden=true;var st=$('start');st.textContent='やめる';st.classList.add('stop');$('tSlow').disabled=true;
+  sfx.start();say('スタート!猫からおやつまで、足あとをつなごう');bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';render();after(900,nextRound);
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.round=0;bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';
+  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.phase='idle';say('やめました。「はじめる」でもう一度あそべます。');demo();render();
+}
+function demo(){var L=levelOf(1);buildBoard(L,genMaze(L));G.phase='idle';paint()}
+function nextRound(){
+  G.round++;var L=levelOf(G.round),M=genMaze(L);
+  G.limit=Math.ceil(M.S*L.mult)+L.add;
+  buildBoard(L,M);G.phase='play';bonusSay('');
+  G.timeMs=L.timed?Math.round((M.S*L.sps+L.base)*(set.slow?SLOWX:1))*1000:0;clearInterval(G.iv);
+  render();paint();
+  say('ラウンド'+G.round+':最短 '+M.S+'手 / 手数の制限 '+G.limit+(G.timeMs?' / '+(G.timeMs/1000)+'秒':' / じかんせいげんなし')+(L.every?'。途中で岩が落ちるよ':''));
+  if(!G.timeMs){setTimerBar(1,true);$('stTime').textContent='なし';return}
+  G.deadline=performance.now()+G.timeMs;G.lastSec=-1;setTimerBar(1,false);
+  var run=G.run;
+  G.iv=setInterval(function(){
+    if(run!==G.run){clearInterval(G.iv);return}
+    var left=G.deadline-performance.now();setTimerBar(left/G.timeMs,false);
+    var sec=Math.max(0,Math.ceil(left/1000));$('stTime').textContent=sec+'秒';
+    if(sec<=5&&sec>0&&sec!==G.lastSec&&G.phase==='play')sfx.tick();
+    G.lastSec=sec;
+    if(left<=0){clearInterval(G.iv);if(G.phase==='play')lose('時間切れです')}
+  },100);
+}
+function win(){
+  clearInterval(G.iv);G.phase='between';G.cleared=G.round;
+  var M=G.M,r=G.round,m=mul(),eff=M.S/G.used,pts=Math.round(40*r*eff*eff*m),bonus=Math.round(20*r*m),txt='';
+  var perfect=G.used===M.S,pb=perfect?Math.round(30*r*m):0;
+  var tb=0;if(G.timeMs){tb=Math.round(Math.max(0,G.deadline-performance.now())/1000*r*0.5*m)}
+  G.score+=pts+bonus+pb+tb;
+  txt='最短'+M.S+'手に対して'+G.used+'手 → +'+pts+'点 / クリア +'+bonus+(perfect?' / さいたんぴったり +'+pb:'')+(tb?' / はやさ +'+tb:'');
+  render();say('おやつに とどいたよ!ラウンド'+r+' クリア');bonusSay(txt);
+  sfx.goal();setTimeout(function(){meow(r%9,0.26)},450);after(2000,nextRound);
+}
+function lose(why){
+  clearInterval(G.iv);G.phase='between';G.lives--;sfx.miss();render();paint();
+  board.classList.remove('bad');void board.offsetWidth;board.classList.add('bad');
+  say(why+'…(のこりハート'+Math.max(0,G.lives)+'こ)');
+  if(G.lives<=0){endGame(why+'でハートがなくなりました');return}
+  after(1600,function(){board.classList.remove('bad');nextRound()});
+}
+function endGame(why){
+  clearInterval(G.iv);G.phase='between';
+  say('ざんねん…'+why);after(1800,gameOver);
+}
+function gameOver(){
+  var k=G.mode,b=bestOf(k),cleared=G.cleared,nb={score:b.score,round:b.round};
+  board.classList.remove('bad');
+  if(G.score>nb.score){nb.score=G.score;G.newBest=true}
+  if(cleared>nb.round){nb.round=cleared;G.newBest=true}
+  if(G.newBest){best[k]=nb;lsSet(LS_BEST,best)}
+  G.phase='idle';b=bestOf(k);
+  $('result').innerHTML='<h2>ゲームおわり('+(k==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
+    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
+  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
+  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.round=0;setTimerBar(1,true);$('stTime').textContent='-';render();paint();
+}
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;applyVol();
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+
+/* テスト用の窓口(ゲームの動作には使わない) */
+window.__cm={G:G,levelOf:levelOf,genMaze:genMaze,show:function(r){var L=levelOf(r),M=genMaze(L);G.limit=Math.ceil(M.S*L.mult)+L.add;buildBoard(L,M)}};
+demo();applySet();render();
+})();
+</script>
+</body>
+</html>
