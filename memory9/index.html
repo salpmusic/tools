@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#14172b">
+<meta name="description" content="3×3の9ボタンが光る順番を覚えて押す、ブラウザで遊べる記憶ゲーム。1人プレイと2人交代対戦、見やすいモード、レトロ効果音つき。">
+<title>9ボタン記憶ゲーム | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;
+  background:#14172b;color:#f2f4ff;
+  font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+
+.app{
+  --bs:min(calc(100vw - 24px),calc(100dvh - 360px),560px);
+  max-width:640px;margin:0 auto;
+  display:grid;gap:10px;
+  grid-template-areas:"head" "info" "board" "ctrl";
+  justify-items:center;
+}
+body.large .app{--bs:min(calc(100vw - 20px),calc(100dvh - 420px),600px)}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1.25rem;letter-spacing:.04em}
+.home{color:#9fb4ff;font-size:.85rem;text-decoration:none;border:1px solid #3a4272;border-radius:999px;padding:4px 12px;white-space:nowrap}
+.info{grid-area:info;display:grid;gap:8px}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.players.solo{grid-template-columns:1fr}
+.pcard{background:#1f2447;border:3px solid #2e3566;border-radius:12px;padding:6px 10px;text-align:center}
+.pcard.p2.hide{display:none}
+.pcard.active{border-color:#ffe14d;box-shadow:0 0 0 2px rgba(255,225,77,.25)}
+.pcard .name{font-size:.8rem;color:#b9c3f5}
+.pcard .score{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:.85rem;color:#c9d1fb}
+.stats b{color:#fff;font-variant-numeric:tabular-nums}
+#msg{min-height:2.9em;display:flex;align-items:center;justify-content:center;text-align:center;background:#232955;border-radius:10px;padding:6px 10px;font-weight:700}
+#bonus{min-height:1.3em;text-align:center;color:#ffe14d;font-size:.9rem;font-weight:700}
+
+#board{
+  grid-area:board;width:var(--bs);height:var(--bs);
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:calc(var(--bs)/36);
+  padding:calc(var(--bs)/36);background:#0c0e1e;border-radius:18px;
+}
+.pad{
+  --c:#fff;--d:#333;
+  position:relative;border:0;border-radius:14%;
+  background:var(--d);color:rgba(255,255,255,.55);
+  font-size:calc(var(--bs)/7);font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .06s,box-shadow .06s,transform .06s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.pad.lit{background:var(--c);color:rgba(0,0,0,.6);box-shadow:0 0 calc(var(--bs)/12) var(--c),inset 0 0 0 calc(var(--bs)/90) rgba(255,255,255,.8);transform:scale(.95)}
+.pad.bad{background:#ff2d2d;color:#fff;box-shadow:0 0 calc(var(--bs)/12) #ff2d2d;animation:shake .3s}
+.pad.hint{outline:calc(var(--bs)/50) dashed #fff;outline-offset:-4px}
+.pad:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.pad:nth-child(1){--c:#ff4d4d;--d:#5a1d1d}
+.pad:nth-child(2){--c:#ff9f3d;--d:#5a3a16}
+.pad:nth-child(3){--c:#ffe14d;--d:#5a5016}
+.pad:nth-child(4){--c:#6be36b;--d:#1f4a1f}
+.pad:nth-child(5){--c:#3de0c4;--d:#164a42}
+.pad:nth-child(6){--c:#4dc3ff;--d:#16405a}
+.pad:nth-child(7){--c:#6b7bff;--d:#1f2559}
+.pad:nth-child(8){--c:#c06bff;--d:#3d1d5a}
+.pad:nth-child(9){--c:#ff6bd0;--d:#5a1d4a}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#1b2040;border:1px solid #2e3566;border-radius:12px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#b9c3f5;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.seg{display:inline-flex;border:2px solid #4a5399;border-radius:999px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:6px 14px;font-weight:700;color:#c9d1fb}
+.seg button[aria-pressed=true]{background:#5b6bff;color:#fff}
+select{background:#14172b;border:2px solid #4a5399;border-radius:8px;padding:5px 8px}
+.main{width:100%;border:0;border-radius:12px;background:#ffe14d;color:#1b1b1b;font-weight:800;font-size:1.1rem;padding:12px}
+.main.stop{background:#3a4272;color:#fff}
+.tog{background:#232955;border:2px solid #4a5399;border-radius:999px;padding:6px 14px;font-weight:700}
+.tog[aria-pressed=true]{background:#5b6bff;border-color:#9fb0ff;color:#fff}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ffe14d;height:28px}
+#result{background:#2a2250;border:2px solid #ffe14d;border-radius:12px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#ffe14d;margin-bottom:4px}
+#result p{margin:2px 0}
+.note{font-size:.75rem;color:#8f9ad0;text-align:center}
+
+/* ハイコントラスト */
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg{background:#000;border:3px solid #fff}
+body.hc .pcard.active{border-color:#ffff00;box-shadow:none;background:#222200}
+body.hc .pcard .name,body.hc .stats,body.hc .box h2,body.hc .note{color:#fff}
+body.hc #board{background:#fff}
+body.hc .pad{background:#000;color:#fff;border:calc(var(--bs)/60) solid #fff}
+body.hc .pad.lit{background:#ffff00;color:#000;box-shadow:none;transform:scale(.93)}
+body.hc .pad.bad{background:#ff0000;color:#fff}
+body.hc .pad.hint{outline-color:#00ff00}
+body.hc .home{color:#ffff00;border-color:#ffff00}
+body.hc .seg{border-color:#fff}
+body.hc .seg button{color:#fff}
+body.hc .seg button[aria-pressed=true],body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000;border-color:#fff}
+body.hc .tog,body.hc select{background:#000;border-color:#fff;color:#fff}
+body.hc .main{background:#ffff00;color:#000}
+body.hc .main.stop{background:#fff;color:#000}
+body.hc #bonus{color:#ffff00}
+body.hc #result{background:#000;border-color:#ffff00}
+
+/* 横向き(スマホ横持ち) */
+@media (orientation:landscape) and (max-height:620px){
+  .app{
+    --bs:min(calc(100dvh - 28px),calc(100vw - 340px),560px);
+    max-width:1000px;align-items:start;justify-items:stretch;
+    grid-template-columns:var(--bs) 1fr;column-gap:14px;
+    grid-template-areas:"board head" "board info" "board ctrl";
+    grid-template-rows:auto auto 1fr;
+  }
+  body.large .app{--bs:min(calc(100dvh - 28px),calc(100vw - 380px),600px)}
+  #board{align-self:start}
+  .pcard .score{font-size:1.4rem}
+}
+@media (prefers-reduced-motion:reduce){.pad,.pad.bad{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <h1>🔢 9ボタン記憶ゲーム</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="players solo" id="players">
+      <div class="pcard p1" id="pc1"><div class="name" id="n1">プレイヤー1</div><div class="score" id="s1">0</div></div>
+      <div class="pcard p2 hide" id="pc2"><div class="name" id="n2">プレイヤー2</div><div class="score" id="s2">0</div></div>
+    </div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>速さ <b id="stSpeed">-</b></span>
+      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">「ゲーム開始」を押してね。光った順番を覚えて、同じ順番で押そう。</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="board" role="group" aria-label="9つのボタン"></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+
+    <section class="box" id="setup">
+      <h2>あそびかた設定</h2>
+      <div class="row" style="margin-bottom:8px">
+        <div class="seg" role="group" aria-label="人数">
+          <button type="button" id="m1" aria-pressed="true">1人</button>
+          <button type="button" id="m2" aria-pressed="false">2人交代</button>
+        </div>
+        <label id="turnsWrap" hidden>1人あたり
+          <select id="turns"><option value="1">1回</option><option value="2" selected>2回</option><option value="3">3回</option></select>
+        </label>
+      </div>
+      <p class="note" id="rule" style="text-align:left;margin-bottom:8px">1人: ミスするとゲームオーバー。ラウンドが進むほど順番が長く・速くなります。</p>
+    </section>
+    <button type="button" class="main" id="start">ゲーム開始</button>
+
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="40" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">得点: 正解1つ=10点×ラウンド×速さ + すばやさボーナス / クリアボーナス。キーボードは 1〜9 でも押せます。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpMemory9_best_v1', LS_SET='salpMemory9_settings_v1';
+var BASE_STEP=720, MIN_STEP=260, STEP_DEC=45;
+
+/* ---------- 設定・ベスト ---------- */
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{score:0,round:0};
+var set=lsGet(LS_SET)||{sound:true,vol:40,hc:false,large:false,mode:1,turns:2};
+
+/* ---------- 盤面 ---------- */
+var board=$('board'), pads=[];
+for(var i=0;i<9;i++){
+  var b=document.createElement('button');
+  b.type='button';b.className='pad';b.textContent=String(i+1);b.setAttribute('aria-label','ボタン'+(i+1));
+  (function(idx){
+    b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();press(idx)});
+    b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault()}});
+    b.addEventListener('contextmenu',function(e){e.preventDefault()});
+  })(i);
+  board.appendChild(b);pads.push(b);
+}
+/* ダブルタップ拡大・ピンチ防止 */
+var lastTouchEnd=0;
+board.addEventListener('touchend',function(e){var n=Date.now();if(n-lastTouchEnd<400)e.preventDefault();lastTouchEnd=n},{passive:false});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+document.addEventListener('keydown',function(e){
+  if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'))return;
+  if(e.key>='1'&&e.key<='9'){unlockAudio();press(+e.key-1)}
+});
+
+/* ---------- 効果音(Web Audio / 矩形波) ---------- */
+var ctx=null, master=null;
+var NOTES=[523.25,587.33,659.25,698.46,783.99,880.00,987.77,1046.50,1174.66]; // C5〜D6 ドレミ
+function unlockAudio(){
+  try{
+    if(!ctx){
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return;
+      ctx=new AC();master=ctx.createGain();master.connect(ctx.destination);applyVol();
+    }
+    if(ctx.state==='suspended')ctx.resume();
+  }catch(e){}
+}
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.6):0}}
+function tone(freq,t0,dur,vol,slideTo){
+  if(!ctx||!set.sound)return;
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.type='square';
+  o.frequency.setValueAtTime(freq,t0);
+  if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.22;
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.linearRampToValueAtTime(v,t0+0.006);
+  g.gain.setValueAtTime(v,t0+Math.max(0.007,dur-0.03));
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function seqSound(list,step,dur,vol){
+  if(!ctx)return;var t=ctx.currentTime+0.02;
+  list.forEach(function(f,i){tone(f,t+i*step,dur,vol)});
+}
+var sfx={
+  pad:function(i,ms){if(ctx)tone(NOTES[i],ctx.currentTime+0.005,Math.min(0.3,Math.max(0.09,ms/1000)),1)},
+  start:function(){seqSound([880,1318.5,880,1318.5,1760],0.07,0.06,.9)},          // ピポパポ
+  clear:function(){seqSound([1046.5,1318.5,1568,2093],0.075,0.07,.9)},
+  turn:function(){seqSound([659.25,523.25,659.25,784],0.09,0.08,.9)},
+  miss:function(){if(!ctx)return;var t=ctx.currentTime+0.01;tone(220,t,0.18,1,110);tone(165,t+0.18,0.32,1,60)},
+  over:function(){seqSound([784,659.25,523.25,392,329.63,261.63],0.16,0.14,1)},
+  win:function(){seqSound([523.25,659.25,784,1046.5,784,1046.5,1318.5],0.1,0.09,1)}
+};
+
+/* ---------- ゲーム状態 ---------- */
+var G={run:0,phase:'idle',mode:set.mode,turnsEach:set.turns,scores:[0,0],bestRound:[0,0],turnsDone:0,cur:0,seq:[],idx:0,round:0,turnScore:0,lastT:0,quick:true,turnNo:[0,0],timer:null};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function stepMs(r){return Math.max(MIN_STEP,BASE_STEP-(r-1)*STEP_DEC)}
+function speedF(r){return BASE_STEP/stepMs(r)}
+function pname(i){return i===0?'プレイヤー1':'プレイヤー2'}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+
+function renderStats(){
+  $('s1').textContent=G.scores[0];$('s2').textContent=G.scores[1];
+  $('pc1').classList.toggle('active',G.phase!=='idle'&&G.cur===0);
+  $('pc2').classList.toggle('active',G.phase!=='idle'&&G.cur===1&&G.mode===2);
+  $('stRound').textContent=G.round>0?G.round:'-';
+  $('stSpeed').textContent=G.round>0?('×'+speedF(G.round).toFixed(1)+(stepMs(G.round)===MIN_STEP?'(最速)':'')):'-';
+  $('stBest').textContent=best.score;$('stBestR').textContent=best.round;
+  $('n1').textContent=G.mode===1?'スコア':'プレイヤー1';
+}
+function setPadsEnabled(on){pads.forEach(function(p){p.disabled=!on})}
+function flash(i,ms){
+  pads[i].classList.add('lit');sfx.pad(i,ms);
+  setTimeout(function(){pads[i].classList.remove('lit')},ms);
+}
+function clearMarks(){pads.forEach(function(p){p.classList.remove('lit','bad','hint')})}
+
+function startGame(){
+  unlockAudio();
+  G.run++;clearTimeout(G.timer);clearMarks();
+  G.mode=set.mode;G.turnsEach=set.turns;G.scores=[0,0];G.bestRound=[0,0];G.turnsDone=0;G.cur=0;G.turnNo=[0,0];G.round=0;
+  $('result').hidden=true;$('setup').hidden=true;
+  var st=$('start');st.textContent='中止してやめる';st.classList.add('stop');
+  $('players').classList.toggle('solo',G.mode===1);$('pc2').classList.toggle('hide',G.mode===1);
+  sfx.start();beginTurn();
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);G.phase='idle';G.round=0;clearMarks();bonusSay('');
+  $('setup').hidden=false;var st=$('start');st.textContent='ゲーム開始';st.classList.remove('stop');
+  say('中止しました。「ゲーム開始」でもう一度あそべます。');renderStats();
+}
+function beginTurn(){
+  G.seq=[];G.round=0;G.turnScore=0;G.phase='between';G.turnNo[G.cur]++;
+  setPadsEnabled(false);renderStats();bonusSay('');
+  if(G.mode===2){say(pname(G.cur)+'の番です('+G.turnNo[G.cur]+'/'+G.turnsEach+'回目)')}
+  else say('スタート!よく見てね');
+  after(1300,nextRound);
+}
+function nextRound(){
+  G.round++;
+  var n;
+  n=Math.floor(Math.random()*9);
+  G.seq.push(n);G.idx=0;G.quick=true;G.phase='show';
+  setPadsEnabled(false);renderStats();
+  say((G.mode===2?pname(G.cur)+' ':'')+'ラウンド'+G.round+':よく見て覚えてね');
+  after(650,function(){playSeq(0)});
+}
+function playSeq(i){
+  if(i>=G.seq.length){
+    G.phase='input';G.lastT=performance.now();setPadsEnabled(true);
+    say((G.mode===2?pname(G.cur)+' ':'')+'あなたの番!(0/'+G.seq.length+')');return;
+  }
+  var s=stepMs(G.round);flash(G.seq[i],Math.round(s*0.66));
+  after(s,function(){playSeq(i+1)});
+}
+function press(i){
+  if(G.phase!=='input')return;
+  var now=performance.now(),dt=now-G.lastT;G.lastT=now;
+  if(i!==G.seq[G.idx]){miss(i);return}
+  flash(i,150);
+  var pts=Math.round(10*G.round*speedF(G.round));
+  var q=dt<600?5:dt<900?3:dt<1200?1:0;
+  if(dt>=1200)G.quick=false;
+  pts+=q*G.round;
+  G.scores[G.cur]+=pts;G.turnScore+=pts;G.idx++;
+  renderStats();
+  if(G.idx>=G.seq.length){roundClear()}
+  else say((G.mode===2?pname(G.cur)+' ':'')+'あなたの番!('+G.idx+'/'+G.seq.length+')');
+}
+function roundClear(){
+  G.phase='between';setPadsEnabled(false);
+  var bonus=50*G.round,txt='ラウンドクリア +'+bonus;
+  if(G.quick){var pb=30*G.round;bonus+=pb;txt+=' / すばやさパーフェクト +'+pb}
+  G.scores[G.cur]+=bonus;G.turnScore+=bonus;
+  if(G.round>G.bestRound[G.cur])G.bestRound[G.cur]=G.round;
+  renderStats();say('ラウンド'+G.round+' クリア!');bonusSay(txt);
+  setTimeout(function(){sfx.clear()},180);
+  after(1300,function(){bonusSay('');nextRound()});
+}
+function miss(i){
+  G.phase='between';setPadsEnabled(false);
+  var cleared=G.round-1;
+  if(cleared>G.bestRound[G.cur])G.bestRound[G.cur]=cleared;
+  pads[i].classList.add('bad');pads[G.seq[G.idx]].classList.add('hint');
+  sfx.miss();bonusSay('');
+  say('ミス!正しくは点線のボタン('+(G.seq[G.idx]+1)+'番)でした');
+  /* ベスト更新(1回のプレイの得点 / 到達ラウンド) */
+  var nb=false;
+  if(G.turnScore>best.score){best.score=G.turnScore;nb=true}
+  if(cleared>best.round){best.round=cleared;nb=true}
+  if(nb){lsSet(LS_BEST,best)}
+  G.newBest=nb;
+  renderStats();
+  after(2200,endTurn);
+}
+function endTurn(){
+  clearMarks();G.turnsDone++;
+  if(G.mode===1||G.turnsDone>=G.turnsEach*2){gameOver();return}
+  G.cur=1-G.cur;renderStats();sfx.turn();
+  say('交代!次は'+pname(G.cur)+'の番です');
+  after(1300,beginTurn);
+}
+function gameOver(){
+  G.phase='idle';var cur=G.cur;clearMarks();
+  $('setup').hidden=false;var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');
+  var r=$('result'),h='';
+  if(G.mode===1){
+    h='<h2>ゲームオーバー</h2><p>得点 <b>'+G.scores[0]+'</b> 点 / 到達 <b>'+G.bestRound[0]+'</b> ラウンド</p>'+
+      (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+best.score+'点 / '+best.round+'ラウンド</p>');
+    sfx.over();say('おつかれさま!');
+  }else{
+    var a=G.scores[0],b=G.scores[1],w=a>b?'🏆 プレイヤー1の勝ち!':b>a?'🏆 プレイヤー2の勝ち!':'🤝 引き分け!';
+    h='<h2>'+w+'</h2><p>プレイヤー1: <b>'+a+'</b> 点(最高 '+G.bestRound[0]+'ラウンド)</p><p>プレイヤー2: <b>'+b+'</b> 点(最高 '+G.bestRound[1]+'ラウンド)</p>'+
+      (a!==b?'<p>差 '+Math.abs(a-b)+' 点</p>':'')+(G.newBest?'<p>🎉 ベスト記録が更新されました</p>':'');
+    if(a===b)sfx.over();else sfx.win();
+    say(w);
+  }
+  r.innerHTML=h;r.hidden=false;
+  setPadsEnabled(false);bonusSay('');G.round=0;renderStats();
+  $('pc1').classList.remove('active');$('pc2').classList.remove('active');
+  G.newBest=false;
+}
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;
+  $('m1').setAttribute('aria-pressed',String(set.mode===1));$('m2').setAttribute('aria-pressed',String(set.mode===2));
+  $('turnsWrap').hidden=set.mode!==2;$('turns').value=String(set.turns);
+  $('rule').textContent=set.mode===1?'1人: ミスするとゲームオーバー。ラウンドが進むほど順番が長く・速くなります。'
+    :'2人交代: ミスすると相手の番。それぞれ決めた回数ぶんあそび、合計得点で勝負します。';
+  if(G.phase==='idle'){$('players').classList.toggle('solo',set.mode===1);$('pc2').classList.toggle('hide',set.mode===1);G.mode=set.mode}
+  applyVol();
+}
+function save(){lsSet(LS_SET,set)}
+$('m1').onclick=function(){set.mode=1;save();applySet();renderStats()};
+$('m2').onclick=function(){set.mode=2;save();applySet();renderStats()};
+$('turns').onchange=function(){set.turns=+this.value;save()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)sfx.pad(4,120)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)sfx.pad(4,120)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+['pointerdown','touchend','keydown'].forEach(function(t){document.addEventListener(t,unlockAudio,{once:true,passive:true})});
+
+setPadsEnabled(false);
+applySet();renderStats();
+})();
+</script>
+</body>
+</html>
