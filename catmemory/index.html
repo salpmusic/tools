@@ -249,19 +249,85 @@ document.addEventListener('keydown',function(e){
 
 /* ---------- 効果音(Web Audio) ---------- */
 var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
 var BASE=[480,560,660,780]; /* 猫ごとの基本の高さ(Hz) */
 function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
-function unlockAudio(){
-  try{
-    if(!ctx||ctx.state==='closed'){
-      var AC=window.AudioContext||window.webkitAudioContext;
-      if(!AC)return;
-      ctx=new AC();master=ctx.createGain();master.connect(ctx.destination);applyVol();
-      try{var sb=ctx.createBuffer(1,1,22050),ss=ctx.createBufferSource();ss.buffer=sb;ss.connect(ctx.destination);ss.start(0)}catch(e){}
-    }
-    if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
-  }catch(e){}
-}
 function ready(){
   if(!ctx||!set.sound)return false;
   if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
@@ -390,6 +456,10 @@ function gameOver(){
   G.round=0;render();
 }
 
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
 /* ---------- UI ---------- */
 function applySet(){
   document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
@@ -406,8 +476,6 @@ $('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudi
 $('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
 $('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(1,0.3)};
 $('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
-['pointerdown','touchend','click','keydown'].forEach(function(t){document.addEventListener(t,unlockAudio,{passive:true,capture:true})});
-document.addEventListener('visibilitychange',function(){if(!document.hidden)unlockAudio()});
 
 build();applySet();render();
 })();
