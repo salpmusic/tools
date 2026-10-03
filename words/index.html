@@ -224,8 +224,8 @@ header::before{
 
 .sceneSwitcher{
   display:grid;
-  grid-auto-flow:column;
-  grid-auto-columns:minmax(0,1fr);
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-auto-flow:row;
   gap:6px;
 }
 
@@ -280,6 +280,13 @@ header::before{
 
 .sceneButton[aria-pressed="true"] .sceneCheck{
   display:inline;
+}
+
+@media (max-width:380px){
+  .sceneButton{
+    padding:4px 2px;
+    font-size:.74rem;
+  }
 }
 
 .sceneButton:focus-visible{
@@ -826,6 +833,7 @@ main{
   }
 
   .sceneSwitcher{
+    grid-template-columns:none;
     grid-auto-flow:row;
     grid-auto-rows:minmax(44px,1fr);
     grid-auto-columns:auto;
@@ -1708,6 +1716,315 @@ const SCENES = {
     ]
   },
 
+  train: {
+    id: "train",
+    icon: "🚃",
+    title: {
+      ja: "🚃 電車の中",
+      en: "🚃 Inside a Train",
+      es: "🚃 En el tren",
+      fr: "🚃 Dans le train",
+      de: "🚃 Im Zug",
+      zh: "🚃 电车里",
+      ko: "🚃 전철 안"
+    },
+
+    background: "train.webp",
+    subtitle: "単語学習 電車の中編",
+    documentTitle: "SALP WORDS | 単語学習 電車の中編",
+    alt: "明るい日本の通勤電車の車内のイラスト",
+    ariaLabel: "電車の中の単語学習",
+    help: "電車の中の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "電車の中の物を選んでください",
+
+    items: [
+      {
+        id: "advertisement",
+        emoji: "🪧",
+        x: 15,
+        y: 5,
+        w: 45,
+        h: 11.5,
+        z: 100,
+        words: {
+          ja: { word: "中吊り広告", reading: "なかづりこうこく" },
+          en: { word: "advertisement", reading: "ad-ver-TAIZ-ment" },
+          es: { word: "anuncio", reading: "a-NUN-syo" },
+          fr: { word: "publicité", reading: "pü-blee-see-TAY" },
+          de: { word: "Werbung", reading: "VER-boong" },
+          zh: { word: "广告", reading: "guǎnggào" },
+          ko: { word: "광고", reading: "gwanggo" }
+        }
+      },
+
+      {
+        id: "strap",
+        emoji: "🪝",
+        x: 0,
+        y: 0,
+        w: 18,
+        h: 12,
+        z: 85,
+        words: {
+          ja: { word: "つり革", reading: "つりかわ" },
+          en: { word: "hand strap", reading: "HAND strap" },
+          es: { word: "asidero colgante", reading: "a-see-DE-ro kol-GAN-te" },
+          fr: { word: "poignée suspendue", reading: "pwa-NYAY süs-pan-DÜ" },
+          de: { word: "Halteschlaufe", reading: "HAL-te-shlow-fe" },
+          zh: { word: "吊环", reading: "diàohuán" },
+          ko: { word: "손잡이", reading: "sonjabi" }
+        }
+      },
+
+      {
+        id: "luggageRack",
+        emoji: "🧳",
+        x: 72,
+        y: 3,
+        w: 28,
+        h: 20,
+        z: 55,
+        words: {
+          ja: { word: "網棚", reading: "あみだな" },
+          en: { word: "luggage rack", reading: "LUG-ij rak" },
+          es: { word: "portaequipajes", reading: "por-ta-e-kee-PA-hes" },
+          fr: { word: "porte-bagages", reading: "port ba-GAZH" },
+          de: { word: "Gepäckablage", reading: "ge-PEK-ap-laa-ge" },
+          zh: { word: "行李架", reading: "xínglijià" },
+          ko: { word: "짐 선반", reading: "jim seonban" }
+        }
+      },
+
+      {
+        id: "display",
+        emoji: "🖥️",
+        x: 28,
+        y: 18,
+        w: 36,
+        h: 7,
+        z: 110,
+        words: {
+          ja: { word: "車内ディスプレイ", reading: "しゃないでぃすぷれい" },
+          en: { word: "information display", reading: "in-fer-MAY-shun dis-PLAY" },
+          es: { word: "pantalla informativa", reading: "pan-TA-ya in-for-ma-TEE-ba" },
+          fr: { word: "écran d'information", reading: "ay-KRAN dan-for-ma-SYON" },
+          de: { word: "Infobildschirm", reading: "IN-fo-bild-shirm" },
+          zh: { word: "车内显示屏", reading: "chēnèi xiǎnshìpíng" },
+          ko: { word: "안내 화면", reading: "annae hwamyeon" }
+        }
+      },
+
+      {
+        id: "routeMap",
+        emoji: "🗺️",
+        x: 28,
+        y: 25,
+        w: 34,
+        h: 7,
+        z: 105,
+        words: {
+          ja: { word: "路線図", reading: "ろせんず" },
+          en: { word: "route map", reading: "ROOT map" },
+          es: { word: "mapa de líneas", reading: "MA-pa de LEE-ne-as" },
+          fr: { word: "plan du réseau", reading: "plan dü ray-ZO" },
+          de: { word: "Liniennetzplan", reading: "LEE-nee-en-nets-plaan" },
+          zh: { word: "线路图", reading: "xiànlùtú" },
+          ko: { word: "노선도", reading: "noseondo" }
+        }
+      },
+
+      {
+        id: "window",
+        emoji: "🪟",
+        x: 72,
+        y: 22,
+        w: 28,
+        h: 25,
+        z: 30,
+        words: {
+          ja: { word: "窓", reading: "まど" },
+          en: { word: "window", reading: "WIN-doh" },
+          es: { word: "ventana", reading: "ben-TA-na" },
+          fr: { word: "fenêtre", reading: "fə-NETR" },
+          de: { word: "Fenster", reading: "FEN-ster" },
+          zh: { word: "车窗", reading: "chēchuāng" },
+          ko: { word: "창문", reading: "changmun" }
+        }
+      },
+
+      {
+        id: "door",
+        emoji: "🚪",
+        x: 30,
+        y: 37,
+        w: 20,
+        h: 22,
+        z: 35,
+        words: {
+          ja: { word: "ドア", reading: "どあ" },
+          en: { word: "door", reading: "dor" },
+          es: { word: "puerta", reading: "PWER-ta" },
+          fr: { word: "porte", reading: "port" },
+          de: { word: "Tür", reading: "tüür" },
+          zh: { word: "车门", reading: "chēmén" },
+          ko: { word: "문", reading: "mun" }
+        }
+      },
+
+      {
+        id: "handrail",
+        emoji: "🦯",
+        x: 60.5,
+        y: 27,
+        w: 11,
+        h: 55,
+        z: 65,
+        words: {
+          ja: { word: "手すり", reading: "てすり" },
+          en: { word: "handrail", reading: "HAND-rayl" },
+          es: { word: "pasamanos", reading: "pa-sa-MA-nos" },
+          fr: { word: "barre d'appui", reading: "bar da-PWEE" },
+          de: { word: "Haltestange", reading: "HAL-te-shtang-e" },
+          zh: { word: "扶手杆", reading: "fúshǒugān" },
+          ko: { word: "손잡이 봉", reading: "sonjabi bong" }
+        }
+      },
+
+      {
+        id: "prioritySeat",
+        emoji: "🩷",
+        x: 70,
+        y: 68.5,
+        w: 20,
+        h: 18.5,
+        z: 95,
+        words: {
+          ja: { word: "優先席", reading: "ゆうせんせき" },
+          en: { word: "priority seat", reading: "prai-OR-uh-tee seet" },
+          es: { word: "asiento prioritario", reading: "a-SYEN-to pree-o-ree-TA-ryo" },
+          fr: { word: "siège prioritaire", reading: "syezh pree-o-ree-TER" },
+          de: { word: "Vorrangsitz", reading: "FOR-rang-zits" },
+          zh: { word: "优先座位", reading: "yōuxiān zuòwèi" },
+          ko: { word: "노약자석", reading: "noyakjaseok" }
+        }
+      },
+
+      {
+        id: "seat",
+        emoji: "💺",
+        x: 80,
+        y: 74,
+        w: 20,
+        h: 26,
+        z: 25,
+        words: {
+          ja: { word: "座席", reading: "ざせき" },
+          en: { word: "seat", reading: "seet" },
+          es: { word: "asiento", reading: "a-SYEN-to" },
+          fr: { word: "siège", reading: "syezh" },
+          de: { word: "Sitzplatz", reading: "ZITS-plats" },
+          zh: { word: "座位", reading: "zuòwèi" },
+          ko: { word: "좌석", reading: "jwaseok" }
+        }
+      },
+
+      {
+        id: "icCard",
+        emoji: "💳",
+        x: 69.5,
+        y: 60,
+        w: 16,
+        h: 10.5,
+        z: 150,
+        words: {
+          ja: { word: "ICカード", reading: "あいしーかーど" },
+          en: { word: "IC card", reading: "eye-SEE kard" },
+          es: { word: "tarjeta de transporte", reading: "tar-HE-ta de trans-POR-te" },
+          fr: { word: "carte de transport", reading: "kart de trans-POR" },
+          de: { word: "Fahrkarte", reading: "FAAR-kar-te" },
+          zh: { word: "交通卡", reading: "jiāotōngkǎ" },
+          ko: { word: "교통카드", reading: "gyotongkadeu" }
+        }
+      },
+
+      {
+        id: "passenger",
+        emoji: "🧑",
+        x: 2,
+        y: 34,
+        w: 32,
+        h: 42,
+        z: 45,
+        words: {
+          ja: { word: "乗客", reading: "じょうきゃく" },
+          en: { word: "passenger", reading: "PAS-en-jer" },
+          es: { word: "pasajero", reading: "pa-sa-HE-ro" },
+          fr: { word: "passager", reading: "pa-sa-ZHAY" },
+          de: { word: "Fahrgast", reading: "FAAR-gast" },
+          zh: { word: "乘客", reading: "chéngkè" },
+          ko: { word: "승객", reading: "seunggaek" }
+        }
+      },
+
+      {
+        id: "smartphone",
+        emoji: "📱",
+        x: 9.5,
+        y: 41,
+        w: 10,
+        h: 8.5,
+        z: 140,
+        words: {
+          ja: { word: "スマホ", reading: "すまほ" },
+          en: { word: "smartphone", reading: "SMART-fohn" },
+          es: { word: "móvil", reading: "MO-beel" },
+          fr: { word: "smartphone", reading: "smart-FON" },
+          de: { word: "Smartphone", reading: "SMART-fohn" },
+          zh: { word: "手机", reading: "shǒujī" },
+          ko: { word: "스마트폰", reading: "seumateupon" }
+        }
+      },
+
+      {
+        id: "backpack",
+        emoji: "🎒",
+        x: 6.5,
+        y: 55.5,
+        w: 23,
+        h: 19,
+        z: 120,
+        words: {
+          ja: { word: "リュック", reading: "りゅっく" },
+          en: { word: "backpack", reading: "BAK-pak" },
+          es: { word: "mochila", reading: "mo-CHEE-la" },
+          fr: { word: "sac à dos", reading: "sak a DO" },
+          de: { word: "Rucksack", reading: "RUK-zak" },
+          zh: { word: "背包", reading: "bēibāo" },
+          ko: { word: "배낭", reading: "baenang" }
+        }
+      },
+
+      {
+        id: "floor",
+        emoji: "🟫",
+        x: 0,
+        y: 60,
+        w: 71,
+        h: 40,
+        z: 10,
+        words: {
+          ja: { word: "床", reading: "ゆか" },
+          en: { word: "floor", reading: "flor" },
+          es: { word: "suelo", reading: "SWE-lo" },
+          fr: { word: "sol", reading: "sol" },
+          de: { word: "Boden", reading: "BO-den" },
+          zh: { word: "地板", reading: "dìbǎn" },
+          ko: { word: "바닥", reading: "badak" }
+        }
+      }
+    ]
+  },
+
   classroom: {
     id: "classroom",
     icon: "🏫",
@@ -2321,6 +2638,315 @@ const SCENES = {
           de: { word: "Haftnotizen", reading: "HAFT-no-tee-tsen" },
           zh: { word: "便利贴", reading: "biànlìtiē" },
           ko: { word: "포스트잇", reading: "poseuteuit" }
+        }
+      }
+    ]
+  },
+
+  park: {
+    id: "park",
+    icon: "🌳",
+    title: {
+      ja: "🌳 公園",
+      en: "🌳 Park",
+      es: "🌳 Parque",
+      fr: "🌳 Parc",
+      de: "🌳 Park",
+      zh: "🌳 公园",
+      ko: "🌳 공원"
+    },
+
+    background: "park.webp",
+    subtitle: "単語学習 公園編",
+    documentTitle: "SALP WORDS | 単語学習 公園編",
+    alt: "晴れた日の公園のイラスト",
+    ariaLabel: "公園の単語学習",
+    help: "公園の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "公園の物を選んでください",
+
+    items: [
+      {
+        id: "tree",
+        emoji: "🌳",
+        x: 0,
+        y: 0,
+        w: 34,
+        h: 40,
+        z: 25,
+        words: {
+          ja: { word: "木", reading: "き" },
+          en: { word: "tree", reading: "tree" },
+          es: { word: "árbol", reading: "AR-bol" },
+          fr: { word: "arbre", reading: "ARBR" },
+          de: { word: "Baum", reading: "bowm" },
+          zh: { word: "树", reading: "shù" },
+          ko: { word: "나무", reading: "namu" }
+        }
+      },
+
+      {
+        id: "streetlamp",
+        emoji: "💡",
+        x: 90.5,
+        y: 9,
+        w: 7.5,
+        h: 32,
+        z: 100,
+        words: {
+          ja: { word: "街灯", reading: "がいとう" },
+          en: { word: "street lamp", reading: "STREET lamp" },
+          es: { word: "farola", reading: "fa-RO-la" },
+          fr: { word: "lampadaire", reading: "lan-pa-DAIR" },
+          de: { word: "Straßenlaterne", reading: "SHTRAA-sen-la-TER-ne" },
+          zh: { word: "路灯", reading: "lùdēng" },
+          ko: { word: "가로등", reading: "garodeung" }
+        }
+      },
+
+      {
+        id: "fountain",
+        emoji: "⛲",
+        x: 57,
+        y: 23.5,
+        w: 25,
+        h: 16,
+        z: 85,
+        words: {
+          ja: { word: "噴水", reading: "ふんすい" },
+          en: { word: "fountain", reading: "FOWN-tn" },
+          es: { word: "fuente", reading: "FWEN-te" },
+          fr: { word: "fontaine", reading: "fon-TEN" },
+          de: { word: "Springbrunnen", reading: "SHPRING-broo-nen" },
+          zh: { word: "喷泉", reading: "pēnquán" },
+          ko: { word: "분수", reading: "bunsu" }
+        }
+      },
+
+      {
+        id: "swings",
+        emoji: "🎠",
+        x: 6,
+        y: 26.5,
+        w: 31,
+        h: 16.5,
+        z: 90,
+        words: {
+          ja: { word: "ブランコ", reading: "ぶらんこ" },
+          en: { word: "swings", reading: "swingz" },
+          es: { word: "columpios", reading: "ko-LUM-pyos" },
+          fr: { word: "balançoires", reading: "ba-lan-SWAR" },
+          de: { word: "Schaukeln", reading: "SHOW-keln" },
+          zh: { word: "秋千", reading: "qiūqiān" },
+          ko: { word: "그네", reading: "geune" }
+        }
+      },
+
+      {
+        id: "slide",
+        emoji: "🛝",
+        x: 37.5,
+        y: 24.5,
+        w: 20.5,
+        h: 17.5,
+        z: 95,
+        words: {
+          ja: { word: "滑り台", reading: "すべりだい" },
+          en: { word: "slide", reading: "slide" },
+          es: { word: "tobogán", reading: "to-bo-GAN" },
+          fr: { word: "toboggan", reading: "to-bo-GAN" },
+          de: { word: "Rutsche", reading: "ROOT-she" },
+          zh: { word: "滑梯", reading: "huátī" },
+          ko: { word: "미끄럼틀", reading: "mikkeureomteul" }
+        }
+      },
+
+      {
+        id: "pond",
+        emoji: "💧",
+        x: 69,
+        y: 39.5,
+        w: 31,
+        h: 9.5,
+        z: 35,
+        words: {
+          ja: { word: "池", reading: "いけ" },
+          en: { word: "pond", reading: "pond" },
+          es: { word: "estanque", reading: "es-TAN-ke" },
+          fr: { word: "étang", reading: "ay-TAN" },
+          de: { word: "Teich", reading: "taikh" },
+          zh: { word: "池塘", reading: "chítáng" },
+          ko: { word: "연못", reading: "yeonmot" }
+        }
+      },
+
+      {
+        id: "duck",
+        emoji: "🦆",
+        x: 72,
+        y: 39.5,
+        w: 14.5,
+        h: 7.5,
+        z: 125,
+        words: {
+          ja: { word: "カモ", reading: "かも" },
+          en: { word: "duck", reading: "duk" },
+          es: { word: "pato", reading: "PA-to" },
+          fr: { word: "canard", reading: "ka-NAR" },
+          de: { word: "Ente", reading: "EN-te" },
+          zh: { word: "鸭子", reading: "yāzi" },
+          ko: { word: "오리", reading: "ori" }
+        }
+      },
+
+      {
+        id: "sandbox",
+        emoji: "🪣",
+        x: 16,
+        y: 41.5,
+        w: 42,
+        h: 10,
+        z: 80,
+        words: {
+          ja: { word: "砂場", reading: "すなば" },
+          en: { word: "sandbox", reading: "SAND-boks" },
+          es: { word: "arenero", reading: "a-re-NE-ro" },
+          fr: { word: "bac à sable", reading: "bak a SABL" },
+          de: { word: "Sandkasten", reading: "ZANT-kas-ten" },
+          zh: { word: "沙坑", reading: "shākēng" },
+          ko: { word: "모래놀이터", reading: "moraenoriteo" }
+        }
+      },
+
+      {
+        id: "trashCan",
+        emoji: "🗑️",
+        x: 77,
+        y: 47,
+        w: 12,
+        h: 11,
+        z: 115,
+        words: {
+          ja: { word: "ゴミ箱", reading: "ごみばこ" },
+          en: { word: "trash can", reading: "TRASH kan" },
+          es: { word: "papelera", reading: "pa-pe-LE-ra" },
+          fr: { word: "poubelle", reading: "poo-BEL" },
+          de: { word: "Mülleimer", reading: "MÜL-ai-mer" },
+          zh: { word: "垃圾桶", reading: "lājītǒng" },
+          ko: { word: "쓰레기통", reading: "sseuregitong" }
+        }
+      },
+
+      {
+        id: "bench",
+        emoji: "🪑",
+        x: 0,
+        y: 46,
+        w: 38,
+        h: 17,
+        z: 70,
+        words: {
+          ja: { word: "ベンチ", reading: "べんち" },
+          en: { word: "bench", reading: "bench" },
+          es: { word: "banco", reading: "BAN-ko" },
+          fr: { word: "banc", reading: "ban" },
+          de: { word: "Bank", reading: "bank" },
+          zh: { word: "长椅", reading: "chángyǐ" },
+          ko: { word: "벤치", reading: "benchi" }
+        }
+      },
+
+      {
+        id: "bicycle",
+        emoji: "🚲",
+        x: 65,
+        y: 55.5,
+        w: 35,
+        h: 20.5,
+        z: 110,
+        words: {
+          ja: { word: "自転車", reading: "じてんしゃ" },
+          en: { word: "bicycle", reading: "BAI-si-kəl" },
+          es: { word: "bicicleta", reading: "bee-see-KLE-ta" },
+          fr: { word: "vélo", reading: "vay-LO" },
+          de: { word: "Fahrrad", reading: "FAAR-raat" },
+          zh: { word: "自行车", reading: "zìxíngchē" },
+          ko: { word: "자전거", reading: "jajeongeo" }
+        }
+      },
+
+      {
+        id: "dog",
+        emoji: "🐕",
+        x: 61.5,
+        y: 70,
+        w: 31,
+        h: 17,
+        z: 120,
+        words: {
+          ja: { word: "犬", reading: "いぬ" },
+          en: { word: "dog", reading: "dog" },
+          es: { word: "perro", reading: "PE-rro" },
+          fr: { word: "chien", reading: "shyan" },
+          de: { word: "Hund", reading: "hoont" },
+          zh: { word: "狗", reading: "gǒu" },
+          ko: { word: "개", reading: "gae" }
+        }
+      },
+
+      {
+        id: "ball",
+        emoji: "⚽",
+        x: 53,
+        y: 79.5,
+        w: 13,
+        h: 8.5,
+        z: 135,
+        words: {
+          ja: { word: "ボール", reading: "ぼーる" },
+          en: { word: "ball", reading: "bawl" },
+          es: { word: "pelota", reading: "pe-LO-ta" },
+          fr: { word: "ballon", reading: "ba-LON" },
+          de: { word: "Ball", reading: "bal" },
+          zh: { word: "球", reading: "qiú" },
+          ko: { word: "공", reading: "gong" }
+        }
+      },
+
+      {
+        id: "flowers",
+        emoji: "🌷",
+        x: 0,
+        y: 67,
+        w: 37,
+        h: 30,
+        z: 75,
+        words: {
+          ja: { word: "花", reading: "はな" },
+          en: { word: "flowers", reading: "FLOW-erz" },
+          es: { word: "flores", reading: "FLO-res" },
+          fr: { word: "fleurs", reading: "flœr" },
+          de: { word: "Blumen", reading: "BLOO-men" },
+          zh: { word: "花", reading: "huā" },
+          ko: { word: "꽃", reading: "kkot" }
+        }
+      },
+
+      {
+        id: "grass",
+        emoji: "🌱",
+        x: 36,
+        y: 62,
+        w: 25,
+        h: 32,
+        z: 15,
+        words: {
+          ja: { word: "芝生", reading: "しばふ" },
+          en: { word: "grass", reading: "gras" },
+          es: { word: "césped", reading: "SES-ped" },
+          fr: { word: "pelouse", reading: "pə-LOOZ" },
+          de: { word: "Rasen", reading: "RAA-zen" },
+          zh: { word: "草坪", reading: "cǎopíng" },
+          ko: { word: "잔디", reading: "jandi" }
         }
       }
     ]
