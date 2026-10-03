@@ -80,6 +80,39 @@ body.hc .c .ar,body.hc .tl.dir svg{fill:#0050ff;stroke:#000}
 body.hc .tl.dir.sel{background:#ffff00}
 body.hc .tl.dir.sel svg{fill:#0030c0}
 
+#guide{background:#fff8e6;border:2px solid #f2cfa4;border-radius:10px;padding:5px 8px;margin-bottom:6px;font-size:.78rem;font-weight:700;line-height:1.35;text-align:center;color:#6a4520}
+#tut{position:fixed;inset:0;z-index:100;background:rgba(60,40,20,.62);display:none;align-items:center;justify-content:center;padding:10px}
+#tut.open{display:flex}
+.tutbox{background:#fff;border:3px solid #f2cfa4;border-radius:16px;max-width:430px;width:100%;max-height:94vh;max-height:94dvh;overflow:auto;padding:12px;color:#4a3526;-webkit-user-select:none;user-select:none}
+.tutbox h2{font-size:1.05rem;margin-bottom:4px;text-align:center}
+.tlang{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.tlang button{border:2px solid #f2cfa4;background:#fff;border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:700;color:#8a5518}
+.tlang button.on{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.mini{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:#d9b98a;border:3px solid #c99a5a;border-radius:10px;padding:2px;max-width:290px;margin:0 auto}
+.mc{position:relative;aspect-ratio:1;background:#fbf0da;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.mc.fish{background:#d8f0ff}.mc.tr::before{content:"";position:absolute;width:26%;height:26%;border-radius:50%;background:rgba(255,140,60,.55)}
+.mc svg.ar{position:absolute;inset:12%;width:76%;height:76%;fill:#1e88e5;stroke:#fff;stroke-width:1.2;stroke-linejoin:round}
+.mc svg.ar.d1{transform:rotate(90deg)}.mc svg.ar.d2{transform:rotate(180deg)}.mc svg.ar.d3{transform:rotate(270deg)}
+.mc svg.ar.pop{animation:tpop .35s}
+@keyframes tpop{0%{transform:scale(.2)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.mc svg.cat{position:absolute;inset:4%;width:92%;height:92%}
+.mc .fg{position:absolute;right:-2px;bottom:-6px;font-size:22px;z-index:4;animation:ftap .7s infinite}
+@keyframes ftap{50%{transform:translate(-3px,-5px) scale(.9)}}
+.mc .fx{position:absolute;right:-6px;top:-4px;font-size:20px;z-index:4}
+.tcap{text-align:center;font-weight:800;font-size:.85rem;min-height:1.6em;margin:6px 0 2px;color:#d2561f}
+.tstep{margin:4px 0}.tstep h3{font-size:1rem;margin-bottom:2px}.tstep p{font-size:.9rem;line-height:1.5}
+.tdots{display:flex;justify-content:center;gap:6px;margin:6px 0}
+.tdots i{width:10px;height:10px;border-radius:50%;background:#e8d5b5}.tdots i.on{background:#ff8f5a}
+.tnav{display:flex;gap:8px;margin-top:6px}
+.tnav button{flex:1;border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:9px 4px;font-weight:800;color:#8a5518;font-size:.95rem}
+.tnav button.pri{background:#ff8f5a;border-color:#d5622f;color:#fff;box-shadow:0 3px 0 #d5622f}
+.tnav button:disabled{opacity:.4}
+.tgo{display:inline-block;margin-left:6px;background:#ff8f5a;color:#fff;border-radius:8px;padding:0 8px;font-size:.8rem}
+.tgo.pulse{animation:tgop .6s infinite}@keyframes tgop{50%{transform:scale(1.2)}}
+body.hc .tutbox{background:#000;color:#fff;border-color:#fff}body.hc .tcap{color:#ffff00}body.hc #guide{background:#000;color:#fff;border-color:#fff}
+body.hc .tlang button,body.hc .tnav button{background:#000;color:#fff;border-color:#fff}body.hc .tlang button.on,body.hc .tnav button.pri{background:#ffff00;color:#000}
+body.hc .mc{background:#fff}
+
 .ctrl{grid-area:ctrl;display:grid;gap:10px}
 .box{background:#fff;border:2px solid #f2cfa4;border-radius:14px;padding:10px 12px}
 .box h2{font-size:.85rem;color:#9a7048;margin-bottom:6px}
@@ -146,18 +179,19 @@ body.hc .main.stop{background:#fff;color:#000}
       <span class="opt">モード <b id="stMode">ふつう</b></span>
       <span class="opt">ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
     </div>
-    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。矢印を置いて、猫をお魚まで導こう。猫は「GO!」で走り出したら止まれないよ!</div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。①向きを選ぶ → ②マスをタップして矢印を置く → ③「GO!」。猫は走り出したら止まれないよ!(わからないときは「❓ 遊び方」)</div>
     <div id="bonus" aria-live="polite"></div>
   </section>
 
-  <div id="stage"><div id="board" role="application" aria-label="部屋。矢印を置いて猫をお魚へ導きます"></div></div>
+  <div id="stage"><div id="guide" role="note"></div><div id="board" role="application" aria-label="部屋。矢印を置いて猫をお魚へ導きます"></div></div>
   <div id="tools"><button type="button" class="tl dir sel" id="bD0" data-d="0" aria-label="上向きの矢印" disabled></button>
     <button type="button" class="tl dir" id="bD1" data-d="1" aria-label="右向きの矢印" disabled></button>
     <button type="button" class="tl dir" id="bD2" data-d="2" aria-label="下向きの矢印" disabled></button>
     <button type="button" class="tl dir" id="bD3" data-d="3" aria-label="左向きの矢印" disabled></button>
     <button type="button" class="tl ok" id="bGo" disabled>▶ GO!</button>
     <button type="button" class="tl" id="bClr" disabled>⟲ 矢印をはずす</button>
-    <button type="button" class="tl" id="bHint" disabled>💡 ヒント</button></div>
+    <button type="button" class="tl" id="bHint" disabled>💡 ヒント</button>
+    <button type="button" class="tl" id="bHelp">❓ 遊び方</button></div>
   <div id="ghost"></div>
 
   <div class="ctrl">
@@ -180,7 +214,7 @@ body.hc .main.stop{background:#fff;color:#000}
         <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
       </div>
     </section>
-    <p class="note">猫は、矢印の向きにまっすぐ1マスずつ進みます(スタート時の向きは猫の足もとの三角で分かります)。下の4つの矢印ボタンから向きを選び、空いているマスをタップして矢印を置きます。同じ向きの矢印をもう一度タップすると外せます。猫は矢印のマスに入ると、その向きに曲がります。置ける矢印の数には限りがあります。「GO!」で猫が走り出すと、途中では止められません。家具や部屋のはしにぶつかる、同じ道をぐるぐる回る、のどちらかになると失敗でハートが1つへります(矢印はそのまま残るので、直してもう一度挑戦できます)。「ヒント」は次に置く矢印を1つ教えます。回数に限りがあり、得点も少しへります。走っている間は、時間は止まっています。ラウンドが進むと部屋が広く、曲がり角が増え、矢印の数はぎりぎりになり、制限時間は短くなります。どのラウンドも、かならず魚にたどり着ける道があります。</p>
+    <p class="note">猫は、矢印の向きにまっすぐ1マスずつ進みます(スタート時の向きは猫の足もとの三角で分かります)。下の4つの矢印ボタンから、置く矢印の向きを選び、空いているマスをタップして置きます。置いた矢印をもう一度タップすると、時計まわりに90度回ります。4回目のタップで消えます(「矢印をはずす」で全部消すこともできます)。猫は矢印のマスに入ると、その向きに曲がります。置ける矢印の数には限りがあります。「GO!」で猫が走り出すと、途中では止められません。家具や部屋のはしにぶつかる、同じ道をぐるぐる回る、のどちらかになると失敗でハートが1つへります(矢印はそのまま残るので、直してもう一度挑戦できます)。最初のラウンドは練習で、置く場所と向きが赤い枠とうすい矢印で示されます。「ヒント」は次に置く矢印を1つ教えます。「❓ 遊び方」でいつでも図解の説明を見られます。回数に限りがあり、得点も少しへります。走っている間は、時間は止まっています。ラウンドが進むと部屋が広く、曲がり角が増え、矢印の数はぎりぎりになり、制限時間は短くなります。どのラウンドも、かならず魚にたどり着ける道があります。</p>
   </div>
 </div>
 
@@ -485,7 +519,7 @@ function simulate(P,arrows){
   return {ok:false,why:'loop',trail:trail,last:c,dir:d};
 }
 /* ---------- 画面と操作 ---------- */
-var B=$('board'),P=null,arrows={},tool=0,catC=0,catD=0,trailSet={},running=false,runIv=null,fails=0,hintC=-1,hintD=0,bumpC=-1;
+var B=$('board'),P=null,arrows={},rot={},tool=0,catC=0,catD=0,trailSet={},running=false,runIv=null,fails=0,hintC=-1,hintD=0,bumpC=-1;
 function arrowCount(){return Object.keys(arrows).length}
 function draw(){
   if(!P)return;
@@ -497,7 +531,7 @@ function draw(){
     if(P.wall[c])inner=WALLE[(c*7)%WALLE.length];
     else if(c===P.fish)inner='🐟';
     if(arrows[c]!==undefined)inner+=ARSVG.replace('<svg','<svg class="ar d'+arrows[c]+'"');
-    if(c===hintC&&arrows[c]===undefined)inner+=ARSVG.replace('<svg','<svg class="ar ghost d'+hintD+'"');
+    if(c===hintC)inner+=ARSVG.replace('<svg','<svg class="ar ghost d'+hintD+'"');
     if(c===catC)inner+=catSvg(0,'100%',running?'happy':'open').replace('<svg','<svg class="cat"')+'<i class="chev d'+catD+'"></i>';
     h+='<div class="'+cls+'" data-c="'+c+'" role="button" aria-label="'+((c%P.w)+1)+'列'+(Math.floor(c/P.w)+1)+'行">'+inner+'</div>';
   }
@@ -515,18 +549,28 @@ B.addEventListener('click',function(e){
   var c=+el.dataset.c;
   if(P.wall[c]||c===P.fish||c===P.start){sfx.bad();if(c===P.start)say('猫のいるマスには置けないよ');return}
   hintC=-1;
-  if(arrows[c]===tool){delete arrows[c];sfx.back()}
-  else{
-    if(arrows[c]===undefined&&arrowCount()>=P.supply){sfx.bad();say('矢印がもうないよ。おいた矢印をタップして外そう');return}
-    arrows[c]=tool;sfx.place();
+  if(arrows[c]!==undefined){
+    /* 置いた矢印をタップ: 時計まわりに90度。4回目で消える */
+    rot[c]=(rot[c]||0)+1;
+    if(rot[c]>=4){delete arrows[c];delete rot[c];sfx.back();say('矢印を消したよ')}
+    else{arrows[c]=(arrows[c]+1)%4;sfx.rot();say('矢印が回ったよ(あと'+(4-rot[c])+'回タップすると消えるよ)')}
+  }else{
+    if(arrowCount()>=P.supply){sfx.bad();say('矢印がもうないよ。おいた矢印をタップして、回して使うか消そう');return}
+    arrows[c]=tool;rot[c]=0;sfx.place();
   }
-  trailSet={};bumpC=-1;draw();stats();
+  trailSet={};bumpC=-1;practice();draw();stats();
 });
 Array.prototype.forEach.call(document.querySelectorAll('.tl.dir'),function(b){
   b.innerHTML=ARSVG;b.classList.add('d'+b.dataset.d);
   b.onclick=function(){if(G.phase!=='play'||running)return;tool=+b.dataset.d;sfx.grab();stats()};
 });
-$('bClr').onclick=function(){if(G.phase!=='play'||running)return;arrows={};hintC=-1;trailSet={};bumpC=-1;G.ops++;sfx.back();draw();stats();say('矢印を全部はずしたよ')};
+$('bClr').onclick=function(){if(G.phase!=='play'||running)return;arrows={};rot={};hintC=-1;trailSet={};bumpC=-1;G.ops++;practice();sfx.back();draw();stats();say('矢印を全部はずしたよ')};
+/* 練習ラウンド(ラウンド1): 置く場所と向きを、うすい矢印で見せる(ヒント回数は使わない) */
+function practice(){
+  if(!P||G.round!==1||!P.sol.length)return;
+  var a=P.sol[0];
+  if(arrows[a.c]===a.d){hintC=-1}else{hintC=a.c;hintD=a.d}
+}
 function endRun(sim){
   running=false;clearInterval(runIv);runIv=null;
   if(G.phase!=='play')return;
@@ -540,7 +584,7 @@ function endRun(sim){
   var why=sim.why==='loop'?'同じ道をぐるぐる回っているよ':sim.why==='edge'?'部屋のはしにぶつかっちゃった':'家具にぶつかっちゃった';
   stats();draw();
   var cont=K.miss(why+'…矢印を直そう');
-  if(cont){K.after(1100,function(){resetCat();bumpC=-1;draw();K.render()})}
+  if(cont){K.after(1100,function(){resetCat();bumpC=-1;practice();draw();K.render()})}
 }
 $('bGo').onclick=function(){
   if(G.phase!=='play'||running)return;
@@ -574,8 +618,135 @@ $('bHint').onclick=function(){
     if(bad.length){hintC=+bad[0];hintD=0;G.hintsLeft--;G.hintsUsed++;sfx.hint();draw();K.render();say('ヒント!赤い枠の矢印は、ちがうかもしれないよ。はずしてみよう(のこり'+G.hintsLeft+'回)');return}
   }
   hintC=miss.c;hintD=miss.d;G.hintsLeft--;G.hintsUsed++;sfx.hint();draw();K.render();
-  say('ヒント!赤い枠のマスに、うすい赤の向きの矢印を置こう(のこり'+G.hintsLeft+'回)');
+  say(arrows[miss.c]!==undefined?'ヒント!赤い枠の矢印をタップして、うすい赤の向きに回そう(のこり'+G.hintsLeft+'回)':'ヒント!赤い枠のマスに、うすい赤の向きの矢印を置こう(のこり'+G.hintsLeft+'回)');
 };
+
+/* ---------- 遊び方(図解チュートリアル) ---------- */
+var TUT={
+ ja:{name:'日本語',title:'🐟 遊び方',steps:[
+  {h:'① 猫は止まれない',b:'スタートすると、猫は向きを変えずにまっすぐ進みます。何もないと、部屋のはしや家具にぶつかって失敗です。'},
+  {h:'② 矢印を置く・回す・消す',b:'下のボタンで向きを選び、空いているマスをタップして矢印を置きます。猫は矢印のマスで、その向きに曲がります。置いた矢印をタップするたびに時計まわりに回り、4回目で消えます。'},
+  {h:'③ 道ができたら',b:'魚までの道ができたら「▶GO!」を押します。たどり着けばクリア。失敗しても矢印は残るので、直してもう一度!'}],
+  cap:{start:'猫はまっすぐ進む',bump:'ぶつかって失敗!',tap:'マスをタップ → 矢印が出る',rot:'もう一度タップ → 回る',gone:'4回目のタップで消える',place:'この向きで置こう',go:'▶GO! で走り出す',win:'魚にたどり着いた!'},
+  prev:'← もどる',next:'つぎへ →',done:'わかった!',close:'とじる',
+  guide:'①向きを選ぶ →②マスをタップで矢印を置く(もう一度タップで回転、4回目で消える) →③▶GO!'},
+ vi:{name:'Tiếng Việt',title:'🐟 Cách chơi',steps:[
+  {h:'① Mèo không thể dừng lại',b:'Khi bắt đầu, mèo cứ đi thẳng mà không đổi hướng. Nếu không có gì, mèo sẽ đâm vào mép phòng hoặc đồ đạc và thất bại.'},
+  {h:'② Đặt, xoay và xóa mũi tên',b:'Chọn hướng bằng nút bên dưới rồi chạm vào ô trống để đặt mũi tên. Mèo sẽ rẽ theo hướng mũi tên khi bước vào ô đó. Chạm vào mũi tên đã đặt để xoay 90 độ theo chiều kim đồng hồ; lần chạm thứ 4 sẽ xóa nó.'},
+  {h:'③ Xong đường thì bấm',b:'Khi đã có đường đến con cá, bấm "▶GO!". Đến được cá là qua vòng. Nếu thất bại, mũi tên vẫn còn nên bạn có thể sửa và thử lại!'}],
+  cap:{start:'Mèo đi thẳng',bump:'Đâm vào và thất bại!',tap:'Chạm ô → mũi tên xuất hiện',rot:'Chạm lại → xoay',gone:'Chạm lần thứ 4 → xóa',place:'Đặt theo hướng này',go:'▶GO! để mèo chạy',win:'Mèo đã đến chỗ cá!'},
+  prev:'← Quay lại',next:'Tiếp →',done:'Đã hiểu!',close:'Đóng',
+  guide:'① Chọn hướng → ② Chạm ô để đặt mũi tên (chạm lại để xoay, lần 4 thì xóa) → ③ ▶GO!'},
+ en:{name:'English',title:'🐟 How to play',steps:[
+  {h:'① The cat cannot stop',b:'Once started, the cat keeps going straight. With nothing in the way it hits the edge of the room or furniture and you fail.'},
+  {h:'② Place, rotate and remove arrows',b:'Pick a direction with the buttons below, then tap an empty square to place an arrow. The cat turns to the arrow\'s direction when it steps on it. Tap a placed arrow to rotate it 90° clockwise; the 4th tap removes it.'},
+  {h:'③ Path ready? Press',b:'When the path to the fish is ready, press "▶GO!". Reach the fish to clear the round. If you fail, your arrows stay, so adjust and try again!'}],
+  cap:{start:'The cat goes straight',bump:'Crash - you fail!',tap:'Tap a square → an arrow appears',rot:'Tap again → it rotates',gone:'4th tap → it disappears',place:'Place it this way',go:'▶GO! sends the cat off',win:'Reached the fish!'},
+  prev:'← Back',next:'Next →',done:'Got it!',close:'Close',
+  guide:'① Pick a direction → ② Tap a square to place an arrow (tap again to rotate, 4th tap removes) → ③ ▶GO!'},
+ tl:{name:'Tagalog',title:'🐟 Paano maglaro',steps:[
+  {h:'① Hindi makakahinto ang pusa',b:'Kapag nagsimula, diretso lang ang takbo ng pusa. Kung walang harang na arrow, babangga ito sa gilid ng kuwarto o sa muwebles at talo ka.'},
+  {h:'② Maglagay, magpaikot at magtanggal ng arrow',b:'Pumili ng direksyon gamit ang mga button sa ibaba, tapos i-tap ang walang lamang parisukat para maglagay ng arrow. Liliko ang pusa ayon sa arrow kapag tumapak dito. I-tap ang arrow para paikutin ito ng 90° pakanan; sa ika-4 na tap ay mawawala ito.'},
+  {h:'③ Handa na ang daan? Pindutin ang',b:'Kapag may daan na papunta sa isda, pindutin ang "▶GO!". Kapag nakarating sa isda, panalo ka. Kung nabigo, mananatili ang mga arrow kaya ayusin at subukan ulit!'}],
+  cap:{start:'Diretso ang pusa',bump:'Bumangga - talo!',tap:'I-tap ang parisukat → may arrow',rot:'I-tap ulit → umiikot',gone:'Ika-4 na tap → nawawala',place:'Ilagay sa direksyong ito',go:'▶GO! para tumakbo ang pusa',win:'Nakarating sa isda!'},
+  prev:'← Balik',next:'Susunod →',done:'Naintindihan ko!',close:'Isara',
+  guide:'① Pumili ng direksyon → ② I-tap ang parisukat para maglagay ng arrow (i-tap ulit para paikutin, sa ika-4 ay mawawala) → ③ ▶GO!'}
+};
+var TUTKEY='salp_catarrow_tut_v1',TLKEY='salp_catarrow_lang_v1',tlang='ja',tstep=0,tIv=null,tFrame=0,startAfter=false;
+function pickLang(){
+  var v=null;try{v=localStorage.getItem(TLKEY)||localStorage.getItem('salpToolsLanguage_v275')||localStorage.getItem('salpToolsLanguage_v274')||localStorage.getItem('salpToolsLanguage_v273')}catch(e){}
+  if(!v||!TUT[v]){var n=(navigator.language||'ja').slice(0,2).toLowerCase();v=TUT[n]?n:(n==='fi'?'tl':'ja')}
+  return v;
+}
+function tutSeen(){try{return localStorage.getItem(TUTKEY)==='1'}catch(e){return true}}
+function setGuide(){var g=$('guide');if(g)g.textContent=TUT[tlang].guide}
+/* ミニ盤面(5×3)のコマ送り。猫は(0,1)から右へ、魚は(4,0) */
+function tutFrames(step){
+  var F=[],T=TUT[tlang].cap;
+  function f(cat,dir,arrows,o){o=o||{};F.push({cat:cat,dir:dir,arrows:arrows,tr:o.tr||[],fg:o.fg,fx:o.fx,cap:o.cap||'',ms:o.ms||650,pop:o.pop,go:o.go})}
+  if(step===0){
+    f([0,1],1,{},{cap:T.start,ms:900});
+    for(var x=1;x<=4;x++){var tr=[];for(var k=0;k<x;k++)tr.push([k,1]);f([x,1],1,{},{tr:tr,cap:T.start,ms:500})}
+    f([4,1],1,{},{tr:[[0,1],[1,1],[2,1],[3,1]],fx:'💥',cap:T.bump,ms:1500});
+  }else if(step===1){
+    f([0,1],1,{},{fg:[4,1],cap:T.tap,ms:1000});
+    f([0,1],1,{'4,1':0},{fg:[4,1],cap:T.tap,pop:'4,1',ms:1000});
+    f([0,1],1,{'4,1':1},{fg:[4,1],cap:T.rot,ms:850});
+    f([0,1],1,{'4,1':2},{fg:[4,1],cap:T.rot,ms:850});
+    f([0,1],1,{'4,1':3},{fg:[4,1],cap:T.rot,ms:850});
+    f([0,1],1,{},{fg:[4,1],cap:T.gone,ms:1000});
+    f([0,1],1,{'4,1':0},{cap:T.place,pop:'4,1',ms:1300});
+  }else{
+    f([0,1],1,{'4,1':0},{cap:T.go,go:true,ms:1300});
+    for(var x2=1;x2<=4;x2++){var tr2=[];for(var k2=0;k2<x2;k2++)tr2.push([k2,1]);f([x2,1],x2===4?0:1,{'4,1':0},{tr:tr2,cap:T.go,ms:520})}
+    f([4,0],0,{'4,1':0},{tr:[[0,1],[1,1],[2,1],[3,1],[4,1]],fx:'🎉',cap:T.win,ms:1700});
+  }
+  return F;
+}
+function miniHtml(fr){
+  var h='',tr={};fr.tr.forEach(function(t){tr[t[0]+','+t[1]]=1});
+  for(var y=0;y<3;y++)for(var x=0;x<5;x++){
+    var k=x+','+y,cls='mc'+(x===4&&y===0?' fish':'')+(tr[k]?' tr':''),inner='';
+    if(x===4&&y===0&&!(fr.cat[0]===4&&fr.cat[1]===0))inner+='🐟';
+    if(fr.arrows[k]!==undefined)inner+=ARSVG.replace('<svg','<svg class="ar d'+fr.arrows[k]+(fr.pop===k?' pop':'')+'"');
+    if(fr.cat[0]===x&&fr.cat[1]===y)inner+=catSvg(0,'100%','open').replace('<svg','<svg class="cat"');
+    if(fr.fg&&fr.fg[0]===x&&fr.fg[1]===y)inner+='<span class="fg">👆</span>';
+    if(fr.fx&&fr.cat[0]===x&&fr.cat[1]===y)inner+='<span class="fx">'+fr.fx+'</span>';
+    h+='<div class="'+cls+'">'+inner+'</div>';
+  }
+  return h;
+}
+function tutPlay(){
+  clearTimeout(tIv);
+  var F=tutFrames(tstep),i=0;
+  (function tick(){
+    var fr=F[i%F.length];i++;
+    var m=document.getElementById('tutMini');if(!m)return;
+    m.innerHTML=miniHtml(fr);document.getElementById('tutCap').textContent=fr.cap;
+    var g=document.getElementById('tutGo');if(g)g.className='tgo'+(fr.go?' pulse':'');
+    tIv=setTimeout(tick,fr.ms);
+  })();
+}
+function tutRender(){
+  var T=TUT[tlang],st=T.steps[tstep],box=document.getElementById('tutBox');
+  var langs=['ja','vi','en','tl'].map(function(l){return '<button type="button" data-l="'+l+'" class="'+(l===tlang?'on':'')+'" lang="'+l+'">'+TUT[l].name+'</button>'}).join('');
+  var dots=T.steps.map(function(_,i){return '<i class="'+(i===tstep?'on':'')+'"></i>'}).join('');
+  box.innerHTML='<h2>'+T.title+'</h2><div class="tlang">'+langs+'</div><div class="mini" id="tutMini" aria-hidden="true"></div><div class="tcap" id="tutCap" aria-live="polite"></div><div class="tstep"><h3>'+st.h+(tstep===2?'<span class="tgo" id="tutGo">▶GO!</span>':'')+'</h3><p>'+st.b+'</p></div><div class="tdots">'+dots+'</div><div class="tnav"><button type="button" id="tutPrev"'+(tstep===0?' disabled':'')+'>'+T.prev+'</button>'+(tstep<2?'<button type="button" class="pri" id="tutNext">'+T.next+'</button>':'<button type="button" class="pri" id="tutDone">'+T.done+'</button>')+'<button type="button" id="tutClose">'+T.close+'</button></div>';
+  tutPlay();
+}
+function tutOpen(sa){
+  startAfter=!!sa;tstep=0;tlang=pickLang();
+  var t=document.getElementById('tut');
+  if(!t){
+    t=document.createElement('div');t.id='tut';t.setAttribute('role','dialog');t.setAttribute('aria-modal','true');t.setAttribute('aria-label','遊び方 / How to play');
+    t.innerHTML='<div class="tutbox" id="tutBox"></div>';document.body.appendChild(t);
+    t.addEventListener('click',function(e){
+      var b=e.target.closest('button');
+      if(e.target===t){tutClose();return}
+      if(!b)return;
+      if(b.dataset.l){tlang=b.dataset.l;try{localStorage.setItem(TLKEY,tlang)}catch(x){}setGuide();tutRender();return}
+      if(b.id==='tutPrev'){tstep=Math.max(0,tstep-1);tutRender()}
+      else if(b.id==='tutNext'){tstep=Math.min(2,tstep+1);tutRender()}
+      else if(b.id==='tutDone'||b.id==='tutClose')tutClose();
+    });
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&t.classList.contains('open'))tutClose()});
+  }
+  t.classList.add('open');tutRender();
+  var nb=document.getElementById('tutNext')||document.getElementById('tutDone');if(nb)nb.focus();
+}
+function tutClose(){
+  var t=document.getElementById('tut');if(!t||!t.classList.contains('open'))return;
+  t.classList.remove('open');clearTimeout(tIv);tIv=null;
+  try{localStorage.setItem(TUTKEY,'1')}catch(e){}
+  var sa=startAfter;startAfter=false;
+  if(sa&&G.phase==='idle')$('start').click();
+}
+$('bHelp').onclick=function(){tutOpen(false)};
+/* はじめて「はじめる」を押したときは、先に遊び方を見せる */
+$('start').addEventListener('click',function(e){
+  if(!tutSeen()&&G.phase==='idle'){e.stopImmediatePropagation();e.preventDefault();tutOpen(true)}
+},true);
+tlang=pickLang();setGuide();
 var GAME={
   level:level,
   secs:function(L){return Math.round((14+8*L.T)*L.f)},
@@ -583,8 +754,8 @@ var GAME={
   build:function(L,demo){
     P=null;var t=0;while(!P&&t++<10)P=genPuzzle(L);
     if(!P){P={w:3,h:1,start:0,d0:1,fish:2,wall:{},sol:[],supply:1,par:1,path:[0,1,2]}}
-    arrows={};tool=0;fails=0;hintC=-1;running=false;clearInterval(runIv);resetCat();draw();stats();
-    return '矢印'+P.supply+'こ(曲がり角'+P.par+'か所)';
+    arrows={};rot={};tool=0;fails=0;hintC=-1;running=false;clearInterval(runIv);resetCat();if(!demo)practice();draw();stats();
+    return L.r===1?'練習ラウンド!赤い枠のマスに、うすい矢印と同じ向きで置いて、▶GOを押そう':'矢印'+P.supply+'こ(曲がり角'+P.par+'か所)';
   },
   stats:stats,
   tools:function(en){
@@ -596,7 +767,7 @@ var GAME={
   redraw:function(){draw()},
   abort:function(){running=false;clearInterval(runIv)}
 };
-GAME.test={sol:function(){return P.sol.slice()},info:function(){return {w:P.w,h:P.h,T:P.par,supply:P.supply,walls:Object.keys(P.wall).length}}};
+GAME.test={arrowsNow:function(){return JSON.parse(JSON.stringify(arrows))},hintCell:function(){return hintC},sol:function(){return P.sol.slice()},info:function(){return {w:P.w,h:P.h,T:P.par,supply:P.supply,walls:Object.keys(P.wall).length}}};
 
 
 K.secsLeft=function(){return Math.max(0,(G.deadline-performance.now())/1000)};
