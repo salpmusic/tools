@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffe9d6">
+<meta name="description" content="4匹の猫が「ニャー」と鳴く順番を覚えて押す、かわいい記憶ゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応しています。">
+<title>猫の順番記憶 | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#ffe9d6;color:#5a3a2a;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{
+  --bs:min(calc(100vw - 24px),calc(100dvh - 330px),560px);
+  max-width:640px;margin:0 auto;display:grid;gap:10px;justify-items:center;
+  grid-template-areas:"head" "info" "board" "ctrl";
+}
+body.large .app{--bs:min(calc(100vw - 20px),calc(100dvh - 400px),600px)}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1.25rem;letter-spacing:.04em}
+.home{color:#b0603a;font-size:.85rem;text-decoration:none;border:2px solid #f0b88f;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff7ef}
+.info{grid-area:info;display:grid;gap:8px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff7ef;border:3px solid #f0b88f;border-radius:14px;padding:6px 10px;text-align:center}
+.pcard .name{font-size:.8rem;color:#a2735a}
+.pcard .val{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:.85rem;color:#8a5d46}
+.stats b{color:#5a3a2a;font-variant-numeric:tabular-nums}
+#msg{min-height:2.9em;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #f0b88f;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus{min-height:1.3em;text-align:center;color:#d2561f;font-size:.9rem;font-weight:700}
+
+#board{
+  grid-area:board;width:var(--bs);height:var(--bs);justify-self:center;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:calc(var(--bs)/30);
+  padding:calc(var(--bs)/30);background:#f6c9a3;border-radius:24px;
+}
+.cat{
+  --bg:#fff;--glow:#fff;
+  position:relative;border:0;border-radius:20px;background:var(--bg);padding:6%;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  transition:transform .08s,box-shadow .08s,filter .08s;touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;filter:saturate(.75) brightness(.92);
+}
+.cat:nth-child(1){--bg:#ffe1c2;--glow:#ffb35c}
+.cat:nth-child(2){--bg:#e2f0ff;--glow:#6fb6ff}
+.cat:nth-child(3){--bg:#ffe0ef;--glow:#ff7fbf}
+.cat:nth-child(4){--bg:#e3f7d6;--glow:#7bd957}
+.cat.lit{filter:none;transform:scale(1.04);z-index:1;box-shadow:0 0 calc(var(--bs)/10) var(--glow),inset 0 0 0 calc(var(--bs)/60) var(--glow);background:#fff}
+.cat.bad{animation:shake .3s;box-shadow:inset 0 0 0 calc(var(--bs)/50) #ff4d4d}
+.cat:disabled{cursor:default}
+.cat svg,.cat .art{width:100%;height:100%;display:block;pointer-events:none;object-fit:contain}
+.cat .mo,.cat .artOpen{display:none}
+.cat.meow .mo{display:inline}
+.cat.meow .mc,.cat.meow .artClosed{display:none}
+.cat.meow .artOpen{display:block}
+.cat.meow svg,.cat.meow .art{animation:bob .25s ease-in-out}
+@keyframes bob{50%{transform:translateY(-4%) scale(1.04)}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff7ef;border:2px solid #f0b88f;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#a2735a;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#b9987f;box-shadow:0 4px 0 #8c6d57}
+.tog{background:#fff;border:2px solid #f0b88f;border-radius:999px;padding:6px 14px;font-weight:700;color:#8a5d46}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d2561f;margin-bottom:4px}
+.note{font-size:.75rem;color:#a2735a;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc #board{background:#fff}
+body.hc .cat{background:#000;filter:none;border:calc(var(--bs)/60) solid #fff}
+body.hc .cat.lit{background:#ffff00;box-shadow:none;transform:scale(1.03)}
+body.hc .cat.bad{box-shadow:inset 0 0 0 calc(var(--bs)/30) #ff0000}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog{background:#000;border-color:#fff;color:#fff}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:landscape) and (max-height:620px){
+  .app{
+    --bs:min(calc(100dvh - 28px),calc(100vw - 340px),560px);
+    max-width:1000px;align-items:start;justify-items:stretch;
+    grid-template-columns:var(--bs) 1fr;column-gap:14px;
+    grid-template-areas:"board head" "board info" "board ctrl";grid-template-rows:auto auto 1fr;
+  }
+  body.large .app{--bs:min(calc(100dvh - 28px),calc(100vw - 380px),600px)}
+  #board{align-self:start}
+}
+@media (prefers-reduced-motion:reduce){.cat,.cat.bad,.cat.meow svg,.cat.meow .art{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🐾 猫の順番記憶</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="top">
+      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>モード <b id="stMode">ふつう</b></span>
+      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。猫が鳴いた順番を覚えて、同じ順番にタップしよう。</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="board" role="group" aria-label="4匹の猫"></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">はじめる</button>
+    <section class="box">
+      <h2>あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">最初は2匹、成功するたびに1匹ずつ増えます。ハートは3つ。ミスすると同じ順番をもう一度見せます。キーボードは 1〜4 でも押せます。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpCatMemory_best_v1', LS_SET='salpCatMemory_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+
+/* モード別の速さ: step=1匹ごとの間隔(ms) dec=ラウンドごとの短縮 min=下限 */
+var SPEED={normal:{start:760,dec:20,min:460},slow:{start:1250,dec:15,min:900}};
+function stepMs(r){var s=SPEED[G.mode];return Math.max(s.min,s.start-(r-1)*s.dec)}
+var START_LEN=2, LIVES=3;
+
+/* ---------- 猫の絵 ----------
+   /catmemory/cat1.png〜cat4.png(閉じ口) と cat1_open.png〜(鳴き版)があればそれを使い、
+   無ければインラインSVGで描画する。 */
+var ART_DIR='./';
+var CATS=[
+  {fur:'#f4a259',dark:'#c97a2e',ear:'#ffc2b0',collar:'#e8454b',eye:'#3b2a1e',stripe:'#c97a2e'},
+  {fur:'#f7f4ef',dark:'#cfc8bd',ear:'#ffc9d6',collar:'#3d7be8',eye:'#2b4a7a',stripe:null,patch:'#b9b2a6'},
+  {fur:'#4b4551',dark:'#2f2a34',ear:'#d98ba4',collar:'#f2c230',eye:'#ffd84a',stripe:null},
+  {fur:'#9fb3c8',dark:'#7f93a9',ear:'#ffc9d6',collar:'#43b36b',eye:'#27384a',stripe:'#7f93a9'}
+];
+function svgCat(c){
+  var st=c.stripe?'<path d="M92 48q4 12 0 22M100 45v26M108 48q-4 12 0 22" stroke="'+c.stripe+'" stroke-width="5" stroke-linecap="round" fill="none"/>':'';
+  var pa=c.patch?'<ellipse cx="62" cy="78" rx="20" ry="16" fill="'+c.patch+'"/>':'';
+  var light=c.eye==='#ffd84a'; /* 黒猫は目を大きめに */
+  return '<svg viewBox="0 0 200 200" aria-hidden="true">'+
+    '<ellipse cx="100" cy="182" rx="56" ry="26" fill="'+c.fur+'"/>'+
+    '<polygon points="34,78 44,14 96,46" fill="'+c.fur+'"/><polygon points="166,78 156,14 104,46" fill="'+c.fur+'"/>'+
+    '<polygon points="48,66 52,30 82,48" fill="'+c.ear+'"/><polygon points="152,66 148,30 118,48" fill="'+c.ear+'"/>'+
+    '<ellipse cx="100" cy="102" rx="72" ry="60" fill="'+c.fur+'"/>'+pa+st+
+    '<ellipse cx="70" cy="104" rx="'+(light?10:8)+'" ry="'+(light?12:10)+'" fill="'+c.eye+'"/><ellipse cx="130" cy="104" rx="'+(light?10:8)+'" ry="'+(light?12:10)+'" fill="'+c.eye+'"/>'+
+    (light?'<ellipse cx="70" cy="104" rx="3.5" ry="9" fill="#000"/><ellipse cx="130" cy="104" rx="3.5" ry="9" fill="#000"/>':'')+
+    '<circle cx="73" cy="100" r="3" fill="#fff"/><circle cx="133" cy="100" r="3" fill="#fff"/>'+
+    '<ellipse cx="50" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/><ellipse cx="150" cy="124" rx="12" ry="8" fill="#ff9db4" opacity=".55"/>'+
+    '<path d="M92 118h16l-8 9z" fill="#ff7a96"/>'+
+    '<g class="mc" fill="none" stroke="#5a3a2a" stroke-width="3.5" stroke-linecap="round"><path d="M100 127q-9 11-18 4M100 127q9 11 18 4"/></g>'+
+    '<g class="mo"><ellipse cx="100" cy="140" rx="14" ry="15" fill="#7a2a3a"/><ellipse cx="100" cy="148" rx="8" ry="6" fill="#ff8aa0"/></g>'+
+    '<g stroke="#5a3a2a" stroke-width="2" stroke-linecap="round" opacity=".6"><path d="M30 118l-22-5M30 128l-22 4M170 118l22-5M170 128l22 4"/></g>'+
+    '<path d="M44 150Q100 190 156 150" fill="none" stroke="'+c.collar+'" stroke-width="12" stroke-linecap="round"/>'+
+    '<circle cx="100" cy="174" r="9" fill="#ffd34a" stroke="#c99a1a" stroke-width="2"/><path d="M100 168v12" stroke="#c99a1a" stroke-width="2"/>'+
+    '</svg>';
+}
+var useImg=false;
+function catHTML(i){
+  if(useImg)return '<img class="art artClosed" alt="" src="'+ART_DIR+'cat'+(i+1)+'.png" draggable="false"><img class="art artOpen" alt="" src="'+ART_DIR+'cat'+(i+1)+'_open.png" draggable="false">';
+  return svgCat(CATS[i]);
+}
+var board=$('board'), pads=[];
+function build(){
+  board.innerHTML='';pads=[];
+  for(var i=0;i<4;i++){
+    var b=document.createElement('button');
+    b.type='button';b.className='cat';b.setAttribute('aria-label','猫'+(i+1));
+    b.innerHTML=catHTML(i);
+    (function(idx){
+      b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();press(idx)});
+      b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')e.preventDefault()});
+      b.addEventListener('contextmenu',function(e){e.preventDefault()});
+    })(i);
+    b.disabled=true;
+    board.appendChild(b);pads.push(b);
+  }
+}
+/* PNGが4匹ぶんそろっていれば画像に切替(無ければSVGのまま) */
+(function(){
+  var n=0,ok=0;
+  for(var i=1;i<=4;i++){(function(i){
+    var im=new Image();
+    im.onload=function(){ok++;if(++n===4&&ok===4&&G.phase==='idle'){useImg=true;build()}};
+    im.onerror=function(){n++};
+    im.src=ART_DIR+'cat'+i+'.png';
+  })(i)}
+})();
+
+/* ダブルタップ拡大・ピンチ防止 */
+var lastTE=0;
+board.addEventListener('touchend',function(e){var n=Date.now();if(n-lastTE<400)e.preventDefault();lastTE=n},{passive:false});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+document.addEventListener('keydown',function(e){
+  if(e.target&&(e.target.tagName==='INPUT'))return;
+  if(e.key>='1'&&e.key<='4'){unlockAudio();press(+e.key-1)}
+});
+
+/* ---------- 効果音(Web Audio) ---------- */
+var ctx=null, master=null;
+var BASE=[480,560,660,780]; /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function unlockAudio(){
+  try{
+    if(!ctx||ctx.state==='closed'){
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return;
+      ctx=new AC();master=ctx.createGain();master.connect(ctx.destination);applyVol();
+      try{var sb=ctx.createBuffer(1,1,22050),ss=ctx.createBufferSource();ss.buffer=sb;ss.connect(ctx.destination);ss.start(0)}catch(e){}
+    }
+    if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  }catch(e){}
+}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* ニャー風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.5,Math.max(0.2,dur||0.35));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+/* ---------- ゲーム ---------- */
+var G={run:0,phase:'idle',mode:modeKey(),seq:[],idx:0,round:0,score:0,lives:LIVES,missed:false,timer:null,newBest:false};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function render(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  $('stRound').textContent=G.round>0?G.round:'-';
+  $('stMode').textContent=(G.phase==='idle'?modeKey():G.mode)==='slow'?'ゆっくり':'ふつう';
+  var b=bestOf(G.phase==='idle'?modeKey():G.mode);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+}
+function enable(on){pads.forEach(function(p){p.disabled=!on})}
+function flash(i,ms){
+  var p=pads[i];p.classList.add('lit','meow');meow(i,ms/1000+0.12);
+  setTimeout(function(){p.classList.remove('lit','meow')},ms);
+}
+function clearMarks(){pads.forEach(function(p){p.classList.remove('lit','meow','bad')})}
+
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearMarks();
+  G.mode=modeKey();G.seq=[];G.round=0;G.score=0;G.lives=LIVES;G.newBest=false;
+  $('result').hidden=true;
+  var st=$('start');st.textContent='やめる';st.classList.add('stop');
+  $('tSlow').disabled=true;
+  sfx.start();say('スタート!猫の鳴く順番をよく聞いてね');render();
+  after(1100,nextRound);
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);G.phase='idle';G.round=0;clearMarks();enable(false);bonusSay('');
+  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
+  say('やめました。「はじめる」でもう一度あそべます。');render();
+}
+function nextRound(){
+  G.round++;G.missed=false;
+  if(G.seq.length===0){for(var i=0;i<START_LEN;i++)G.seq.push(Math.floor(Math.random()*4))}
+  else G.seq.push(Math.floor(Math.random()*4));
+  render();showSeq();
+}
+function showSeq(){
+  G.phase='show';G.idx=0;enable(false);
+  say('ラウンド'+G.round+':猫の順番を覚えてね('+G.seq.length+'匹)');
+  after(700,function(){playSeq(0)});
+}
+function playSeq(i){
+  if(i>=G.seq.length){G.phase='input';enable(true);say('あなたの番!(0/'+G.seq.length+')');return}
+  var s=stepMs(G.round);flash(G.seq[i],Math.round(s*0.65));after(s,function(){playSeq(i+1)});
+}
+function press(i){
+  if(G.phase!=='input')return;
+  if(i!==G.seq[G.idx]){miss(i);return}
+  flash(i,260);
+  var mul=G.mode==='slow'?0.7:1;
+  G.score+=Math.round(10*G.round*mul);G.idx++;render();
+  if(G.idx>=G.seq.length)roundClear();
+  else say('あなたの番!('+G.idx+'/'+G.seq.length+')');
+}
+function roundClear(){
+  G.phase='between';enable(false);
+  var mul=G.mode==='slow'?0.7:1,bonus=Math.round(50*G.round*mul),txt='クリアボーナス +'+bonus;
+  if(!G.missed){var nb=Math.round(20*G.round*mul);bonus+=nb;txt+=' / ノーミス +'+nb}
+  G.score+=bonus;render();say('ラウンド'+G.round+' クリア!すごい!');bonusSay(txt);
+  setTimeout(sfx.clear,200);
+  after(1500,function(){bonusSay('');nextRound()});
+}
+function saveBest(){
+  var k=G.mode,b=bestOf(k),nb={score:b.score,round:b.round},up=false,cleared=G.round-1;
+  if(G.score>nb.score){nb.score=G.score;up=true}
+  if(cleared>nb.round){nb.round=cleared;up=true}
+  if(up){best[k]=nb;lsSet(LS_BEST,best);G.newBest=true}
+}
+function miss(i){
+  G.phase='between';enable(false);G.missed=true;G.lives--;
+  pads[i].classList.add('bad');sfx.miss();bonusSay('');render();
+  if(G.lives<=0){say('ざんねん…ハートがなくなりました');after(1500,gameOver);return}
+  say('ミス!のこりハート'+G.lives+'こ。もう一度見てね');
+  after(1500,function(){clearMarks();showSeq()});
+}
+function gameOver(){
+  clearMarks();saveBest();G.phase='idle';enable(false);
+  var cleared=Math.max(0,G.round-1),b=bestOf(G.mode);
+  $('result').innerHTML='<h2>ゲームおわり('+(G.mode==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
+    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
+  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
+  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.round=0;render();
+}
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;applyVol();
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)meow(1,0.3)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(1,0.3)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+['pointerdown','touchend','click','keydown'].forEach(function(t){document.addEventListener(t,unlockAudio,{passive:true,capture:true})});
+document.addEventListener('visibilitychange',function(){if(!document.hidden)unlockAudio()});
+
+build();applySet();render();
+})();
+</script>
+</body>
+</html>
