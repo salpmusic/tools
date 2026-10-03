@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fff3e6">
+<meta name="description" content="猫の一日(起きる→ご飯→遊ぶ→寝る)の場面カードを、自然な順番に並べ替えるパズル。タップやドラッグで入れ替えて「かくにん」。ラウンドが進むとカードが増え、似た場面や伏せたカードも登場。ゆっくりモード、見やすいモード、ベスト記録保存に対応。">
+<title>猫の一日並べ替え | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#fff3e6;color:#4a3526;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{max-width:640px;margin:0 auto;display:grid;gap:6px;justify-items:center;grid-template-areas:"head" "info" "cards" "tools" "ctrl"}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1rem;letter-spacing:.04em}
+.home{color:#b8641f;font-size:.85rem;text-decoration:none;border:2px solid #f2cfa4;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:5px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #f2cfa4;border-radius:14px;padding:2px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pcard .name{font-size:.8rem;color:#9a7048}
+.pcard .val{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:0 10px;font-size:.72rem;color:#9a7048}
+.stats b{color:#3a2410;font-variant-numeric:tabular-nums}
+.timer{height:12px;background:#fff;border-radius:6px;overflow:hidden;border:2px solid #f2cfa4}
+.timer i{display:block;height:100%;width:100%;background:#ff9f43;transform-origin:left}
+.timer.off i{background:#f3e1c9}
+#msg{min-height:2.1em;font-size:.88rem;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #f2cfa4;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus:empty{display:none}
+#bonus{min-height:1.2em;text-align:center;color:#d2561f;font-size:.9rem;font-weight:700}
+
+#cardsWrap{grid-area:cards}
+.lr{display:flex;justify-content:space-between;font-size:.74rem;color:#9a7048;padding:0 4px;font-weight:700}
+#cards{display:grid;gap:6px;margin-top:3px;justify-content:center}
+.cd{position:relative;background:#fff;border:3px solid #f2cfa4;border-radius:12px;padding:3px 3px 4px;touch-action:none;cursor:grab;display:flex;flex-direction:column;align-items:center;min-width:0;max-width:150px;width:100%;margin:0 auto}
+.cd svg{display:block;width:100%;height:auto;pointer-events:none;border-radius:8px}
+.cd .lb{font-size:.78rem;font-weight:800;line-height:1.15;margin-top:3px;text-align:center;pointer-events:none;min-height:2.3em;display:flex;align-items:center;justify-content:center;color:#3a2410}
+body.large .cd .lb{font-size:.7rem}
+.cd .no{position:absolute;left:-2px;top:-2px;z-index:2;min-width:1.5em;height:1.5em;line-height:1.5em;text-align:center;border-radius:50%;background:#ff8f5a;color:#fff;font-size:.7rem;font-weight:800;box-shadow:0 1px 2px rgba(0,0,0,.3);pointer-events:none}
+.cd.sel{border-color:#ff7a3a;background:#fff0dc;box-shadow:0 0 0 3px #ffb98a}
+.cd.over{background:#d8f3d0;border-color:#4fb04f}
+.cd.lock::after{content:"🔒";position:absolute;right:-2px;top:-4px;font-size:14px}
+.cd.drag{opacity:.35}
+.cd.bad{border-color:#e03030}
+#ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;display:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.3));opacity:.95}
+#tools{grid-area:tools;display:grid;grid-template-columns:1fr 1.4fr;gap:6px}
+.tl{border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:9px 2px;font-weight:800;color:#8a5518;font-size:.95rem}
+.tl.ok{background:#ff8f5a;border-color:#d5622f;color:#fff;box-shadow:0 3px 0 #d5622f}
+.tl:disabled{opacity:.45}
+.shake{animation:shake .3s}
+@keyframes shake{25%{translate:-4px 0}75%{translate:4px 0}}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff;border:2px solid #f2cfa4;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#9a7048;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#a89a8a;box-shadow:0 4px 0 #7a6c5c}
+.tog{background:#fff;border:2px solid #f2cfa4;border-radius:999px;padding:6px 14px;font-weight:700;color:#8a5518}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.tog:disabled{opacity:.5}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d5622f;margin-bottom:4px}
+.note{font-size:.75rem;color:#9a7048;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note,body.hc .lr{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc .cd{background:#fff;border-color:#fff}
+body.hc .cd .lb{color:#000}
+body.hc .cd.sel{border-color:#d00000;background:#ffe9e9;box-shadow:0 0 0 3px #d00000}
+body.hc .cd.bad{border-color:#d00000;background:#ffe0e0}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#ffff00}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog,body.hc .tl{background:#000;border-color:#fff;color:#fff}
+body.hc .tl.ok{background:#ffff00;color:#000;box-shadow:none}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:portrait) and (max-height:760px){
+  .opt{display:none}
+  .pcard .val{font-size:1.15rem}
+}
+@media (orientation:landscape) and (max-height:620px){
+  .opt{display:none}
+  .pcard{padding:0 8px}.pcard .val{font-size:1.1rem}
+  .app{max-width:1000px;align-items:start;justify-items:stretch;grid-template-columns:minmax(300px,1.3fr) minmax(260px,1fr);column-gap:12px;
+    grid-template-areas:"head head" "cards info" "cards tools" "ctrl ctrl";grid-template-rows:auto auto auto auto}
+  #cards{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  .cd .lb{font-size:.68rem;min-height:2.2em}
+  .cd{max-width:104px}
+}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>💤 猫の一日並べ替え</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="top">
+      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="timer off" id="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>カード <b id="stCats">-</b>枚</span>
+      <span>ふせ <b id="stDown">-</b>枚</span>
+      <span>かくにん <b id="stConf">-</b>回</span>
+      <span>時間 <b id="stTime">-</b></span>
+      <span class="opt">モード <b id="stMode">ふつう</b></span>
+      <span class="opt">ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。猫の一日のカードを、朝から夜の自然な順番に並べよう!</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="cardsWrap"><div class="lr"><span>🌅 あさ(はじめ)</span><span>左上から右へ</span><span>よる(おわり) 🌙</span></div><div id="cards" role="group" aria-label="場面カード"></div></div>
+  <div id="tools">
+    <button type="button" class="tl" id="bHint" disabled>💡 ヒント</button>
+    <button type="button" class="tl ok" id="bOk" disabled>✓ かくにん</button>
+  </div>
+  <div id="ghost"></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">はじめる</button>
+    <section class="box">
+      <h2>あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード(制限時間が長い)</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">猫の一日の場面カードが、バラバラの順番で並んでいます。左上が「あさ(はじめ)」、右下が「よる(おわり)」になるように並べ替えます。カードをタップして選び、入れ替えたいカードをタップすると入れ替わります(ドラッグでもOK)。絵の空(あさやけ・おひるま・ゆうやけ・よぞら)も手がかりです。伏せてあるカード(？)はタップするとめくれますが、得点が少しへります。並べたら「かくにん」を押します。まちがえるとハートが1つへり、「あと何枚ずれているか」だけ教えてくれます。時間切れでもハートがへり、3つでおしまい。同じ時間帯でどちらが先でもおかしくない場面は、どちらの順でも正解になります。「ヒント」は1枚を正しい場所に置いてくれますが、回数に限りがあり、得点も少しへります。ラウンドが進むとカードが増え、似た場面や伏せたカードも出て、制限時間は短くなります。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpCatDay_best_v1', LS_SET='salpCatDay_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+var LIVES=3, SLOWX=1.8;
+/* @@GEN-START */
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function range(n){var a=[];for(var i=0;i<n;i++)a.push(i);return a}
+
+/* 猫の一日の場面。t が小さいほど早い。t が同じ場面は「どちらが先でも正解」 */
+var SCENES=[
+  {id:'wake',n:'起きる',t:1,sky:'dawn',prop:'🛏️',mood:'half'},
+  {id:'stretch',n:'のびをする',t:2,sky:'dawn',prop:'🙆',mood:'yawn'},
+  {id:'wash',n:'顔をあらう',t:3,sky:'morning',prop:'💧',mood:'tongue'},
+  {id:'groomM',n:'朝の毛づくろい',t:3,sky:'morning',prop:'✨',mood:'tongue',sim:'groom'},
+  {id:'breakfast',n:'朝ごはん',t:4,sky:'morning',prop:'🍚',mood:'happy',sim:'meal'},
+  {id:'play',n:'おもちゃで遊ぶ',t:5,sky:'morning',prop:'🧶',mood:'wow'},
+  {id:'window',n:'窓の外を見る',t:5,sky:'morning',prop:'🐦',mood:'open',sim:'window'},
+  {id:'box',n:'箱にはいる',t:5,sky:'morning',prop:'📦',mood:'happy'},
+  {id:'nap',n:'お昼寝',t:6,sky:'noon',prop:'💤',mood:'sleep',sim:'sleep'},
+  {id:'sun',n:'ひなたぼっこ',t:6,sky:'noon',prop:'☀️',mood:'closed'},
+  {id:'snack',n:'おやつ',t:7,sky:'aft',prop:'🐟',mood:'happy',sim:'meal'},
+  {id:'scratch',n:'爪とぎ',t:8,sky:'aft',prop:'🛋️',mood:'wow'},
+  {id:'purr',n:'ごろごろ甘える',t:8,sky:'aft',prop:'💗',mood:'closed'},
+  {id:'dinner',n:'夕ごはん',t:9,sky:'dusk',prop:'🍖',mood:'happy',sim:'meal'},
+  {id:'moon',n:'お月見',t:10,sky:'night',prop:'⭐',mood:'open',sim:'window'},
+  {id:'zoom',n:'夜の運動会',t:11,sky:'night',prop:'💨',mood:'wow'},
+  {id:'groomN',n:'夜の毛づくろい',t:12,sky:'night',prop:'✨',mood:'tongue',sim:'groom'},
+  {id:'sleep',n:'寝る',t:13,sky:'night',prop:'🛏️',mood:'sleep',sim:'sleep'},
+  {id:'dream',n:'ゆめを見る',t:14,sky:'night',prop:'💭',mood:'sleep'}
+];
+var SIMG={meal:['breakfast','snack','dinner'],groom:['groomM','groomN'],sleep:['nap','sleep'],window:['window','moon']};
+function sIdx(id){for(var i=0;i<SCENES.length;i++)if(SCENES[i].id===id)return i;return -1}
+
+/* ラウンドごとの設定: カードが増え・似た場面が混ざり・カードが伏せられ・時間が短くなる */
+var NCARDS=[3,4,4,5,5,6,6,7,7,8,8,9];
+function levelOf(r){
+  var n=NCARDS[Math.min(r,NCARDS.length)-1];
+  return {n:n,down:r<5?0:r<=6?1:r<=8?2:r<=10?3:4,sim:r<4?0:r<=6?1:2,ties:r<4?0:r<=7?1:2,f:Math.max(0.4,1-0.06*(r-1))};
+}
+function timeOf(L){return Math.round((L.n*8+20)*L.f*(set.slow?SLOWX:1))}
+function hintsOf(){return set.slow?4:2}
+
+function tOf(c){return SCENES[c].t}
+function inOrder(arr){for(var i=0;i+1<arr.length;i++)if(tOf(arr[i])>tOf(arr[i+1]))return false;return true}
+/* ずれている枚数 = 枚数 − (時間が増えていく最長の並び) */
+function misplaced(arr){
+  var n=arr.length,l=[],mx=0;
+  for(var i=0;i<n;i++){l[i]=1;for(var j=0;j<i;j++)if(tOf(arr[j])<=tOf(arr[i])&&l[j]+1>l[i])l[i]=l[j]+1;if(l[i]>mx)mx=l[i]}
+  return n-mx;
+}
+function tiesOf(cards){var m={},k=0;cards.forEach(function(c){m[tOf(c)]=(m[tOf(c)]||0)+1});Object.keys(m).forEach(function(t){k+=m[t]-1});return k}
+function genPuzzle(L){
+  for(var tries=0;tries<400;tries++){
+    var chosen=[];
+    shuffle(Object.keys(SIMG)).slice(0,L.sim).forEach(function(g){
+      var ids=shuffle(SIMG[g].slice()).slice(0,2);ids.forEach(function(id){chosen.push(sIdx(id))});
+    });
+    var rest=shuffle(range(SCENES.length)).filter(function(i){return chosen.indexOf(i)<0});
+    while(chosen.length<L.n&&rest.length)chosen.push(rest.pop());
+    if(chosen.length!==L.n)continue;
+    if(tiesOf(chosen)>L.ties)continue;
+    var sol=shuffle(chosen.slice()).sort(function(a,b){return tOf(a)-tOf(b)});
+    var arr=null,mn=L.n>=4?2:1;
+    for(var k=0;k<50;k++){var a=shuffle(sol.slice());if(!inOrder(a)&&misplaced(a)>=mn){arr=a;break}}
+    if(!arr)continue;
+    var down=shuffle(arr.slice()).slice(0,L.down);
+    return {n:L.n,sol:sol,arr:arr,down:down,ties:tiesOf(chosen)};
+  }
+  return null;
+}
+/* @@GEN-END */
+var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+var BASE=[440,494,554,622,698,784,880,988,1109]; /* 猫ごとの基本の高さ(Hz) */ /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* にゃん!風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.4,Math.max(0.16,dur||0.28));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+sfx.grab=function(){if(!ready())return;blip(700,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.rot=function(){if(!ready())return;blip(900,ctx.currentTime+0.005,0.05,'square',.3)};
+sfx.place=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(520,t,0.05,'square',.4);blip(780,t+0.05,0.06,'square',.4)};
+sfx.back=function(){if(!ready())return;blip(300,ctx.currentTime+0.005,0.06,'square',.3)};
+sfx.bad=function(){if(!ready())return;blip(170,ctx.currentTime+0.005,0.1,'square',.5)};
+sfx.hint=function(){melody([880,1175],0.08,0.09,'triangle',.7)};
+sfx.win=function(){melody([784,988,1175,1568,1976],0.08,0.11,'square',.5)};
+sfx.over=function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)};
+sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
+sfx.tick=function(){if(!ready())return;blip(1500,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.miss=function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)};
+
+/* ---------- 効果音(このゲーム用) ---------- */
+sfx.grab=function(){if(!ready())return;blip(700,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.place=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(520,t,0.05,'square',.4);blip(780,t+0.05,0.06,'square',.4)};
+sfx.back=function(){if(!ready())return;blip(300,ctx.currentTime+0.005,0.06,'square',.3)};
+sfx.bad=function(){if(!ready())return;blip(170,ctx.currentTime+0.005,0.1,'square',.5)};
+sfx.flip=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(600,t,0.04,'triangle',.5);blip(1000,t+0.04,0.05,'triangle',.5)};
+sfx.hint=function(){melody([880,1175],0.08,0.09,'triangle',.7)};
+sfx.win=function(){melody([784,988,1175,1568,1976],0.08,0.11,'square',.5)};
+
+/* ---------- 絵(場面カード) ---------- */
+var SKY={dawn:['#ffd7c0','#ff9f80'],morning:['#d8eeff','#a8d8ff'],noon:['#8fd0ff','#cdecff'],aft:['#ffeabd','#ffd08a'],dusk:['#ffb680','#ff7a5a'],night:['#1f2a5c','#3b4a8a']};
+function catFaceG(mood){
+  var b='#f4a259',l='#b8651f',s='<g>';
+  s+='<polygon points="6.5,19 7.5,4 18.5,11.5" fill="'+b+'" stroke="'+l+'" stroke-width="1.6" stroke-linejoin="round"/><polygon points="33.5,19 32.5,4 21.5,11.5" fill="'+b+'" stroke="'+l+'" stroke-width="1.6" stroke-linejoin="round"/>';
+  s+='<polygon points="9.5,15 10,8.5 15,12" fill="#ffd0c0"/><polygon points="30.5,15 30,8.5 25,12" fill="#ffd0c0"/>';
+  s+='<ellipse cx="20" cy="23" rx="15" ry="13" fill="'+b+'" stroke="'+l+'" stroke-width="1.8"/>';
+  s+='<path d="M20 11.5v6M15.5 12.5l1 5M24.5 12.5l-1 5" stroke="#c9742a" stroke-width="1.7" stroke-linecap="round" fill="none"/>';
+  [13.5,26.5].forEach(function(x){
+    var d='';
+    if(mood==='open')d='<ellipse cx="'+x+'" cy="22.5" rx="1.9" ry="2.5" fill="#2a2a2a"/><circle cx="'+(x+.6)+'" cy="21.6" r=".7" fill="#fff"/>';
+    else if(mood==='wow')d='<circle cx="'+x+'" cy="22.5" r="3.2" fill="#fff" stroke="#2a2a2a" stroke-width=".8"/><circle cx="'+x+'" cy="22.5" r="2.2" fill="#2a2a2a"/><circle cx="'+(x+.7)+'" cy="21.6" r=".8" fill="#fff"/>';
+    else if(mood==='half')d='<ellipse cx="'+x+'" cy="23.4" rx="1.9" ry="1.1" fill="#2a2a2a"/><path d="M'+(x-2.4)+' 22.2q2.4 -1.4 4.8 0" stroke="#7a3a10" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+    else if(mood==='closed'||mood==='tongue')d='<path d="M'+(x-2.2)+' 22.4q2.2 2.4 4.4 0" stroke="#2a2a2a" stroke-width="1.3" fill="none" stroke-linecap="round"/>';
+    else if(mood==='happy')d='<path d="M'+(x-2.2)+' 23.4q2.2 -3.2 4.4 0" stroke="#2a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+    else if(mood==='yawn')d='<path d="M'+(x-2.2)+' 21.6l4.4 1.6l-4.4 1.6" stroke="#2a2a2a" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="'+(x<20?'':'translate('+(2*x)+' 0) scale(-1 1)')+'"/>';
+    else d='<path d="M'+(x-2.2)+' 23h4.4" stroke="#2a2a2a" stroke-width="1.4" stroke-linecap="round"/>';
+    s+=d;
+  });
+  s+='<path d="M18.6 27.2h2.8l-1.4 1.6z" fill="#ff7a96"/>';
+  if(mood==='yawn')s+='<ellipse cx="20" cy="31.4" rx="3.2" ry="3.4" fill="#c4455a"/><ellipse cx="20" cy="33" rx="1.9" ry="1.2" fill="#ff9bb0"/>';
+  else if(mood==='happy')s+='<path d="M16.5 29.2q3.5 4.4 7 0z" fill="#c4455a" stroke="#5a3a2a" stroke-width=".6"/>';
+  else if(mood==='tongue')s+='<path d="M20 28.8q-1.8 2 -3.6 .6M20 28.8q1.8 2 3.6 .6" fill="none" stroke="#5a3a2a" stroke-width=".9" stroke-linecap="round"/><ellipse cx="20" cy="31.6" rx="1.8" ry="2.1" fill="#ff8aa8"/>';
+  else s+='<path d="M20 28.8q-1.8 2.2 -3.8 .8M20 28.8q1.8 2.2 3.8 .8" fill="none" stroke="#5a3a2a" stroke-width=".9" stroke-linecap="round"/>';
+  s+='<g stroke="#8a8a8a" stroke-width=".6" stroke-linecap="round"><path d="M4 26.5l7-1M4 29.5l7-.5M36 26.5l-7-1M36 29.5l-7-.5"/></g>';
+  s+='<circle cx="9.5" cy="27.5" r="2" fill="#ff9bb0" opacity=".4"/><circle cx="30.5" cy="27.5" r="2" fill="#ff9bb0" opacity=".4"/>';
+  return s+'</g>';
+}
+function sceneSvg(sc){
+  var k=sc.sky,c=SKY[k],s='<svg viewBox="0 0 100 82" aria-hidden="true"><defs><linearGradient id="sk_'+k+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs>';
+  s+='<rect width="100" height="82" fill="url(#sk_'+k+')"/>';
+  if(k==='dawn')s+='<circle cx="84" cy="62" r="14" fill="#ffb347"/>';
+  else if(k==='morning')s+='<circle cx="20" cy="18" r="8" fill="#ffd54a"/><g stroke="#ffd54a" stroke-width="1.6" stroke-linecap="round"><path d="M20 5v3M20 28v3M7 18h3M30 18h3M11 9l2 2M29 27l2 2M29 9l-2 2M11 27l2 -2"/></g>';
+  else if(k==='noon')s+='<circle cx="50" cy="11" r="8" fill="#fff176"/><circle cx="20" cy="22" r="6" fill="#fff" opacity=".85"/><circle cx="27" cy="22" r="7" fill="#fff" opacity=".85"/>';
+  else if(k==='aft')s+='<circle cx="82" cy="18" r="8" fill="#ffc247"/>';
+  else if(k==='dusk')s+='<circle cx="84" cy="58" r="13" fill="#ff6a3d"/>';
+  else if(k==='night')s+='<circle cx="82" cy="16" r="8" fill="#fff4c2"/><circle cx="86" cy="14" r="7" fill="#26346e"/><g fill="#fff"><circle cx="16" cy="12" r="1.1"/><circle cx="38" cy="8" r=".9"/><circle cx="60" cy="16" r="1.1"/><circle cx="26" cy="30" r=".8"/><circle cx="70" cy="34" r=".9"/></g>';
+  var gc={dawn:'#d9a98a',morning:'#e8cc9c',noon:'#e8cc9c',aft:'#e2c08a',dusk:'#c98a64',night:'#4d5488'}[k];
+  s+='<rect y="62" width="100" height="20" fill="'+gc+'"/>';
+  s+='<g transform="translate(30 20) scale(1.2)">'+catFaceG(sc.mood)+'</g>';
+  if(sc.mood==='sleep')s+='<text x="78" y="26" font-size="12" font-weight="800" fill="'+(k==='night'?'#fff':'#5a7a9a')+'">z</text><text x="85" y="18" font-size="9" font-weight="800" fill="'+(k==='night'?'#fff':'#5a7a9a')+'">z</text>';
+  s+='<text x="3" y="56" font-size="22" font-family="sans-serif">'+sc.prop+'</text>';
+  return s+'</svg>';
+}
+function backSvg(){
+  return '<svg viewBox="0 0 100 82" aria-hidden="true"><rect width="100" height="82" fill="#f7b56e"/><rect x="4" y="4" width="92" height="74" rx="8" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 4"/><g fill="#fff"><ellipse cx="50" cy="52" rx="13" ry="10"/><ellipse cx="32" cy="38" rx="5.5" ry="7"/><ellipse cx="68" cy="38" rx="5.5" ry="7"/><ellipse cx="42" cy="28" rx="5" ry="6.5"/><ellipse cx="58" cy="28" rx="5" ry="6.5"/></g><text x="50" y="58" text-anchor="middle" font-size="18" font-weight="800" fill="#f08a3c">?</text></svg>';
+}
+
+/* ---------- ゲーム ---------- */
+var elCards=$('cards'), ghost=$('ghost');
+var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,cleared:0,L:null,P:null,arr:[],down:{},locked:{},sel:-1,ops:0,conf:0,flips:0,hintsLeft:0,hintsUsed:0,timeMs:0,deadline:0,timer:null,iv:null,newBest:false,lastSec:-1};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function mul(){return G.mode==='slow'?0.7:1}
+function setTimerBar(f,off){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')';$('timer').classList.toggle('off',!!off)}
+function downCount(){return G.arr.filter(function(c){return G.down[c]}).length}
+
+function buildPuzzle(L){
+  var P=null,tries=0;
+  while(!P&&tries++<20)P=genPuzzle(L);
+  if(!P){var a=[sIdx('wake'),sIdx('breakfast'),sIdx('sleep')];P={n:3,sol:a.slice(),arr:[a[2],a[0],a[1]],down:[],ties:0}}
+  G.P=P;G.arr=P.arr.slice();G.down={};P.down.forEach(function(c){G.down[c]=true});
+  G.locked={};G.sel=-1;G.ops=0;G.conf=0;G.flips=0;G.hintsUsed=0;
+  drawCards();
+}
+function render(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  var on=G.round>0&&G.P;
+  $('stRound').textContent=G.round>0?G.round:'-';$('stCats').textContent=on?G.P.n:'-';$('stDown').textContent=on?downCount():'-';$('stConf').textContent=G.round>0?G.conf:'-';
+  var m=G.phase==='idle'?modeKey():G.mode;$('stMode').textContent=m==='slow'?'ゆっくり':'ふつう';
+  var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+  var pl=G.phase==='play';
+  $('bOk').disabled=!pl;$('bHint').disabled=!(pl&&G.hintsLeft>0);
+  $('bHint').textContent='💡 ヒント('+(G.round>0?G.hintsLeft:hintsOf())+')';
+}
+function colsOf(n){return n<=4?n:n<=6?3:n<=8?4:3}
+function drawCards(){
+  var n=G.arr.length,h='';
+  elCards.style.gridTemplateColumns='repeat('+colsOf(n)+',minmax(0,1fr))';
+  G.arr.forEach(function(c,i){
+    var sc=SCENES[c],dn=!!G.down[c];
+    h+='<div class="cd'+(G.sel===i?' sel':'')+(G.locked[i]?' lock':'')+'" data-i="'+i+'" role="button" aria-label="'+(i+1)+'番目 '+(dn?'伏せたカード':sc.n)+'"><span class="no">'+(i+1)+'</span>'+(dn?backSvg():sceneSvg(sc))+'<div class="lb">'+(dn?'？ タップでめくる':sc.n)+'</div></div>';
+  });
+  elCards.innerHTML=h;
+  render();
+}
+
+/* ---------- 操作 ---------- */
+function swapCards(i,j){
+  if(i===j)return false;
+  if(G.locked[i]||G.locked[j]){say('🔒のカードは動かせないよ');sfx.bad();G.sel=-1;drawCards();return false}
+  var t=G.arr[i];G.arr[i]=G.arr[j];G.arr[j]=t;
+  G.sel=-1;G.ops++;sfx.place();meow(G.arr[i]%9,0.14);drawCards();say('入れかえたよ。じゅんばんは あっているかな?');return true;
+}
+function flip(i){
+  var c=G.arr[i];if(!G.down[c])return;
+  G.down[c]=false;G.flips++;G.sel=-1;sfx.flip();drawCards();say('めくったよ: '+SCENES[c].n+'(めくると得点が少しへるよ)');
+}
+function tapCard(i){
+  if(G.phase!=='play')return;
+  var c=G.arr[i];
+  if(G.sel>=0){
+    if(G.sel===i){G.sel=-1;sfx.back();drawCards();return}
+    swapCards(G.sel,i);return;
+  }
+  if(G.down[c]){flip(i);return}
+  if(G.locked[i]){say('🔒のカードは動かせないよ');return}
+  G.sel=i;sfx.grab();say('「'+SCENES[c].n+'」を選んだよ。入れかえたい場所のカードをタップ!');drawCards();
+}
+var press=null;
+elCards.addEventListener('pointerdown',function(e){
+  if(G.phase!=='play')return;
+  var el=e.target.closest('.cd');if(!el||(e.button&&e.button>0))return;
+  var i=+el.dataset.i;
+  press={i:i,x:e.clientX,y:e.clientY,drag:false,el:el,off:e.pointerType==='touch'?36:0};
+});
+function overClear(){Array.prototype.forEach.call(document.querySelectorAll('.over'),function(x){x.classList.remove('over')})}
+window.addEventListener('pointermove',function(e){
+  if(!press)return;
+  if(!press.drag){
+    if(Math.abs(e.clientX-press.x)+Math.abs(e.clientY-press.y)<9)return;
+    if(G.locked[press.i]){press=null;return}
+    press.drag=true;G.sel=-1;sfx.grab();
+    var w=Math.min(84,press.el.getBoundingClientRect().width);
+    ghost.innerHTML='<div style="width:'+w+'px;background:#fff;border:3px solid #ff8f5a;border-radius:10px;padding:2px">'+(G.down[G.arr[press.i]]?backSvg():sceneSvg(SCENES[G.arr[press.i]]))+'</div>';
+    ghost.style.display='block';ghost.dataset.w=w;press.el.classList.add('drag');
+  }
+  var w=+ghost.dataset.w||80;
+  ghost.style.transform='translate('+(e.clientX-w/2)+'px,'+(e.clientY-w/2-press.off)+'px)';
+  overClear();
+  var t=document.elementFromPoint(e.clientX,e.clientY-press.off),d=t&&t.closest&&t.closest('.cd');
+  if(d&&+d.dataset.i!==press.i)d.classList.add('over');
+  e.preventDefault();
+},{passive:false});
+function endPress(e,cancel){
+  if(!press)return;
+  var p=press;press=null;ghost.style.display='none';overClear();
+  if(p.el)p.el.classList.remove('drag');
+  if(G.phase!=='play')return;
+  if(p.drag){
+    if(cancel){drawCards();return}
+    var t=document.elementFromPoint(e.clientX,e.clientY-p.off),d=t&&t.closest&&t.closest('.cd');
+    if(d)swapCards(p.i,+d.dataset.i);else drawCards();
+  }else if(!cancel)tapCard(p.i);
+}
+window.addEventListener('pointerup',function(e){endPress(e,false)});
+window.addEventListener('pointercancel',function(e){endPress(e,true)});
+
+$('bHint').onclick=function(){
+  if(G.phase!=='play'||G.hintsLeft<=0)return;
+  var P=G.P,wrong=range(P.n).filter(function(i){return !G.locked[i]&&tOf(G.arr[i])!==tOf(P.sol[i])});
+  if(!wrong.length)return;
+  var i=wrong[rnd(wrong.length)],want=tOf(P.sol[i]);
+  var cands=range(P.n).filter(function(j){return j!==i&&!G.locked[j]&&tOf(G.arr[j])===want});
+  if(!cands.length)return;
+  var j=cands[rnd(cands.length)],t=G.arr[i];G.arr[i]=G.arr[j];G.arr[j]=t;
+  G.locked[i]=true;G.down[G.arr[i]]=false;G.hintsLeft--;G.hintsUsed++;G.sel=-1;G.ops++;
+  sfx.hint();drawCards();say('ヒント!'+(i+1)+'番目に「'+SCENES[G.arr[i]].n+'」を置いたよ(🔒・のこり'+G.hintsLeft+'回)');
+};
+$('bOk').onclick=function(){if(G.phase==='play')confirmNow()};
+
+/* ---------- 進行 ---------- */
+function confirmNow(){
+  G.conf++;G.sel=-1;
+  if(inOrder(G.arr)){win();return}
+  var mis=misplaced(G.arr);
+  G.lives--;sfx.miss();drawCards();
+  var app=$('cardsWrap');app.classList.remove('shake');void app.offsetWidth;app.classList.add('shake');
+  if(G.lives<=0){G.phase='between';clearInterval(G.iv);say('まだ順番がちがうよ…ハートがなくなったよ');render();after(1800,gameOver);return}
+  say('まだ順番がちがうよ。あと'+mis+'枚ずれているみたい。ハートが1つへったよ(のこり'+G.lives+'こ)');
+}
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.mode=modeKey();G.round=0;G.score=0;G.lives=LIVES;G.cleared=0;G.newBest=false;G.phase='between';G.hintsLeft=hintsOf();
+  $('result').hidden=true;var st=$('start');st.textContent='やめる';st.classList.add('stop');$('tSlow').disabled=true;
+  sfx.start();say('スタート!猫の一日を、朝から夜の順に並べよう');bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';render();after(900,nextRound);
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.round=0;bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';
+  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.phase='idle';press=null;ghost.style.display='none';say('やめました。「はじめる」でもう一度あそべます。');demo();
+}
+function demo(){var L=levelOf(2);G.L=L;G.phase='idle';buildPuzzle(L)}
+function nextRound(){
+  G.round++;var L=levelOf(G.round);G.L=L;G.phase='play';buildPuzzle(L);bonusSay('');
+  G.timeMs=timeOf(L)*1000;G.deadline=performance.now()+G.timeMs;G.lastSec=-1;
+  render();say('ラウンド'+G.round+':カード'+L.n+'枚'+(L.down?' / 伏せ'+L.down+'枚':'')+' / '+(G.timeMs/1000)+'秒'+(G.P.ties?' ※同じ時間帯は どちらが先でもOK':''));
+  setTimerBar(1,false);clearInterval(G.iv);
+  var run=G.run;
+  G.iv=setInterval(function(){
+    if(run!==G.run){clearInterval(G.iv);return}
+    var left=G.deadline-performance.now();setTimerBar(left/G.timeMs,false);
+    var sec=Math.max(0,Math.ceil(left/1000));$('stTime').textContent=sec+'秒';
+    if(sec<=5&&sec>0&&sec!==G.lastSec&&G.phase==='play')sfx.tick();
+    G.lastSec=sec;
+    if(left<=0){clearInterval(G.iv);if(G.phase==='play')timeout()}
+  },100);
+}
+function win(){
+  clearInterval(G.iv);G.phase='between';G.cleared=G.round;press=null;ghost.style.display='none';
+  var m=mul(),r=G.round,n=G.P.n,left=Math.max(0,G.deadline-performance.now())/1000;
+  var base=Math.round((50*n+30*r)*m),tb=Math.round(left*r*0.8*m),cb=Math.round((G.conf===1?80*r:G.conf===2?30*r:0)*m),fp=Math.round(G.flips*10*r*m),hp=Math.round(G.hintsUsed*40*r*m);
+  var tot=Math.max(0,base+tb+cb-fp-hp);G.score+=tot;
+  G.down={};drawCards();
+  say('ぴったり!猫の一日のできあがり(ラウンド'+r+' クリア)');
+  bonusSay('+'+base+(tb?' / 残り時間 +'+tb:'')+(cb?' / 一発かくにん +'+cb:'')+(fp?' / めくり −'+fp:'')+(hp?' / ヒント −'+hp:'')+'(かくにん'+G.conf+'回)');
+  sfx.win();G.arr.forEach(function(c,i){setTimeout(function(){meow((c+i)%9,0.18)},500+i*150)});
+  after(2400+n*100,nextRound);
+}
+function timeout(){
+  G.phase='between';press=null;ghost.style.display='none';G.lives--;sfx.miss();G.sel=-1;drawCards();
+  say('時間切れ…!(のこりハート'+Math.max(0,G.lives)+'こ)');
+  if(G.lives<=0){after(1800,gameOver);return}
+  after(2000,nextRound);
+}
+function gameOver(){
+  var k=G.mode,b=bestOf(k),cleared=G.cleared,nb={score:b.score,round:b.round};
+  if(G.score>nb.score){nb.score=G.score;G.newBest=true}
+  if(cleared>nb.round){nb.round=cleared;G.newBest=true}
+  if(G.newBest){best[k]=nb;lsSet(LS_BEST,best)}
+  G.phase='idle';b=bestOf(k);
+  $('result').innerHTML='<h2>ゲームおわり('+(k==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
+    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
+  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
+  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.round=0;setTimerBar(1,true);$('stTime').textContent='-';render();
+}
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;applyVol();
+  if(G.P)drawCards();
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+
+/* テスト用の窓口(ゲームの動作には使わない) */
+window.__cd={G:G,levelOf:levelOf,genPuzzle:genPuzzle,timeOf:timeOf,SCENES:SCENES};
+demo();applySet();render();
+})();
+</script>
+</body>
+</html>
