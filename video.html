@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Simple Video v3.9</title>
+<title>salp Simple Video v3.10</title>
 <style>
 :root{--bg:#f7f3ea;--panel:#fff;--text:#222;--muted:#777;--line:#ddd6ca;--accent1:#70dce9;--accent2:#ff8fbd}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -133,7 +133,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
 <body>
 <div class="app">
 <header>
-  <h1>🎬 salp Simple Video v3.9</h1>
+  <h1>🎬 salp Simple Video v3.10</h1>
   <div class="sub">動画・静止画を複数つないで1本のMP4に</div>
   <a class="back" href="index.html">← salp Toolsへ戻る</a>
 </header>
@@ -276,7 +276,7 @@ button:disabled{opacity:.4}.fileInfo{min-height:22px;margin-top:8px;color:#777;f
   <div class="actions"><button id="previewBtn" class="accent">▶ プレビュー</button><button id="exportBtn" class="primary">MP4を書き出す</button></div>
   <div class="progress"><div id="progressBar"></div></div>
   <div id="status" class="status">素材を選んでください</div>
-  <p class="note">v3.9ではiPhoneなどの回転情報付き動画を正しい向きで書き出せるよう修正しました。静止画＋音声、動画切り出し、複数素材の連結に対応しています。</p>
+  <p class="note">v3.10では、静止画＋音声で音声を選ぶと「動画の長さ」の初期値が音声の長さに自動で合います（その後は手動で変更できます）。v3.9ではiPhoneなどの回転情報付き動画を正しい向きで書き出せるよう修正しました。静止画＋音声、動画切り出し、複数素材の連結に対応しています。</p>
 </section>
 
 <section id="resultPanel" class="panel result">
@@ -330,7 +330,7 @@ function drawPreview(){
 }
 
 $("imageInput").onchange=async e=>{imageFile=e.target.files[0]||null;if(!imageFile)return;if(imageBitmap)imageBitmap.close();imageBitmap=await createImageBitmap(imageFile);$("imageInfo").textContent=imageFile.name;drawPreview()};
-$("audioInput").onchange=e=>{audioFile=e.target.files[0]||null;$("audioInfo").textContent=audioFile?audioFile.name:"音声は未選択です"};
+$("audioInput").onchange=async e=>{audioFile=e.target.files[0]||null;$("audioInfo").textContent=audioFile?audioFile.name:"音声は未選択です";if(audioFile){const d=await getMediaDuration(audioFile);if(d>0){const len=Math.ceil(d*10)/10,box=$("stillDuration");if(len>Number(box.max))box.max=Math.ceil(len);box.value=len.toFixed(1);$("audioInfo").textContent=audioFile.name+"（"+len.toFixed(1)+"秒）／動画の長さを音声に合わせました"}}};
 $("videoInput").onchange=e=>{videoFile=e.target.files[0]||null;if(!videoFile)return;if(videoUrl)URL.revokeObjectURL(videoUrl);videoUrl=URL.createObjectURL(videoFile);sourceVideo.src=videoUrl;$("videoInfo").textContent=videoFile.name;sourceVideo.onloadedmetadata=()=>{$("trimStart").value="0";$("trimEnd").value=sourceVideo.duration.toFixed(1);sourceVideo.currentTime=0};sourceVideo.onloadeddata=drawPreview};
 $("audioVolume").oninput=()=>{
   $("audioVolumeValue").textContent=$("audioVolume").value+"%";
@@ -749,6 +749,10 @@ function mixAudioBuffers({
 
 
 /*
+  v3.10:
+  静止画＋音声モードで音声を読み込むと、動画の長さ(stillDuration)を音声の長さに自動設定。
+  手動変更は従来どおり可能。音声なしの初期値は10秒のまま。
+
   v3.9:
   iPhoneなどの動画は、画素自体は横向きで保存し、
   「90度回転して表示」というメタデータを持つことがあります。
