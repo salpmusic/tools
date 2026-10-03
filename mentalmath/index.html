@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#101a2e">
+<meta name="description" content="制限時間内にたし算・ひき算・かけ算をどんどん解く暗算ゲーム。8段階のレベル、1人プレイと2人交代対戦、ゆっくりモード、レトロ効果音に対応。">
+<title>暗算ダッシュ | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#101a2e;color:#e8f0ff;
+  font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.mono{font-family:"Courier New",ui-monospace,Menlo,monospace}
+.app{
+  max-width:560px;margin:0 auto;display:grid;gap:10px;
+  grid-template-areas:"head" "info" "quiz" "go" "pad" "ctrl";
+}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1.25rem;letter-spacing:.04em}
+.home{color:#8fd0ff;font-size:.85rem;text-decoration:none;border:1px solid #3a5a8a;border-radius:999px;padding:4px 12px;white-space:nowrap}
+.info{grid-area:info;display:grid;gap:8px}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scores.solo{grid-template-columns:1fr}
+.pcard{background:#182848;border:3px solid #2c4472;border-radius:12px;padding:5px 10px;text-align:center}
+.pcard.p2.hide{display:none}
+.pcard.active{border-color:#ffe14d}
+.pcard .name{font-size:.8rem;color:#a8bce0}
+.pcard .val{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:.85rem;color:#c3d2f0}
+.stats b{color:#fff;font-variant-numeric:tabular-nums}
+.timer{height:14px;background:#0a1222;border-radius:7px;overflow:hidden;border:2px solid #2c4472}
+.timer i{display:block;height:100%;width:100%;background:#4de08a;transform-origin:left;transition:background .2s}
+.timer.low i{background:#ff5a5a}
+#msg{min-height:2.6em;display:flex;align-items:center;justify-content:center;text-align:center;background:#1b2f55;border-radius:10px;padding:6px 10px;font-weight:700}
+
+.quiz{grid-area:quiz;background:#0a1222;border:3px solid #2c4472;border-radius:16px;padding:10px 12px;text-align:center}
+#problem{font-size:clamp(2rem,10vw,3.4rem);font-weight:800;letter-spacing:.04em;color:#ffe14d;min-height:1.2em;white-space:nowrap}
+body.large #problem{font-size:clamp(2.2rem,11vw,3.8rem)}
+#answer{font-size:clamp(1.8rem,9vw,3rem);font-weight:800;min-height:1.3em;color:#fff;border-top:2px dashed #2c4472;margin-top:4px;padding-top:2px;letter-spacing:.1em}
+#answer.ok{color:#4de08a}#answer.ng{color:#ff6b6b}
+#bonus{min-height:1.3em;font-size:.9rem;font-weight:700;color:#4de08a}
+
+.pad{grid-area:pad;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.k{border:0;border-radius:14px;background:#26407a;color:#fff;font-size:1.7rem;font-weight:800;min-height:3.1rem;height:clamp(52px,8.5dvh,84px);box-shadow:0 4px 0 #14254b;-webkit-user-select:none;user-select:none}
+body.large .k{height:clamp(58px,9.5dvh,92px);font-size:2rem}
+.k:active,.k.press{transform:translateY(3px);box-shadow:0 1px 0 #14254b;background:#3a5cb0}
+.k.fn{background:#5a3a6a;box-shadow:0 4px 0 #34213f}
+.k:disabled{opacity:.45}
+
+.go{grid-area:go;display:grid;gap:8px}
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#16233f;border:1px solid #2c4472;border-radius:12px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#a8bce0;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.seg{display:inline-flex;border:2px solid #4a6cb0;border-radius:999px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:6px 14px;font-weight:700;color:#c3d2f0}
+.seg button[aria-pressed=true]{background:#4a78ff;color:#fff}
+select{background:#0a1222;border:2px solid #4a6cb0;border-radius:8px;padding:5px 8px}
+.main{width:100%;border:0;border-radius:12px;background:#ffe14d;color:#1b1b1b;font-weight:800;font-size:1.15rem;padding:10px;box-shadow:0 4px 0 #b39a1f}
+.main.stop{background:#4a5a80;color:#fff;box-shadow:0 4px 0 #2c3a5a}
+.tog{background:#182848;border:2px solid #4a6cb0;border-radius:999px;padding:6px 14px;font-weight:700}
+.tog[aria-pressed=true]{background:#4a78ff;border-color:#9fb8ff;color:#fff}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ffe14d;height:28px}
+#result{background:#2a2250;border:2px solid #ffe14d;border-radius:12px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#ffe14d;margin-bottom:4px}
+.note{font-size:.75rem;color:#8fa0c8;text-align:center}
+.lvdesc{font-size:.8rem;color:#a8bce0}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc .quiz,body.hc #result{background:#000;border:3px solid #fff}
+body.hc .pcard.active{border-color:#ffff00}
+body.hc .pcard .name,body.hc .stats,body.hc .box h2,body.hc .note,body.hc .lvdesc{color:#fff}
+body.hc #problem,body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc #answer.ok{color:#00ff00}body.hc #answer.ng{color:#ff4040}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#00ff00}body.hc .timer.low i{background:#ff0000}
+body.hc .k{background:#fff;color:#000;box-shadow:0 4px 0 #888}
+body.hc .k.fn{background:#ffff00;color:#000}
+body.hc .home{color:#ffff00;border-color:#ffff00}
+body.hc .seg{border-color:#fff}body.hc .seg button{color:#fff}
+body.hc .seg button[aria-pressed=true],body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000;border-color:#fff}
+body.hc .tog,body.hc select{background:#000;border-color:#fff;color:#fff}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:landscape) and (max-height:620px){
+  .app{max-width:1000px;align-items:start;grid-template-columns:1fr minmax(260px,40vw);column-gap:14px;
+    grid-template-areas:"head pad" "info pad" "quiz pad" "go pad" "ctrl ctrl"}
+  .k{height:clamp(44px,17dvh,68px);font-size:1.5rem}
+  body.large .k{height:clamp(48px,18dvh,72px)}
+  #problem{font-size:clamp(1.8rem,7vw,2.8rem)}
+  #answer{font-size:clamp(1.5rem,6vw,2.3rem)}
+  .pad{align-self:start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>➕ 暗算ダッシュ</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="scores solo" id="scores">
+      <div class="pcard p1" id="pc1"><div class="name" id="n1">スコア</div><div class="val mono" id="s1">0</div></div>
+      <div class="pcard p2 hide" id="pc2"><div class="name">プレイヤー2</div><div class="val mono" id="s2">0</div></div>
+    </div>
+    <div class="timer" id="timer" aria-label="のこり時間"><i id="tbar"></i></div>
+    <div class="stats">
+      <span>のこり <b id="stTime">-</b>秒</span>
+      <span>れんぞく <b id="stCombo">0</b></span>
+      <span>Lv <b id="stLv">1</b></span>
+      <span>ベスト <b id="stBest">0</b>点</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">レベルを選んで「スタート」!制限時間内にたくさん解こう。</div>
+  </section>
+
+  <section class="quiz" aria-live="polite">
+    <div id="problem" class="mono">? + ?</div>
+    <div id="answer" class="mono">&nbsp;</div>
+    <div id="bonus"></div>
+  </section>
+
+  <div class="go">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">スタート</button>
+  </div>
+
+  <div class="pad" id="pad" aria-label="テンキー"></div>
+
+  <div class="ctrl">
+    <section class="box" id="setup">
+      <h2>あそびかた設定</h2>
+      <div class="row" style="margin-bottom:8px">
+        <div class="seg" role="group" aria-label="人数">
+          <button type="button" id="m1" aria-pressed="true">1人</button>
+          <button type="button" id="m2" aria-pressed="false">2人交代</button>
+        </div>
+        <label>レベル <select id="level"></select></label>
+      </div>
+      <div class="row" style="margin-bottom:6px">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード</button>
+      </div>
+      <p class="lvdesc" id="lvdesc"></p>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="50" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">得点: 正解=10点×レベル + はやさボーナス + れんぞく正解ボーナス。まちがえると 2秒へり、れんぞくが 0 に。答えの桁がそろうと自動で判定します。キーボードの数字・BackSpaceも使えます。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpMentalMath_best_v1', LS_SET='salpMentalMath_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:50,hc:false,large:false,slow:false,level:1,mode:1},lsGet(LS_SET)||{});
+if(!(set.level>=1&&set.level<=8))set.level=1;
+function modeName(){return set.slow?'slow':'normal'}
+function bkey(l){return modeName()+'_'+l}
+function bestOf(k){return best[k]||{score:0,correct:0}}
+var TIME={normal:60,slow:100}, PENALTY=2, FAST={normal:2500,slow:4500};
+
+/* レベル: ops=出題する演算と数の範囲 */
+var LEVELS=[null,
+ {d:'たし算(1けた+1けた)',ops:[['+',1,9,1,9]]},
+ {d:'たし算・ひき算(1けた)',ops:[['+',1,9,1,9],['-',2,9,1,9]]},
+ {d:'たし算・ひき算(2けた±1〜2けた)',ops:[['+',10,50,1,30],['-',15,60,1,30]]},
+ {d:'たし算・ひき算(2けた±2けた)',ops:[['+',10,99,10,99],['-',20,99,10,99]]},
+ {d:'かけ算(九九)+たし算・ひき算',ops:[['×',2,9,2,9],['+',10,99,10,99],['-',20,99,10,99]]},
+ {d:'かけ算(2けた×1けた)+たし算・ひき算',ops:[['×',11,30,2,9],['×',2,9,2,9],['+',20,99,20,99],['-',30,99,10,99]]},
+ {d:'3けたのたし算・ひき算 + かけ算',ops:[['+',100,999,100,999],['-',200,999,100,999],['×',11,40,3,9],['×',12,19,11,19]]},
+ {d:'大きなかけ算・たし算・ひき算',ops:[['×',12,29,11,29],['×',21,99,3,9],['+',200,999,200,999],['-',300,999,100,999]]}
+];
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function makeProblem(l,prev){
+  var o,p,a,b,ans,t=0,L=LEVELS[l];
+  do{
+    o=L.ops[rnd(0,L.ops.length-1)];a=rnd(o[1],o[2]);b=rnd(o[3],o[4]);
+    if(o[0]==='-'){if(b>a){var x=a;a=b;b=x}if(a===b)a++;ans=a-b}
+    else if(o[0]==='+')ans=a+b;else ans=a*b;
+    p={t:a+' '+o[0]+' '+b,ans:ans};
+  }while(prev&&p.t===prev.t&&++t<10);
+  return p;
+}
+
+/* ---------- 効果音(矩形波) + iOS対策 ---------- */
+var ctx=null,master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+function applyVol(){if(master)master.gain.value=set.sound?Math.pow(set.vol/100,1.5):0}
+function tone(f,t0,d,v,slide){
+  if(!ctx||!set.sound)return;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type='square';
+  o.frequency.setValueAtTime(f,t0);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t0+d);
+  var a=(v||1)*0.2;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(a,t0+0.006);
+  g.gain.setValueAtTime(a,t0+Math.max(0.007,d-0.025));g.gain.linearRampToValueAtTime(0.0001,t0+d);
+  o.connect(g);g.connect(master);o.start(t0);o.stop(t0+d+0.02);
+}
+function mel(list,step,d,v){if(!ctx||!set.sound)return;var t=ctx.currentTime+0.01;list.forEach(function(f,i){tone(f,t+i*step,d,v)})}
+var sfx={
+  key:function(){if(ctx)tone(660,ctx.currentTime+0.003,0.04,.6)},
+  ok:function(){mel([988,1319],0.06,0.07,.9)},
+  combo:function(n){var b=[1047,1319,1568,1976,2349];mel([b[Math.min(n,5)-1||0],b[Math.min(n,5)]||2637],0.06,0.07,.9)},
+  ng:function(){if(ctx)tone(220,ctx.currentTime+0.01,0.25,1,90)},
+  tick:function(){if(ctx)tone(1760,ctx.currentTime+0.003,0.05,.7)},
+  count:function(){if(ctx)tone(880,ctx.currentTime+0.003,0.1,.9)},
+  go:function(){mel([880,1319,1760],0.07,0.09,1)},
+  end:function(){mel([1568,1319,1047,784,523],0.11,0.1,1)},
+  win:function(){mel([523,659,784,1047,784,1047,1319],0.09,0.08,1)}
+};
+
+/* ---------- 状態 ---------- */
+var G={run:0,phase:'idle',players:set.mode,cur:0,scores:[0,0],correct:[0,0],miss:[0,0],maxCombo:[0,0],combo:0,level:set.level,mode:'normal',
+  prob:null,typed:'',deadline:0,total:60,qStart:0,timer:null,iv:null,lastTick:-1,newBest:false,turnBest:false};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function pname(i){return i===0?'プレイヤー1':'プレイヤー2'}
+function activeLevel(){return G.phase==='idle'?set.level:G.level}
+function activeMode(){return G.phase==='idle'?modeName():G.mode}
+function render(){
+  $('s1').textContent=G.scores[0];$('s2').textContent=G.scores[1];
+  $('n1').textContent=G.players===2?'プレイヤー1':'スコア';
+  $('pc1').classList.toggle('active',G.phase!=='idle'&&G.players===2&&G.cur===0);
+  $('pc2').classList.toggle('active',G.phase!=='idle'&&G.players===2&&G.cur===1);
+  $('stCombo').textContent=G.combo;$('stLv').textContent=activeLevel();
+  $('stBest').textContent=bestOf(activeMode()+'_'+activeLevel()).score;
+}
+function showTime(ms){
+  var s=Math.max(0,ms)/1000;
+  $('stTime').textContent=G.phase==='play'?Math.ceil(s):'-';
+  $('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,s/G.total))+')';
+  $('timer').classList.toggle('low',G.phase==='play'&&s<=10);
+}
+function setAnswer(txt,cls){var a=$('answer');a.textContent=txt||'\u00a0';a.className='mono'+(cls?' '+cls:'')}
+function enablePad(on){[].forEach.call($('pad').children,function(b){b.disabled=!on})}
+
+/* テンキー */
+(function(){
+  var keys=['7','8','9','4','5','6','1','2','3','C','0','⌫'];
+  keys.forEach(function(k){
+    var b=document.createElement('button');b.type='button';b.className='k mono'+(k==='C'||k==='⌫'?' fn':'');b.textContent=k==='C'?'C':k;
+    b.setAttribute('aria-label',k==='C'?'クリア':k==='⌫'?'1文字消す':k);b.disabled=true;
+    b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();input(k)});
+    b.addEventListener('contextmenu',function(e){e.preventDefault()});
+    $('pad').appendChild(b);
+  });
+})();
+var lastTE=0;
+$('pad').addEventListener('touchend',function(e){var n=Date.now();if(n-lastTE<400)e.preventDefault();lastTE=n},{passive:false});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+document.addEventListener('keydown',function(e){
+  if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'))return;
+  if(e.key>='0'&&e.key<='9'){unlockAudio();input(e.key)}
+  else if(e.key==='Backspace'){e.preventDefault();input('⌫')}
+  else if(e.key==='Escape'||e.key==='Delete')input('C');
+});
+
+/* ---------- ゲーム進行 ---------- */
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.players=set.mode;G.level=set.level;G.mode=modeName();G.total=TIME[G.mode];
+  G.scores=[0,0];G.correct=[0,0];G.miss=[0,0];G.maxCombo=[0,0];G.cur=0;G.newBest=false;
+  $('result').hidden=true;$('setup').hidden=true;
+  $('scores').classList.toggle('solo',G.players===1);$('pc2').classList.toggle('hide',G.players===1);
+  var st=$('start');st.textContent='やめる';st.classList.add('stop');
+  beginTurn();
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.phase='idle';G.combo=0;enablePad(false);
+  $('setup').hidden=false;var st=$('start');st.textContent='スタート';st.classList.remove('stop');
+  $('problem').textContent='? + ?';setAnswer('');$('bonus').textContent='';showTime(G.total*1000);
+  say('やめました。「スタート」でもう一度あそべます。');render();
+}
+function beginTurn(){
+  G.phase='count';G.combo=0;G.typed='';enablePad(false);$('bonus').textContent='';
+  $('problem').textContent='READY';setAnswer('');showTime(G.total*1000);render();
+  say(G.players===2?pname(G.cur)+'の番です!じゅんびしてね':'じゅんびしてね');
+  var n=3;(function tick(){
+    $('problem').textContent=String(n);sfx.count();
+    after(750,function(){if(--n>0)tick();else go()});
+  })();
+}
+function go(){
+  G.phase='play';sfx.go();G.deadline=performance.now()+G.total*1000;G.lastTick=-1;
+  enablePad(true);nextProblem();say(G.players===2?pname(G.cur)+' スタート!':'スタート!');
+  var r=G.run;clearInterval(G.iv);
+  G.iv=setInterval(function(){
+    if(r!==G.run||(G.phase!=='play'&&G.phase!=='flash')){clearInterval(G.iv);return}
+    var left=G.deadline-performance.now();showTime(left);
+    var s=Math.ceil(left/1000);if(left>0&&s<=5&&s!==G.lastTick){G.lastTick=s;sfx.tick()}
+    if(left<=0){clearInterval(G.iv);endTurn()}
+  },100);
+}
+function nextProblem(){
+  G.prob=makeProblem(G.level,G.prob);G.typed='';G.qStart=performance.now();
+  $('problem').textContent=G.prob.t+' =';setAnswer('');
+}
+function input(k){
+  if(G.phase!=='play')return;
+  if(k==='C'){G.typed='';setAnswer('');return}
+  if(k==='⌫'){G.typed=G.typed.slice(0,-1);setAnswer(G.typed);return}
+  var want=String(G.prob.ans).length;
+  if(G.typed.length>=want)return;
+  G.typed+=k;sfx.key();setAnswer(G.typed);
+  if(G.typed.length===want)judge();
+}
+var lock=false;
+function judge(){
+  var ok=Number(G.typed)===G.prob.ans,dt=performance.now()-G.qStart,L=G.level,mul=G.mode==='slow'?0.7:1,c=G.cur;
+  if(ok){
+    G.combo++;if(G.combo>G.maxCombo[c])G.maxCombo[c]=G.combo;G.correct[c]++;
+    var pts=10*L,txt='+'+Math.round(10*L*mul);
+    var fast=dt<=FAST[G.mode],cb=G.combo>=3?(Math.min(G.combo,10)-2)*L:0;
+    if(fast)pts+=5*L;if(cb)pts+=cb;
+    pts=Math.round(pts*mul);G.scores[c]+=pts;
+    var parts=['+'+pts+'点'];if(fast)parts.push('はやい!');if(G.combo>=3)parts.push(G.combo+'れんぞく!');
+    $('bonus').textContent=parts.join(' ');
+    if(G.combo>=3)sfx.combo(Math.min(G.combo-2,5));else sfx.ok();
+    setAnswer(G.typed,'ok');
+  }else{
+    G.combo=0;G.miss[c]++;G.deadline-=PENALTY*1000;sfx.ng();
+    $('bonus').textContent='ちがうよ… 答えは '+G.prob.ans+'(−'+PENALTY+'秒)';setAnswer(G.typed,'ng');
+  }
+  render();
+  G.phase='flash';var r=G.run;
+  setTimeout(function(){if(r!==G.run||G.phase!=='flash')return;G.phase='play';nextProblem()},ok?220:700);
+}
+function endTurn(){
+  G.phase='between';enablePad(false);sfx.end();G.combo=0;render();
+  $('problem').textContent='TIME UP!';setAnswer('');showTime(0);
+  var c=G.cur,k=G.mode+'_'+G.level,b=bestOf(k);
+  if(G.scores[c]>b.score){best[k]={score:G.scores[c],correct:G.correct[c]};lsSet(LS_BEST,best);G.newBest=true}
+  say('終了!'+(G.players===2?pname(c)+': ':'')+G.scores[c]+'点');
+  after(1800,function(){
+    if(G.players===2&&G.cur===0){G.cur=1;beginTurn()}else gameOver();
+  });
+}
+function gameOver(){
+  G.phase='idle';enablePad(false);
+  $('setup').hidden=false;var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');
+  var h,lvl='レベル'+G.level+(G.mode==='slow'?'・ゆっくり':'');
+  function line(i){var tot=G.correct[i]+G.miss[i];return '得点 <b>'+G.scores[i]+'</b> 点 / 正解 '+G.correct[i]+' 問 / ミス '+G.miss[i]+' / 最大れんぞく '+G.maxCombo[i]+(tot?'(正答率 '+Math.round(G.correct[i]*100/tot)+'%)':'')}
+  if(G.players===1){
+    h='<h2>けっか('+lvl+')</h2><p>'+line(0)+'</p>'+(G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+bestOf(G.mode+'_'+G.level).score+'点</p>');
+    say('おつかれさま!');
+  }else{
+    var a=G.scores[0],b2=G.scores[1],w=a>b2?'🏆 プレイヤー1の勝ち!':b2>a?'🏆 プレイヤー2の勝ち!':'🤝 引き分け!';
+    h='<h2>'+w+'</h2><p>('+lvl+')</p><p>プレイヤー1: '+line(0)+'</p><p>プレイヤー2: '+line(1)+'</p>'+(a!==b2?'<p>差 '+Math.abs(a-b2)+' 点</p>':'')+(G.newBest?'<p>🎉 ベスト記録を更新!</p>':'');
+    say(w);if(a===b2)sfx.end();else sfx.win();
+  }
+  $('result').innerHTML=h;$('result').hidden=false;
+  $('problem').textContent='? + ?';G.combo=0;render();$('pc1').classList.remove('active');$('pc2').classList.remove('active');
+  showTime(G.total*1000);
+}
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+
+/* ---------- UI ---------- */
+(function(){var sel=$('level');for(var l=1;l<=8;l++){var o=document.createElement('option');o.value=l;o.textContent='レベル'+l;sel.appendChild(o)}})();
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('m1').setAttribute('aria-pressed',String(set.mode===1));$('m2').setAttribute('aria-pressed',String(set.mode===2));
+  $('level').value=String(set.level);$('vol').value=set.vol;
+  $('lvdesc').textContent='レベル'+set.level+': '+LEVELS[set.level].d+' / 制限時間 '+TIME[modeName()]+'秒'+(set.slow?'(ゆっくり:得点×0.7)':'');
+  if(G.phase==='idle'){G.players=set.mode;G.total=TIME[modeName()];$('scores').classList.toggle('solo',set.mode===1);$('pc2').classList.toggle('hide',set.mode===1);showTime(G.total*1000)}
+  applyVol();
+}
+function save(){lsSet(LS_SET,set)}
+$('m1').onclick=function(){set.mode=1;save();applySet();render()};
+$('m2').onclick=function(){set.mode=2;save();applySet();render()};
+$('level').onchange=function(){set.level=+this.value;save();applySet();render()};
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)sfx.ok()};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)sfx.ok()};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+applySet();render();
+})();
+</script>
+</body>
+</html>
