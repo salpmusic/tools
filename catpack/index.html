@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fff4e0">
+<meta name="description" content="いろいろな形に丸まった猫を、箱の中にすき間なくぴったり収める箱詰めパズル。ドラッグで置いて、タップや回転ボタンで向きを変えます。ラウンドが進むと箱が大きく、猫が増え、穴や固定の猫も登場。ゆっくりモード、見やすいモード、ベスト記録保存に対応。">
+<title>猫の箱詰めパズル | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#fff4e0;color:#4a3a2a;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{max-width:640px;margin:0 auto;display:grid;gap:8px;justify-items:center;grid-template-areas:"head" "info" "board" "tray" "tools" "ctrl"}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1rem;letter-spacing:.04em}
+.home{color:#a8641f;font-size:.85rem;text-decoration:none;border:2px solid #f0cc9a;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:5px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #f0cc9a;border-radius:14px;padding:2px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pcard .name{font-size:.8rem;color:#9a7a4a}
+.pcard .val{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 12px;font-size:.78rem;color:#8a6a3a}
+.stats b{color:#3a2a0a;font-variant-numeric:tabular-nums}
+.timer{height:12px;background:#fff;border-radius:6px;overflow:hidden;border:2px solid #f0cc9a}
+.timer i{display:block;height:100%;width:100%;background:#ff9f43;transform-origin:left}
+.timer.off i{background:#ecdcc0}
+#msg{min-height:2.5em;font-size:.9rem;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #f0cc9a;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus:empty{display:none}
+#bonus{min-height:1.2em;text-align:center;color:#e0661f;font-size:.9rem;font-weight:700}
+
+#boardWrap{grid-area:board;display:flex;justify-content:center}
+#board{
+  --size:min(calc(100vw - 24px),calc(100dvh - 385px),480px);
+  width:var(--size);height:var(--size);background:#e9c99a;border:4px solid #c99a5a;border-radius:14px;touch-action:none;display:block;
+}
+body.large #board{--size:min(calc(100vw - 24px),calc(100dvh - 420px),480px)}
+#tray{grid-area:tray;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-content:flex-start;background:#fff;border:3px dashed #f0cc9a;border-radius:14px;padding:6px;min-height:64px;max-height:150px;overflow-y:auto;touch-action:pan-y}
+#tray:empty::after{content:"ぜんぶ置いたよ!";color:#9a7a4a;font-weight:700;align-self:center}
+.pc{touch-action:none;padding:3px;border-radius:10px;border:2px solid transparent;line-height:0;cursor:grab}
+.pc.sel{border-color:#ff8f5a;background:#fff0e0}
+.pc svg{display:block;pointer-events:none}
+#ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;display:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.3));opacity:.92}
+#tools{grid-area:tools;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tl{border:2px solid #f0cc9a;background:#fff;border-radius:12px;padding:8px 4px;font-weight:800;color:#8a5a1a;font-size:.95rem}
+.tl:disabled{opacity:.45}
+.shake{animation:shake .3s}
+@keyframes shake{25%{translate:-4px 0}75%{translate:4px 0}}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff;border:2px solid #f0cc9a;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#9a7a4a;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#a89a8a;box-shadow:0 4px 0 #7a6c5c}
+.tog{background:#fff;border:2px solid #f0cc9a;border-radius:999px;padding:6px 14px;font-weight:700;color:#7a5a2a}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.tog:disabled{opacity:.5}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d2561f;margin-bottom:4px}
+.note{font-size:.75rem;color:#9a7a4a;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc #board{background:#fff;border-color:#fff}
+body.hc #tray{background:#fff;border-color:#000}
+body.hc #tray:empty::after{color:#000}
+body.hc .pc.sel{border-color:#d00000;background:#ffe9e9}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#ffff00}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog,body.hc .tl{background:#000;border-color:#fff;color:#fff}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+@media (orientation:portrait) and (max-height:720px){
+  #board,body.large #board{--size:min(calc(100vw - 24px),calc(100dvh - 440px),480px)}
+  #tray{max-height:92px}
+}
+@media (orientation:landscape) and (max-height:620px){
+  .app{max-width:1000px;align-items:start;justify-items:stretch;grid-template-columns:auto minmax(260px,1fr);column-gap:12px;
+    grid-template-areas:"board head" "board info" "board tray" "board tools" "board ctrl";grid-template-rows:auto auto auto auto 1fr}
+  #boardWrap{justify-content:flex-start;align-self:start}
+  #board{--size:min(calc(100dvh - 40px),calc(100vw - 340px),480px)}
+  body.large #board{--size:min(calc(100dvh - 40px),calc(100vw - 340px),480px)}
+  #tray{max-height:120px}
+}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>📦 猫の箱詰めパズル</h1>
+    <a class="home" href="../">← ホーム</a>
+  </header>
+
+  <section class="info" aria-label="得点">
+    <div class="top">
+      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="timer off" id="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <div class="stats">
+      <span>ラウンド <b id="stRound">-</b></span>
+      <span>箱 <b id="stBox">-</b></span>
+      <span>猫 <b id="stCats">-</b>匹(あと <b id="stLeft">-</b>)</span>
+      <span>操作 <b id="stOps">-</b>回</span>
+      <span>時間 <b id="stTime">-</b></span>
+      <span>モード <b id="stMode">ふつう</b></span>
+      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。丸まった猫をドラッグして、箱にすき間なく収めよう!</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="boardWrap"><svg id="board" viewBox="0 0 100 100" role="application" aria-label="箱。猫のピースをドラッグして置きます"></svg></div>
+  <div id="tray" role="group" aria-label="まだ置いていない猫"></div>
+  <div id="tools">
+    <button type="button" class="tl" id="bRot" disabled>↻ 回転</button>
+    <button type="button" class="tl" id="bBack" disabled>↩ もどす</button>
+    <button type="button" class="tl" id="bHint" disabled>💡 ヒント</button>
+  </div>
+  <div id="ghost"></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start">はじめる</button>
+    <section class="box">
+      <h2>あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード(制限時間が長い)</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
+        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+      </div>
+    </section>
+    <p class="note">下に並んだ丸まった猫を、ドラッグして上の箱に置きます。猫をタップする(または「回転」ボタン)と90度まわります。置いた猫をドラッグして動かしたり、箱の外にドラッグしてもどしたりできます。すき間なく全部の猫を収めるとクリアです。黒っぽいマスは穴、🔒つきの猫は最初から置かれていて動かせません。「ヒント」は1匹を正しい場所に置いてくれますが、回数に限りがあり、得点も少しへります。ラウンドが進むと箱が大きく、猫が増え、制限時間は短くなります。時間切れでハートがへり、3つでおしまい。かならず解ける形で作られています。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salpCatPack_best_v1', LS_SET='salpCatPack_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+var LIVES=3, SLOWX=1.8, NS='http://www.w3.org/2000/svg';
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function range(n){var a=[];for(var i=0;i<n;i++)a.push(i);return a}
+
+/* ラウンドごとの設定: 進むほど箱が大きく・猫が増え・形が複雑になり・穴や固定の猫が出て・時間が短くなる */
+var SIZES=[[3,3],[4,3],[4,4],[5,4],[5,5],[6,5],[6,6],[7,6],[7,7],[8,7],[8,8]];
+function levelOf(r){
+  var s=SIZES[Math.min(r,SIZES.length)-1];
+  var holes=r<5?0:r<=6?1:r<=8?2:r<=10?3:4;
+  var fixed=r<7?0:r<=9?1:r<=12?2:3;
+  var size=r<=1?3:r<=5?4:r<=8?4.5:5;                     /* 猫1匹あたりのマス数(平均の目標) */
+  var f=Math.max(0.45,1-0.045*(r-1));
+  var L={w:s[0],h:s[1],holes:holes,fixed:fixed,size:size,f:f};
+  L.free=L.w*L.h-holes;
+  return L;
+}
+function timeOf(L,movable){return Math.round((movable*3.0*L.f+12)*(set.slow?SLOWX:1))}
+function hintsOf(){return set.slow?5:3}
+
+/* ---------- ポリオミノの生成(箱を先に分割する) ---------- */
+var DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+function pickTarget(sz){if(sz<=3)return 3;if(sz<=4)return 4;if(sz<=4.5)return 4+rnd(2);return [4,5,5,6][rnd(4)]}
+function genPuzzle(L){
+  var W=L.w,H=L.h,n=W*H;
+  for(var tries=0;tries<500;tries++){
+    var hole=new Array(n).fill(false),hs=shuffle(range(n)).slice(0,L.holes);
+    hs.forEach(function(i){hole[i]=true});
+    var owner=new Array(n).fill(-2);
+    for(var i=0;i<n;i++)if(!hole[i])owner[i]=-1;
+    var pieces=[],order=shuffle(range(n));
+    for(var oi=0;oi<n;oi++){
+      var s=order[oi];if(owner[s]!==-1)continue;
+      var id=pieces.length,cells=[s],target=pickTarget(L.size);
+      owner[s]=id;
+      while(cells.length<target){
+        var fr=[];
+        cells.forEach(function(c){var x=c%W,y=(c-x)/W;DIRS.forEach(function(d){var nx=x+d[0],ny=y+d[1];if(nx>=0&&nx<W&&ny>=0&&ny<H&&owner[ny*W+nx]===-1)fr.push(ny*W+nx)})});
+        if(!fr.length)break;
+        var c2=fr[rnd(fr.length)];owner[c2]=id;cells.push(c2);
+      }
+      pieces.push(cells);
+    }
+    /* 小さすぎる猫(3マス未満)は、となりの猫に合体する */
+    var okAll=true;
+    for(var pi=0;pi<pieces.length&&okAll;pi++){
+      if(!pieces[pi]||pieces[pi].length>=3)continue;
+      var cand={};
+      pieces[pi].forEach(function(c){var x=c%W,y=(c-x)/W;DIRS.forEach(function(d){var nx=x+d[0],ny=y+d[1];if(nx>=0&&nx<W&&ny>=0&&ny<H){var o=owner[ny*W+nx];if(o>=0&&o!==pi&&pieces[o])cand[o]=1}})});
+      var ids=Object.keys(cand).map(Number).filter(function(o){return pieces[o].length+pieces[pi].length<=6}).sort(function(a,b){return pieces[a].length-pieces[b].length});
+      if(!ids.length){okAll=false;break}
+      var t=ids[0];pieces[pi].forEach(function(c){owner[c]=t;pieces[t].push(c)});pieces[pi]=null;
+    }
+    if(!okAll)continue;
+    pieces=pieces.filter(function(p){return p});
+    if(pieces.length<3)continue;
+    /* 猫オブジェクトにする */
+    var out=pieces.map(function(cells,k){
+      var mx=1e9,my=1e9;cells.forEach(function(c){var x=c%W,y=(c-x)/W;mx=Math.min(mx,x);my=Math.min(my,y)});
+      var cs=cells.map(function(c){var x=c%W,y=(c-x)/W;return [x-mx,y-my]});
+      var head=rnd(cs.length);
+      /* しっぽ = 頭からいちばん遠いマス(ピース内の距離) */
+      var dist=cs.map(function(){return -1}),q=[head];dist[head]=0;
+      for(var h=0;h<q.length;h++){var a=cs[q[h]];for(var b=0;b<cs.length;b++){if(dist[b]<0&&Math.abs(cs[b][0]-a[0])+Math.abs(cs[b][1]-a[1])===1){dist[b]=dist[q[h]]+1;q.push(b)}}}
+      var tail=head,td=-1;for(var z=0;z<cs.length;z++)if(dist[z]>td){td=dist[z];tail=z}
+      return {id:k,cells0:cs,head:head,tail:tail,sol:{x:mx,y:my},rot:0,placed:null,fixed:false,fur:k%9};
+    });
+    shuffle(range(out.length)).slice(0,Math.min(L.fixed,out.length-2)).forEach(function(i){out[i].fixed=true;out[i].placed={x:out[i].sol.x,y:out[i].sol.y}});
+    out.forEach(function(p){if(!p.fixed)p.rot=rnd(4)});
+    var furs=shuffle(range(9));out.forEach(function(p,i){p.fur=furs[i%9]});
+    return {w:W,h:H,hole:hole,pieces:out};
+  }
+  return null;
+}
+function fallbackPuzzle(){
+  var mk=function(id,cs,sx,sy){return {id:id,cells0:cs,head:0,tail:cs.length-1,sol:{x:sx,y:sy},rot:id%4,placed:null,fixed:false,fur:id}};
+  return {w:3,h:3,hole:new Array(9).fill(false),pieces:[mk(0,[[0,0],[1,0],[2,0]],0,0),mk(1,[[0,0],[1,0],[2,0]],0,1),mk(2,[[0,0],[1,0],[2,0]],0,2)]};
+}
+function rotCells(cells,k){
+  var cs=cells.map(function(c){return [c[0],c[1]]});
+  for(var r=0;r<k;r++){cs=cs.map(function(c){return [-c[1],c[0]]});var mx=1e9,my=1e9;cs.forEach(function(c){mx=Math.min(mx,c[0]);my=Math.min(my,c[1])});cs=cs.map(function(c){return [c[0]-mx,c[1]-my]})}
+  var w=0,h=0;cs.forEach(function(c){w=Math.max(w,c[0]+1);h=Math.max(h,c[1]+1)});
+  return {cells:cs,w:w,h:h};
+}
+
+/* ---------- 効果音(Web Audio) ---------- */
+var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+var BASE=[440,494,554,622,698,784,880,988,1109]; /* 猫ごとの基本の高さ(Hz) */ /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* にゃん!風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.4,Math.max(0.16,dur||0.28));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+sfx.grab=function(){if(!ready())return;blip(700,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.rot=function(){if(!ready())return;blip(900,ctx.currentTime+0.005,0.05,'square',.3)};
+sfx.place=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(520,t,0.05,'square',.4);blip(780,t+0.05,0.06,'square',.4)};
+sfx.back=function(){if(!ready())return;blip(300,ctx.currentTime+0.005,0.06,'square',.3)};
+sfx.bad=function(){if(!ready())return;blip(170,ctx.currentTime+0.005,0.1,'square',.5)};
+sfx.hint=function(){melody([880,1175],0.08,0.09,'triangle',.7)};
+sfx.win=function(){melody([784,988,1175,1568,1976],0.08,0.11,'square',.5)};
+sfx.over=function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)};
+sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
+sfx.tick=function(){if(!ready())return;blip(1500,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.miss=function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)};
+
+/* ---------- 丸まった猫(ポリオミノ)の絵 ---------- */
+var FURS=[['#f4a259','#a8601e'],['#f7f4ef','#a9a196'],['#8b8594','#4e4858'],['#9fb3c8','#587089'],['#f6e3b4','#b79a55'],['#ffb3c6','#b5506f'],['#b9a07f','#6e5a3e'],['#a8d8a0','#5b8f52'],['#c9b3f0','#7a5ab5']];
+function pieceFrag(sh,head,tail,fur,fixed){
+  var u=10,g=.35,f=FURS[fur%FURS.length],cs=sh.cells,set={},i,sp='';
+  cs.forEach(function(c){set[c[0]+','+c[1]]=1});
+  var shapes='';
+  cs.forEach(function(c){
+    var x=c[0]*u,y=c[1]*u;
+    shapes+='<rect x="'+(x+g)+'" y="'+(y+g)+'" width="'+(u-2*g)+'" height="'+(u-2*g)+'" rx="2.4"/>';
+    if(set[(c[0]+1)+','+c[1]])shapes+='<rect x="'+(x+u/2)+'" y="'+(y+g)+'" width="'+u+'" height="'+(u-2*g)+'"/>';
+    if(set[c[0]+','+(c[1]+1)])shapes+='<rect x="'+(x+g)+'" y="'+(y+u/2)+'" width="'+(u-2*g)+'" height="'+u+'"/>';
+  });
+  var s='<g fill="'+f[1]+'" stroke="'+f[1]+'" stroke-width="1.1" stroke-linejoin="round">'+shapes+'</g><g fill="'+f[0]+'">'+shapes+'</g>';
+  /* おなかの模様 */
+  cs.forEach(function(c,k){if(k!==head&&k!==tail)s+='<ellipse cx="'+(c[0]*u+u/2)+'" cy="'+(c[1]*u+u/2+1)+'" rx="2.6" ry="2" fill="#fff" opacity=".35"/>'});
+  /* しっぽの先 */
+  var t=cs[tail];s+='<circle cx="'+(t[0]*u+u/2)+'" cy="'+(t[1]*u+u/2)+'" r="2.6" fill="'+f[1]+'" opacity=".75"/>';
+  /* 顔(いつも上向き) */
+  var h=cs[head],cx=h[0]*u+u/2,cy=h[1]*u+u/2;
+  s+='<polygon points="'+(cx-4.2)+','+(cy-2.2)+' '+(cx-3.6)+','+(cy-5.2)+' '+(cx-1.2)+','+(cy-3.6)+'" fill="'+f[0]+'" stroke="'+f[1]+'" stroke-width=".7"/>'+
+     '<polygon points="'+(cx+4.2)+','+(cy-2.2)+' '+(cx+3.6)+','+(cy-5.2)+' '+(cx+1.2)+','+(cy-3.6)+'" fill="'+f[0]+'" stroke="'+f[1]+'" stroke-width=".7"/>'+
+     '<circle cx="'+(cx-2.2)+'" cy="'+(cy-.4)+'" r=".95" fill="#222"/><circle cx="'+(cx+2.2)+'" cy="'+(cy-.4)+'" r=".95" fill="#222"/>'+
+     '<path d="M'+(cx-.9)+' '+(cy+1)+'h1.8l-.9 1z" fill="#ff7a96"/><path d="M'+cx+' '+(cy+2)+'q-1 1 -1.8 .4M'+cx+' '+(cy+2)+'q1 1 1.8 .4" fill="none" stroke="#5a3a2a" stroke-width=".45" stroke-linecap="round"/>';
+  if(fixed)s+='<g transform="translate('+(cx+1.4)+' '+(cy+2.4)+')"><rect width="3.6" height="3" rx=".5" fill="#555" stroke="#fff" stroke-width=".35"/><path d="M.8 0v-.9a1 1 0 0 1 2 0v.9" fill="none" stroke="#555" stroke-width=".6"/></g>';
+  return s;
+}
+function pieceSvgStr(p,pxCell){
+  var sh=shapeOf(p,p.rot);
+  return '<svg width="'+(sh.w*pxCell)+'" height="'+(sh.h*pxCell)+'" viewBox="0 0 '+(sh.w*10)+' '+(sh.h*10)+'" aria-hidden="true">'+pieceFrag(sh,p.head,p.tail,p.fur,p.fixed)+'</svg>';
+}
+var shapeCache={};
+function shapeOf(p,rot){var k=p.uid+'/'+rot;return shapeCache[k]||(shapeCache[k]=rotCells(p.cells0,rot))}
+
+/* ---------- ゲーム ---------- */
+var board=$('board'), tray=$('tray'), ghost=$('ghost');
+var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,cleared:0,L:null,P:null,sel:-1,lift:-1,ops:0,hintsLeft:0,hintsUsed:0,timeMs:0,deadline:0,timer:null,iv:null,newBest:false,lastSec:-1,preview:null,uidc:0};
+function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function mul(){return G.mode==='slow'?0.7:1}
+function setTimerBar(f,off){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')';$('timer').classList.toggle('off',!!off)}
+function movable(){return G.P?G.P.pieces.filter(function(p){return !p.fixed}):[]}
+function leftCount(){return movable().filter(function(p){return !p.placed}).length}
+function render(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  var on=G.round>0&&G.P;
+  $('stRound').textContent=G.round>0?G.round:'-';$('stBox').textContent=on?G.P.w+'×'+G.P.h:'-';
+  $('stCats').textContent=on?G.P.pieces.length:'-';$('stLeft').textContent=on?leftCount():'-';$('stOps').textContent=G.round>0?G.ops:'-';
+  var m=G.phase==='idle'?modeKey():G.mode;$('stMode').textContent=m==='slow'?'ゆっくり':'ふつう';
+  var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+  var pl=G.phase==='play';
+  $('bRot').disabled=!(pl&&G.sel>=0&&selPiece()&&!selPiece().fixed);
+  $('bBack').disabled=!(pl&&G.sel>=0&&selPiece()&&selPiece().placed&&!selPiece().fixed);
+  $('bHint').disabled=!(pl&&G.hintsLeft>0);
+  $('bHint').textContent='💡 ヒント('+(G.round>0?G.hintsLeft:hintsOf())+')';
+}
+function selPiece(){return G.P&&G.sel>=0?G.P.pieces[G.sel]:null}
+function occ(exclude){
+  var P=G.P,o=new Array(P.w*P.h).fill(-1);
+  for(var i=0;i<o.length;i++)if(P.hole[i])o[i]=-2;
+  P.pieces.forEach(function(p){
+    if(!p.placed||p===exclude)return;
+    shapeOf(p,p.rot).cells.forEach(function(c){o[(p.placed.y+c[1])*P.w+p.placed.x+c[0]]=p.id});
+  });
+  return o;
+}
+function canPlace(p,x,y,rot,o){
+  var P=G.P,sh=shapeOf(p,rot);o=o||occ(p);
+  for(var i=0;i<sh.cells.length;i++){
+    var gx=x+sh.cells[i][0],gy=y+sh.cells[i][1];
+    if(gx<0||gy<0||gx>=P.w||gy>=P.h||o[gy*P.w+gx]!==-1)return false;
+  }
+  return true;
+}
+function drawBoard(){
+  var P=G.P,s='',x,y;
+  for(y=0;y<P.h;y++)for(x=0;x<P.w;x++){
+    var X=x*10,Y=y*10;
+    if(P.hole[y*P.w+x])s+='<rect x="'+(X+.4)+'" y="'+(Y+.4)+'" width="9.2" height="9.2" rx="2" fill="#6b5344"/><circle cx="'+(X+5)+'" cy="'+(Y+5)+'" r="3.3" fill="#2f241b"/>';
+    else s+='<rect x="'+(X+.4)+'" y="'+(Y+.4)+'" width="9.2" height="9.2" rx="1.6" class="bc"/>';
+  }
+  P.pieces.forEach(function(p){
+    if(!p.placed)return;
+    s+='<g transform="translate('+(p.placed.x*10)+' '+(p.placed.y*10)+')">'+pieceFrag(shapeOf(p,p.rot),p.head,p.tail,p.fur,p.fixed)+'</g>';
+    if(G.sel===p.id&&!p.fixed){var sh=shapeOf(p,p.rot);s+='<rect x="'+(p.placed.x*10)+'" y="'+(p.placed.y*10)+'" width="'+(sh.w*10)+'" height="'+(sh.h*10)+'" fill="none" stroke="#ff6a1a" stroke-width="1" stroke-dasharray="2.4 1.6" rx="1.5"/>'}
+  });
+  s+='<g id="pv"></g>';
+  board.setAttribute('viewBox','0 0 '+(P.w*10)+' '+(P.h*10));
+  board.innerHTML=s;
+  var cells=board.querySelectorAll('.bc');for(var i=0;i<cells.length;i++)cells[i].setAttribute('fill',set.hc?'#fff':'#fbf0dc');
+  drawPreview();
+}
+function drawPreview(){
+  var pv=board.querySelector('#pv');if(!pv)return;
+  var pr=G.preview;if(!pr){pv.innerHTML='';return}
+  var s='';pr.cells.forEach(function(c){s+='<rect x="'+((pr.x+c[0])*10+.4)+'" y="'+((pr.y+c[1])*10+.4)+'" width="9.2" height="9.2" rx="1.6" fill="'+(pr.ok?'#2fbf71':'#ff4d4d')+'" opacity=".55"/>'});
+  pv.innerHTML=s;
+}
+function drawTray(){
+  var cT=set.large?22:18,h='';
+  movable().forEach(function(p){
+    if(p.placed||G.lift===p.id)return;
+    h+='<div class="pc'+(G.sel===p.id?' sel':'')+'" data-id="'+p.id+'" aria-label="猫">'+pieceSvgStr(p,cT)+'</div>';
+  });
+  tray.innerHTML=h;
+}
+function renderAll(){drawBoard();drawTray();render()}
+function buildPuzzle(P){
+  P.pieces.forEach(function(p){p.uid=(++G.uidc)});
+  G.P=P;G.sel=-1;G.lift=-1;G.ops=0;G.hintsUsed=0;G.preview=null;renderAll();
+}
+function getPuzzle(L){return genPuzzle(L)||fallbackPuzzle()}
+
+/* ---------- 入力(ドラッグ / タップ) ---------- */
+var press=null;
+function unitPx(){var r=board.getBoundingClientRect();return (r.width-8)/G.P.w}
+function boardCell(cx,cy){var r=board.getBoundingClientRect(),u=unitPx();return {x:Math.floor((cx-r.left-4)/u),y:Math.floor((cy-r.top-4)/u)}}
+tray.addEventListener('pointerdown',function(e){
+  var d=e.target.closest&&e.target.closest('.pc');if(!d)return;
+  var p=G.P.pieces[+d.getAttribute('data-id')];
+  var sh=shapeOf(p,p.rot),r=d.querySelector('svg').getBoundingClientRect(),cT=r.width/sh.w;
+  var gx=Math.max(0,Math.min(sh.w-1,Math.floor((e.clientX-r.left)/cT))),gy=Math.max(0,Math.min(sh.h-1,Math.floor((e.clientY-r.top)/cT)));
+  /* 押した場所に猫のマスがなければ、いちばん近いマスを持つ */
+  var bi=0,bd=1e9;sh.cells.forEach(function(c,i){var dd=Math.abs(c[0]-gx)+Math.abs(c[1]-gy);if(dd<bd){bd=dd;bi=i}});
+  beginPress(e,p,{x:sh.cells[bi][0],y:sh.cells[bi][1]});
+});
+board.addEventListener('pointerdown',function(e){
+  if(G.phase!=='play'){if(G.phase==='idle'){e.preventDefault();unlockAudio();say('「はじめる」を押してね。')}return}
+  var c=boardCell(e.clientX,e.clientY),o=occ(null),id=(c.x>=0&&c.y>=0&&c.x<G.P.w&&c.y<G.P.h)?o[c.y*G.P.w+c.x]:-1;
+  if(id<0)return;
+  var p=G.P.pieces[id];
+  if(p.fixed){e.preventDefault();unlockAudio();sfx.bad();say('🔒この猫は動かせないよ');return}
+  beginPress(e,p,{x:c.x-p.placed.x,y:c.y-p.placed.y});
+});
+function beginPress(e,p,lc){
+  e.preventDefault();unlockAudio();
+  if(G.phase!=='play'){if(G.phase==='idle')say('「はじめる」を押してね。');return}
+  if(press)return;
+  press={p:p,lc:lc,x0:e.clientX,y0:e.clientY,dragging:false,prev:p.placed?{x:p.placed.x,y:p.placed.y}:null,touch:e.pointerType==='touch'||e.pointerType==='pen',pid:e.pointerId};
+  window.addEventListener('pointermove',onMove);window.addEventListener('pointerup',onUp);window.addEventListener('pointercancel',onUp);
+}
+function ghostPos(cx,cy){
+  var u=unitPx(),lift=press.touch?u*1.3:0;
+  return {left:cx-(press.lc.x+.5)*u,top:cy-(press.lc.y+.5)*u-lift,u:u};
+}
+function targetOf(gp){
+  var r=board.getBoundingClientRect();
+  return {x:Math.round((gp.left-r.left-4)/gp.u),y:Math.round((gp.top-r.top-4)/gp.u)};
+}
+function onMove(e){
+  if(!press||e.pointerId!==press.pid)return;
+  var p=press.p;
+  if(!press.dragging){
+    if(Math.hypot(e.clientX-press.x0,e.clientY-press.y0)<8)return;
+    press.dragging=true;
+    if(p.placed){p.placed=null}
+    G.lift=p.id;G.sel=p.id;sfx.grab();renderAll();
+    var u=unitPx(),sh=shapeOf(p,p.rot);
+    ghost.innerHTML=pieceSvgStr(p,u);ghost.style.display='block';
+  }
+  var gp=ghostPos(e.clientX,e.clientY);
+  ghost.style.transform='translate('+gp.left.toFixed(1)+'px,'+gp.top.toFixed(1)+'px)';
+  var t=targetOf(gp),sh2=shapeOf(p,p.rot),P=G.P;
+  var near=t.x>-sh2.w&&t.y>-sh2.h&&t.x<P.w&&t.y<P.h;
+  G.preview=near?{x:t.x,y:t.y,cells:sh2.cells,ok:canPlace(p,t.x,t.y,p.rot)}:null;
+  drawPreview();
+}
+function cleanupPress(){window.removeEventListener('pointermove',onMove);window.removeEventListener('pointerup',onUp);window.removeEventListener('pointercancel',onUp);press=null;ghost.style.display='none';ghost.innerHTML='';G.preview=null;G.lift=-1}
+function onUp(e){
+  if(!press||e.pointerId!==press.pid)return;
+  var p=press.p,pr=press,wasDrag=pr.dragging,pv=G.preview;
+  cleanupPress();
+  if(G.phase!=='play'){renderAll();return}
+  if(!wasDrag){G.sel=p.id;rotatePiece(p);return}
+  if(pv&&pv.ok){
+    p.placed={x:pv.x,y:pv.y};G.ops++;G.sel=p.id;sfx.place();renderAll();
+    if(leftCount()===0){win();return}
+    say('ぴたっ!あと'+leftCount()+'匹');
+  }else if(pv){ /* 箱の上だけどハマらない */
+    sfx.bad();
+    if(pr.prev&&canPlace(p,pr.prev.x,pr.prev.y,p.rot)){p.placed={x:pr.prev.x,y:pr.prev.y}}
+    renderAll();say('そこには入らないよ。ほかの場所をためしてね');
+  }else{ /* 箱の外 = もどす */
+    if(pr.prev){G.ops++;sfx.back();say('猫をもどしたよ')}
+    renderAll();
+  }
+}
+function rotatePiece(p){
+  if(G.phase!=='play'||!p||p.fixed)return;
+  var nr=(p.rot+1)%4;
+  if(!p.placed){p.rot=nr;G.ops++;sfx.rot();renderAll();return}
+  var s0=shapeOf(p,p.rot),s1=shapeOf(p,nr),o=occ(p),bx=p.placed.x+Math.floor((s0.w-s1.w)/2),by=p.placed.y+Math.floor((s0.h-s1.h)/2);
+  var offs=[[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]],found=null;
+  for(var i=0;i<offs.length&&!found;i++){if(canPlace(p,bx+offs[i][0],by+offs[i][1],nr,o))found={x:bx+offs[i][0],y:by+offs[i][1]}}
+  if(!found)for(i=0;i<offs.length&&!found;i++){if(canPlace(p,p.placed.x+offs[i][0],p.placed.y+offs[i][1],nr,o))found={x:p.placed.x+offs[i][0],y:p.placed.y+offs[i][1]}}
+  G.ops++;
+  if(found){p.rot=nr;p.placed=found;sfx.rot();say('回したよ')}
+  else{p.rot=nr;p.placed=null;sfx.bad();say('回すとハマらないので、箱の外にもどしたよ')}
+  renderAll();
+}
+$('bRot').onclick=function(){unlockAudio();rotatePiece(selPiece())};
+$('bBack').onclick=function(){
+  unlockAudio();var p=selPiece();if(G.phase!=='play'||!p||!p.placed||p.fixed)return;
+  p.placed=null;G.ops++;sfx.back();renderAll();say('猫をもどしたよ');
+};
+$('bHint').onclick=function(){
+  unlockAudio();if(G.phase!=='play'||G.hintsLeft<=0)return;
+  var c=movable().filter(function(p){return !(p.placed&&p.rot===0&&p.placed.x===p.sol.x&&p.placed.y===p.sol.y)});
+  if(!c.length)return;
+  var p=c[rnd(c.length)],o=occ(p),sh=shapeOf(p,0),hit={};
+  sh.cells.forEach(function(cc){var id=o[(p.sol.y+cc[1])*G.P.w+p.sol.x+cc[0]];if(id>=0)hit[id]=1});
+  Object.keys(hit).forEach(function(id){G.P.pieces[id].placed=null});
+  p.rot=0;p.placed={x:p.sol.x,y:p.sol.y};G.hintsLeft--;G.hintsUsed++;G.sel=p.id;sfx.hint();renderAll();
+  say('ヒント!1匹を正しい場所に置いたよ(のこり'+G.hintsLeft+'回)');
+  if(leftCount()===0)win();
+};
+document.addEventListener('keydown',function(e){if((e.key==='r'||e.key==='R')&&G.phase==='play'){rotatePiece(selPiece())}});
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+board.addEventListener('contextmenu',function(e){e.preventDefault()});tray.addEventListener('contextmenu',function(e){e.preventDefault()});
+
+/* ---------- 進行 ---------- */
+function startGame(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.mode=modeKey();G.round=0;G.score=0;G.lives=LIVES;G.cleared=0;G.newBest=false;G.phase='between';G.hintsLeft=hintsOf();
+  $('result').hidden=true;var st=$('start');st.textContent='やめる';st.classList.add('stop');$('tSlow').disabled=true;
+  sfx.start();say('スタート!猫を箱にぴったり収めよう');bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';render();after(900,nextRound);
+}
+function stopGame(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.round=0;bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';
+  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.phase='idle';say('やめました。「はじめる」でもう一度あそべます。');demo();
+}
+function demo(){var L=levelOf(1);G.L=L;G.phase='idle';buildPuzzle(getPuzzle(L))}
+function nextRound(){
+  G.round++;var L=levelOf(G.round);G.L=L;G.phase='play';buildPuzzle(getPuzzle(L));bonusSay('');
+  var mv=movable().reduce(function(a,p){return a+p.cells0.length},0);
+  G.timeMs=timeOf(L,mv)*1000;G.deadline=performance.now()+G.timeMs;G.lastSec=-1;
+  render();say('ラウンド'+G.round+':箱'+G.P.w+'×'+G.P.h+'に猫'+movable().length+'匹'+(L.holes?'(穴'+L.holes+'つ)':'')+(G.P.pieces.length>movable().length?'(🔒固定'+(G.P.pieces.length-movable().length)+'匹)':'')+' / '+(G.timeMs/1000)+'秒');
+  setTimerBar(1,false);clearInterval(G.iv);
+  var run=G.run;
+  G.iv=setInterval(function(){
+    if(run!==G.run){clearInterval(G.iv);return}
+    var left=G.deadline-performance.now();setTimerBar(left/G.timeMs,false);
+    var sec=Math.max(0,Math.ceil(left/1000));$('stTime').textContent=sec+'秒';
+    if(sec<=5&&sec>0&&sec!==G.lastSec&&G.phase==='play')sfx.tick();
+    G.lastSec=sec;
+    if(left<=0){clearInterval(G.iv);if(G.phase==='play')timeout()}
+  },100);
+}
+function win(){
+  clearInterval(G.iv);G.phase='between';G.cleared=G.round;
+  var m=mul(),r=G.round,mp=movable(),cells=mp.reduce(function(a,p){return a+p.cells0.length},0),left=Math.max(0,G.deadline-performance.now())/1000;
+  var par=Math.ceil(mp.length*2.5),base=Math.round((15*cells+20*mp.length)*m),tb=Math.round(left*r*0.6*m),ob=Math.round(Math.max(0,2*par-G.ops)*2*r*m),hp=Math.round(G.hintsUsed*30*r*m);
+  var tot=Math.max(0,base+tb+ob-hp);G.score+=tot;
+  G.phase='between';render();renderAll();
+  say('ぴったり収まった!ラウンド'+r+' クリア');bonusSay('+'+base+(tb?' / 残り時間 +'+tb:'')+(ob?' / 少ない操作 +'+ob:'')+(hp?' / ヒント −'+hp:'')+'(操作'+G.ops+'回)');
+  sfx.win();setTimeout(function(){meow(r%9,0.26)},450);after(2300,nextRound);
+}
+function timeout(){
+  G.phase='between';press&&cleanupPress();G.lives--;sfx.miss();renderAll();
+  say('時間切れ…!(のこりハート'+Math.max(0,G.lives)+'こ)');
+  if(G.lives<=0){after(1800,gameOver);return}
+  after(2000,nextRound);
+}
+function gameOver(){
+  var k=G.mode,b=bestOf(k),cleared=G.cleared,nb={score:b.score,round:b.round};
+  if(G.score>nb.score){nb.score=G.score;G.newBest=true}
+  if(cleared>nb.round){nb.round=cleared;G.newBest=true}
+  if(G.newBest){best[k]=nb;lsSet(LS_BEST,best)}
+  G.phase='idle';b=bestOf(k);
+  $('result').innerHTML='<h2>ゲームおわり('+(k==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
+    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
+  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
+  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.round=0;setTimerBar(1,true);$('stTime').textContent='-';render();
+}
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('vol').value=set.vol;applyVol();
+  if(G.P){drawBoard();drawTray()}
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
+
+/* テスト用の窓口(ゲームの動作には使わない) */
+window.__cp={G:G,levelOf:levelOf,genPuzzle:genPuzzle,timeOf:timeOf,show:function(r){var L=levelOf(r);G.L=L;buildPuzzle(getPuzzle(L))}};
+demo();applySet();render();
+})();
+</script>
+</body>
+</html>
