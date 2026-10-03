@@ -229,6 +229,10 @@ header::before{
   gap:6px;
 }
 
+.sceneButton:last-child:nth-child(3n+1){
+  grid-column:1 / -1;
+}
+
 .sceneButton{
   position:relative;
   display:flex;
@@ -830,12 +834,13 @@ main{
   .sceneBand{
     flex:1;
     min-height:0;
+    overflow-y:auto;
   }
 
   .sceneSwitcher{
     grid-template-columns:none;
     grid-auto-flow:row;
-    grid-auto-rows:minmax(44px,1fr);
+    grid-auto-rows:minmax(38px,1fr);
     grid-auto-columns:auto;
     height:100%;
     max-height:260px;
@@ -844,7 +849,7 @@ main{
   .sceneButton{
     flex-direction:row;
     gap:6px;
-    min-height:44px;
+    min-height:38px;
     padding:2px 6px;
     font-size:.85rem;
     justify-content:flex-start;
@@ -860,7 +865,7 @@ main{
   }
 
   .easy .sceneButton{
-    min-height:48px;
+    min-height:40px;
     font-size:.9rem;
   }
 
@@ -2947,6 +2952,315 @@ const SCENES = {
           de: { word: "Rasen", reading: "RAA-zen" },
           zh: { word: "草坪", reading: "cǎopíng" },
           ko: { word: "잔디", reading: "jandi" }
+        }
+      }
+    ]
+  },
+
+  eatin: {
+    id: "eatin",
+    icon: "🍙",
+    title: {
+      ja: "🍙 イートインスペース",
+      en: "🍙 Eat-in Space",
+      es: "🍙 Zona para comer",
+      fr: "🍙 Coin repas",
+      de: "🍙 Essbereich",
+      zh: "🍙 用餐区",
+      ko: "🍙 취식 공간"
+    },
+
+    background: "eatin.webp",
+    subtitle: "単語学習 イートインスペース編",
+    documentTitle: "SALP WORDS | 単語学習 イートインスペース編",
+    alt: "コンビニの明るいイートインスペースのイラスト",
+    ariaLabel: "イートインスペースの単語学習",
+    help: "イートインスペースの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "イートインスペースの物を選んでください",
+
+    items: [
+      {
+        id: "window",
+        emoji: "🪟",
+        x: 0,
+        y: 0,
+        w: 55,
+        h: 35,
+        z: 10,
+        words: {
+          ja: { word: "窓", reading: "まど" },
+          en: { word: "window", reading: "WIN-doh" },
+          es: { word: "ventana", reading: "ben-TA-na" },
+          fr: { word: "fenêtre", reading: "fə-NETR" },
+          de: { word: "Fenster", reading: "FEN-ster" },
+          zh: { word: "窗户", reading: "chuānghu" },
+          ko: { word: "창문", reading: "changmun" }
+        }
+      },
+
+      {
+        id: "counter",
+        emoji: "🪵",
+        x: 0,
+        y: 35.5,
+        w: 77,
+        h: 8.5,
+        z: 45,
+        words: {
+          ja: { word: "カウンター", reading: "かうんたー" },
+          en: { word: "counter", reading: "KOWN-ter" },
+          es: { word: "barra", reading: "BA-rra" },
+          fr: { word: "comptoir", reading: "kon-TWAR" },
+          de: { word: "Theke", reading: "TAY-ke" },
+          zh: { word: "吧台", reading: "bātái" },
+          ko: { word: "바 테이블", reading: "ba teibeul" }
+        }
+      },
+
+      {
+        id: "stool",
+        emoji: "🪑",
+        x: 0,
+        y: 40.5,
+        w: 65,
+        h: 28,
+        z: 40,
+        words: {
+          ja: { word: "スツール", reading: "すつーる" },
+          en: { word: "stool", reading: "stool" },
+          es: { word: "taburete", reading: "ta-boo-RE-te" },
+          fr: { word: "tabouret", reading: "ta-boo-RAY" },
+          de: { word: "Barhocker", reading: "BAAR-ho-ker" },
+          zh: { word: "高脚凳", reading: "gāojiǎodèng" },
+          ko: { word: "스툴", reading: "seutul" }
+        }
+      },
+
+      {
+        id: "table",
+        emoji: "🍽️",
+        x: 0,
+        y: 75,
+        w: 100,
+        h: 12,
+        z: 15,
+        words: {
+          ja: { word: "テーブル", reading: "てーぶる" },
+          en: { word: "table", reading: "TAY-buhl" },
+          es: { word: "mesa", reading: "ME-sa" },
+          fr: { word: "table", reading: "tabl" },
+          de: { word: "Tisch", reading: "tish" },
+          zh: { word: "桌子", reading: "zhuōzi" },
+          ko: { word: "테이블", reading: "teibeul" }
+        }
+      },
+
+      {
+        id: "tray",
+        emoji: "🟫",
+        x: 15,
+        y: 57,
+        w: 63.5,
+        h: 21,
+        z: 50,
+        words: {
+          ja: { word: "お盆", reading: "おぼん" },
+          en: { word: "tray", reading: "tray" },
+          es: { word: "bandeja", reading: "ban-DE-kha" },
+          fr: { word: "plateau", reading: "pla-TO" },
+          de: { word: "Tablett", reading: "ta-BLET" },
+          zh: { word: "托盘", reading: "tuōpán" },
+          ko: { word: "쟁반", reading: "jaengban" }
+        }
+      },
+
+      {
+        id: "onigiri",
+        emoji: "🍙",
+        x: 23.5,
+        y: 62.5,
+        w: 14.5,
+        h: 10.5,
+        z: 80,
+        words: {
+          ja: { word: "おにぎり", reading: "おにぎり" },
+          en: { word: "rice ball", reading: "rice bawl" },
+          es: { word: "bola de arroz", reading: "BO-la de a-RROS" },
+          fr: { word: "boule de riz", reading: "bool də ree" },
+          de: { word: "Reisball", reading: "RAIS-bal" },
+          zh: { word: "饭团", reading: "fàntuán" },
+          ko: { word: "주먹밥", reading: "jumeokbap" }
+        }
+      },
+
+      {
+        id: "sandwich",
+        emoji: "🥪",
+        x: 35.5,
+        y: 59.5,
+        w: 15,
+        h: 11,
+        z: 80,
+        words: {
+          ja: { word: "サンドイッチ", reading: "さんどいっち" },
+          en: { word: "sandwich", reading: "SAND-wich" },
+          es: { word: "sándwich", reading: "SAN-gwich" },
+          fr: { word: "sandwich", reading: "san-DWEECH" },
+          de: { word: "Sandwich", reading: "SEND-vitsh" },
+          zh: { word: "三明治", reading: "sānmíngzhì" },
+          ko: { word: "샌드위치", reading: "saendeuwichi" }
+        }
+      },
+
+      {
+        id: "tea",
+        emoji: "🍵",
+        x: 48.5,
+        y: 54,
+        w: 10,
+        h: 15.5,
+        z: 85,
+        words: {
+          ja: { word: "お茶", reading: "おちゃ" },
+          en: { word: "green tea", reading: "green tee" },
+          es: { word: "té verde", reading: "te BER-de" },
+          fr: { word: "thé vert", reading: "tay ver" },
+          de: { word: "grüner Tee", reading: "GRÜ-ner tay" },
+          zh: { word: "绿茶", reading: "lǜchá" },
+          ko: { word: "녹차", reading: "nokcha" }
+        }
+      },
+
+      {
+        id: "coffee",
+        emoji: "☕",
+        x: 60,
+        y: 60.5,
+        w: 12.5,
+        h: 15.5,
+        z: 85,
+        words: {
+          ja: { word: "コーヒー", reading: "こーひー" },
+          en: { word: "coffee", reading: "KAW-fee" },
+          es: { word: "café", reading: "ka-FE" },
+          fr: { word: "café", reading: "ka-FAY" },
+          de: { word: "Kaffee", reading: "KA-fay" },
+          zh: { word: "咖啡", reading: "kāfēi" },
+          ko: { word: "커피", reading: "keopi" }
+        }
+      },
+
+      {
+        id: "straw",
+        emoji: "🥤",
+        x: 40.5,
+        y: 68,
+        w: 17,
+        h: 5.5,
+        z: 95,
+        words: {
+          ja: { word: "ストロー", reading: "すとろー" },
+          en: { word: "straw", reading: "straw" },
+          es: { word: "pajita", reading: "pa-KHEE-ta" },
+          fr: { word: "paille", reading: "pai" },
+          de: { word: "Strohhalm", reading: "SHTROH-halm" },
+          zh: { word: "吸管", reading: "xīguǎn" },
+          ko: { word: "빨대", reading: "ppaldae" }
+        }
+      },
+
+      {
+        id: "napkin",
+        emoji: "🧻",
+        x: 49,
+        y: 70.5,
+        w: 13.5,
+        h: 6.5,
+        z: 90,
+        words: {
+          ja: { word: "ナプキン", reading: "なぷきん" },
+          en: { word: "napkin", reading: "NAP-kin" },
+          es: { word: "servilleta", reading: "ser-bee-YE-ta" },
+          fr: { word: "serviette", reading: "ser-VYET" },
+          de: { word: "Serviette", reading: "zer-VYE-te" },
+          zh: { word: "餐巾纸", reading: "cānjīnzhǐ" },
+          ko: { word: "냅킨", reading: "naepkin" }
+        }
+      },
+
+      {
+        id: "bag",
+        emoji: "🛍️",
+        x: 74.5,
+        y: 51,
+        w: 19.5,
+        h: 22,
+        z: 55,
+        words: {
+          ja: { word: "レジ袋", reading: "れじぶくろ" },
+          en: { word: "plastic bag", reading: "PLAS-tik bag" },
+          es: { word: "bolsa de plástico", reading: "BOL-sa de PLAS-ti-ko" },
+          fr: { word: "sac en plastique", reading: "sak an plas-TEEK" },
+          de: { word: "Plastiktüte", reading: "PLAS-tik-tü-te" },
+          zh: { word: "塑料袋", reading: "sùliàodài" },
+          ko: { word: "비닐봉지", reading: "binilbongji" }
+        }
+      },
+
+      {
+        id: "microwave",
+        emoji: "♨️",
+        x: 77.3,
+        y: 28.3,
+        w: 22.7,
+        h: 8.2,
+        z: 30,
+        words: {
+          ja: { word: "電子レンジ", reading: "でんしれんじ" },
+          en: { word: "microwave", reading: "MY-kroh-wayv" },
+          es: { word: "microondas", reading: "mee-kro-ON-das" },
+          fr: { word: "micro-ondes", reading: "mee-kro-ONd" },
+          de: { word: "Mikrowelle", reading: "MEE-kro-vel-le" },
+          zh: { word: "微波炉", reading: "wēibōlú" },
+          ko: { word: "전자레인지", reading: "jeonjareinji" }
+        }
+      },
+
+      {
+        id: "bin",
+        emoji: "🗑️",
+        x: 80.5,
+        y: 39,
+        w: 19,
+        h: 16,
+        z: 35,
+        words: {
+          ja: { word: "ゴミ箱", reading: "ごみばこ" },
+          en: { word: "trash can", reading: "TRASH kan" },
+          es: { word: "papelera", reading: "pa-pe-LE-ra" },
+          fr: { word: "poubelle", reading: "poo-BEL" },
+          de: { word: "Mülleimer", reading: "MÜL-ai-mer" },
+          zh: { word: "垃圾桶", reading: "lājītǒng" },
+          ko: { word: "쓰레기통", reading: "sseuregitong" }
+        }
+      },
+
+      {
+        id: "menu",
+        emoji: "📋",
+        x: 77.5,
+        y: 3,
+        w: 22.5,
+        h: 24.5,
+        z: 25,
+        words: {
+          ja: { word: "メニュー", reading: "めにゅー" },
+          en: { word: "menu", reading: "MEN-yoo" },
+          es: { word: "menú", reading: "me-NOO" },
+          fr: { word: "menu", reading: "mə-NÜ" },
+          de: { word: "Speisekarte", reading: "SHPAI-ze-kar-te" },
+          zh: { word: "菜单", reading: "càidān" },
+          ko: { word: "메뉴", reading: "menyu" }
         }
       }
     ]
