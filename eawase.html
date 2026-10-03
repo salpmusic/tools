@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#667eea">
+<link rel="icon" href="data:,">
+<title>絵合わせゲーム - 神経衰弱 | salp tools</title>
+<meta name="description" content="おにぎり・ウインナー・パン・ラーメン・ラムネ・みかんの絵で遊ぶ神経衰弱。8段階の難易度、1人プレイ・2人交代対戦、見やすいモード対応。">
+<style>
+/* ===== リセット & ベース（神経衰弱 memory.html と同系統） ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+html, body {
+  height: 100%;
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: calc(6px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  gap: 6px;
+}
+button { font-family: inherit; color: inherit; }
+button:focus-visible, a:focus-visible, select:focus-visible { outline: 3px solid #facc15; outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ===== ヘッダー ===== */
+.header { width: 100%; max-width: 900px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 0 0 auto; }
+.btn {
+  border: none; border-radius: 20px; padding: 0 14px; min-height: 40px;
+  font-size: .85rem; font-weight: bold; cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  text-decoration: none; white-space: nowrap; transition: transform .2s, box-shadow .2s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+.btn:active { transform: translateY(0); }
+.home-btn { background: rgba(255,255,255,.25); color: #fff; border: 2px solid rgba(255,255,255,.4); padding: 0 12px; }
+.toggle-btn { background: rgba(255,255,255,.25); color: #fff; border: 2px solid rgba(255,255,255,.4); padding: 0 12px; }
+.toggle-btn[aria-pressed="true"] { background: rgba(255,255,255,.55); border-color: #fff; color: #1e1b4b; }
+.restart-btn { background: #3b82f6; color: #fff; }
+.menu-btn { background: #fbbf24; color: #78350f; flex: 1 1 100px; min-width: 0; }
+.header .spacer { flex: 1 1 0; }
+
+/* ===== 統計・得点 ===== */
+.stats { width: 100%; max-width: 900px; display: flex; align-items: stretch; justify-content: center; gap: 6px; flex: 0 0 auto; }
+.stat-box {
+  background: rgba(255,255,255,.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px; padding: 4px 8px; color: #fff; text-align: center; min-width: 0; flex: 1 1 0;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.stat-box .label { font-size: .68rem; opacity: .9; display: block; line-height: 1.2; }
+.stat-box .value { font-size: 1.15rem; font-weight: bold; display: block; line-height: 1.25; }
+.stat-box .best { font-size: .62rem; opacity: .8; display: block; line-height: 1.2; }
+.center-stats { display: flex; gap: 6px; flex: 1.4 1 0; min-width: 0; }
+.center-stats .stat-box { flex: 1 1 0; padding: 4px 4px; }
+
+.player {
+  flex: 1 1 0; min-width: 0; border-radius: 14px; padding: 4px 8px; text-align: center;
+  background: rgba(0,0,0,.22); border: 3px solid transparent; opacity: .62;
+  transition: transform .25s, opacity .25s, box-shadow .25s, background .25s;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.player .name { font-size: .72rem; font-weight: bold; display: block; line-height: 1.2; }
+.player .score { font-size: 1.5rem; font-weight: 900; line-height: 1.1; display: block; }
+.player .turn-tag { font-size: .66rem; font-weight: bold; min-height: .85rem; display: block; line-height: 1.2; visibility: hidden; }
+.player.p1 { --pc: #60a5fa; }
+.player.p2 { --pc: #fb7185; }
+.player.active { opacity: 1; transform: scale(1.05); background: var(--pc); color: #111827; border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.35), 0 4px 14px rgba(0,0,0,.35); }
+.player.active .turn-tag { visibility: visible; }
+body.solo .player { display: none; }
+body.duo .solo-only { display: none; }
+
+/* ===== ゲームボード ===== */
+.board-wrap { flex: 1 1 auto; min-height: 0; width: 100%; max-width: 1100px; display: flex; align-items: center; justify-content: center; position: relative; }
+.game-board { display: grid; justify-content: center; align-content: center; gap: var(--gap, 8px); grid-template-columns: repeat(var(--cols, 4), var(--cs, 80px)); grid-auto-rows: var(--cs, 80px); }
+
+/* ===== カード（神経衰弱と同じ card / card-inner / card-face 構成） ===== */
+.card { width: var(--cs); height: var(--cs); perspective: 700px; cursor: pointer; position: relative; border: none; background: none; padding: 0; display: block; }
+.card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,0,.2,1); border-radius: 10px; }
+.card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+.card-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.25); border: 1px solid rgba(0,0,0,.12); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.card-back {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255,255,255,.07) 6px, rgba(255,255,255,.07) 12px),
+    repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(255,255,255,.04) 6px, rgba(255,255,255,.04) 12px);
+}
+.card-back::before { content: ''; position: absolute; inset: 18%; border: 2px solid rgba(255,255,255,.35); border-radius: 8px; }
+.card-back::after { content: '?'; position: relative; font-size: calc(var(--cs) * .34); font-weight: 900; color: rgba(255,255,255,.4); line-height: 1; }
+.card-front { background: #fff; transform: rotateY(180deg); padding: 5%; border: 2px solid rgba(0,0,0,.08); }
+.card-front img { display: block; width: 100%; flex: 1 1 auto; min-height: 0; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+.card-front .cap { display: none; font-weight: 900; color: #000; line-height: 1.1; white-space: nowrap; font-size: max(10px, calc(var(--cs) * .15)); padding-top: 1px; }
+.card-front .badge { display: none; position: absolute; top: 3px; left: 3px; min-width: 1.35em; height: 1.35em; padding: 0 .3em; border-radius: 99px; font-size: max(10px, calc(var(--cs) * .17)); font-weight: 900; line-height: 1.35em; text-align: center; color: #111827; }
+.card.matched .card-front { animation: matchGlow .8s ease-out; border: 3px solid #facc15; }
+.card.matched[data-owner="1"] .card-front { border-color: #3b82f6; }
+.card.matched[data-owner="2"] .card-front { border-color: #f43f5e; }
+body.duo .card.matched .badge { display: block; }
+.card.matched[data-owner="1"] .badge { background: #60a5fa; }
+.card.matched[data-owner="2"] .badge { background: #fb7185; }
+@keyframes matchGlow { 0% { box-shadow: 0 0 0 0 rgba(250,204,21,.7); } 50% { box-shadow: 0 0 20px 8px rgba(250,204,21,.4); } 100% { box-shadow: 0 0 0 0 rgba(250,204,21,0); } }
+
+/* ===== オーバーレイ（メニュー・結果） ===== */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left)); }
+.overlay.show { display: flex; }
+.result-box { background: #fff; color: #1f2937; border-radius: 20px; padding: 20px 18px; text-align: center; max-width: 420px; width: 100%; max-height: 100%; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: resultPop .4s cubic-bezier(.34,1.56,.64,1); }
+@keyframes resultPop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.result-box h2 { color: #7c3aed; font-size: 1.5rem; margin-bottom: 10px; }
+.result-box .sub { font-size: .85rem; color: #4b5563; margin-bottom: 8px; }
+.result-box .result-stat { font-size: 1.05rem; color: #374151; margin: 4px 0; }
+.result-box .result-stat .num { font-weight: bold; color: #7c3aed; font-size: 1.25rem; }
+.result-box .new-record { color: #dc2626; font-weight: bold; margin-top: 6px; animation: newRecordPulse 1s ease-in-out infinite; }
+@keyframes newRecordPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.result-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+.result-btn { background: #7c3aed; color: #fff; border: none; border-radius: 30px; padding: 0 22px; min-height: 46px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.result-btn:hover { background: #6d28d9; }
+.result-btn.sub-btn { background: #e5e7eb; color: #374151; }
+.result-btn.sub-btn:hover { background: #d1d5db; }
+.menu-sec { text-align: left; margin-top: 12px; }
+.menu-sec h3 { font-size: .85rem; color: #4b5563; margin-bottom: 6px; }
+.seg { display: flex; gap: 6px; }
+.seg button { flex: 1; min-height: 46px; border-radius: 12px; border: 3px solid #ddd6fe; background: #fff; color: #374151; font-size: 1rem; font-weight: bold; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+.lv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.lv-grid button { min-height: 58px; border-radius: 12px; border: 3px solid #ddd6fe; background: #fff; color: #374151; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
+.lv-grid button b { font-size: 1.05rem; }
+.lv-grid button small { font-size: .66rem; color: inherit; opacity: .85; }
+.lv-grid button[aria-pressed="true"] { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+.menu-note { font-size: .72rem; color: #6b7280; margin-top: 8px; line-height: 1.5; }
+.menu-note a { color: #6d28d9; }
+.win-score { display: flex; gap: 10px; justify-content: center; margin: 8px 0; }
+.win-score div { flex: 1; border-radius: 12px; padding: 6px; font-weight: bold; color: #111827; }
+.win-score .w1 { background: #bfdbfe; } .win-score .w2 { background: #fecdd3; }
+.win-score .win { outline: 4px solid #facc15; }
+.win-score big { display: block; font-size: 1.7rem; font-weight: 900; }
+
+/* ===== 見やすいモード（大きな文字・高コントラスト） ===== */
+body.accessible-mode { background: #000; color: #fff; }
+body.accessible-mode .btn, body.accessible-mode .seg button, body.accessible-mode .lv-grid button { font-size: 1.05rem; }
+body.accessible-mode .btn { min-height: 48px; box-shadow: none; border: 3px solid #fff; }
+body.accessible-mode .home-btn, body.accessible-mode .toggle-btn { background: #000; color: #fff; border-color: #fff; }
+body.accessible-mode .toggle-btn[aria-pressed="true"] { background: #facc15; color: #000; }
+body.accessible-mode .restart-btn { background: #1d4ed8; color: #fff; }
+body.accessible-mode .menu-btn { background: #facc15; color: #000; }
+body.accessible-mode .stat-box { background: #111; border: 2px solid #fff; backdrop-filter: none; -webkit-backdrop-filter: none; }
+body.accessible-mode .stat-box .label { font-size: .85rem; opacity: 1; }
+body.accessible-mode .stat-box .value { font-size: 1.45rem; font-weight: 900; }
+body.accessible-mode .stat-box .best { font-size: .8rem; opacity: 1; }
+body.accessible-mode .player { background: #111; border-color: #666; opacity: 1; color: #fff; }
+body.accessible-mode .player .name { font-size: .95rem; }
+body.accessible-mode .player .score { font-size: 1.9rem; }
+body.accessible-mode .player .turn-tag { font-size: .85rem; }
+body.accessible-mode .player.p1.active { background: #38bdf8; color: #000; border-color: #fff; }
+body.accessible-mode .player.p2.active { background: #fb7185; color: #000; border-color: #fff; }
+body.accessible-mode .player:not(.active) { opacity: .75; }
+body.accessible-mode .card-back { background: #0b1f4d; border: 3px solid #fff; }
+body.accessible-mode .card-back::before { border-color: #fff; }
+body.accessible-mode .card-back::after { color: #fff; }
+body.accessible-mode .card-front { background: #fff; border: 4px solid #000; }
+body.accessible-mode .card-front .cap { display: block; }
+body.accessible-mode .card.matched .card-front { border-color: #16a34a; }
+body.accessible-mode .card.matched[data-owner="1"] .card-front { border-color: #0369a1; }
+body.accessible-mode .card.matched[data-owner="2"] .card-front { border-color: #be123c; }
+body.accessible-mode .result-box { border: 4px solid #000; color: #000; }
+body.accessible-mode .result-box .sub, body.accessible-mode .menu-sec h3, body.accessible-mode .menu-note { color: #111; }
+body.accessible-mode .result-box .result-stat { color: #000; font-size: 1.2rem; }
+body.accessible-mode .result-box h2 { color: #000; }
+body.accessible-mode .seg button, body.accessible-mode .lv-grid button { border-color: #000; color: #000; }
+body.accessible-mode .seg button[aria-pressed="true"], body.accessible-mode .lv-grid button[aria-pressed="true"] { background: #000; color: #fff; }
+body.accessible-mode .result-btn { background: #000; color: #fff; border: 3px solid #000; }
+body.accessible-mode .result-btn.sub-btn { background: #fff; color: #000; }
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 400px) {
+  .btn { padding: 0 8px; font-size: .78rem; min-height: 38px; }
+  .header { gap: 4px; }
+  .stat-box .value { font-size: 1rem; }
+  .stat-box .label { font-size: .62rem; }
+  body.accessible-mode .stat-box .value { font-size: 1.2rem; }
+  body.accessible-mode .stat-box .label { font-size: .72rem; }
+  body.accessible-mode .btn { font-size: .85rem; min-height: 44px; padding: 0 8px; }
+}
+@media (max-height: 460px) {
+  body { gap: 4px; padding-top: calc(4px + env(safe-area-inset-top)); padding-bottom: calc(4px + env(safe-area-inset-bottom)); }
+  .btn { min-height: 34px; font-size: .8rem; }
+  body.accessible-mode .btn { min-height: 40px; font-size: .9rem; }
+  .stat-box .label, .stat-box .best { display: none; }
+  .stat-box .value { font-size: 1rem; }
+  .player .turn-tag { display: none; }
+  .player { padding: 2px 8px; }
+  .player .name { font-size: .7rem; }
+  .player .score { font-size: 1.2rem; }
+  .player.active .turn-tag { display: none; }
+  body.accessible-mode .stat-box .label { display: block; font-size: .7rem; }
+  body.accessible-mode .stat-box .value { font-size: 1.1rem; }
+  body.accessible-mode .player .name { font-size: .8rem; }
+}
+/* 結果・メニューが横画面で収まるように */
+@media (max-height: 460px) {
+  .result-box { padding: 10px 14px; }
+  .result-box h2 { font-size: 1.15rem; margin-bottom: 4px; }
+  .menu-sec { margin-top: 6px; }
+  .lv-grid { grid-template-columns: repeat(8, 1fr); }
+  .lv-grid button { min-height: 46px; }
+  .seg button { min-height: 38px; }
+  .result-btn { min-height: 40px; }
+  .result-btns { margin-top: 8px; }
+  .menu-note { display: none; }
+  .result-box { max-width: 640px; }
+}
+
+/* ===== 操作不能時 ===== */
+.game-board.busy .card { cursor: default; }
+
+/* ===== アニメーションを減らす設定 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .card-inner, .btn, .player { transition: none; }
+  .card.matched .card-front, .result-box, .result-box .new-record { animation: none; }
+  .btn:hover { transform: none; }
+}
+</style>
+</head>
+<body class="solo">
+
+<div class="header">
+  <a class="btn home-btn" id="homeLink" href="./index.html#cardgames" aria-label="ホームへ戻る">← ホーム</a>
+  <button class="btn menu-btn" id="menuBtn" type="button" aria-haspopup="dialog">Lv1・1人プレイ ▾</button>
+  <button class="btn restart-btn" id="resetBtn" type="button" aria-label="リセット（同じ難易度でやり直す）">↻ リセット</button>
+  <button class="btn toggle-btn" id="easyBtn" type="button" aria-pressed="false">見やすい</button>
+</div>
+
+<div class="stats" id="stats">
+  <div class="player p1 active" id="pl1"><span class="name">プレイヤー1</span><span class="score" id="sc1">0</span><span class="turn-tag">▶ あなたの番</span></div>
+  <div class="center-stats">
+    <div class="stat-box"><span class="label">手数</span><span class="value" id="moves">0</span></div>
+    <div class="stat-box"><span class="label">タイム</span><span class="value" id="time">0:00</span><span class="best solo-only" id="bestTime">ベスト --</span></div>
+    <div class="stat-box"><span class="label">ペア</span><span class="value" id="pairs">0/3</span><span class="best solo-only" id="bestMoves">ベスト --</span></div>
+  </div>
+  <div class="player p2" id="pl2"><span class="name">プレイヤー2</span><span class="score" id="sc2">0</span><span class="turn-tag">▶ あなたの番</span></div>
+</div>
+
+<div class="board-wrap" id="boardWrap">
+  <div class="game-board" id="board" role="group" aria-label="カード"></div>
+</div>
+<div class="sr-only" id="live" aria-live="polite"></div>
+<noscript><p style="padding:16px">このゲームはJavaScriptが必要です。</p></noscript>
+
+<!-- メニュー -->
+<div class="overlay" id="menu" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+  <div class="result-box">
+    <h2 id="menuTitle">🍙 絵合わせゲーム</h2>
+    <p class="sub">同じ絵のカードを2枚そろえよう（神経衰弱）</p>
+    <div class="menu-sec"><h3>あそぶ人数</h3>
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="solo" aria-pressed="true">1人プレイ</button>
+        <button type="button" data-mode="duo" aria-pressed="false">2人で交代</button>
+      </div>
+    </div>
+    <div class="menu-sec"><h3>難易度（1人プレイは手数・タイムのベストを記録）</h3>
+      <div class="lv-grid" id="lvGrid"></div>
+    </div>
+    <div class="menu-sec"><h3>表示</h3>
+      <div class="seg"><button type="button" id="easyBtn2" aria-pressed="false">見やすいモード（大きな文字・高コントラスト）</button></div>
+    </div>
+    <div class="result-btns">
+      <button type="button" class="result-btn" id="startBtn">はじめる</button>
+      <button type="button" class="result-btn sub-btn" id="closeMenuBtn">とじる</button>
+    </div>
+    <p class="menu-note">2人交代：ペアをそろえたら同じ人がもう一度。はずれたら交代します。<br><a href="./index.html#cardgames">← ホームへ戻る</a></p>
+  </div>
+</div>
+
+<!-- 結果 -->
+<div class="overlay" id="result" role="dialog" aria-modal="true" aria-labelledby="resTitle">
+  <div class="result-box">
+    <h2 id="resTitle">🎉 クリア！</h2>
+    <div id="resBody"></div>
+    <div class="result-btns" id="resBtns"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+
+/* ===== 絵（14種） ===== */
+const PICS = [
+  { id: 1,  name: '梅おにぎり' },
+  { id: 2,  name: '鮭おにぎり' },
+  { id: 3,  name: '昆布おにぎり' },
+  { id: 4,  name: '焼きウインナー' },
+  { id: 5,  name: 'タコさんウインナー' },
+  { id: 6,  name: 'ケチャップウインナー' },
+  { id: 7,  name: 'パン' },
+  { id: 8,  name: 'クロワッサン' },
+  { id: 9,  name: 'あんぱん' },
+  { id: 10, name: '醤油ラーメン' },
+  { id: 11, name: '味噌ラーメン' },
+  { id: 12, name: '豚骨ラーメン' },
+  { id: 13, name: 'ラムネ' },
+  { id: 14, name: 'みかん' }
+];
+const CAP_SHORT = { 'タコさんウインナー': 'タコさん', 'ケチャップウインナー': 'ケチャップ', '焼きウインナー': '焼きウインナー' };
+
+/* ===== 難易度8段階：ペア数と列×行（縦画面 p / 横画面 l。画面に合う方を自動選択） ===== */
+const LEVELS = [
+  { pairs: 3,  p: [2, 3], l: [3, 2] },   // Lv1  6枚
+  { pairs: 4,  p: [2, 4], l: [4, 2] },   // Lv2  8枚
+  { pairs: 5,  p: [2, 5], l: [5, 2] },   // Lv3 10枚
+  { pairs: 6,  p: [3, 4], l: [4, 3] },   // Lv4 12枚
+  { pairs: 8,  p: [4, 4], l: [4, 4] },   // Lv5 16枚
+  { pairs: 10, p: [4, 5], l: [5, 4] },   // Lv6 20枚
+  { pairs: 12, p: [4, 6], l: [6, 4] },   // Lv7 24枚
+  { pairs: 14, p: [4, 7], l: [7, 4] }    // Lv8 28枚（14種すべて）
+];
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+
+/* ===== 状態 ===== */
+const prefs = store.get('eawase.prefs', {});
+const S = {
+  lv: Math.min(8, Math.max(1, +prefs.lv || 1)),
+  mode: prefs.mode === 'duo' ? 'duo' : 'solo',
+  easy: !!prefs.easy,
+  cards: [], open: [], busy: false, started: false, over: false,
+  moves: 0, matched: 0, turn: 1, scores: [0, 0],
+  t0: 0, elapsed: 0, timer: null, timeouts: []
+};
+function savePrefs() { store.set('eawase.prefs', { lv: S.lv, mode: S.mode, easy: S.easy }); }
+
+/* ===== ベスト記録（1人プレイ・難易度別） ===== */
+function getBest(lv) { const b = store.get('eawase.best', {}); return b[lv] || { moves: null, time: null }; }
+function updateBest(lv, moves, sec) {
+  const all = store.get('eawase.best', {});
+  const cur = all[lv] || { moves: null, time: null };
+  let rec = false;
+  if (cur.moves === null || moves < cur.moves) { cur.moves = moves; rec = true; }
+  if (cur.time === null || sec < cur.time) { cur.time = sec; rec = true; }
+  all[lv] = cur; store.set('eawase.best', all);
+  return rec;
+}
+function fmt(sec) { const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function later(fn, ms) { const t = setTimeout(() => { S.timeouts = S.timeouts.filter(x => x !== t); fn(); }, ms); S.timeouts.push(t); return t; }
+function clearTimers() { S.timeouts.forEach(clearTimeout); S.timeouts = []; clearInterval(S.timer); S.timer = null; }
+function say(msg) { $('live').textContent = msg; }
+
+/* ===== 配札 ===== */
+function deal() {
+  clearTimers();
+  const L = LEVELS[S.lv - 1];
+  const ids = shuffle(PICS.map(p => p.id)).slice(0, L.pairs);   // Lv8は14種すべて、他は毎回ランダム
+  S.cards = shuffle(ids.concat(ids)).map((id, i) => ({ i, id, flipped: false, matched: false, owner: 0 }));
+  S.open = []; S.busy = false; S.started = false; S.over = false;
+  S.moves = 0; S.matched = 0; S.turn = 1; S.scores = [0, 0]; S.elapsed = 0;
+  document.body.classList.toggle('duo', S.mode === 'duo');
+  document.body.classList.toggle('solo', S.mode !== 'duo');
+  render(); fit(); updateStats(); updateMenuLabel();
+  say('新しいゲームを始めました。' + (S.mode === 'duo' ? 'プレイヤー1の番です。' : ''));
+}
+
+function render() {
+  const board = $('board');
+  board.innerHTML = '';
+  board.classList.remove('busy');
+  S.cards.forEach(c => {
+    const pic = PICS[c.id - 1];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'card';
+    b.dataset.index = c.i;
+    b.dataset.pic = c.id;
+    b.setAttribute('aria-label', 'カード（ふせてある）');
+    b.innerHTML =
+      '<div class="card-inner">' +
+        '<div class="card-face card-back" aria-hidden="true"></div>' +
+        '<div class="card-face card-front" aria-hidden="true">' +
+          '<span class="badge"></span>' +
+          '<img src="match/' + String(c.id).padStart(2, '0') + '.webp" alt="" decoding="async" draggable="false">' +
+          '<span class="cap">' + (CAP_SHORT[pic.name] || pic.name) + '</span>' +
+        '</div>' +
+      '</div>';
+    b.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (!e.isPrimary) return;
+      e.preventDefault();
+      flip(c.i);
+    });
+    b.addEventListener('click', e => { if (e.detail === 0) flip(c.i); });   // キーボード操作
+    c.el = b;
+    board.appendChild(b);
+  });
+}
+
+/* ===== 画面に収まるサイズ計算（スクロール不要） ===== */
+function fit() {
+  const wrap = $('boardWrap'), board = $('board');
+  const cs = getComputedStyle(wrap);
+  const W = wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 4;
+  const H = wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
+  const L = LEVELS[S.lv - 1];
+  const gap = L.pairs >= 8 ? 6 : 10;
+  let best = null;
+  [L.p, L.l].forEach(([c, r]) => {
+    const s = Math.floor(Math.min((W - gap * (c - 1)) / c, (H - gap * (r - 1)) / r, 200));
+    if (!best || s > best.s) best = { c, r, s };
+  });
+  const s = Math.max(24, best.s);
+  board.style.setProperty('--cols', best.c);
+  board.style.setProperty('--cs', s + 'px');
+  board.style.setProperty('--gap', gap + 'px');
+  board.dataset.cols = best.c; board.dataset.rows = best.r;
+}
+
+/* ===== めくる ===== */
+function flip(i) {
+  if (S.busy || S.over || !S.cards[i]) return;
+  const c = S.cards[i];
+  if (c.flipped || c.matched) return;
+  if ($('menu').classList.contains('show') || $('result').classList.contains('show')) return;
+  if (!S.started) startTimer();
+  c.flipped = true; c.el.classList.add('flipped');
+  c.el.setAttribute('aria-label', PICS[c.id - 1].name);
+  S.open.push(c);
+  if (S.open.length < 2) return;
+
+  S.moves++; S.busy = true; $('board').classList.add('busy');
+  const [a, b] = S.open;
+  updateStats();
+  if (a.id === b.id) {
+    later(() => {                                   // 揃った：少し見せてから確定。同じ人が続ける
+      [a, b].forEach(x => {
+        x.matched = true; x.owner = S.mode === 'duo' ? S.turn : 0;
+        x.el.classList.add('matched'); x.el.dataset.owner = x.owner;
+        x.el.querySelector('.badge').textContent = x.owner || '';
+        x.el.disabled = false;
+        x.el.setAttribute('aria-label', PICS[x.id - 1].name + '（そろった）');
+      });
+      S.matched++; if (S.mode === 'duo') S.scores[S.turn - 1]++;
+      S.open = []; S.busy = false; $('board').classList.remove('busy');
+      updateStats();
+      say(PICS[a.id - 1].name + 'がそろいました。' + (S.mode === 'duo' ? 'プレイヤー' + S.turn + 'が続けてどうぞ。' : ''));
+      if (S.matched === S.cards.length / 2) finish();
+    }, 600);
+  } else {
+    const show = S.easy ? 2000 : 1300;              // ゆっくり見せる → ゆっくり裏返す
+    later(() => {
+      a.flipped = b.flipped = false;
+      a.el.classList.remove('flipped'); b.el.classList.remove('flipped');
+      a.el.setAttribute('aria-label', 'カード（ふせてある）'); b.el.setAttribute('aria-label', 'カード（ふせてある）');
+      later(() => {                                 // 裏返し終わるまで操作を受け付けない（連打防止）
+        S.open = []; S.busy = false; $('board').classList.remove('busy');
+        if (S.mode === 'duo') { S.turn = 3 - S.turn; say('プレイヤー' + S.turn + 'の番です。'); }
+        updateStats();
+      }, reduceMotion.matches ? 80 : 650);
+    }, show);
+  }
+}
+
+function startTimer() {
+  S.started = true; S.t0 = performance.now();
+  S.timer = setInterval(() => { S.elapsed = Math.floor((performance.now() - S.t0) / 1000); $('time').textContent = fmt(S.elapsed); }, 250);
+}
+
+function updateStats() {
+  const L = LEVELS[S.lv - 1];
+  $('moves').textContent = S.moves;
+  $('time').textContent = fmt(S.elapsed);
+  $('pairs').textContent = S.matched + '/' + L.pairs;
+  $('sc1').textContent = S.scores[0]; $('sc2').textContent = S.scores[1];
+  $('pl1').classList.toggle('active', S.mode === 'duo' && S.turn === 1);
+  $('pl2').classList.toggle('active', S.mode === 'duo' && S.turn === 2);
+  $('pl1').setAttribute('aria-current', S.mode === 'duo' && S.turn === 1 ? 'true' : 'false');
+  $('pl2').setAttribute('aria-current', S.mode === 'duo' && S.turn === 2 ? 'true' : 'false');
+  const b = getBest(S.lv);
+  $('bestMoves').textContent = 'ベスト ' + (b.moves !== null ? b.moves + '手' : '--');
+  $('bestTime').textContent = 'ベスト ' + (b.time !== null ? fmt(b.time) : '--');
+}
+function updateMenuLabel() { $('menuBtn').textContent = 'Lv' + S.lv + '・' + (S.mode === 'duo' ? '2人交代' : '1人プレイ') + ' ▾'; }
+
+/* ===== 終了 ===== */
+function finish() {
+  S.over = true; clearInterval(S.timer); S.timer = null;
+  S.elapsed = Math.floor((performance.now() - S.t0) / 1000);
+  updateStats();
+  const L = LEVELS[S.lv - 1];
+  let title, body = '', next = S.lv < 8;
+  if (S.mode === 'duo') {
+    const [s1, s2] = S.scores;
+    title = s1 === s2 ? '🤝 引き分け！' : (s1 > s2 ? '🏆 プレイヤー1の勝ち！' : '🏆 プレイヤー2の勝ち！');
+    body = '<p class="sub">Lv' + S.lv + '（' + L.pairs + 'ペア）・手数 ' + S.moves + '・' + fmt(S.elapsed) + '</p>' +
+      '<div class="win-score"><div class="w1' + (s1 > s2 ? ' win' : '') + '">プレイヤー1<big>' + s1 + '</big>ペア</div>' +
+      '<div class="w2' + (s2 > s1 ? ' win' : '') + '">プレイヤー2<big>' + s2 + '</big>ペア</div></div>';
+  } else {
+    const rec = updateBest(S.lv, S.moves, S.elapsed);
+    updateStats();
+    title = '🎉 クリア！';
+    const b = getBest(S.lv);
+    body = '<p class="sub">Lv' + S.lv + '（' + L.pairs + 'ペア・' + L.pairs * 2 + '枚）</p>' +
+      '<div class="result-stat">手数: <span class="num" id="resMoves">' + S.moves + '</span> 手</div>' +
+      '<div class="result-stat">タイム: <span class="num" id="resTime">' + fmt(S.elapsed) + '</span></div>' +
+      '<div class="result-stat" style="font-size:.85rem">ベスト: ' + b.moves + '手 / ' + fmt(b.time) + '</div>' +
+      (rec ? '<div class="new-record" id="resRecord">🏆 新記録！</div>' : '');
+  }
+  $('resTitle').textContent = title;
+  $('resBody').innerHTML = body;
+  $('resBtns').innerHTML =
+    '<button type="button" class="result-btn" id="againBtn">もう一度</button>' +
+    (next && S.mode === 'solo' ? '<button type="button" class="result-btn" id="nextBtn">次のLv' + (S.lv + 1) + 'へ</button>' : '') +
+    (next && S.mode === 'duo' ? '<button type="button" class="result-btn" id="nextBtn">次のLv' + (S.lv + 1) + 'へ</button>' : '') +
+    '<button type="button" class="result-btn sub-btn" id="menuBtn2">難易度・人数を変える</button>' +
+    '<a class="result-btn sub-btn" href="./index.html#cardgames">ホームへ</a>';
+  $('againBtn').onclick = () => { hide('result'); deal(); };
+  if ($('nextBtn')) $('nextBtn').onclick = () => { S.lv++; savePrefs(); hide('result'); deal(); };
+  $('menuBtn2').onclick = () => { hide('result'); openMenu(); };
+  say(title);
+  later(() => { show('result'); $('againBtn').focus(); }, 500);
+}
+
+/* ===== オーバーレイ ===== */
+function show(id) { $(id).classList.add('show'); }
+function hide(id) { $(id).classList.remove('show'); }
+
+let menuSel = { lv: S.lv, mode: S.mode };
+function buildLv() {
+  const g = $('lvGrid'); g.innerHTML = '';
+  LEVELS.forEach((L, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.lv = i + 1;
+    b.setAttribute('aria-pressed', String(menuSel.lv === i + 1));
+    const bs = getBest(i + 1);
+    b.innerHTML = '<b>Lv' + (i + 1) + '</b><small>' + L.pairs + 'ペア</small>' + '<small>' + (menuSel.mode === 'solo' && bs.moves !== null ? '★' + bs.moves + '手' : '　') + '</small>';
+    b.onclick = () => { menuSel.lv = i + 1; buildLv(); };
+    g.appendChild(b);
+  });
+  g.setAttribute('aria-label', '難易度');
+  document.querySelectorAll('#modeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === menuSel.mode)));
+}
+function openMenu() { menuSel = { lv: S.lv, mode: S.mode }; buildLv(); $('easyBtn2').setAttribute('aria-pressed', String(S.easy)); show('menu'); $('startBtn').focus(); }
+document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => { menuSel.mode = b.dataset.mode; buildLv(); });
+$('startBtn').onclick = () => { S.lv = menuSel.lv; S.mode = menuSel.mode; savePrefs(); hide('menu'); deal(); };
+$('closeMenuBtn').onclick = () => hide('menu');
+$('menuBtn').onclick = openMenu;
+$('resetBtn').onclick = () => { hide('result'); deal(); };
+
+function setEasy(v) {
+  S.easy = v; document.body.classList.toggle('accessible-mode', v);
+  $('easyBtn').setAttribute('aria-pressed', String(v)); $('easyBtn2').setAttribute('aria-pressed', String(v));
+  $('easyBtn').textContent = v ? '見やすい:ON' : '見やすい';
+  savePrefs(); fit();
+}
+$('easyBtn').onclick = () => setEasy(!S.easy);
+$('easyBtn2').onclick = () => setEasy(!S.easy);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('menu').classList.contains('show')) hide('menu'); });
+
+/* ===== 画面サイズ変化 ===== */
+let raf = 0;
+function refit() { cancelAnimationFrame(raf); raf = requestAnimationFrame(fit); }
+window.addEventListener('resize', refit);
+window.addEventListener('orientationchange', () => setTimeout(fit, 200));
+if (window.ResizeObserver) new ResizeObserver(refit).observe($('boardWrap'));
+document.addEventListener('dblclick', e => e.preventDefault());
+
+/* ===== 起動：メニューを出す ===== */
+setEasy(S.easy);
+deal();
+openMenu();
+})();
+</script>
+</body>
+</html>
