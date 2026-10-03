@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1131</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1132</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1131");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1132");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -439,12 +439,19 @@ let guestResolutionTimer=null;
 let guiScale=1,guiPanX=0,guiPanY=0,moveMode=false,panPointer=null,panStartX=0,panStartY=0,panOriginX=0,panOriginY=0;
 let guiW=0,guiH=0;
 
+let MOBILE_FIXED=null;
+
 function mobileVirtualSize(){
+ if(MOBILE_FIXED)return MOBILE_FIXED;
+
  const r=$("screenWrap").getBoundingClientRect();
  const aspect=Math.max(.45,Math.min(1.8,(r.width||390)/(r.height||600)));
  const w=720;
  const h=Math.max(540,Math.min(1280,Math.round(w/aspect)));
- return {w,h};
+
+ MOBILE_FIXED={w,h};
+ log(`[display] mobile size locked ${w}x${h}`);
+ return MOBILE_FIXED;
 }
 
 function currentVirtualSize(){
@@ -1310,7 +1317,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1131",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1132",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1378,11 +1385,11 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // v1131: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // v1132: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
   // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
   const _qs=new URLSearchParams(location.search);
   const _cleanBoot=_qs.get("clean")==="1";
-  const idbName=_cleanBoot?("salp-linux-v1131-clean-"+Date.now()):"salp-linux-v1131-clean";
+  const idbName=_cleanBoot?("salp-linux-v1132-clean-"+Date.now()):"salp-linux-v1132-clean";
   const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1598,7 +1605,7 @@ if(sessionStorage.getItem("salpDisplayReboot")==="1") {
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1131");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1132");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -1695,7 +1702,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1131");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1132");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
