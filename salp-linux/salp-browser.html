@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1129</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1130</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1129");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1130");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -986,6 +986,9 @@ async function rewriteOverlayLaunchers(){
 'step "07 Terminal start"',
 "/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
 "",
+"sleep 1",
+'PIDS_I3=$(pidof i3 2>/dev/null || true); PIDS_XTERM=$(pidof xterm 2>/dev/null || true); PIDS_PCMANFM=$(pidof pcmanfm 2>/dev/null || true); step "07c pids i3=${PIDS_I3:-none} xterm=${PIDS_XTERM:-none} pcmanfm=${PIDS_PCMANFM:-none}"',
+"MAP_HITS=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -Eio 'xterm|pcmanfm' | head -n 8 | tr '\\n' ',' || true); step \"07d map hits=${MAP_HITS:-none}\"",
 'step "07b session apps launched (bg); exiting"',
 "exit 0",
 "SALPSESEOF",
@@ -1298,7 +1301,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1129",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1130",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1366,11 +1369,11 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // v1129: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // v1130: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
   // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
   const _qs=new URLSearchParams(location.search);
   const _cleanBoot=_qs.get("clean")==="1";
-  const idbName=_cleanBoot?("salp-linux-v1129-clean-"+Date.now()):"salp-linux-v1129-clean";
+  const idbName=_cleanBoot?("salp-linux-v1130-clean-"+Date.now()):"salp-linux-v1130-clean";
   const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1515,6 +1518,7 @@ async function boot(){
     sizeCanvas({refit:true,forceKms:true,syncGuest:true});
     diagnoseGuiPaint().catch(e=>log("[paint] after forceKms ERROR: "+(e?.message||String(e))));
    }
+   try{const paintEl=$("display"),paintRect=paintEl.getBoundingClientRect(),paintCs=getComputedStyle(paintEl);log(`[paint-lite] canvas connected=${paintEl.isConnected?1:0} attr=${paintEl.width}x${paintEl.height} css=${Math.round(paintRect.width)}x${Math.round(paintRect.height)} visibility=${paintCs.visibility} opacity=${paintCs.opacity}`)}catch(e){log("[paint-lite] ERROR: "+(e?.message||String(e)))}
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
    $("installBtn").disabled=false;
    // Brief settle for i3 IPC; skip second full rewrite before Firefox (already rewritten at boot).
@@ -1585,7 +1589,7 @@ if(sessionStorage.getItem("salpDisplayReboot")==="1") {
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1129");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1130");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -1682,7 +1686,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1129");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1130");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
