@@ -1,0 +1,6 @@
+# salpbot Jr. API (Cloudflare Worker)
+# 秘密情報(OPENAI_API_KEY / SALPBOT_TOKEN)はここに書かない。Cloudflare の Secret に登録する。
+name = "salpbot-jr-api"
+main = "worker.js"   # このファイル(backend/wrangler.toml)と同じフォルダの worker.js
+compatibility_date = "2026-10-03"
+workers_dev = true

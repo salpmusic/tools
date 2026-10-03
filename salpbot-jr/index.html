@@ -26,6 +26,66 @@
       <p id="personalityText">人格を読み込んでいます…</p>
     </section>
 
+    <section class="connectionPanel">
+      <div class="panelTitle">
+        AI CONNECTION
+      </div>
+
+      <p class="connectionHelp">
+        Workerを設定するとGPTモードになります。
+        アクセストークンはこの端末だけに保存され、
+        記憶JSONには書き出されません。
+      </p>
+
+      <div class="settingRow">
+        <label for="workerUrlInput">
+          Worker URL
+        </label>
+
+        <input
+          id="workerUrlInput"
+          type="url"
+          inputmode="url"
+          autocomplete="off"
+          placeholder="https://salpbot-jr-api.xxxxx.workers.dev"
+        >
+      </div>
+
+      <div class="settingRow">
+        <label for="workerTokenInput">
+          Access Token
+        </label>
+
+        <input
+          id="workerTokenInput"
+          type="password"
+          autocomplete="off"
+          placeholder="SALPBOT_TOKEN"
+        >
+      </div>
+
+      <div class="connectionButtons">
+        <button
+          id="saveConnectionButton"
+          type="button"
+        >
+          接続設定を保存
+        </button>
+
+        <button
+          id="clearConnectionButton"
+          type="button"
+        >
+          LOCALに戻す
+        </button>
+      </div>
+
+      <p
+        id="connectionMessage"
+        class="memoryMessage"
+      ></p>
+    </section>
+
     <main id="chatArea" class="chatArea" aria-live="polite"></main>
 
     <section class="composer">
@@ -52,8 +112,8 @@
     </section>
 
     <footer>
-      <span>salpbot-jr v0.1</span>
-      <span>Brain: not connected</span>
+      <span>salpbot-jr v0.2</span>
+      <span>Brain: LOCAL / Worker経由GPT</span>
     </footer>
   </div>
   <script src="./memory.js"></script>

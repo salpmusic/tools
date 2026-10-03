@@ -44,3 +44,87 @@ textarea:focus{border-color:var(--accent)}
 footer{display:flex;justify-content:space-between;gap:8px;padding:18px 4px 0;color:#657184;font-size:.67rem}
 .srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 @media (max-width:520px){.app{padding-left:10px;padding-right:10px}.composer{grid-template-columns:1fr}.primaryButton{min-height:46px}.toolButtons{grid-template-columns:1fr}.bubble{max-width:90%}}
+
+/* Step 2: AI CONNECTION */
+.connectionPanel {
+  margin-top: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 16px;
+
+  background: var(--panel);
+
+  padding: 14px;
+}
+
+.connectionHelp {
+  margin: 7px 0 14px;
+
+  color: var(--muted);
+
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.settingRow {
+  display: grid;
+  gap: 6px;
+
+  margin-top: 10px;
+}
+
+.settingRow label {
+  color: #cdd6e1;
+
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.settingRow input {
+  width: 100%;
+  min-height: 44px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  outline: none;
+
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.settingRow input:focus {
+  border-color: var(--accent);
+}
+
+.connectionButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.connectionButtons button {
+  min-height: 42px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 520px) {
+  .connectionButtons {
+    grid-template-columns: 1fr;
+  }
+}

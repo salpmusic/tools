@@ -12,6 +12,6 @@
     "relationship": "personal_advisor",
     "address_user_as": "カネちゃん"
   },
-  "greeting": "カネちゃん、salpbot Jr.です。現在はローカルモードです。",
+  "greeting": "カネちゃん、salpbot Jr.です。",
   "local_reply": "了解、カネちゃん。今はまだ頭脳AIを接続していないローカル版だよ。会話履歴はこの端末に保存しているよ。"
 }
