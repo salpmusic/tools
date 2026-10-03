@@ -151,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1127</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1129</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -210,7 +210,7 @@ footer{
 
 <section class="displayModeBar" aria-label="Linux本体の表示切替">
  <span class="label">🖥 Linux本体の表示</span>
- <button id="guiPcBtn" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC表示 1366×768</button>
+ <button id="guiPcBtn" hidden disabled style="display:none" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC表示 1366×768</button>
  <button id="guiMobileBtn" title="Linux GUIをスマホ向け解像度で起動/再起動">📱 スマホ表示</button>
  <span id="displayModeNow" class="displayModeNow">現在：--</span>
  <button id="jumpScreenBtn" title="Linux画面まで移動">🖥 Linux画面へ</button>
@@ -333,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1127");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1129");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -366,6 +366,10 @@ window.salpStage?.("4/7 salp Linux UI初期化","DOM接続成功");
 let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
 const botChromeQuery=new URLSearchParams(location.search).get("botChrome");
 const botChromeOff=botChromeQuery==="0"||/^(false|off)$/i.test(botChromeQuery||"");
+
+// PC表示は安定化完了まで凍結。true に戻せば既存PC表示コードを再利用できる。
+const ENABLE_PC_MODE=false;
+
 let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")==="1";
 let autoCancelled=false;
 let initPromise=null;
@@ -424,10 +428,16 @@ function appEnv(){
 function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/ash","DISPLAY=:0","LANG=C.UTF-8"]}
 
 const GUI_PC={w:1366,h:768};
-let guiMode=localStorage.getItem("salpGuiMode")||"pc";
+
+let guiMode=ENABLE_PC_MODE?(localStorage.getItem("salpGuiMode")||"pc"):"mobile";
+if(!ENABLE_PC_MODE){
+ guiMode="mobile";
+ localStorage.setItem("salpGuiMode","mobile");
+}
+
 let guestResolutionTimer=null;
 let guiScale=1,guiPanX=0,guiPanY=0,moveMode=false,panPointer=null,panStartX=0,panStartY=0,panOriginX=0,panOriginY=0;
-let guiW=GUI_PC.w,guiH=GUI_PC.h;
+let guiW=0,guiH=0;
 
 function mobileVirtualSize(){
  const r=$("screenWrap").getBoundingClientRect();
@@ -436,14 +446,36 @@ function mobileVirtualSize(){
  const h=Math.max(540,Math.min(1280,Math.round(w/aspect)));
  return {w,h};
 }
-function currentVirtualSize(){return guiMode==="pc"?GUI_PC:mobileVirtualSize()}
+
+function currentVirtualSize(){
+ return ENABLE_PC_MODE&&guiMode==="pc"?GUI_PC:mobileVirtualSize();
+}
+
+{
+ const initialSize=currentVirtualSize();
+ guiW=initialSize.w;
+ guiH=initialSize.h;
+}
+
 function updateViewInfo(){
- $("guiPcBtn").classList.toggle("active",guiMode==="pc");
+ const pcBtn=$("guiPcBtn");
+ pcBtn.hidden=!ENABLE_PC_MODE;
+ pcBtn.disabled=!ENABLE_PC_MODE;
+ pcBtn.style.display=ENABLE_PC_MODE?"":"none";
+ pcBtn.classList.toggle("active",ENABLE_PC_MODE&&guiMode==="pc");
+
  $("guiMobileBtn").classList.toggle("active",guiMode==="mobile");
  $("moveModeBtn").classList.toggle("moveActive",moveMode);
  $("moveModeBtn").textContent=moveMode?"🖐 移動ON":"🖐 移動";
  $("viewInfo").textContent=`${guiW}×${guiH}  ${Math.round(guiScale*100)}%`;
- if($("displayModeNow")) $("displayModeNow").textContent=guiMode==="pc"?`現在：PC ${guiW}×${guiH}`:`現在：スマホ ${guiW}×${guiH}`;
+
+ if($("displayModeNow")){
+  $("displayModeNow").textContent=
+   ENABLE_PC_MODE&&guiMode==="pc"
+    ?`現在：PC ${guiW}×${guiH}`
+    :`現在：スマホ ${guiW}×${guiH}`;
+ }
+
  $("display").style.cursor=moveMode?"grab":"default";
 }
 function applyCanvasView(){
@@ -526,10 +558,22 @@ function sizeCanvas({refit=true,forceKms=false,syncGuest=false}={}){
  if(refit)fitView();else applyCanvasView();
 }
 function setGuiMode(mode){
+ // PC表示凍結中はPC要求を無視し、mobile状態を維持する。
+ if(mode==="pc"&&!ENABLE_PC_MODE){
+  guiMode="mobile";
+  localStorage.setItem("salpGuiMode","mobile");
+  updateViewInfo();
+  return;
+ }
+
  if(mode!=="pc"&&mode!=="mobile")return;
+
+ if(!ENABLE_PC_MODE)mode="mobile";
+
  const same=guiMode===mode;
  guiMode=mode;
  localStorage.setItem("salpGuiMode",mode);
+
  // Before Linux starts we can change KMS immediately. Once Xorg is running,
  // the reliable way to change the real desktop geometry is to reboot this
  // CheerpX session and apply KMS before /sbin/init starts.
@@ -538,12 +582,14 @@ function setGuiMode(mode){
   state(mode==="pc"?"PC表示を選択しました。Linuxは1366×768で起動します。":"スマホ表示を選択しました。端末向け解像度で起動します。");
   return;
  }
+
  if(same&&cx){
   // Still re-apply the view, but avoid an unnecessary reboot when already in this mode.
   sizeCanvas({refit:true,forceKms:true,syncGuest:true});
   state(mode==="pc"?"PC表示 1366×768 を再適用しました。":"スマホ表示を再適用しました。");
   return;
  }
+
  sessionStorage.setItem("salpDisplayReboot","1");
  sessionStorage.setItem("salpDisplayRebootMode",mode);
  state(mode==="pc"?"PC表示へ切替中… Linux GUIを1366×768で再起動します。":"スマホ表示へ切替中… Linux GUIを再起動します。");
@@ -1132,6 +1178,7 @@ function showLaunchOverlay(message){$("launchMessage").textContent=message;$("la
 function hideLaunchOverlay(){$("launchOverlay").classList.add("hidden")}
 async function autoDetectAndLaunch(){
  if(!autoLaunchEnabled||autoCancelled)return;
+ if(botChromeOff){log("[botChrome] skip detectBrowser");hideLaunchOverlay();return}
  showLaunchOverlay("Linux GUIの起動を待っています…");
  await new Promise(r=>setTimeout(r,4500));
  if(autoCancelled){hideLaunchOverlay();return}
@@ -1251,7 +1298,7 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1127",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1129",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
@@ -1319,11 +1366,11 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  // v1127: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // v1129: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
   // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
   const _qs=new URLSearchParams(location.search);
   const _cleanBoot=_qs.get("clean")==="1";
-  const idbName=_cleanBoot?("salp-linux-v1127-clean-"+Date.now()):"salp-linux-v1127-clean";
+  const idbName=_cleanBoot?("salp-linux-v1129-clean-"+Date.now()):"salp-linux-v1129-clean";
   const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
@@ -1444,7 +1491,7 @@ async function boot(){
    window.salpStage?.("7/7 Linux GUI","Xorg ready / Core apps起動");
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
    state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready."+(logReady?" (log-ready)":""));
-   if(logReady){
+   if(botChromeOff){log("[botChrome] skip session/i3 probe")}else if(logReady){
     log("[diag] probing session/i3 (may be delayed if cheerpx serializes)");
     try{
      await shell([
@@ -1480,7 +1527,9 @@ async function boot(){
     log("[flow] Firefox after");
    }else{
     log("[flow] Firefox skipped (Auto OFF)");
+    if(botChromeOff){log("[botChrome] skip detectBrowser")}else{
     try{await detectBrowser()}catch(e){log("DETECT ERROR: "+(e?.message||String(e)))}
+    }
    }
    // Best-effort desktop polish after Firefox path started
    if(!botChromeOff){
@@ -1520,18 +1569,23 @@ setTimeout(()=>{
 // Restore that intent here and boot automatically so the new KMS size is
 // applied before Xorg/i3 starts.
 if(sessionStorage.getItem("salpDisplayReboot")==="1") {
- const rebootMode=sessionStorage.getItem("salpDisplayRebootMode")||guiMode;
+ const requestedRebootMode=sessionStorage.getItem("salpDisplayRebootMode")||guiMode;
+ const rebootMode=ENABLE_PC_MODE&&requestedRebootMode==="pc"?"pc":"mobile";
+
  sessionStorage.removeItem("salpDisplayReboot");
  sessionStorage.removeItem("salpDisplayRebootMode");
+
  guiMode=rebootMode;
  localStorage.setItem("salpGuiMode",rebootMode);
+
  updateViewInfo();
-sizeCanvas({refit:true});
+ sizeCanvas({refit:true});
+
  state(rebootMode==="pc"?"PC表示 1366×768 でLinuxを再起動します…":"スマホ表示でLinuxを再起動します…");
  setTimeout(()=>boot(),650);
 }
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1127");
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1129");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
@@ -1628,7 +1682,7 @@ $("fullBtn").addEventListener("click",async()=>{
   setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1127");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1129");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
 $("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
 $("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
