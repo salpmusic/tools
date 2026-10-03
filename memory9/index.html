@@ -61,6 +61,7 @@ h1{font-size:1.25rem;letter-spacing:.04em}
   transition:background .06s,box-shadow .06s,transform .06s;
   -webkit-user-select:none;user-select:none;touch-action:manipulation;
 }
+.nonums .pad{font-size:0;color:transparent}
 .pad.lit{background:var(--c);color:rgba(0,0,0,.6);box-shadow:0 0 calc(var(--bs)/12) var(--c),inset 0 0 0 calc(var(--bs)/90) rgba(255,255,255,.8);transform:scale(.95)}
 .pad.bad{background:#ff2d2d;color:#fff;box-shadow:0 0 calc(var(--bs)/12) #ff2d2d;animation:shake .3s}
 .pad.hint{outline:calc(var(--bs)/50) dashed #fff;outline-offset:-4px}
@@ -147,6 +148,7 @@ body.hc #result{background:#000;border-color:#ffff00}
     <div class="stats">
       <span>ラウンド <b id="stRound">-</b></span>
       <span>速さ <b id="stSpeed">-</b></span>
+      <span>レベル <b id="stLv">3</b></span>
       <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
     </div>
     <div id="msg" role="status" aria-live="polite">「ゲーム開始」を押してね。光った順番を覚えて、同じ順番で押そう。</div>
@@ -169,6 +171,11 @@ body.hc #result{background:#000;border-color:#ffff00}
           <select id="turns"><option value="1">1回</option><option value="2" selected>2回</option><option value="3">3回</option></select>
         </label>
       </div>
+      <div class="row" style="margin-bottom:8px">
+        <label>レベル
+          <select id="level"></select>
+        </label>
+      </div>
       <p class="note" id="rule" style="text-align:left;margin-bottom:8px">1人: ミスするとゲームオーバー。ラウンドが進むほど順番が長く・速くなります。</p>
     </section>
     <button type="button" class="main" id="start">ゲーム開始</button>
@@ -182,9 +189,10 @@ body.hc #result{background:#000;border-color:#ffff00}
       <div class="row" style="margin-top:8px">
         <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
         <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+        <button type="button" class="tog" id="tNum" aria-pressed="false">🔢 数字を表示</button>
       </div>
     </section>
-    <p class="note">得点: 正解1つ=10点×ラウンド×速さ + すばやさボーナス / クリアボーナス。キーボードは 1〜9 でも押せます。</p>
+    <p class="note">得点: 正解1つ=10点×ラウンド×速さ + すばやさボーナス / クリアボーナス。速さはレベルが高いほど速く、点も高くなります。キーボードは 1〜9 でも押せます。</p>
   </div>
 </div>
 
@@ -192,14 +200,32 @@ body.hc #result{background:#000;border-color:#ffff00}
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id)};
-var LS_BEST='salpMemory9_best_v1', LS_SET='salpMemory9_settings_v1';
-var BASE_STEP=720, MIN_STEP=260, STEP_DEC=45;
+var LS_BEST1='salpMemory9_best_v1', LS_BEST='salpMemory9_best_v2', LS_SET='salpMemory9_settings_v1';
+var BASE_STEP=720; /* 得点の速さ倍率の基準(ms) */
+/* レベル別: start=最初の間隔(ms) dec=ラウンドごとの短縮(ms) min=下限(ms) */
+var LEVELS=[null,
+  {start:900,dec:25,min:450,name:'ゆっくり'},
+  {start:800,dec:30,min:400,name:'のんびり'},
+  {start:720,dec:40,min:340,name:'ふつう'},
+  {start:640,dec:45,min:300,name:'ややはやい'},
+  {start:560,dec:50,min:260,name:'はやい'},
+  {start:480,dec:55,min:220,name:'かなりはやい'},
+  {start:400,dec:60,min:190,name:'とてもはやい'},
+  {start:340,dec:65,min:150,name:'超はやい'}];
 
 /* ---------- 設定・ベスト ---------- */
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-var best=lsGet(LS_BEST)||{score:0,round:0};
-var set=lsGet(LS_SET)||{sound:true,vol:40,hc:false,large:false,mode:1,turns:2};
+/* ベストはレベルごとに保存。旧(v1)の記録は消さず、旧速度に近いレベル3へ引き継ぐ */
+var best=lsGet(LS_BEST);
+if(!best||typeof best!=='object'){
+  best={};var old=lsGet(LS_BEST1);
+  if(old&&(old.score||old.round))best[3]={score:old.score|0,round:old.round|0};
+  lsSet(LS_BEST,best);
+}
+function bestOf(l){var b=best[l];return b?b:{score:0,round:0}}
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,nums:false,level:3,mode:1,turns:2},lsGet(LS_SET)||{});
+if(!(set.level>=1&&set.level<=8))set.level=3;
 
 /* ---------- 盤面 ---------- */
 var board=$('board'), pads=[];
@@ -228,17 +254,20 @@ var ctx=null, master=null;
 var NOTES=[523.25,587.33,659.25,698.46,783.99,880.00,987.77,1046.50,1174.66]; // C5〜D6 ドレミ
 function unlockAudio(){
   try{
-    if(!ctx){
+    if(!ctx||ctx.state==='closed'){
       var AC=window.AudioContext||window.webkitAudioContext;
       if(!AC)return;
       ctx=new AC();master=ctx.createGain();master.connect(ctx.destination);applyVol();
+      /* iOS等: ユーザー操作内で無音を1回鳴らして出力を有効化 */
+      try{var sb=ctx.createBuffer(1,1,22050),ss=ctx.createBufferSource();ss.buffer=sb;ss.connect(ctx.destination);ss.start(0)}catch(e){}
     }
-    if(ctx.state==='suspended')ctx.resume();
+    if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
   }catch(e){}
 }
 function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.6):0}}
 function tone(freq,t0,dur,vol,slideTo){
   if(!ctx||!set.sound)return;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
   var o=ctx.createOscillator(),g=ctx.createGain();
   o.type='square';
   o.frequency.setValueAtTime(freq,t0);
@@ -265,9 +294,9 @@ var sfx={
 };
 
 /* ---------- ゲーム状態 ---------- */
-var G={run:0,phase:'idle',mode:set.mode,turnsEach:set.turns,scores:[0,0],bestRound:[0,0],turnsDone:0,cur:0,seq:[],idx:0,round:0,turnScore:0,lastT:0,quick:true,turnNo:[0,0],timer:null};
+var G={level:set.level,run:0,phase:'idle',mode:set.mode,turnsEach:set.turns,scores:[0,0],bestRound:[0,0],turnsDone:0,cur:0,seq:[],idx:0,round:0,turnScore:0,lastT:0,quick:true,turnNo:[0,0],timer:null};
 function after(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)}
-function stepMs(r){return Math.max(MIN_STEP,BASE_STEP-(r-1)*STEP_DEC)}
+function stepMs(r){var L=LEVELS[G.level];return Math.max(L.min,L.start-(r-1)*L.dec)}
 function speedF(r){return BASE_STEP/stepMs(r)}
 function pname(i){return i===0?'プレイヤー1':'プレイヤー2'}
 function say(t){$('msg').textContent=t}
@@ -278,8 +307,8 @@ function renderStats(){
   $('pc1').classList.toggle('active',G.phase!=='idle'&&G.cur===0);
   $('pc2').classList.toggle('active',G.phase!=='idle'&&G.cur===1&&G.mode===2);
   $('stRound').textContent=G.round>0?G.round:'-';
-  $('stSpeed').textContent=G.round>0?('×'+speedF(G.round).toFixed(1)+(stepMs(G.round)===MIN_STEP?'(最速)':'')):'-';
-  $('stBest').textContent=best.score;$('stBestR').textContent=best.round;
+  $('stSpeed').textContent=G.round>0?('×'+speedF(G.round).toFixed(1)+(stepMs(G.round)===LEVELS[G.level].min?'(最速)':'')):'-';
+  $('stLv').textContent=G.level;$('stBest').textContent=bestOf(G.level).score;$('stBestR').textContent=bestOf(G.level).round;
   $('n1').textContent=G.mode===1?'スコア':'プレイヤー1';
 }
 function setPadsEnabled(on){pads.forEach(function(p){p.disabled=!on})}
@@ -292,7 +321,7 @@ function clearMarks(){pads.forEach(function(p){p.classList.remove('lit','bad','h
 function startGame(){
   unlockAudio();
   G.run++;clearTimeout(G.timer);clearMarks();
-  G.mode=set.mode;G.turnsEach=set.turns;G.scores=[0,0];G.bestRound=[0,0];G.turnsDone=0;G.cur=0;G.turnNo=[0,0];G.round=0;
+  G.mode=set.mode;G.turnsEach=set.turns;G.level=set.level;G.scores=[0,0];G.bestRound=[0,0];G.turnsDone=0;G.cur=0;G.turnNo=[0,0];G.round=0;
   $('result').hidden=true;$('setup').hidden=true;
   var st=$('start');st.textContent='中止してやめる';st.classList.add('stop');
   $('players').classList.toggle('solo',G.mode===1);$('pc2').classList.toggle('hide',G.mode===1);
@@ -357,12 +386,13 @@ function miss(i){
   if(cleared>G.bestRound[G.cur])G.bestRound[G.cur]=cleared;
   pads[i].classList.add('bad');pads[G.seq[G.idx]].classList.add('hint');
   sfx.miss();bonusSay('');
-  say('ミス!正しくは点線のボタン('+(G.seq[G.idx]+1)+'番)でした');
+  say('ミス!正しくは点線のボタン'+(set.nums?'('+(G.seq[G.idx]+1)+'番)':'')+'でした');
   /* ベスト更新(1回のプレイの得点 / 到達ラウンド) */
   var nb=false;
-  if(G.turnScore>best.score){best.score=G.turnScore;nb=true}
-  if(cleared>best.round){best.round=cleared;nb=true}
-  if(nb){lsSet(LS_BEST,best)}
+  var bl=bestOf(G.level),nbst={score:bl.score,round:bl.round};
+  if(G.turnScore>nbst.score){nbst.score=G.turnScore;nb=true}
+  if(cleared>nbst.round){nbst.round=cleared;nb=true}
+  if(nb){best[G.level]=nbst;lsSet(LS_BEST,best)}
   G.newBest=nb;
   renderStats();
   after(2200,endTurn);
@@ -379,13 +409,13 @@ function gameOver(){
   $('setup').hidden=false;var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');
   var r=$('result'),h='';
   if(G.mode===1){
-    h='<h2>ゲームオーバー</h2><p>得点 <b>'+G.scores[0]+'</b> 点 / 到達 <b>'+G.bestRound[0]+'</b> ラウンド</p>'+
-      (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+best.score+'点 / '+best.round+'ラウンド</p>');
+    h='<h2>ゲームオーバー(レベル'+G.level+')</h2><p>得点 <b>'+G.scores[0]+'</b> 点 / 到達 <b>'+G.bestRound[0]+'</b> ラウンド</p>'+
+      (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>レベル'+G.level+'のベスト: '+bestOf(G.level).score+'点 / '+bestOf(G.level).round+'ラウンド</p>');
     sfx.over();say('おつかれさま!');
   }else{
     var a=G.scores[0],b=G.scores[1],w=a>b?'🏆 プレイヤー1の勝ち!':b>a?'🏆 プレイヤー2の勝ち!':'🤝 引き分け!';
     h='<h2>'+w+'</h2><p>プレイヤー1: <b>'+a+'</b> 点(最高 '+G.bestRound[0]+'ラウンド)</p><p>プレイヤー2: <b>'+b+'</b> 点(最高 '+G.bestRound[1]+'ラウンド)</p>'+
-      (a!==b?'<p>差 '+Math.abs(a-b)+' 点</p>':'')+(G.newBest?'<p>🎉 ベスト記録が更新されました</p>':'');
+      (a!==b?'<p>差 '+Math.abs(a-b)+' 点</p>':'')+'<p>レベル'+G.level+'</p>'+(G.newBest?'<p>🎉 ベスト記録が更新されました</p>':'');
     if(a===b)sfx.over();else sfx.win();
     say(w);
   }
@@ -397,28 +427,33 @@ function gameOver(){
 
 /* ---------- UI ---------- */
 function applySet(){
-  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);document.body.classList.toggle('nonums',!set.nums);
+  $('tNum').setAttribute('aria-pressed',String(set.nums));
   $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
   $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
   $('vol').value=set.vol;
   $('m1').setAttribute('aria-pressed',String(set.mode===1));$('m2').setAttribute('aria-pressed',String(set.mode===2));
-  $('turnsWrap').hidden=set.mode!==2;$('turns').value=String(set.turns);
+  $('turnsWrap').hidden=set.mode!==2;$('turns').value=String(set.turns);$('level').value=String(set.level);
   $('rule').textContent=set.mode===1?'1人: ミスするとゲームオーバー。ラウンドが進むほど順番が長く・速くなります。'
     :'2人交代: ミスすると相手の番。それぞれ決めた回数ぶんあそび、合計得点で勝負します。';
-  if(G.phase==='idle'){$('players').classList.toggle('solo',set.mode===1);$('pc2').classList.toggle('hide',set.mode===1);G.mode=set.mode}
+  if(G.phase==='idle'){$('players').classList.toggle('solo',set.mode===1);$('pc2').classList.toggle('hide',set.mode===1);G.mode=set.mode;G.level=set.level}
   applyVol();
 }
 function save(){lsSet(LS_SET,set)}
 $('m1').onclick=function(){set.mode=1;save();applySet();renderStats()};
 $('m2').onclick=function(){set.mode=2;save();applySet();renderStats()};
+(function(){var sel=$('level');for(var l=1;l<=8;l++){var o=document.createElement('option');o.value=l;o.textContent='レベル'+l+'('+LEVELS[l].name+')';sel.appendChild(o)}})();
+$('level').onchange=function(){set.level=+this.value;save();applySet();renderStats()};
 $('turns').onchange=function(){set.turns=+this.value;save()};
 $('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tNum').onclick=function(){set.nums=!set.nums;save();applySet()};
 $('tLg').onclick=function(){set.large=!set.large;save();applySet()};
 $('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)sfx.pad(4,120)};
 $('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
 $('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)sfx.pad(4,120)};
 $('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
-['pointerdown','touchend','keydown'].forEach(function(t){document.addEventListener(t,unlockAudio,{once:true,passive:true})});
+['pointerdown','touchend','click','keydown'].forEach(function(t){document.addEventListener(t,unlockAudio,{passive:true,capture:true})});
+document.addEventListener('visibilitychange',function(){if(!document.hidden)unlockAudio()});
 
 setPadsEnabled(false);
 applySet();renderStats();
