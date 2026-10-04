@@ -6511,6 +6511,315 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  hotel: {
+    id: "hotel",
+    icon: "🏨",
+    title: {
+      ja: "🏨 ホテルのフロント",
+      en: "🏨 Hotel Reception",
+      es: "🏨 Recepción de hotel",
+      fr: "🏨 Réception d’hôtel",
+      de: "🏨 Hotelrezeption",
+      zh: "🏨 酒店前台",
+      ko: "🏨 호텔 프런트"
+    },
+
+    background: "hotel.webp",
+    subtitle: "単語学習 ホテルのフロント編",
+    documentTitle: "SALP WORDS | 単語学習 ホテルのフロント編",
+    alt: "ホテルのフロントの絵(アニメ風の背景イラスト)",
+    ariaLabel: "ホテルのフロントの単語学習",
+    help: "ホテルのフロントの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "ホテルのフロントの物を選んでください",
+
+    items: [
+      {
+        id: "chandelier",
+        emoji: "🪔",
+        x: 6,
+        y: 12,
+        w: 30,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "シャンデリア", reading: "しゃんでりあ" },
+          en: { word: "chandelier", reading: "shan-duh-LEER" },
+          es: { word: "lámpara de araña", reading: "LAM-pa-ra de a-RA-nya" },
+          fr: { word: "lustre", reading: "LÜSTR" },
+          de: { word: "Kronleuchter", reading: "KROHN-loy-khter" },
+          zh: { word: "吊灯", reading: "diàodēng" },
+          ko: { word: "샹들리에", reading: "syangdeullie" }
+        }
+      },
+
+      {
+        id: "painting",
+        emoji: "🖼️",
+        x: 43,
+        y: 13,
+        w: 25,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "絵", reading: "え" },
+          en: { word: "painting", reading: "PAYN-ting" },
+          es: { word: "cuadro", reading: "KWA-dro" },
+          fr: { word: "tableau", reading: "ta-BLO" },
+          de: { word: "Gemälde", reading: "ge-MEL-de" },
+          zh: { word: "油画", reading: "yóuhuà" },
+          ko: { word: "그림", reading: "geurim" }
+        }
+      },
+
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 72,
+        y: 13.5,
+        w: 18,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "keyRack",
+        emoji: "🗝️",
+        x: 5,
+        y: 20.5,
+        w: 28,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "キーボックス", reading: "きーぼっくす" },
+          en: { word: "key box", reading: "KEE boks" },
+          es: { word: "casillero de llaves", reading: "ka-see-YE-ro de YA-bes" },
+          fr: { word: "boîte à clés", reading: "bwat a KLAY" },
+          de: { word: "Schlüsselkasten", reading: "SHLÜ-sel-kas-ten" },
+          zh: { word: "钥匙柜", reading: "yàoshiguì" },
+          ko: { word: "키 보관함", reading: "ki bogwanham" }
+        }
+      },
+
+      {
+        id: "callBell",
+        emoji: "🔔",
+        x: 43.5,
+        y: 27.5,
+        w: 15,
+        h: 6.5,
+        z: 40,
+        words: {
+          ja: { word: "呼び出しベル", reading: "よびだしべる" },
+          en: { word: "service bell", reading: "SUR-vis bel" },
+          es: { word: "timbre de mostrador", reading: "TEEM-bre de mos-tra-DOR" },
+          fr: { word: "sonnette", reading: "so-NET" },
+          de: { word: "Klingel", reading: "KLING-el" },
+          zh: { word: "服务铃", reading: "fúwùlíng" },
+          ko: { word: "호출 벨", reading: "hochul bel" }
+        }
+      },
+
+      {
+        id: "telephone",
+        emoji: "☎️",
+        x: 71.5,
+        y: 28,
+        w: 23,
+        h: 7.5,
+        z: 40,
+        words: {
+          ja: { word: "電話", reading: "でんわ" },
+          en: { word: "telephone", reading: "TEL-uh-fohn" },
+          es: { word: "teléfono", reading: "te-LE-fo-no" },
+          fr: { word: "téléphone", reading: "tay-lay-FON" },
+          de: { word: "Telefon", reading: "tay-lay-FOHN" },
+          zh: { word: "电话", reading: "diànhuà" },
+          ko: { word: "전화", reading: "jeonhwa" }
+        }
+      },
+
+      {
+        id: "frontDesk",
+        emoji: "🛎️",
+        x: 3,
+        y: 37,
+        w: 33,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "フロント", reading: "ふろんと" },
+          en: { word: "front desk", reading: "FRUNT desk" },
+          es: { word: "recepción", reading: "rre-sep-SYON" },
+          fr: { word: "réception", reading: "ray-sep-SYON" },
+          de: { word: "Rezeption", reading: "re-tsep-TSYOHN" },
+          zh: { word: "前台", reading: "qiántái" },
+          ko: { word: "프런트", reading: "peureonteu" }
+        }
+      },
+
+      {
+        id: "roomKey",
+        emoji: "🔑",
+        x: 40,
+        y: 42,
+        w: 29,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "カードキー", reading: "かーどきー" },
+          en: { word: "key card", reading: "KEE kard" },
+          es: { word: "llave tarjeta", reading: "YA-be tar-KHE-ta" },
+          fr: { word: "carte-clé", reading: "kart-KLAY" },
+          de: { word: "Schlüsselkarte", reading: "SHLÜ-sel-kar-te" },
+          zh: { word: "房卡", reading: "fángkǎ" },
+          ko: { word: "카드키", reading: "kadeuki" }
+        }
+      },
+
+      {
+        id: "flowers",
+        emoji: "🌼",
+        x: 74,
+        y: 36.5,
+        w: 23,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "花", reading: "はな" },
+          en: { word: "flowers", reading: "FLOW-erz" },
+          es: { word: "flores", reading: "FLO-res" },
+          fr: { word: "fleurs", reading: "flœr" },
+          de: { word: "Blumen", reading: "BLOO-men" },
+          zh: { word: "花", reading: "huā" },
+          ko: { word: "꽃", reading: "kkot" }
+        }
+      },
+
+      {
+        id: "sofa",
+        emoji: "🛋️",
+        x: 3,
+        y: 54,
+        w: 33,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "ソファ", reading: "そふぁ" },
+          en: { word: "sofa", reading: "SOH-fuh" },
+          es: { word: "sofá", reading: "so-FA" },
+          fr: { word: "canapé", reading: "ka-na-PAY" },
+          de: { word: "Sofa", reading: "ZOH-fa" },
+          zh: { word: "沙发", reading: "shāfā" },
+          ko: { word: "소파", reading: "sopa" }
+        }
+      },
+
+      {
+        id: "rug",
+        emoji: "🟫",
+        x: 36,
+        y: 55.5,
+        w: 36,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "じゅうたん", reading: "じゅうたん" },
+          en: { word: "rug", reading: "RUG" },
+          es: { word: "alfombra", reading: "al-FOM-bra" },
+          fr: { word: "tapis", reading: "ta-PEE" },
+          de: { word: "Teppich", reading: "TE-pikh" },
+          zh: { word: "地毯", reading: "dìtǎn" },
+          ko: { word: "카펫", reading: "kapet" }
+        }
+      },
+
+      {
+        id: "plant",
+        emoji: "🪴",
+        x: 76,
+        y: 52,
+        w: 21,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "観葉植物", reading: "かんようしょくぶつ" },
+          en: { word: "potted plant", reading: "POT-id plant" },
+          es: { word: "planta", reading: "PLAN-ta" },
+          fr: { word: "plante verte", reading: "plant vert" },
+          de: { word: "Pflanze", reading: "PFLAN-tse" },
+          zh: { word: "绿植", reading: "lǜzhí" },
+          ko: { word: "식물", reading: "sikmul" }
+        }
+      },
+
+      {
+        id: "suitcase",
+        emoji: "🧳",
+        x: 6,
+        y: 70,
+        w: 21,
+        h: 19,
+        z: 40,
+        words: {
+          ja: { word: "スーツケース", reading: "すーつけーす" },
+          en: { word: "suitcase", reading: "SOOT-kays" },
+          es: { word: "maleta", reading: "ma-LE-ta" },
+          fr: { word: "valise", reading: "va-LEEZ" },
+          de: { word: "Koffer", reading: "KO-fer" },
+          zh: { word: "行李箱", reading: "xínglixiāng" },
+          ko: { word: "캐리어", reading: "kaerieo" }
+        }
+      },
+
+      {
+        id: "luggageCart",
+        emoji: "🧳",
+        x: 34,
+        y: 69,
+        w: 27,
+        h: 18,
+        z: 40,
+        words: {
+          ja: { word: "荷物カート", reading: "にもつかーと" },
+          en: { word: "luggage cart", reading: "LUG-ij kart" },
+          es: { word: "carrito de equipaje", reading: "ka-RREE-to de e-kee-PA-khe" },
+          fr: { word: "chariot à bagages", reading: "sha-RYO a ba-GAZH" },
+          de: { word: "Gepäckwagen", reading: "ge-PEK-vaa-gen" },
+          zh: { word: "行李推车", reading: "xíngli tuīchē" },
+          ko: { word: "수하물 카트", reading: "suhamul kateu" }
+        }
+      },
+
+      {
+        id: "elevator",
+        emoji: "🛗",
+        x: 73,
+        y: 71,
+        w: 24,
+        h: 18,
+        z: 40,
+        words: {
+          ja: { word: "エレベーター", reading: "えれべーたー" },
+          en: { word: "elevator", reading: "EL-uh-vay-ter" },
+          es: { word: "ascensor", reading: "a-sen-SOR" },
+          fr: { word: "ascenseur", reading: "a-san-SUR" },
+          de: { word: "Aufzug", reading: "OWF-tsook" },
+          zh: { word: "电梯", reading: "diàntī" },
+          ko: { word: "엘리베이터", reading: "ellibeiteo" }
+        }
+      }
+    ]
   }
 };
 
