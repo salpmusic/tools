@@ -5584,6 +5584,315 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  kitchen: {
+    id: "kitchen",
+    icon: "🍳",
+    title: {
+      ja: "🍳 キッチン",
+      en: "🍳 Kitchen",
+      es: "🍳 Cocina",
+      fr: "🍳 Cuisine",
+      de: "🍳 Küche",
+      zh: "🍳 厨房",
+      ko: "🍳 주방"
+    },
+
+    background: "kitchen.webp",
+    subtitle: "単語学習 キッチン編",
+    documentTitle: "SALP WORDS | 単語学習 キッチン編",
+    alt: "キッチンの絵(アニメ風の背景イラスト)",
+    ariaLabel: "キッチンの単語学習",
+    help: "キッチンの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "キッチンの物を選んでください",
+
+    items: [
+      {
+        id: "cupboard",
+        emoji: "🗄️",
+        x: 5,
+        y: 9,
+        w: 31,
+        h: 17,
+        z: 40,
+        words: {
+          ja: { word: "食器棚", reading: "しょっきだな" },
+          en: { word: "cupboard", reading: "KUB-erd" },
+          es: { word: "alacena", reading: "a-la-SE-na" },
+          fr: { word: "placard", reading: "pla-KAR" },
+          de: { word: "Geschirrschrank", reading: "ge-SHIR-shrank" },
+          zh: { word: "碗柜", reading: "wǎnguì" },
+          ko: { word: "식기장", reading: "sikgijang" }
+        }
+      },
+
+      {
+        id: "fridge",
+        emoji: "🧊",
+        x: 44,
+        y: 7.5,
+        w: 20.5,
+        h: 19,
+        z: 40,
+        words: {
+          ja: { word: "冷蔵庫", reading: "れいぞうこ" },
+          en: { word: "refrigerator", reading: "ri-FRIJ-er-ay-ter" },
+          es: { word: "refrigerador", reading: "rre-free-khe-ra-DOR" },
+          fr: { word: "réfrigérateur", reading: "ray-free-zhay-ra-TUR" },
+          de: { word: "Kühlschrank", reading: "KÜL-shrank" },
+          zh: { word: "冰箱", reading: "bīngxiāng" },
+          ko: { word: "냉장고", reading: "naengjanggo" }
+        }
+      },
+
+      {
+        id: "microwave",
+        emoji: "♨️",
+        x: 66,
+        y: 12.5,
+        w: 25,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "電子レンジ", reading: "でんしれんじ" },
+          en: { word: "microwave", reading: "MY-kroh-wayv" },
+          es: { word: "microondas", reading: "mee-kro-ON-das" },
+          fr: { word: "micro-ondes", reading: "mee-kro-ONd" },
+          de: { word: "Mikrowelle", reading: "MEE-kro-vel-le" },
+          zh: { word: "微波炉", reading: "wēibōlú" },
+          ko: { word: "전자레인지", reading: "jeonjareinji" }
+        }
+      },
+
+      {
+        id: "riceCooker",
+        emoji: "🍚",
+        x: 8,
+        y: 25.5,
+        w: 19,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "炊飯器", reading: "すいはんき" },
+          en: { word: "rice cooker", reading: "RYS KUK-er" },
+          es: { word: "arrocera", reading: "a-rro-SE-ra" },
+          fr: { word: "cuiseur à riz", reading: "kwee-ZUR a REE" },
+          de: { word: "Reiskocher", reading: "RYS-ko-kher" },
+          zh: { word: "电饭煲", reading: "diànfànbāo" },
+          ko: { word: "밥솥", reading: "bapsot" }
+        }
+      },
+
+      {
+        id: "toaster",
+        emoji: "🍞",
+        x: 39.5,
+        y: 25.5,
+        w: 22.5,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "トースター", reading: "とーすたー" },
+          en: { word: "toaster", reading: "TOH-ster" },
+          es: { word: "tostadora", reading: "tos-ta-DO-ra" },
+          fr: { word: "grille-pain", reading: "greey-PAN" },
+          de: { word: "Toaster", reading: "TOH-ster" },
+          zh: { word: "烤面包机", reading: "kǎo miànbāojī" },
+          ko: { word: "토스터", reading: "toseuteo" }
+        }
+      },
+
+      {
+        id: "kettle",
+        emoji: "🫖",
+        x: 73,
+        y: 21.5,
+        w: 19,
+        h: 15,
+        z: 40,
+        words: {
+          ja: { word: "やかん", reading: "やかん" },
+          en: { word: "kettle", reading: "KET-ul" },
+          es: { word: "tetera", reading: "te-TE-ra" },
+          fr: { word: "bouilloire", reading: "boo-YWAR" },
+          de: { word: "Wasserkessel", reading: "VA-ser-ke-sel" },
+          zh: { word: "水壶", reading: "shuǐhú" },
+          ko: { word: "주전자", reading: "jujeonja" }
+        }
+      },
+
+      {
+        id: "stove",
+        emoji: "🔥",
+        x: 3,
+        y: 39.5,
+        w: 30,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "コンロ", reading: "こんろ" },
+          en: { word: "stove", reading: "STOHV" },
+          es: { word: "cocina", reading: "ko-SEE-na" },
+          fr: { word: "cuisinière", reading: "kwee-zee-NYER" },
+          de: { word: "Herd", reading: "HAIRT" },
+          zh: { word: "灶台", reading: "zàotái" },
+          ko: { word: "가스레인지", reading: "gaseureinji" }
+        }
+      },
+
+      {
+        id: "pot",
+        emoji: "🍲",
+        x: 37,
+        y: 39.5,
+        w: 28,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "鍋", reading: "なべ" },
+          en: { word: "pot", reading: "POT" },
+          es: { word: "olla", reading: "O-ya" },
+          fr: { word: "casserole", reading: "kas-ROL" },
+          de: { word: "Topf", reading: "TOPF" },
+          zh: { word: "锅", reading: "guō" },
+          ko: { word: "냄비", reading: "naembi" }
+        }
+      },
+
+      {
+        id: "fryingPan",
+        emoji: "🍳",
+        x: 71,
+        y: 39.5,
+        w: 26,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "フライパン", reading: "ふらいぱん" },
+          en: { word: "frying pan", reading: "FRY-ing pan" },
+          es: { word: "sartén", reading: "sar-TEN" },
+          fr: { word: "poêle", reading: "pwal" },
+          de: { word: "Pfanne", reading: "PFA-ne" },
+          zh: { word: "平底锅", reading: "píngdǐguō" },
+          ko: { word: "프라이팬", reading: "peuraipaen" }
+        }
+      },
+
+      {
+        id: "cuttingBoard",
+        emoji: "🪵",
+        x: 3,
+        y: 54,
+        w: 30,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "まな板", reading: "まないた" },
+          en: { word: "cutting board", reading: "KUT-ing bord" },
+          es: { word: "tabla de cortar", reading: "TA-bla de kor-TAR" },
+          fr: { word: "planche à découper", reading: "plansh a day-koo-PAY" },
+          de: { word: "Schneidebrett", reading: "SHNY-de-bret" },
+          zh: { word: "菜板", reading: "càibǎn" },
+          ko: { word: "도마", reading: "doma" }
+        }
+      },
+
+      {
+        id: "knife",
+        emoji: "🔪",
+        x: 38,
+        y: 55,
+        w: 28,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "包丁", reading: "ほうちょう" },
+          en: { word: "kitchen knife", reading: "KICH-en nyf" },
+          es: { word: "cuchillo de cocina", reading: "koo-CHEE-yo de ko-SEE-na" },
+          fr: { word: "couteau de cuisine", reading: "koo-TO de kwee-ZEEN" },
+          de: { word: "Küchenmesser", reading: "KÜ-khen-me-ser" },
+          zh: { word: "菜刀", reading: "càidāo" },
+          ko: { word: "식칼", reading: "sikkal" }
+        }
+      },
+
+      {
+        id: "ladle",
+        emoji: "🥄",
+        x: 80,
+        y: 51,
+        w: 15,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "おたま", reading: "おたま" },
+          en: { word: "ladle", reading: "LAY-dul" },
+          es: { word: "cucharón", reading: "koo-cha-RON" },
+          fr: { word: "louche", reading: "LOOSH" },
+          de: { word: "Schöpfkelle", reading: "SHÖPF-ke-le" },
+          zh: { word: "汤勺", reading: "tāngsháo" },
+          ko: { word: "국자", reading: "gukja" }
+        }
+      },
+
+      {
+        id: "sink",
+        emoji: "🚰",
+        x: 3,
+        y: 66,
+        w: 31,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "流し台", reading: "ながしだい" },
+          en: { word: "sink", reading: "SINK" },
+          es: { word: "fregadero", reading: "fre-ga-DE-ro" },
+          fr: { word: "évier", reading: "ay-VYAY" },
+          de: { word: "Spüle", reading: "SHPÜ-le" },
+          zh: { word: "洗碗池", reading: "xǐwǎnchí" },
+          ko: { word: "싱크대", reading: "singkeudae" }
+        }
+      },
+
+      {
+        id: "plate",
+        emoji: "🍽️",
+        x: 39,
+        y: 66.5,
+        w: 26,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "お皿", reading: "おさら" },
+          en: { word: "plate", reading: "PLAYT" },
+          es: { word: "plato", reading: "PLA-to" },
+          fr: { word: "assiette", reading: "a-SYET" },
+          de: { word: "Teller", reading: "TE-ler" },
+          zh: { word: "盘子", reading: "pánzi" },
+          ko: { word: "접시", reading: "jeopsi" }
+        }
+      },
+
+      {
+        id: "bowl",
+        emoji: "🥣",
+        x: 72,
+        y: 66,
+        w: 25,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "ボウル", reading: "ぼうる" },
+          en: { word: "bowl", reading: "BOHL" },
+          es: { word: "cuenco", reading: "KWEN-ko" },
+          fr: { word: "bol", reading: "BOL" },
+          de: { word: "Schüssel", reading: "SHÜ-sel" },
+          zh: { word: "碗", reading: "wǎn" },
+          ko: { word: "그릇", reading: "geureut" }
+        }
+      }
+    ]
   }
 };
 
