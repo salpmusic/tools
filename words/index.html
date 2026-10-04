@@ -3863,6 +3863,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  convenience: {
+    id: "convenience",
+    icon: "🏪",
+    title: {
+      ja: "🏪 コンビニ",
+      en: "🏪 Convenience Store",
+      es: "🏪 Tienda 24 h",
+      fr: "🏪 Supérette",
+      de: "🏪 Minimarkt",
+      zh: "🏪 便利店",
+      ko: "🏪 편의점"
+    },
+
+    background: "convenience.webp",
+    subtitle: "単語学習 コンビニ編",
+    documentTitle: "SALP WORDS | 単語学習 コンビニ編",
+    alt: "コンビニの絵(アニメ風の背景イラスト)",
+    ariaLabel: "コンビニの単語学習",
+    help: "コンビニの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "コンビニの物を選んでください",
+
+    items: [
+      {
+        id: "shelf",
+        emoji: "🗄️",
+        x: 7,
+        y: 12.5,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "棚", reading: "たな" },
+          en: { word: "shelf", reading: "shelf" },
+          es: { word: "estantería", reading: "es-tan-te-REE-a" },
+          fr: { word: "étagère", reading: "ay-ta-ZHER" },
+          de: { word: "Regal", reading: "RAY-gaal" },
+          zh: { word: "架子", reading: "jiàzi" },
+          ko: { word: "선반", reading: "seonban" }
+        }
+      },
+
+      {
+        id: "refrigeratedCase",
+        emoji: "🧊",
+        x: 43,
+        y: 12,
+        w: 26,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "冷蔵ケース", reading: "れいぞうけーす" },
+          en: { word: "refrigerated case", reading: "ri-FRIJ-er-ay-tid kays" },
+          es: { word: "vitrina refrigerada", reading: "bee-TREE-na re-free-khe-RA-da" },
+          fr: { word: "vitrine réfrigérée", reading: "vee-TREEN ray-free-zhay-RAY" },
+          de: { word: "Kühlregal", reading: "KÜL-re-gaal" },
+          zh: { word: "冷藏柜", reading: "lěngcángguì" },
+          ko: { word: "냉장 진열대", reading: "naengjang jinyeoldae" }
+        }
+      },
+
+      {
+        id: "atm",
+        emoji: "🏧",
+        x: 77,
+        y: 12,
+        w: 18,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ATM", reading: "えーてぃーえむ" },
+          en: { word: "ATM", reading: "ay-tee-EM" },
+          es: { word: "cajero automático", reading: "ka-KHE-ro ow-to-MA-tee-ko" },
+          fr: { word: "distributeur de billets", reading: "dees-tree-bü-TER de bee-YAY" },
+          de: { word: "Geldautomat", reading: "GELT-ow-to-maat" },
+          zh: { word: "自动取款机", reading: "zìdòng qǔkuǎnjī" },
+          ko: { word: "현금인출기", reading: "hyeongeum inchulgi" }
+        }
+      },
+
+      {
+        id: "bento",
+        emoji: "🍱",
+        x: 3.5,
+        y: 30.5,
+        w: 31,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "お弁当", reading: "おべんとう" },
+          en: { word: "bento box", reading: "BEN-toh boks" },
+          es: { word: "bento", reading: "BEN-to" },
+          fr: { word: "bento", reading: "ben-TO" },
+          de: { word: "Bento-Box", reading: "BEN-to-boks" },
+          zh: { word: "便当", reading: "biàndāng" },
+          ko: { word: "도시락", reading: "dosirak" }
+        }
+      },
+
+      {
+        id: "bread",
+        emoji: "🍞",
+        x: 40.5,
+        y: 30.5,
+        w: 31,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "パン", reading: "ぱん" },
+          en: { word: "bread", reading: "BRED" },
+          es: { word: "pan", reading: "PAN" },
+          fr: { word: "pain", reading: "PAN" },
+          de: { word: "Brot", reading: "BROHT" },
+          zh: { word: "面包", reading: "miànbāo" },
+          ko: { word: "빵", reading: "ppang" }
+        }
+      },
+
+      {
+        id: "milk",
+        emoji: "🥛",
+        x: 75,
+        y: 30.5,
+        w: 22,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "牛乳", reading: "ぎゅうにゅう" },
+          en: { word: "milk", reading: "MILK" },
+          es: { word: "leche", reading: "LE-che" },
+          fr: { word: "lait", reading: "LAY" },
+          de: { word: "Milch", reading: "MILKH" },
+          zh: { word: "牛奶", reading: "niúnǎi" },
+          ko: { word: "우유", reading: "uyu" }
+        }
+      },
+
+      {
+        id: "petBottle",
+        emoji: "🧴",
+        x: 6,
+        y: 40.5,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "ペットボトル", reading: "ぺっとぼとる" },
+          en: { word: "plastic bottle", reading: "PLAS-tik BOT-ul" },
+          es: { word: "botella de plástico", reading: "bo-TE-ya de PLAS-tee-ko" },
+          fr: { word: "bouteille en plastique", reading: "boo-TEY on plas-TEEK" },
+          de: { word: "Plastikflasche", reading: "PLAS-tik-fla-she" },
+          zh: { word: "塑料瓶", reading: "sùliàopíng" },
+          ko: { word: "페트병", reading: "peteubyeong" }
+        }
+      },
+
+      {
+        id: "cupNoodles",
+        emoji: "🍜",
+        x: 43,
+        y: 43.5,
+        w: 27,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "カップ麺", reading: "かっぷめん" },
+          en: { word: "instant noodles", reading: "IN-stunt NOO-dulz" },
+          es: { word: "fideos instantáneos", reading: "fee-DE-os eens-tan-TA-ne-os" },
+          fr: { word: "nouilles instantanées", reading: "noo-yee ans-tan-ta-NAY" },
+          de: { word: "Instantnudeln", reading: "in-STANT-noo-deln" },
+          zh: { word: "方便面", reading: "fāngbiànmiàn" },
+          ko: { word: "컵라면", reading: "keomramyeon" }
+        }
+      },
+
+      {
+        id: "snacks",
+        emoji: "🍪",
+        x: 75,
+        y: 43.5,
+        w: 22,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "お菓子", reading: "おかし" },
+          en: { word: "snacks", reading: "SNAKS" },
+          es: { word: "golosinas", reading: "go-lo-SEE-nas" },
+          fr: { word: "friandises", reading: "free-an-DEEZ" },
+          de: { word: "Süßigkeiten", reading: "ZÜ-sig-ky-ten" },
+          zh: { word: "零食", reading: "língshí" },
+          ko: { word: "과자", reading: "gwaja" }
+        }
+      },
+
+      {
+        id: "can",
+        emoji: "🥫",
+        x: 5,
+        y: 58.5,
+        w: 28,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "缶ジュース", reading: "かんじゅーす" },
+          en: { word: "canned drink", reading: "KAND drink" },
+          es: { word: "bebida enlatada", reading: "be-BEE-da en-la-TA-da" },
+          fr: { word: "canette", reading: "ka-NET" },
+          de: { word: "Getränkedose", reading: "ge-TRENK-e-doh-ze" },
+          zh: { word: "易拉罐饮料", reading: "yìlāguàn yǐnliào" },
+          ko: { word: "캔 음료", reading: "kaen eumnyo" }
+        }
+      },
+
+      {
+        id: "register",
+        emoji: "💰",
+        x: 41,
+        y: 55,
+        w: 28,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "レジ", reading: "れじ" },
+          en: { word: "cash register", reading: "KASH REJ-is-ter" },
+          es: { word: "caja registradora", reading: "KA-kha rre-khees-tra-DO-ra" },
+          fr: { word: "caisse", reading: "KES" },
+          de: { word: "Kasse", reading: "KA-se" },
+          zh: { word: "收银台", reading: "shōuyíntái" },
+          ko: { word: "계산대", reading: "gyesandae" }
+        }
+      },
+
+      {
+        id: "copier",
+        emoji: "🖨️",
+        x: 76.5,
+        y: 55.5,
+        w: 20.5,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "コピー機", reading: "こぴーき" },
+          en: { word: "copy machine", reading: "KOP-ee muh-SHEEN" },
+          es: { word: "fotocopiadora", reading: "fo-to-ko-pya-DO-ra" },
+          fr: { word: "photocopieuse", reading: "fo-to-ko-PYUHZ" },
+          de: { word: "Kopierer", reading: "ko-PEE-rer" },
+          zh: { word: "复印机", reading: "fùyìnjī" },
+          ko: { word: "복사기", reading: "boksagi" }
+        }
+      },
+
+      {
+        id: "autoDoor",
+        emoji: "🚪",
+        x: 5.5,
+        y: 72,
+        w: 63,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "自動ドア", reading: "じどうどあ" },
+          en: { word: "automatic door", reading: "aw-tuh-MAT-ik DOR" },
+          es: { word: "puerta automática", reading: "PWER-ta ow-to-MA-tee-ka" },
+          fr: { word: "porte automatique", reading: "port o-to-ma-TEEK" },
+          de: { word: "Automatiktür", reading: "ow-to-MAA-tik-tür" },
+          zh: { word: "自动门", reading: "zìdòngmén" },
+          ko: { word: "자동문", reading: "jadongmun" }
+        }
+      },
+
+      {
+        id: "umbrella",
+        emoji: "☂️",
+        x: 77.5,
+        y: 74.5,
+        w: 19,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "傘", reading: "かさ" },
+          en: { word: "umbrella", reading: "um-BREL-uh" },
+          es: { word: "paraguas", reading: "pa-RA-gwas" },
+          fr: { word: "parapluie", reading: "pa-ra-PLWEE" },
+          de: { word: "Regenschirm", reading: "RAY-gen-shirm" },
+          zh: { word: "雨伞", reading: "yǔsǎn" },
+          ko: { word: "우산", reading: "usan" }
+        }
+      }
+    ]
   }
 };
 
