@@ -466,16 +466,25 @@ body.easyView .diaryDesc,body.easyView .roomCopy>span{font-size:20px}body.easyVi
 .brainFilter{margin:0 0 16px}
 .brainFilter[hidden],.brainEmpty[hidden],.brainEmpty [hidden]{display:none!important}
 .brainFilterLabel{margin:0 0 6px;color:var(--muted);font-size:13px;font-weight:800}
-.brainChips{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.brainChip{flex:0 0 auto;min-height:44px;padding:8px 14px;border:1px solid #d9b99f;border-radius:999px;background:#fff;color:var(--text);font:inherit;font-size:14px;font-weight:800;line-height:1.2;white-space:nowrap;cursor:pointer;touch-action:manipulation}
-.brainChip b{margin-left:5px;font-size:12px;font-weight:900;opacity:.65}
-.brainChip[aria-pressed="true"]{border:2px solid var(--text);padding:7px 13px;background:linear-gradient(135deg,#ff9eb5,#ffd978);font-weight:950}
-.brainChip[data-n="0"]{opacity:.6}
+.brainChips{display:block;padding:0 0 4px}
+.brainGroup{margin:0 0 12px}
+.brainGroupTitle{display:flex;align-items:center;gap:8px;margin:0 0 7px;color:var(--text);font-size:15px;font-weight:900}
+.brainGroupTitle::before{content:"";width:5px;height:18px;border-radius:3px;background:linear-gradient(180deg,#ff7aa2,#ffb347)}
+.brainRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.brainChip{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:76px;padding:8px 6px;border:1px solid #e3cdb9;border-radius:16px;background:#fff9f3;color:#6f5a49;font:inherit;font-size:15px;font-weight:800;line-height:1.2;text-align:center;overflow-wrap:anywhere;cursor:pointer;touch-action:manipulation}
+.brainChip .bi{font-size:26px;line-height:1.1}
+.brainChip .bt{display:block;max-width:100%}
+.brainChip b{display:inline-block;min-width:30px;margin-top:2px;padding:1px 8px;border-radius:999px;background:#f1e2d3;color:#5b4636;font-size:14px;font-weight:900;line-height:1.35}
+.brainChip[aria-pressed="true"]{border:3px solid var(--text);padding:6px 4px;background:linear-gradient(135deg,#ffc2d2,#ffe07f);color:var(--text);font-weight:950;box-shadow:0 3px 0 var(--text);opacity:1}
+.brainChip[aria-pressed="true"]::after{content:"✓";position:absolute;top:-8px;right:-6px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--text);color:#fff;font-size:15px;font-weight:900;line-height:1}
+.brainChip[aria-pressed="true"] b{background:var(--text);color:#fff}
+.brainChip[data-n="0"]{opacity:.55}
+.brainStatus{margin:2px 0 4px;padding:12px 14px;border:2px solid var(--text);border-radius:14px;background:linear-gradient(135deg,#fff1f5,#fff6d6);color:var(--text);font-size:17px;font-weight:950;line-height:1.35}
+@media(min-width:701px){.brainRow{grid-template-columns:repeat(auto-fill,minmax(128px,150px))}.brainChip{min-height:72px}}
 .brainChip:focus-visible,.brainFav:focus-visible,.brainReset:focus-visible{outline:3px solid #78451c;outline-offset:2px}
 .brainEmpty{margin:4px 0 16px;padding:22px 14px;border:1px dashed #d9b99f;border-radius:16px;background:rgba(255,255,255,.7);color:var(--muted);text-align:center;font-weight:800}
 .brainEmpty p{margin:0 0 12px}
 .brainReset{min-width:44px;min-height:44px;padding:8px 18px;border:1px solid #d9b99f;border-radius:11px;background:#fff;color:var(--text);font:inherit;font-size:14px;font-weight:800;cursor:pointer;touch-action:manipulation}
-@media(min-width:701px){.brainChips{flex-wrap:wrap;overflow-x:visible}}
 #braintrain .brainHide{display:none!important}
 #braintrain .grid>.card{order:var(--btOrder,0)}
 .brainFav{position:absolute;top:40px;right:6px;z-index:3;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.8);color:#a8896f;font:inherit;font-size:25px;line-height:1;cursor:pointer;touch-action:manipulation}
@@ -1913,10 +1922,10 @@ const CARD_CATS=CATS.slice(2);
 const SORTS=[["default","sortDefault"],["recommended","sortRecommended"],["newest","sortNewest"],["updated","sortUpdated"],["version","sortVersion"],["category","sortCategory"]];
 
 const I18N={
-ja:{bt_new:"🆕 新作順",bt_all:"全部",bt_cat:"🐈 猫ゲーム",bt_retro:"👾 レトロ",bt_cards:"🃏 トランプ",bt_calc:"➕ 計算",bt_memory:"🧠 記憶",bt_puzzle:"🧩 パズル",bt_observe:"👀 観察",bt_other:"その他",bt_fav:"★ お気に入り",btCount:"該当 {n}本",btFavAdd:"お気に入りに追加",btFavDel:"お気に入りから外す",title:"🔎 ツールを探す",searchLabel:"検索",searchPlaceholder:"ツール・ゲームを検索",sortLabel:"並び順",sortDefault:"標準",sortRecommended:"おすすめ",sortNewest:"新着順",sortUpdated:"更新日",sortVersion:"バージョン",sortCategory:"カテゴリ別",catLabel:"カテゴリ",all:"すべて",recommended:"おすすめ",featured:"注目",creative:"制作ツール",labs:"Labs",chat:"チャット",simulation:"シミュレーション",games:"ゲーム",cardgames:"トランプ",braintrain:"脳トレ",words:"単語学習",diary:"猫タッチ",results:"件",noResults:"見つかりませんでした",newBadge:"NEW",recommendedBadge:"おすすめ",updated:"更新",version:"バージョン",clear:"クリア"},
-vi:{bt_new:"🆕 Mới nhất",bt_all:"Tất cả",bt_cat:"🐈 Trò chơi mèo",bt_retro:"👾 Retro",bt_cards:"🃏 Bài tây",bt_calc:"➕ Tính toán",bt_memory:"🧠 Trí nhớ",bt_puzzle:"🧩 Câu đố",bt_observe:"👀 Quan sát",bt_other:"Khác",bt_fav:"★ Yêu thích",btCount:"{n} trò phù hợp",btFavAdd:"Thêm vào yêu thích",btFavDel:"Bỏ khỏi yêu thích",title:"🔎 Tìm công cụ",searchLabel:"Tìm kiếm",searchPlaceholder:"Tìm công cụ hoặc trò chơi",sortLabel:"Sắp xếp",sortDefault:"Mặc định",sortRecommended:"Đề xuất",sortNewest:"Mới nhất",sortUpdated:"Cập nhật",sortVersion:"Phiên bản",sortCategory:"Theo danh mục",catLabel:"Danh mục",all:"Tất cả",recommended:"Đề xuất",featured:"Nổi bật",creative:"Công cụ sáng tạo",labs:"Labs",chat:"Trò chuyện",simulation:"Mô phỏng",games:"Trò chơi",cardgames:"Bài",braintrain:"Rèn trí não",words:"Từ vựng",diary:"Phòng mèo",results:"kết quả",noResults:"Không tìm thấy kết quả",newBadge:"MỚI",recommendedBadge:"Đề xuất",updated:"Cập nhật",version:"Phiên bản",clear:"Xóa"},
-en:{bt_new:"🆕 Newest",bt_all:"All",bt_cat:"🐈 Cat games",bt_retro:"👾 Retro",bt_cards:"🃏 Playing cards",bt_calc:"➕ Math",bt_memory:"🧠 Memory",bt_puzzle:"🧩 Puzzle",bt_observe:"👀 Observation",bt_other:"Other",bt_fav:"★ Favorites",btCount:"{n} matching",btFavAdd:"Add to favorites",btFavDel:"Remove from favorites",title:"🔎 Find a Tool",searchLabel:"Search",searchPlaceholder:"Search tools and games",sortLabel:"Sort",sortDefault:"Default",sortRecommended:"Recommended",sortNewest:"Newest",sortUpdated:"Recently updated",sortVersion:"Version",sortCategory:"By category",catLabel:"Category",all:"All",recommended:"Recommended",featured:"Featured",creative:"Creative Tools",labs:"Labs",chat:"Chat",simulation:"Simulation",games:"Games",cardgames:"Card Games",braintrain:"Brain Training",words:"Word Learning",diary:"Cat Rooms",results:"results",noResults:"No matching tools found",newBadge:"NEW",recommendedBadge:"Recommended",updated:"Updated",version:"Version",clear:"Clear"},
-tl:{bt_new:"🆕 Pinakabago",bt_all:"Lahat",bt_cat:"🐈 Laro ng pusa",bt_retro:"👾 Retro",bt_cards:"🃏 Baraha",bt_calc:"➕ Kuwenta",bt_memory:"🧠 Memorya",bt_puzzle:"🧩 Puzzle",bt_observe:"👀 Pagmamasid",bt_other:"Iba pa",bt_fav:"★ Paborito",btCount:"{n} ang tugma",btFavAdd:"Idagdag sa paborito",btFavDel:"Alisin sa paborito",title:"🔎 Maghanap ng Tool",searchLabel:"Maghanap",searchPlaceholder:"Maghanap ng tool o laro",sortLabel:"Ayusin",sortDefault:"Karaniwan",sortRecommended:"Inirerekomenda",sortNewest:"Pinakabago",sortUpdated:"Huling na-update",sortVersion:"Bersyon",sortCategory:"Ayon sa kategorya",catLabel:"Kategorya",all:"Lahat",recommended:"Inirerekomenda",featured:"Tampok",creative:"Creative Tools",labs:"Labs",chat:"Chat",simulation:"Simulation",games:"Mga Laro",cardgames:"Card Games",braintrain:"Brain Training",words:"Pag-aaral ng Salita",diary:"Cat Rooms",results:"resulta",noResults:"Walang nakitang tugma",newBadge:"BAGO",recommendedBadge:"Inirerekomenda",updated:"Na-update",version:"Bersyon",clear:"I-clear"}
+ja:{btGrpSort:"並び替え・お気に入り",btGrpTag:"ジャンルで絞り込み",btShow:"{l} {n}本を表示中",bt_new:"🆕 新作順",bt_all:"全部",bt_cat:"🐈 猫ゲーム",bt_retro:"👾 レトロ",bt_cards:"🃏 トランプ",bt_calc:"➕ 計算",bt_memory:"🧠 記憶",bt_puzzle:"🧩 パズル",bt_observe:"👀 観察",bt_other:"その他",bt_fav:"★ お気に入り",btCount:"該当 {n}本",btFavAdd:"お気に入りに追加",btFavDel:"お気に入りから外す",title:"🔎 ツールを探す",searchLabel:"検索",searchPlaceholder:"ツール・ゲームを検索",sortLabel:"並び順",sortDefault:"標準",sortRecommended:"おすすめ",sortNewest:"新着順",sortUpdated:"更新日",sortVersion:"バージョン",sortCategory:"カテゴリ別",catLabel:"カテゴリ",all:"すべて",recommended:"おすすめ",featured:"注目",creative:"制作ツール",labs:"Labs",chat:"チャット",simulation:"シミュレーション",games:"ゲーム",cardgames:"トランプ",braintrain:"脳トレ",words:"単語学習",diary:"猫タッチ",results:"件",noResults:"見つかりませんでした",newBadge:"NEW",recommendedBadge:"おすすめ",updated:"更新",version:"バージョン",clear:"クリア"},
+vi:{btGrpSort:"Sắp xếp & yêu thích",btGrpTag:"Lọc theo thể loại",btShow:"Đang hiển thị {n} trò · {l}",bt_new:"🆕 Mới nhất",bt_all:"Tất cả",bt_cat:"🐈 Trò chơi mèo",bt_retro:"👾 Retro",bt_cards:"🃏 Bài tây",bt_calc:"➕ Tính toán",bt_memory:"🧠 Trí nhớ",bt_puzzle:"🧩 Câu đố",bt_observe:"👀 Quan sát",bt_other:"Khác",bt_fav:"★ Yêu thích",btCount:"{n} trò phù hợp",btFavAdd:"Thêm vào yêu thích",btFavDel:"Bỏ khỏi yêu thích",title:"🔎 Tìm công cụ",searchLabel:"Tìm kiếm",searchPlaceholder:"Tìm công cụ hoặc trò chơi",sortLabel:"Sắp xếp",sortDefault:"Mặc định",sortRecommended:"Đề xuất",sortNewest:"Mới nhất",sortUpdated:"Cập nhật",sortVersion:"Phiên bản",sortCategory:"Theo danh mục",catLabel:"Danh mục",all:"Tất cả",recommended:"Đề xuất",featured:"Nổi bật",creative:"Công cụ sáng tạo",labs:"Labs",chat:"Trò chuyện",simulation:"Mô phỏng",games:"Trò chơi",cardgames:"Bài",braintrain:"Rèn trí não",words:"Từ vựng",diary:"Phòng mèo",results:"kết quả",noResults:"Không tìm thấy kết quả",newBadge:"MỚI",recommendedBadge:"Đề xuất",updated:"Cập nhật",version:"Phiên bản",clear:"Xóa"},
+en:{btGrpSort:"Sort & favorites",btGrpTag:"Filter by genre",btShow:"Showing {n} games · {l}",bt_new:"🆕 Newest",bt_all:"All",bt_cat:"🐈 Cat games",bt_retro:"👾 Retro",bt_cards:"🃏 Playing cards",bt_calc:"➕ Math",bt_memory:"🧠 Memory",bt_puzzle:"🧩 Puzzle",bt_observe:"👀 Observation",bt_other:"Other",bt_fav:"★ Favorites",btCount:"{n} matching",btFavAdd:"Add to favorites",btFavDel:"Remove from favorites",title:"🔎 Find a Tool",searchLabel:"Search",searchPlaceholder:"Search tools and games",sortLabel:"Sort",sortDefault:"Default",sortRecommended:"Recommended",sortNewest:"Newest",sortUpdated:"Recently updated",sortVersion:"Version",sortCategory:"By category",catLabel:"Category",all:"All",recommended:"Recommended",featured:"Featured",creative:"Creative Tools",labs:"Labs",chat:"Chat",simulation:"Simulation",games:"Games",cardgames:"Card Games",braintrain:"Brain Training",words:"Word Learning",diary:"Cat Rooms",results:"results",noResults:"No matching tools found",newBadge:"NEW",recommendedBadge:"Recommended",updated:"Updated",version:"Version",clear:"Clear"},
+tl:{btGrpSort:"Ayos at paborito",btGrpTag:"I-filter ayon sa uri",btShow:"Ipinapakita ang {n} laro · {l}",bt_new:"🆕 Pinakabago",bt_all:"Lahat",bt_cat:"🐈 Laro ng pusa",bt_retro:"👾 Retro",bt_cards:"🃏 Baraha",bt_calc:"➕ Kuwenta",bt_memory:"🧠 Memorya",bt_puzzle:"🧩 Puzzle",bt_observe:"👀 Pagmamasid",bt_other:"Iba pa",bt_fav:"★ Paborito",btCount:"{n} ang tugma",btFavAdd:"Idagdag sa paborito",btFavDel:"Alisin sa paborito",title:"🔎 Maghanap ng Tool",searchLabel:"Maghanap",searchPlaceholder:"Maghanap ng tool o laro",sortLabel:"Ayusin",sortDefault:"Karaniwan",sortRecommended:"Inirerekomenda",sortNewest:"Pinakabago",sortUpdated:"Huling na-update",sortVersion:"Bersyon",sortCategory:"Ayon sa kategorya",catLabel:"Kategorya",all:"Lahat",recommended:"Inirerekomenda",featured:"Tampok",creative:"Creative Tools",labs:"Labs",chat:"Chat",simulation:"Simulation",games:"Mga Laro",cardgames:"Card Games",braintrain:"Brain Training",words:"Pag-aaral ng Salita",diary:"Cat Rooms",results:"resulta",noResults:"Walang nakitang tugma",newBadge:"BAGO",recommendedBadge:"Inirerekomenda",updated:"Na-update",version:"Bersyon",clear:"I-clear"}
 };
 
 const lang=()=>{const l=(document.documentElement.lang||"ja").toLowerCase().split("-")[0];return I18N[l]?l:"ja"};
@@ -2141,7 +2150,11 @@ function brainInit(){
   });
   bt={sec,grid,box,chipsEl,items,modes,mode:"new",cnt:sec.querySelector(".sectionHead .count"),empty:document.getElementById("brainEmpty"),chips:{}};
   if(bt.cnt)bt.cnt.setAttribute("aria-live","polite");
-  modes.forEach(m=>{const b=el("button","brainChip");b.type="button";b.dataset.mode=m;b.setAttribute("aria-pressed","false");chipsEl.appendChild(b);bt.chips[m]=b});
+  const gS=el("div","brainGroup"),gT=el("div","brainGroup"),tS=el("p","brainGroupTitle"),tT=el("p","brainGroupTitle"),rS=el("div","brainRow"),rT=el("div","brainRow");
+  gS.appendChild(tS);gS.appendChild(rS);gT.appendChild(tT);gT.appendChild(rT);chipsEl.appendChild(gS);chipsEl.appendChild(gT);
+  bt.tS=tS;bt.tT=tT;
+  const st=el("p","brainStatus");st.id="brainStatus";st.setAttribute("role","status");st.setAttribute("aria-live","polite");chipsEl.parentNode.insertBefore(st,chipsEl.nextSibling);bt.status=st;
+  modes.forEach(m=>{const b=el("button","brainChip");b.type="button";b.dataset.mode=m;b.setAttribute("aria-pressed","false");(m==="new"||m==="all"||m==="fav"?rS:rT).appendChild(b);bt.chips[m]=b});
   chipsEl.addEventListener("click",e=>{const b=e.target.closest(".brainChip");if(!b)return;bt.mode=b.dataset.mode;brainApply()});
   const rs=document.getElementById("brainReset");if(rs)rs.addEventListener("click",()=>{bt.mode="new";brainApply()});
   document.addEventListener("click",e=>{
@@ -2163,8 +2176,13 @@ function brainApply(){
     const b=bt.chips[m],c=items.filter(it=>btMatch(it,m,favs)).length;
     if(m==="other"&&c===0&&mode!=="other"){b.hidden=true;return}
     b.hidden=false;b.dataset.n=String(c);b.setAttribute("aria-pressed",m===mode?"true":"false");
-    b.textContent="";b.appendChild(document.createTextNode(btLab("bt_"+m)));b.appendChild(el("b",null,String(c)));
+    const lab=btLab("bt_"+m),mm=/^(\S+)\s+([\s\S]+)$/.exec(lab);
+    let ic="",tx=lab;
+    if(mm&&/[\p{Extended_Pictographic}\u2605]/u.test(mm[1])){ic=mm[1];tx=mm[2]}else{ic=m==="all"?"📚":(m==="other"?"✨":"")}
+    b.textContent="";if(ic)b.appendChild(el("span","bi",ic)).setAttribute("aria-hidden","true");b.appendChild(el("span","bt",tx));b.appendChild(el("b",null,String(c)));
   });
+  if(bt.tS)bt.tS.textContent=btLab("btGrpSort");if(bt.tT)bt.tT.textContent=btLab("btGrpTag");
+  if(bt.status)bt.status.textContent=btLab("btShow").replace("{n}",n).replace("{l}",btLab("bt_"+mode));
   if(bt.cnt)bt.cnt.textContent=(mode==="new"||mode==="all")?items.length+" GAMES":btLab("btCount").replace("{n}",n);
   if(bt.empty){
     bt.empty.hidden=n>0;
