@@ -60,7 +60,7 @@ function groupName(g){
 }
 
 /* ---------- 状態 ---------- */
-let items=[],cur=0,isOpen=false,pushed=false,savedY=0,V=null,settleT=0,preT=0,dragging=false,inerted=[];
+let items=[],cur=0,isOpen=false,pushed=false,pushLen=0,savedY=0,V=null,settleT=0,preT=0,dragging=false,inerted=[];
 const panes=new Map(); /* key -> {el,item,iframe} */
 const n=()=>items.length;
 const mod=i=>((i%n())+n())%n();
@@ -280,7 +280,7 @@ function openView(key,how){
     isOpen=true; V.o.hidden=false;
     document.documentElement.classList.add("salpSwipeOn");
     setInert(true);
-    if(how==="btn"){ try{history.pushState({salpSwipe:1},"",hashFor(items[idx].key)); pushed=true;}catch(e){} }
+    if(how==="btn"){ try{history.pushState({salpSwipe:1},"",hashFor(items[idx].key)); pushed=true; pushLen=history.length;}catch(e){} }
     else if(how==="hash"){ try{history.replaceState({salpSwipe:1},"",hashFor(items[idx].key));}catch(e){} pushed=false; }
     else pushed=true; /* popstate(進む)で開いた場合は履歴に既にある */
   }
@@ -307,8 +307,9 @@ function closeView(){
 }
 function userClose(){
   if(!isOpen) return;
-  if(pushed){ pushed=false; try{ history.back(); }catch(e){} setTimeout(()=>{ if(isOpen) closeView(); },400); } /* popstate で閉じる(保険つき) */
-  else { closeView(); try{ if(/^#swipe/.test(location.hash)) history.replaceState(null,"",location.pathname+location.search); }catch(e){} }
+  /* 履歴が増えていない(アプリ内遷移なし)ときだけ back() で戻る。増えていたら back() は iframe 側を戻してしまうので直接閉じる */
+  if(pushed&&history.length===pushLen&&history.state&&history.state.salpSwipe){ pushed=false; try{ history.back(); }catch(e){} setTimeout(()=>{ if(isOpen) closeView(); },400); }
+  else { pushed=false; closeView(); try{ if(/^#swipe/.test(location.hash)) history.replaceState(null,"",location.pathname+location.search); }catch(e){} }
 }
 function parseHash(){ const m=/^#swipe(?:=(.*))?$/.exec(location.hash); if(!m) return null; let k=""; try{k=decodeURIComponent(m[1]||"")}catch(e){} return {key:k}; }
 function onNav(){
