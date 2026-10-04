@@ -4153,6 +4153,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  hospital: {
+    id: "hospital",
+    icon: "🏥",
+    title: {
+      ja: "🏥 病院",
+      en: "🏥 Hospital",
+      es: "🏥 Hospital",
+      fr: "🏥 Hôpital",
+      de: "🏥 Krankenhaus",
+      zh: "🏥 医院",
+      ko: "🏥 병원"
+    },
+
+    background: "hospital.webp",
+    subtitle: "単語学習 病院編",
+    documentTitle: "SALP WORDS | 単語学習 病院編",
+    alt: "病院の絵(アニメ風の背景イラスト)",
+    ariaLabel: "病院の単語学習",
+    help: "病院の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "病院の物を選んでください",
+
+    items: [
+      {
+        id: "xray",
+        emoji: "☢️",
+        x: 6.5,
+        y: 12,
+        w: 26,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "レントゲン写真", reading: "れんとげんしゃしん" },
+          en: { word: "X-ray", reading: "EKS-ray" },
+          es: { word: "radiografía", reading: "rra-dyo-gra-FEE-a" },
+          fr: { word: "radiographie", reading: "ra-dyo-gra-FEE" },
+          de: { word: "Röntgenbild", reading: "RÖNT-gen-bilt" },
+          zh: { word: "X光片", reading: "X guāngpiàn" },
+          ko: { word: "엑스레이", reading: "ekseurei" }
+        }
+      },
+
+      {
+        id: "whiteCoat",
+        emoji: "🥼",
+        x: 43,
+        y: 12,
+        w: 19,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "白衣", reading: "はくい" },
+          en: { word: "white coat", reading: "WYT KOHT" },
+          es: { word: "bata blanca", reading: "BA-ta BLAN-ka" },
+          fr: { word: "blouse blanche", reading: "blooz BLANSH" },
+          de: { word: "Arztkittel", reading: "ARTST-ki-tel" },
+          zh: { word: "白大褂", reading: "báidàguà" },
+          ko: { word: "의사 가운", reading: "uisa gaun" }
+        }
+      },
+
+      {
+        id: "dripStand",
+        emoji: "💉",
+        x: 77,
+        y: 12,
+        w: 12,
+        h: 17,
+        z: 40,
+        words: {
+          ja: { word: "点滴スタンド", reading: "てんてきすたんど" },
+          en: { word: "IV stand", reading: "EYE-VEE stand" },
+          es: { word: "soporte de suero", reading: "so-POR-te de SWE-ro" },
+          fr: { word: "pied à perfusion", reading: "pyay a per-fü-ZYON" },
+          de: { word: "Infusionsständer", reading: "in-fu-ZYOHNS-shten-der" },
+          zh: { word: "输液架", reading: "shūyèjià" },
+          ko: { word: "링거 거치대", reading: "ringgeo geochidae" }
+        }
+      },
+
+      {
+        id: "reception",
+        emoji: "🛎️",
+        x: 3,
+        y: 24.5,
+        w: 33,
+        h: 21,
+        z: 40,
+        words: {
+          ja: { word: "受付", reading: "うけつけ" },
+          en: { word: "reception desk", reading: "ri-SEP-shun desk" },
+          es: { word: "admisión", reading: "ad-mee-SYON" },
+          fr: { word: "accueil", reading: "a-KUY" },
+          de: { word: "Anmeldung", reading: "AN-mel-dung" },
+          zh: { word: "挂号处", reading: "guàhàochù" },
+          ko: { word: "접수처", reading: "jeopsucheo" }
+        }
+      },
+
+      {
+        id: "wheelchair",
+        emoji: "♿",
+        x: 38,
+        y: 28,
+        w: 25,
+        h: 17.5,
+        z: 40,
+        words: {
+          ja: { word: "車椅子", reading: "くるまいす" },
+          en: { word: "wheelchair", reading: "WEEL-chair" },
+          es: { word: "silla de ruedas", reading: "SEE-ya de RRWE-das" },
+          fr: { word: "fauteuil roulant", reading: "fo-TUY roo-LAN" },
+          de: { word: "Rollstuhl", reading: "ROL-shtool" },
+          zh: { word: "轮椅", reading: "lúnyǐ" },
+          ko: { word: "휠체어", reading: "hwilcheeo" }
+        }
+      },
+
+      {
+        id: "sofa",
+        emoji: "🛋️",
+        x: 67,
+        y: 31,
+        w: 30,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "ソファ", reading: "そふぁ" },
+          en: { word: "sofa", reading: "SOH-fuh" },
+          es: { word: "sofá", reading: "so-FA" },
+          fr: { word: "canapé", reading: "ka-na-PAY" },
+          de: { word: "Sofa", reading: "ZOH-fa" },
+          zh: { word: "沙发", reading: "shāfā" },
+          ko: { word: "소파", reading: "sopa" }
+        }
+      },
+
+      {
+        id: "stethoscope",
+        emoji: "🩺",
+        x: 4,
+        y: 47,
+        w: 30,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "聴診器", reading: "ちょうしんき" },
+          en: { word: "stethoscope", reading: "STETH-uh-skohp" },
+          es: { word: "estetoscopio", reading: "es-te-to-SKO-pyo" },
+          fr: { word: "stéthoscope", reading: "stay-to-SKOP" },
+          de: { word: "Stethoskop", reading: "shte-to-SKOHP" },
+          zh: { word: "听诊器", reading: "tīngzhěnqì" },
+          ko: { word: "청진기", reading: "cheongjingi" }
+        }
+      },
+
+      {
+        id: "thermometer",
+        emoji: "🌡️",
+        x: 38,
+        y: 48,
+        w: 26,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "体温計", reading: "たいおんけい" },
+          en: { word: "thermometer", reading: "thur-MOM-i-ter" },
+          es: { word: "termómetro", reading: "ter-MO-me-tro" },
+          fr: { word: "thermomètre", reading: "ter-mo-METR" },
+          de: { word: "Thermometer", reading: "ter-mo-MAY-ter" },
+          zh: { word: "体温计", reading: "tǐwēnjì" },
+          ko: { word: "체온계", reading: "cheoongye" }
+        }
+      },
+
+      {
+        id: "bloodPressure",
+        emoji: "🩸",
+        x: 69,
+        y: 47,
+        w: 27,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "血圧計", reading: "けつあつけい" },
+          en: { word: "blood pressure monitor", reading: "BLUD PRESH-er MON-i-ter" },
+          es: { word: "tensiómetro", reading: "ten-SYO-me-tro" },
+          fr: { word: "tensiomètre", reading: "tan-syo-METR" },
+          de: { word: "Blutdruckmessgerät", reading: "BLOOT-druk-mes-ge-RET" },
+          zh: { word: "血压计", reading: "xuèyājì" },
+          ko: { word: "혈압계", reading: "hyeorapgye" }
+        }
+      },
+
+      {
+        id: "bed",
+        emoji: "🛏️",
+        x: 3,
+        y: 59.5,
+        w: 36,
+        h: 28.5,
+        z: 40,
+        words: {
+          ja: { word: "ベッド", reading: "べっど" },
+          en: { word: "bed", reading: "BED" },
+          es: { word: "cama", reading: "KA-ma" },
+          fr: { word: "lit", reading: "LEE" },
+          de: { word: "Bett", reading: "BET" },
+          zh: { word: "病床", reading: "bìngchuáng" },
+          ko: { word: "침대", reading: "chimdae" }
+        }
+      },
+
+      {
+        id: "weighScale",
+        emoji: "⚖️",
+        x: 43,
+        y: 59.5,
+        w: 22,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "体重計", reading: "たいじゅうけい" },
+          en: { word: "weighing scale", reading: "WAY-ing SKAYL" },
+          es: { word: "báscula", reading: "BAS-koo-la" },
+          fr: { word: "pèse-personne", reading: "pez-per-SON" },
+          de: { word: "Personenwaage", reading: "per-ZOH-nen-vaa-ge" },
+          zh: { word: "体重秤", reading: "tǐzhòngchèng" },
+          ko: { word: "체중계", reading: "chejunggye" }
+        }
+      },
+
+      {
+        id: "crutches",
+        emoji: "🦯",
+        x: 79,
+        y: 58.5,
+        w: 18,
+        h: 22.5,
+        z: 40,
+        words: {
+          ja: { word: "松葉杖", reading: "まつばづえ" },
+          en: { word: "crutches", reading: "KRUCH-iz" },
+          es: { word: "muletas", reading: "moo-LE-tas" },
+          fr: { word: "béquilles", reading: "bay-KEEY" },
+          de: { word: "Krücken", reading: "KRÜ-ken" },
+          zh: { word: "拐杖", reading: "guǎizhàng" },
+          ko: { word: "목발", reading: "mokbal" }
+        }
+      },
+
+      {
+        id: "firstAidKit",
+        emoji: "🧰",
+        x: 42,
+        y: 79,
+        w: 22,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "救急箱", reading: "きゅうきゅうばこ" },
+          en: { word: "first aid kit", reading: "FURST AYD kit" },
+          es: { word: "botiquín", reading: "bo-tee-KEEN" },
+          fr: { word: "trousse de secours", reading: "TROOS de se-KOOR" },
+          de: { word: "Erste-Hilfe-Kasten", reading: "ER-ste HIL-fe KAS-ten" },
+          zh: { word: "急救箱", reading: "jíjiùxiāng" },
+          ko: { word: "구급상자", reading: "gugeupsangja" }
+        }
+      },
+
+      {
+        id: "bandage",
+        emoji: "🩹",
+        x: 71,
+        y: 81.5,
+        w: 23,
+        h: 6.5,
+        z: 40,
+        words: {
+          ja: { word: "包帯", reading: "ほうたい" },
+          en: { word: "bandage", reading: "BAN-dij" },
+          es: { word: "venda", reading: "BEN-da" },
+          fr: { word: "bandage", reading: "ban-DAZH" },
+          de: { word: "Verband", reading: "fer-BANT" },
+          zh: { word: "绷带", reading: "bēngdài" },
+          ko: { word: "붕대", reading: "bungdae" }
+        }
+      }
+    ]
   }
 };
 
