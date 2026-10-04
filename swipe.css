@@ -9,6 +9,7 @@
 .swipeEntryTitle{font-size:19px;font-weight:900;line-height:1.25}
 .swipeEntrySub{font-size:12.5px;font-weight:700;opacity:.92;line-height:1.35}
 .swipeEntryArrow{font-size:26px;font-weight:900;flex:none}
+.swipeEntryNote{margin:8px 4px 0;font-size:14px;font-weight:800;color:#0c4a6e;line-height:1.4;text-align:center}
 @media (max-width:520px){.swipeEntryWrap{width:calc(100% - 22px);margin-top:12px}.swipeEntry{min-height:60px;padding:10px 14px;border-radius:20px}.swipeEntryTitle{font-size:17px}.swipeEntryIcon{font-size:26px}}
 
 html.salpSwipeOn,html.salpSwipeOn body{overflow:hidden!important;overscroll-behavior:none}
@@ -52,3 +53,31 @@ html.salpSwipeOn,html.salpSwipeOn body{overflow:hidden!important;overscroll-beha
 @media (max-width:380px){.ssClose{padding:0 8px;font-size:13px}.ssExt{width:36px}}
 @media (max-height:520px){#salpSwipe{--ssTop:36px;--ssBot:38px}.ssTop{gap:4px}.ssClose{margin:3px 0;font-size:13px}.ssTitle{margin:2px 0;flex-direction:row;gap:8px}.ssExt{margin:3px 0}.ssBottom{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom))}.ssPrev,.ssNext{width:48px}.ssBar{flex-direction:row;gap:10px}.ssHint{font-size:12px}}
 @media (prefers-reduced-motion:reduce){.ssAnim .ssPane{transition:none}}
+
+/* 操作説明 */
+.ssHelpBtn{flex:none;width:38px;margin:5px 0;border:1px solid rgba(255,255,255,.4);border-radius:12px;background:#0e7490;font-size:18px;font-weight:900;line-height:1}
+@media (max-width:380px){.ssHelpBtn{width:34px}}
+@media (max-height:520px){.ssHelpBtn{margin:3px 0}}
+.ssHint{animation:ssNudge 1.8s ease-in-out infinite}
+@keyframes ssNudge{0%,100%{transform:translateX(-4px)}50%{transform:translateX(4px)}}
+.ssHelp{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(20,12,6,.82);overflow:auto}
+.ssHelp[hidden]{display:none!important}
+.ssHelpBox{width:min(100%,460px);max-height:100%;overflow:auto;box-sizing:border-box;padding:20px 18px 18px;border-radius:22px;background:#fffaf3;color:#3d2b1f;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.ssHelpTitle{display:block;font-size:15px;color:#7d6a5d;margin-bottom:10px}
+.ssDemo{position:relative;height:150px;margin:0 auto 14px;width:min(100%,300px)}
+.ssDemoStage{position:absolute;left:0;right:0;top:0;height:88px;overflow:hidden;border-radius:12px;background:#ece0d2;border:2px solid #d9c3ac}
+.ssDemoCard{position:absolute;inset:6px;border-radius:9px;font-size:30px;display:flex;align-items:center;justify-content:center;animation-duration:3s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.ssDemoCard.a{background:#bae6fd;animation-name:ssDemoA}
+.ssDemoCard.b{background:#fde68a;animation-name:ssDemoB}
+.ssDemoCard.a::before{content:"🐱"}.ssDemoCard.b::before{content:"🎮"}
+@keyframes ssDemoA{0%,15%{transform:translateX(0)}45%,100%{transform:translateX(-110%)}}
+@keyframes ssDemoB{0%,15%{transform:translateX(110%)}45%,100%{transform:translateX(0)}}
+.ssDemoBar{position:absolute;left:0;right:0;top:100px;height:46px;border-radius:14px;border:2px solid #fff;background:linear-gradient(90deg,#0e7490,#2563eb 50%,#7c3aed);box-shadow:0 0 0 2px #3d2b1f;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+.ssDemoTxt{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ssFinger{position:absolute;top:14px;left:0;font-size:34px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));animation:ssFinger 3s ease-in-out infinite}
+@keyframes ssFinger{0%{transform:translateX(210px);opacity:0}10%{transform:translateX(210px);opacity:1}15%{transform:translateX(210px)}45%{transform:translateX(50px);opacity:1}60%,100%{transform:translateX(50px);opacity:0}}
+.ssHelpMain{margin:0 0 8px;font-size:19px;font-weight:900;line-height:1.45}
+.ssHelpSub{margin:0 0 16px;font-size:13px;line-height:1.55;color:#7d6a5d}
+.ssHelpOk{min-width:140px;min-height:50px;padding:0 28px;border:3px solid #fff;border-radius:16px;background:linear-gradient(135deg,#0e7490,#2563eb);color:#fff!important;font-size:20px;font-weight:900;box-shadow:0 0 0 2px #0c4a6e}
+@media (max-height:520px){.ssHelpBox{padding:10px 14px}.ssDemo{height:110px;margin-bottom:6px}.ssDemoStage{height:58px}.ssDemoBar{top:68px;height:38px}.ssDemoCard{font-size:22px}.ssHelpMain{font-size:15px;margin-bottom:4px}.ssHelpSub{margin-bottom:8px;font-size:12px}.ssHelpOk{min-height:40px}.ssHelpTitle{margin-bottom:4px}.ssFinger{top:8px;font-size:28px}}
+@media (prefers-reduced-motion:reduce){.ssHint,.ssDemoCard,.ssFinger{animation:none}.ssDemoCard.b{display:none}.ssFinger{transform:translateX(130px);opacity:1}}

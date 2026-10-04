@@ -14,10 +14,10 @@ const BASE=new URL("./",location.href);
 const ANIM=260;
 const NOPRELOAD=/(^|\/)(salp-linux|terminal|chat)(\/|\.|$)/; /* 重いもの・ログイン系は隣で先読みしない(表示時に読む) */
 const L={
-ja:{entry:"スワイプモードへ切り替え",entrySub:"アプリ・ゲーム・ツールをスワイプで次々に切り替え",close:"✕ ホームに戻る",hint:"◀ ここを左右にスワイプ ▶",prev:"前のアプリ",next:"次のアプリ",list:"一覧から選ぶ",ext:"別タブで開く",loading:"読み込み中…",gDiary:"🐈 ふわふわ日記の部屋",gMore:"その他",listTitle:"アプリ一覧（タップでジャンプ）",lclose:"閉じる"},
-en:{entry:"Switch to Swipe Mode",entrySub:"Swipe through all apps, games and tools",close:"✕ Back to Home",hint:"◀ Swipe here ▶",prev:"Previous app",next:"Next app",list:"Choose from list",ext:"Open in new tab",loading:"Loading…",gDiary:"🐈 Fluffy Diary rooms",gMore:"More",listTitle:"All apps (tap to jump)",lclose:"Close"},
-vi:{entry:"Chuyển sang chế độ vuốt",entrySub:"Vuốt để chuyển qua mọi ứng dụng, trò chơi và công cụ",close:"✕ Về trang chủ",hint:"◀ Vuốt ngang tại đây ▶",prev:"Ứng dụng trước",next:"Ứng dụng sau",list:"Chọn từ danh sách",ext:"Mở trong tab mới",loading:"Đang tải…",gDiary:"🐈 Các phòng Nhật ký bông xù",gMore:"Khác",listTitle:"Tất cả ứng dụng (chạm để chuyển)",lclose:"Đóng"},
-tl:{entry:"Lumipat sa Swipe Mode",entrySub:"I-swipe ang lahat ng app, laro at tool",close:"✕ Balik sa Home",hint:"◀ Mag-swipe dito ▶",prev:"Nakaraang app",next:"Susunod na app",list:"Pumili sa listahan",ext:"Buksan sa bagong tab",loading:"Naglo-load…",gDiary:"🐈 Mga kuwarto ng Fluffy Diary",gMore:"Iba pa",listTitle:"Lahat ng app (i-tap para lumipat)",lclose:"Isara"}
+ja:{entry:"スワイプモードへ切り替え",entrySub:"アプリ・ゲーム・ツール全部を1つの画面で",note:"👆 左右にスワイプでアプリを次々切替",close:"✕ ホームに戻る",hint:"◀ 左右にスワイプ ▶",prev:"前のアプリ",next:"次のアプリ",list:"一覧から選ぶ",ext:"別タブで開く",loading:"読み込み中…",gDiary:"🐈 ふわふわ日記の部屋",gMore:"その他",listTitle:"アプリ一覧（タップでジャンプ）",lclose:"閉じる",helpTitle:"使い方",helpDemo:"スワイプで切り替え",helpMain:"◀ ▶ 下のバーを左右にスワイプで次のアプリへ",helpSub:"ゲームの中の操作はそのまま使えます。◀▶ボタンや一覧からも切り替えられます。",ok:"OK",helpBtn:"使い方を表示"},
+en:{entry:"Switch to Swipe Mode",entrySub:"All apps, games and tools in one screen",note:"👆 Swipe left or right to switch apps",close:"✕ Back to Home",hint:"◀ Swipe left / right ▶",prev:"Previous app",next:"Next app",list:"Choose from list",ext:"Open in new tab",loading:"Loading…",gDiary:"🐈 Fluffy Diary rooms",gMore:"More",listTitle:"All apps (tap to jump)",lclose:"Close",helpTitle:"How to use",helpDemo:"Swipe to switch",helpMain:"◀ ▶ Swipe the bar below left or right for the next app",helpSub:"Controls inside the games work as usual. You can also use the ◀▶ buttons or the list.",ok:"OK",helpBtn:"Show help"},
+vi:{entry:"Chuyển sang chế độ vuốt",entrySub:"Mọi ứng dụng, trò chơi và công cụ trên một màn hình",note:"👆 Vuốt trái/phải để chuyển ứng dụng liên tục",close:"✕ Về trang chủ",hint:"◀ Vuốt trái / phải ▶",prev:"Ứng dụng trước",next:"Ứng dụng sau",list:"Chọn từ danh sách",ext:"Mở trong tab mới",loading:"Đang tải…",gDiary:"🐈 Các phòng Nhật ký bông xù",gMore:"Khác",listTitle:"Tất cả ứng dụng (chạm để chuyển)",lclose:"Đóng",helpTitle:"Cách dùng",helpDemo:"Vuốt để chuyển",helpMain:"◀ ▶ Vuốt thanh bên dưới sang trái hoặc phải để qua ứng dụng kế tiếp",helpSub:"Thao tác trong trò chơi vẫn dùng như bình thường. Bạn cũng có thể dùng nút ◀▶ hoặc danh sách.",ok:"OK",helpBtn:"Xem hướng dẫn"},
+tl:{entry:"Lumipat sa Swipe Mode",entrySub:"Lahat ng app, laro at tool sa iisang screen",note:"👆 Mag-swipe pakaliwa o pakanan para lumipat ng app",close:"✕ Balik sa Home",hint:"◀ Swipe kaliwa / kanan ▶",prev:"Nakaraang app",next:"Susunod na app",list:"Pumili sa listahan",ext:"Buksan sa bagong tab",loading:"Naglo-load…",gDiary:"🐈 Mga kuwarto ng Fluffy Diary",gMore:"Iba pa",listTitle:"Lahat ng app (i-tap para lumipat)",lclose:"Isara",helpTitle:"Paano gamitin",helpDemo:"Mag-swipe para lumipat",helpMain:"◀ ▶ I-swipe ang bar sa ibaba pakaliwa o pakanan para sa susunod na app",helpSub:"Gumagana pa rin ang mga kontrol sa loob ng laro. Puwede ring gamitin ang mga button na ◀▶ o ang listahan.",ok:"OK",helpBtn:"Ipakita ang tulong"}
 };
 const lang=()=>{const l=(document.documentElement.lang||"ja").toLowerCase().split("-")[0];return L[l]?l:"ja"};
 const t=k=>L[lang()][k];
@@ -70,13 +70,14 @@ function mk(tag,cls,html){const e=document.createElement(tag);if(cls)e.className
 function build(){
   if(V) return V;
   const o=mk("div","", 
-    '<div class="ssTop"><button class="ssClose" type="button"></button><button class="ssTitle" type="button" aria-haspopup="dialog"><span class="ssName"></span><span class="ssPos"></span></button><button class="ssExt" type="button">↗</button></div>'+
+    '<div class="ssTop"><button class="ssClose" type="button"></button><button class="ssTitle" type="button" aria-haspopup="dialog"><span class="ssName"></span><span class="ssPos"></span></button><button class="ssHelpBtn" type="button">？</button><button class="ssExt" type="button">↗</button></div>'+
     '<div class="ssStage"></div>'+
     '<div class="ssBottom"><button class="ssPrev" type="button">◀</button><div class="ssBar"><span class="ssGrip"></span><span class="ssHint"></span></div><button class="ssNext" type="button">▶</button></div>'+
+    '<div class="ssHelp" hidden><div class="ssHelpBox" role="dialog"><strong class="ssHelpTitle"></strong><div class="ssDemo" aria-hidden="true"><div class="ssDemoStage"><span class="ssDemoCard a"></span><span class="ssDemoCard b"></span></div><div class="ssDemoBar"><span class="ssDemoTxt"></span><span class="ssFinger">👆</span></div></div><p class="ssHelpMain"></p><p class="ssHelpSub"></p><button class="ssHelpOk" type="button"></button></div></div>'+
     '<div class="ssList" hidden><div class="ssListBox" role="dialog"><div class="ssListHead"><strong></strong><button class="ssListClose" type="button">✕</button></div><div class="ssListBody"></div></div></div>');
   o.id="salpSwipe"; o.hidden=true; o.setAttribute("role","dialog"); o.setAttribute("aria-modal","true"); o.tabIndex=-1;
   const q=s=>o.querySelector(s);
-  V={o:o,top:q(".ssTop"),close:q(".ssClose"),title:q(".ssTitle"),name:q(".ssName"),pos:q(".ssPos"),ext:q(".ssExt"),stage:q(".ssStage"),
+  V={o:o,top:q(".ssTop"),close:q(".ssClose"),title:q(".ssTitle"),name:q(".ssName"),pos:q(".ssPos"),ext:q(".ssExt"),helpBtn:q(".ssHelpBtn"),help:q(".ssHelp"),helpTitle:q(".ssHelpTitle"),helpMain:q(".ssHelpMain"),helpSub:q(".ssHelpSub"),helpOk:q(".ssHelpOk"),demoTxt:q(".ssDemoTxt"),stage:q(".ssStage"),
      prev:q(".ssPrev"),next:q(".ssNext"),bar:q(".ssBar"),hint:q(".ssHint"),list:q(".ssList"),listHead:q(".ssListHead strong"),listClose:q(".ssListClose"),listBody:q(".ssListBody")};
   document.body.appendChild(o);
   V.close.addEventListener("click",()=>userClose());
@@ -85,6 +86,9 @@ function build(){
   V.ext.addEventListener("click",()=>{const it=items[cur];if(it)window.open(it.url,"_blank","noopener")});
   V.title.addEventListener("click",e=>{if(V.suppressClick){V.suppressClick=false;return}openList()});
   V.listClose.addEventListener("click",closeList);
+  V.helpBtn.addEventListener("click",()=>showHelp());
+  V.helpOk.addEventListener("click",closeHelp);
+  V.help.addEventListener("click",e=>{if(e.target===V.help)closeHelp()});
   V.list.addEventListener("click",e=>{if(e.target===V.list)closeList()});
   attachSwipe(V.bar); attachSwipe(V.title);
   return V;
@@ -92,6 +96,8 @@ function build(){
 function labels(){
   if(!V) return;
   V.close.textContent=t("close"); V.hint.textContent=t("hint");
+  V.helpBtn.setAttribute("aria-label",t("helpBtn")); V.helpBtn.title=t("helpBtn");
+  V.helpTitle.textContent=t("helpTitle"); V.helpMain.textContent=t("helpMain"); V.helpSub.textContent=t("helpSub"); V.helpOk.textContent=t("ok"); V.demoTxt.textContent=t("helpDemo");
   V.prev.setAttribute("aria-label",t("prev")); V.next.setAttribute("aria-label",t("next"));
   V.ext.setAttribute("aria-label",t("ext")); V.ext.title=t("ext");
   V.title.setAttribute("aria-label",t("list")); V.listHead.textContent=t("listTitle"); V.listClose.setAttribute("aria-label",t("lclose"));
@@ -243,6 +249,12 @@ function attachSwipe(el){
   el.addEventListener("lostpointercapture",e=>{ if(e.target===el&&st&&e.pointerId===st.id) end(e,true); }); /* 子要素(implicit capture)由来の bubble は無視 */
 }
 
+/* ---------- 操作説明(初回のみ自動表示 / ？で再表示) ---------- */
+const HELPKEY="salpSwipeHelpSeen_v1";
+function showHelp(){ if(!V) return; closeList(); V.help.hidden=false; try{localStorage.setItem(HELPKEY,"1")}catch(e){} try{V.helpOk.focus()}catch(e){} }
+function closeHelp(){ if(V&&!V.help.hidden){ V.help.hidden=true; try{V.o.focus({preventScroll:true})}catch(e){} } }
+function helpSeen(){ try{return localStorage.getItem(HELPKEY)==="1"}catch(e){return true} }
+
 /* ---------- 一覧 ---------- */
 function buildList(){
   const b=V.listBody; b.textContent="";
@@ -291,13 +303,14 @@ function openView(key,how){
   const p=ensurePane(cur,true); setOff(p,0);
   preT=setTimeout(preload,350);
   try{V.o.focus({preventScroll:true})}catch(e){}
+  if(!helpSeen()) showHelp(); else closeHelp();
   return true;
 }
 function closeView(){
   if(!isOpen) return;
   isOpen=false; dragging=false;
   clearTimeout(settleT); clearTimeout(preT);
-  closeList();
+  closeList(); V.help.hidden=true;
   Array.from(panes.values()).forEach(destroy);
   V.o.hidden=true;
   setInert(false);
@@ -321,8 +334,8 @@ window.addEventListener("popstate",onNav);
 window.addEventListener("hashchange",onNav);
 document.addEventListener("keydown",e=>{
   if(!isOpen||e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey) return;
-  if(e.key==="Escape"){ e.preventDefault(); if(!V.list.hidden) closeList(); else userClose(); return; }
-  if(!V.list.hidden) return;
+  if(e.key==="Escape"){ e.preventDefault(); if(!V.help.hidden) closeHelp(); else if(!V.list.hidden) closeList(); else userClose(); return; }
+  if(!V.list.hidden||!V.help.hidden) return;
   if(e.key==="ArrowLeft"){ e.preventDefault(); step(-1); }
   else if(e.key==="ArrowRight"){ e.preventDefault(); step(1); }
 });
@@ -332,6 +345,7 @@ function entryLabels(){
   const b=document.getElementById("swipeEntryBtn"); if(!b) return;
   const ti=b.querySelector(".swipeEntryTitle"), su=b.querySelector(".swipeEntrySub");
   if(ti) ti.textContent=t("entry"); if(su) su.textContent=t("entrySub");
+  const nt=document.getElementById("swipeEntryNote"); if(nt) nt.textContent=t("note");
 }
 function init(){
   const b=document.getElementById("swipeEntryBtn"); 
