@@ -5893,6 +5893,315 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  restaurant: {
+    id: "restaurant",
+    icon: "🍽️",
+    title: {
+      ja: "🍽️ レストラン",
+      en: "🍽️ Restaurant",
+      es: "🍽️ Restaurante",
+      fr: "🍽️ Restaurant",
+      de: "🍽️ Restaurant",
+      zh: "🍽️ 餐厅",
+      ko: "🍽️ 레스토랑"
+    },
+
+    background: "restaurant.webp",
+    subtitle: "単語学習 レストラン編",
+    documentTitle: "SALP WORDS | 単語学習 レストラン編",
+    alt: "レストランの絵(アニメ風の背景イラスト)",
+    ariaLabel: "レストランの単語学習",
+    help: "レストランの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "レストランの物を選んでください",
+
+    items: [
+      {
+        id: "vase",
+        emoji: "🏺",
+        x: 6,
+        y: 14,
+        w: 24,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "花瓶", reading: "かびん" },
+          en: { word: "vase", reading: "VAYS" },
+          es: { word: "jarrón", reading: "kha-RRON" },
+          fr: { word: "vase", reading: "VAZ" },
+          de: { word: "Vase", reading: "VAA-ze" },
+          zh: { word: "花瓶", reading: "huāpíng" },
+          ko: { word: "꽃병", reading: "kkotbyeong" }
+        }
+      },
+
+      {
+        id: "menu",
+        emoji: "📋",
+        x: 36,
+        y: 15,
+        w: 28,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "メニュー", reading: "めにゅー" },
+          en: { word: "menu", reading: "MEN-yoo" },
+          es: { word: "menú", reading: "me-NOO" },
+          fr: { word: "menu", reading: "mə-NÜ" },
+          de: { word: "Speisekarte", reading: "SHPAI-ze-kar-te" },
+          zh: { word: "菜单", reading: "càidān" },
+          ko: { word: "메뉴", reading: "menyu" }
+        }
+      },
+
+      {
+        id: "glass",
+        emoji: "🥛",
+        x: 74,
+        y: 15,
+        w: 18,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "グラス", reading: "ぐらす" },
+          en: { word: "glass", reading: "GLAS" },
+          es: { word: "vaso", reading: "BA-so" },
+          fr: { word: "verre", reading: "VER" },
+          de: { word: "Glas", reading: "GLAAS" },
+          zh: { word: "玻璃杯", reading: "bōlibēi" },
+          ko: { word: "유리잔", reading: "yurijan" }
+        }
+      },
+
+      {
+        id: "soup",
+        emoji: "🍲",
+        x: 4,
+        y: 30,
+        w: 26,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "スープ", reading: "すーぷ" },
+          en: { word: "soup", reading: "SOOP" },
+          es: { word: "sopa", reading: "SO-pa" },
+          fr: { word: "soupe", reading: "SOOP" },
+          de: { word: "Suppe", reading: "ZU-pe" },
+          zh: { word: "汤", reading: "tāng" },
+          ko: { word: "수프", reading: "supeu" }
+        }
+      },
+
+      {
+        id: "salad",
+        emoji: "🥗",
+        x: 36,
+        y: 30,
+        w: 28,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "サラダ", reading: "さらだ" },
+          en: { word: "salad", reading: "SAL-ud" },
+          es: { word: "ensalada", reading: "en-sa-LA-da" },
+          fr: { word: "salade", reading: "sa-LAD" },
+          de: { word: "Salat", reading: "za-LAAT" },
+          zh: { word: "沙拉", reading: "shālā" },
+          ko: { word: "샐러드", reading: "saelleodeu" }
+        }
+      },
+
+      {
+        id: "pasta",
+        emoji: "🍝",
+        x: 69,
+        y: 30,
+        w: 28,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "スパゲッティ", reading: "すぱげってぃ" },
+          en: { word: "spaghetti", reading: "spuh-GET-ee" },
+          es: { word: "espagueti", reading: "es-pa-GE-tee" },
+          fr: { word: "spaghetti", reading: "spa-ge-TEE" },
+          de: { word: "Spaghetti", reading: "shpa-GE-tee" },
+          zh: { word: "意大利面", reading: "yìdàlìmiàn" },
+          ko: { word: "스파게티", reading: "seupageti" }
+        }
+      },
+
+      {
+        id: "pizza",
+        emoji: "🍕",
+        x: 3,
+        y: 45,
+        w: 28,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "ピザ", reading: "ぴざ" },
+          en: { word: "pizza", reading: "PEET-suh" },
+          es: { word: "pizza", reading: "PEE-sa" },
+          fr: { word: "pizza", reading: "peed-ZA" },
+          de: { word: "Pizza", reading: "PI-tsa" },
+          zh: { word: "披萨", reading: "pīsà" },
+          ko: { word: "피자", reading: "pija" }
+        }
+      },
+
+      {
+        id: "steak",
+        emoji: "🥩",
+        x: 36,
+        y: 45,
+        w: 29,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "ステーキ", reading: "すてーき" },
+          en: { word: "steak", reading: "STAYK" },
+          es: { word: "filete", reading: "fee-LE-te" },
+          fr: { word: "steak", reading: "STEK" },
+          de: { word: "Steak", reading: "STAYK" },
+          zh: { word: "牛排", reading: "niúpái" },
+          ko: { word: "스테이크", reading: "seuteikeu" }
+        }
+      },
+
+      {
+        id: "cake",
+        emoji: "🍰",
+        x: 69,
+        y: 45,
+        w: 28,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "ケーキ", reading: "けーき" },
+          en: { word: "cake", reading: "KAYK" },
+          es: { word: "pastel", reading: "pas-TEL" },
+          fr: { word: "gâteau", reading: "ga-TO" },
+          de: { word: "Kuchen", reading: "KOO-khen" },
+          zh: { word: "蛋糕", reading: "dàngāo" },
+          ko: { word: "케이크", reading: "keikeu" }
+        }
+      },
+
+      {
+        id: "fork",
+        emoji: "🍴",
+        x: 5,
+        y: 60,
+        w: 23,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "フォーク", reading: "ふぉーく" },
+          en: { word: "fork", reading: "FORK" },
+          es: { word: "tenedor", reading: "te-ne-DOR" },
+          fr: { word: "fourchette", reading: "foor-SHET" },
+          de: { word: "Gabel", reading: "GAA-bel" },
+          zh: { word: "叉子", reading: "chāzi" },
+          ko: { word: "포크", reading: "pokeu" }
+        }
+      },
+
+      {
+        id: "tableKnife",
+        emoji: "🔪",
+        x: 37,
+        y: 60,
+        w: 25,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ナイフ", reading: "ないふ" },
+          en: { word: "knife", reading: "NYF" },
+          es: { word: "cuchillo", reading: "koo-CHEE-yo" },
+          fr: { word: "couteau", reading: "koo-TO" },
+          de: { word: "Messer", reading: "ME-ser" },
+          zh: { word: "餐刀", reading: "cāndāo" },
+          ko: { word: "나이프", reading: "naipeu" }
+        }
+      },
+
+      {
+        id: "spoon",
+        emoji: "🥄",
+        x: 71,
+        y: 60,
+        w: 24,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "スプーン", reading: "すぷーん" },
+          en: { word: "spoon", reading: "SPOON" },
+          es: { word: "cuchara", reading: "koo-CHA-ra" },
+          fr: { word: "cuillère", reading: "kwee-YER" },
+          de: { word: "Löffel", reading: "LÖ-fel" },
+          zh: { word: "勺子", reading: "sháozi" },
+          ko: { word: "숟가락", reading: "sutgarak" }
+        }
+      },
+
+      {
+        id: "chopsticks",
+        emoji: "🥢",
+        x: 4,
+        y: 76,
+        w: 27,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "箸", reading: "はし" },
+          en: { word: "chopsticks", reading: "CHOP-stiks" },
+          es: { word: "palillos", reading: "pa-LEE-yos" },
+          fr: { word: "baguettes", reading: "ba-GET" },
+          de: { word: "Essstäbchen", reading: "ES-shtayp-khen" },
+          zh: { word: "筷子", reading: "kuàizi" },
+          ko: { word: "젓가락", reading: "jeotgarak" }
+        }
+      },
+
+      {
+        id: "table",
+        emoji: "🟤",
+        x: 34,
+        y: 75,
+        w: 32,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "テーブル", reading: "てーぶる" },
+          en: { word: "table", reading: "TAY-buhl" },
+          es: { word: "mesa", reading: "ME-sa" },
+          fr: { word: "table", reading: "tabl" },
+          de: { word: "Tisch", reading: "tish" },
+          zh: { word: "桌子", reading: "zhuōzi" },
+          ko: { word: "탁자", reading: "takja" }
+        }
+      },
+
+      {
+        id: "chair",
+        emoji: "🪑",
+        x: 72,
+        y: 74,
+        w: 24,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "椅子", reading: "いす" },
+          en: { word: "chair", reading: "chair" },
+          es: { word: "silla", reading: "SEE-ya" },
+          fr: { word: "chaise", reading: "shez" },
+          de: { word: "Stuhl", reading: "shtool" },
+          zh: { word: "椅子", reading: "yǐzi" },
+          ko: { word: "의자", reading: "uija" }
+        }
+      }
+    ]
   }
 };
 
