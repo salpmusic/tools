@@ -6202,6 +6202,315 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  bathroom: {
+    id: "bathroom",
+    icon: "🛁",
+    title: {
+      ja: "🛁 バスルーム",
+      en: "🛁 Bathroom",
+      es: "🛁 Baño",
+      fr: "🛁 Salle de bain",
+      de: "🛁 Badezimmer",
+      zh: "🛁 浴室",
+      ko: "🛁 욕실"
+    },
+
+    background: "bathroom.webp",
+    subtitle: "単語学習 バスルーム編",
+    documentTitle: "SALP WORDS | 単語学習 バスルーム編",
+    alt: "バスルームの絵(アニメ風の背景イラスト)",
+    ariaLabel: "バスルームの単語学習",
+    help: "バスルームの絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "バスルームの物を選んでください",
+
+    items: [
+      {
+        id: "mirror",
+        emoji: "🪞",
+        x: 6,
+        y: 14,
+        w: 27,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "鏡", reading: "かがみ" },
+          en: { word: "mirror", reading: "MIR-er" },
+          es: { word: "espejo", reading: "es-PE-kho" },
+          fr: { word: "miroir", reading: "mee-RWAR" },
+          de: { word: "Spiegel", reading: "SHPEE-gel" },
+          zh: { word: "镜子", reading: "jìngzi" },
+          ko: { word: "거울", reading: "geoul" }
+        }
+      },
+
+      {
+        id: "washbasin",
+        emoji: "🚰",
+        x: 35,
+        y: 14.5,
+        w: 30,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "洗面台", reading: "せんめんだい" },
+          en: { word: "washbasin", reading: "WOSH-bay-sin" },
+          es: { word: "lavabo", reading: "la-BA-bo" },
+          fr: { word: "lavabo", reading: "la-va-BO" },
+          de: { word: "Waschbecken", reading: "VASH-be-ken" },
+          zh: { word: "洗手台", reading: "xǐshǒutái" },
+          ko: { word: "세면대", reading: "semyeondae" }
+        }
+      },
+
+      {
+        id: "faucet",
+        emoji: "🚰",
+        x: 70,
+        y: 14,
+        w: 26,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "蛇口", reading: "じゃぐち" },
+          en: { word: "faucet", reading: "FAW-set" },
+          es: { word: "grifo", reading: "GREE-fo" },
+          fr: { word: "robinet", reading: "ro-bee-NAY" },
+          de: { word: "Wasserhahn", reading: "VA-ser-haan" },
+          zh: { word: "水龙头", reading: "shuǐlóngtóu" },
+          ko: { word: "수도꼭지", reading: "sudokkokji" }
+        }
+      },
+
+      {
+        id: "showerHead",
+        emoji: "🚿",
+        x: 8,
+        y: 29,
+        w: 24,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "シャワー", reading: "しゃわー" },
+          en: { word: "shower", reading: "SHOW-er" },
+          es: { word: "ducha", reading: "DOO-cha" },
+          fr: { word: "douche", reading: "DOOSH" },
+          de: { word: "Dusche", reading: "DOO-she" },
+          zh: { word: "花洒", reading: "huāsǎ" },
+          ko: { word: "샤워기", reading: "syawogi" }
+        }
+      },
+
+      {
+        id: "bathtub",
+        emoji: "🛁",
+        x: 34,
+        y: 30,
+        w: 33,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "浴槽", reading: "よくそう" },
+          en: { word: "bathtub", reading: "BATH-tub" },
+          es: { word: "bañera", reading: "ba-NYE-ra" },
+          fr: { word: "baignoire", reading: "be-NWAR" },
+          de: { word: "Badewanne", reading: "BAA-de-va-ne" },
+          zh: { word: "浴缸", reading: "yùgāng" },
+          ko: { word: "욕조", reading: "yokjo" }
+        }
+      },
+
+      {
+        id: "bathMat",
+        emoji: "🟩",
+        x: 69,
+        y: 30,
+        w: 27,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "バスマット", reading: "ばすまっと" },
+          en: { word: "bath mat", reading: "BATH mat" },
+          es: { word: "alfombrilla de baño", reading: "al-fom-BREE-ya de BA-nyo" },
+          fr: { word: "tapis de bain", reading: "ta-PEE de BAN" },
+          de: { word: "Badematte", reading: "BAA-de-ma-te" },
+          zh: { word: "浴室地垫", reading: "yùshì dìdiàn" },
+          ko: { word: "발매트", reading: "balmaeteu" }
+        }
+      },
+
+      {
+        id: "toilet",
+        emoji: "🚽",
+        x: 8,
+        y: 44,
+        w: 24,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "トイレ", reading: "といれ" },
+          en: { word: "toilet", reading: "TOY-let" },
+          es: { word: "inodoro", reading: "ee-no-DO-ro" },
+          fr: { word: "toilettes", reading: "twa-LET" },
+          de: { word: "Toilette", reading: "to-a-LE-te" },
+          zh: { word: "马桶", reading: "mǎtǒng" },
+          ko: { word: "변기", reading: "byeongi" }
+        }
+      },
+
+      {
+        id: "toiletPaper",
+        emoji: "🧻",
+        x: 38,
+        y: 44,
+        w: 25,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "トイレットペーパー", reading: "といれっとぺーぱー" },
+          en: { word: "toilet paper", reading: "TOY-let PAY-per" },
+          es: { word: "papel higiénico", reading: "pa-PEL ee-KHYE-nee-ko" },
+          fr: { word: "papier toilette", reading: "pa-PYAY twa-LET" },
+          de: { word: "Toilettenpapier", reading: "to-a-LE-ten-pa-peer" },
+          zh: { word: "卫生纸", reading: "wèishēngzhǐ" },
+          ko: { word: "화장지", reading: "hwajangji" }
+        }
+      },
+
+      {
+        id: "washingMachine",
+        emoji: "🧺",
+        x: 70,
+        y: 44,
+        w: 25,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "洗濯機", reading: "せんたくき" },
+          en: { word: "washing machine", reading: "WOSH-ing muh-SHEEN" },
+          es: { word: "lavadora", reading: "la-ba-DO-ra" },
+          fr: { word: "machine à laver", reading: "ma-SHEEN a la-VAY" },
+          de: { word: "Waschmaschine", reading: "VASH-ma-shee-ne" },
+          zh: { word: "洗衣机", reading: "xǐyījī" },
+          ko: { word: "세탁기", reading: "setakgi" }
+        }
+      },
+
+      {
+        id: "towel",
+        emoji: "🧖",
+        x: 5,
+        y: 58.5,
+        w: 28,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "タオル", reading: "たおる" },
+          en: { word: "towel", reading: "TOW-el" },
+          es: { word: "toalla", reading: "to-A-ya" },
+          fr: { word: "serviette", reading: "ser-VYET" },
+          de: { word: "Handtuch", reading: "HANT-tookh" },
+          zh: { word: "毛巾", reading: "máojīn" },
+          ko: { word: "수건", reading: "sugeon" }
+        }
+      },
+
+      {
+        id: "soap",
+        emoji: "🧼",
+        x: 37,
+        y: 59,
+        w: 26,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "石鹸", reading: "せっけん" },
+          en: { word: "soap", reading: "SOHP" },
+          es: { word: "jabón", reading: "kha-BON" },
+          fr: { word: "savon", reading: "sa-VON" },
+          de: { word: "Seife", reading: "ZY-fe" },
+          zh: { word: "肥皂", reading: "féizào" },
+          ko: { word: "비누", reading: "binu" }
+        }
+      },
+
+      {
+        id: "shampoo",
+        emoji: "🧴",
+        x: 77,
+        y: 58.5,
+        w: 16,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "シャンプー", reading: "しゃんぷー" },
+          en: { word: "shampoo", reading: "sham-POO" },
+          es: { word: "champú", reading: "cham-POO" },
+          fr: { word: "shampooing", reading: "shan-pwan" },
+          de: { word: "Shampoo", reading: "SHAM-poo" },
+          zh: { word: "洗发水", reading: "xǐfàshuǐ" },
+          ko: { word: "샴푸", reading: "syampu" }
+        }
+      },
+
+      {
+        id: "toothbrush",
+        emoji: "🪥",
+        x: 9,
+        y: 73.5,
+        w: 19,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "歯ブラシ", reading: "はぶらし" },
+          en: { word: "toothbrush", reading: "TOOTH-brush" },
+          es: { word: "cepillo de dientes", reading: "se-PEE-yo de DYEN-tes" },
+          fr: { word: "brosse à dents", reading: "bros a DAN" },
+          de: { word: "Zahnbürste", reading: "TSAAN-bür-ste" },
+          zh: { word: "牙刷", reading: "yáshuā" },
+          ko: { word: "칫솔", reading: "chitsol" }
+        }
+      },
+
+      {
+        id: "toothpaste",
+        emoji: "🦷",
+        x: 42,
+        y: 73.5,
+        w: 16,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "歯磨き粉", reading: "はみがきこ" },
+          en: { word: "toothpaste", reading: "TOOTH-payst" },
+          es: { word: "pasta de dientes", reading: "PAS-ta de DYEN-tes" },
+          fr: { word: "dentifrice", reading: "dan-tee-FREES" },
+          de: { word: "Zahnpasta", reading: "TSAAN-pas-ta" },
+          zh: { word: "牙膏", reading: "yágāo" },
+          ko: { word: "치약", reading: "chiyak" }
+        }
+      },
+
+      {
+        id: "hairDryer",
+        emoji: "💨",
+        x: 72,
+        y: 73.5,
+        w: 25,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "ドライヤー", reading: "どらいやー" },
+          en: { word: "hair dryer", reading: "HAIR DRY-er" },
+          es: { word: "secador de pelo", reading: "se-ka-DOR de PE-lo" },
+          fr: { word: "sèche-cheveux", reading: "sesh-shuh-VUH" },
+          de: { word: "Föhn", reading: "FÖÖN" },
+          zh: { word: "吹风机", reading: "chuīfēngjī" },
+          ko: { word: "드라이기", reading: "deuraigi" }
+        }
+      }
+    ]
   }
 };
 
