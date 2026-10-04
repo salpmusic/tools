@@ -1,0 +1,54 @@
+/* salp Tools: スワイプモード (swipe.js と対) */
+.swipeEntryWrap[hidden]{display:none!important}
+.swipeEntryWrap{width:min(calc(100% - 28px),1052px);margin:14px auto 0;position:relative}
+.swipeEntry{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px 18px;box-sizing:border-box;cursor:pointer;font:inherit;text-align:left;color:#fff;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background:linear-gradient(135deg,#0e7490 0%,#2563eb 55%,#7c3aed 100%);border:3px solid #fff;border-radius:22px;box-shadow:0 0 0 2px #0c4a6e,0 8px 22px rgba(14,116,144,.30)}
+.swipeEntry:active{transform:scale(.99)}
+.swipeEntry:focus-visible{outline:4px solid #ffd978;outline-offset:3px}
+.swipeEntryIcon{font-size:30px;line-height:1;flex:none}
+.swipeEntryText{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.swipeEntryTitle{font-size:19px;font-weight:900;line-height:1.25}
+.swipeEntrySub{font-size:12.5px;font-weight:700;opacity:.92;line-height:1.35}
+.swipeEntryArrow{font-size:26px;font-weight:900;flex:none}
+@media (max-width:520px){.swipeEntryWrap{width:calc(100% - 22px);margin-top:12px}.swipeEntry{min-height:60px;padding:10px 14px;border-radius:20px}.swipeEntryTitle{font-size:17px}.swipeEntryIcon{font-size:26px}}
+
+html.salpSwipeOn,html.salpSwipeOn body{overflow:hidden!important;overscroll-behavior:none}
+#salpSwipe{--ssTop:48px;--ssBot:52px;position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;background:#2b1f17;color:#fff;font-family:inherit;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+#salpSwipe[hidden]{display:none!important}
+#salpSwipe button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#salpSwipe button:focus-visible{outline:3px solid #ffd978;outline-offset:-3px}
+.ssTop{flex:none;display:flex;align-items:stretch;gap:6px;min-height:var(--ssTop);padding:env(safe-area-inset-top) 6px 0 6px;background:#3d2b1f;border-bottom:1px solid rgba(255,255,255,.18);box-sizing:content-box;user-select:none;-webkit-user-select:none}
+.ssClose{flex:none;margin:5px 0;padding:0 12px;border:2px solid #fff;border-radius:12px;background:#b91c1c;font-weight:900;font-size:14px;white-space:nowrap}
+.ssTitle{flex:1;min-width:0;margin:3px 0;padding:0 8px;border:0;border-radius:10px;background:rgba(255,255,255,.1);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;touch-action:none;line-height:1.2}
+.ssName{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800;font-size:14px}
+.ssPos{font-size:12px;font-weight:700;opacity:.85}
+.ssExt{flex:none;width:42px;margin:5px 0;border:1px solid rgba(255,255,255,.4);border-radius:12px;background:transparent;font-size:18px;font-weight:900}
+.ssStage{position:relative;flex:1;min-height:0;overflow:hidden;background:#fffaf3;color:#3d2b1f;--dx:0px}
+.ssPane{position:absolute;inset:0;--o:0;transform:translate3d(calc(var(--o) * 100% + var(--dx)),0,0);background:#fffaf3;will-change:transform;contain:layout paint}
+.ssAnim .ssPane{transition:transform .26s cubic-bezier(.22,.8,.3,1)}
+.ssPane iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.ssSplash{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;pointer-events:none}
+.ssSplashIcon{font-size:56px;line-height:1}
+.ssSplashName{font-size:18px;max-width:90%}
+.ssSplashMsg{font-size:13px;opacity:.7}
+.ssBottom{flex:none;display:flex;align-items:stretch;gap:8px;min-height:var(--ssBot);padding:6px 8px calc(6px + env(safe-area-inset-bottom)) 8px;background:#3d2b1f;border-top:1px solid rgba(255,255,255,.18);box-sizing:content-box;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.ssPrev,.ssNext{flex:none;width:56px;border:2px solid rgba(255,255,255,.55);border-radius:14px;background:#4b3829;font-size:20px;font-weight:900}
+.ssBar{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:14px;background:linear-gradient(90deg,#0e7490,#2563eb 50%,#7c3aed);border:2px solid #fff;touch-action:none;cursor:grab;overflow:hidden}
+.ssBar:active{cursor:grabbing}
+.ssGrip{width:46px;height:5px;border-radius:3px;background:rgba(255,255,255,.85)}
+.ssHint{font-size:13px;font-weight:800;white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ssList{position:absolute;inset:0;z-index:5;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
+.ssList[hidden]{display:none!important}
+.ssListBox{width:min(100%,640px);max-height:86%;display:flex;flex-direction:column;background:#fffaf3;color:#3d2b1f;border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
+.ssListHead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #f0d9c6}
+.ssListHead strong{font-size:16px}
+.ssListClose{width:40px;height:40px;border:0;border-radius:50%;background:#f0d9c6;color:#3d2b1f!important;font-weight:900}
+.ssListBody{overflow:auto;-webkit-overflow-scrolling:touch;padding:4px 10px 18px;overscroll-behavior:contain}
+.ssGroup{margin:14px 4px 6px;font-size:13px;font-weight:900;color:#7d6a5d;position:sticky;top:0;background:#fffaf3;padding:4px 0}
+.ssItem{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;margin:0 0 4px;padding:6px 12px;text-align:left;border:1px solid #f0d9c6;border-radius:12px;background:#fff;color:#3d2b1f!important}
+.ssItem[aria-current="true"]{background:#e0f2fe;border-color:#0e7490;font-weight:900}
+.ssItemIcon{flex:none;width:28px;text-align:center;font-size:20px}
+.ssItemName{flex:1;min-width:0;font-size:14px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ssItemNo{flex:none;font-size:12px;opacity:.6}
+@media (max-width:380px){.ssClose{padding:0 8px;font-size:13px}.ssExt{width:36px}}
+@media (max-height:520px){#salpSwipe{--ssTop:36px;--ssBot:38px}.ssTop{gap:4px}.ssClose{margin:3px 0;font-size:13px}.ssTitle{margin:2px 0;flex-direction:row;gap:8px}.ssExt{margin:3px 0}.ssBottom{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom))}.ssPrev,.ssNext{width:48px}.ssBar{flex-direction:row;gap:10px}.ssHint{font-size:12px}}
+@media (prefers-reduced-motion:reduce){.ssAnim .ssPane{transition:none}}

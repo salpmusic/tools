@@ -633,9 +633,11 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 .footPromo .chips{margin-top:12px;gap:7px}
 .footPromo .chips span{padding:5px 10px;font-size:11px}
 </style>
-<link href="./manifest.webmanifest" rel="manifest"/><link href="./icons/icon-192.png" rel="apple-touch-icon"/><meta content="salp Tools" name="application-name"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="salp Tools" name="apple-mobile-web-app-title"/><meta content="yes" name="mobile-web-app-capable"/></head>
+<link href="./manifest.webmanifest" rel="manifest"/><link href="./icons/icon-192.png" rel="apple-touch-icon"/><meta content="salp Tools" name="application-name"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="salp Tools" name="apple-mobile-web-app-title"/><meta content="yes" name="mobile-web-app-capable"/><link href="./swipe.css?v=1" rel="stylesheet"/>
+</head>
 <body><div class="accessBar"><div aria-label="Language / Ngôn ngữ / Wika" class="languageSwitch" role="group"><button class="langButton active" id="langJa" lang="ja" type="button">日本語</button><button class="langButton" id="langVi" lang="vi" type="button">Tiếng Việt</button><button class="langButton" id="langEn" lang="en" type="button">English</button><button class="langButton" id="langTl" lang="tl" type="button">Tagalog</button></div><button class="active" data-i18n="viewNormal" id="viewNormal" type="button">標準</button><button data-i18n="viewLarge" id="viewLarge" type="button">文字を大きく A+</button><button data-i18n="backTop" id="backTop" type="button">上へ戻る ↑</button></div>
 <a class="skip" data-i18n="skip" href="#main">本文へ移動</a>
+<div class="swipeEntryWrap" hidden><button class="swipeEntry" id="swipeEntryBtn" type="button" aria-haspopup="dialog"><span aria-hidden="true" class="swipeEntryIcon">📱</span><span class="swipeEntryText"><strong class="swipeEntryTitle">スワイプモードへ切り替え</strong><span class="swipeEntrySub">アプリ・ゲーム・ツールをスワイプで次々に切り替え</span></span><span aria-hidden="true" class="swipeEntryArrow">⇆</span></button></div>
 <div class="musicHeroWrap">
 <a class="musicHero" href="./music.html">
 <span aria-hidden="true" class="musicHeroIcon">🎵</span>
@@ -2219,5 +2221,6 @@ function init(){
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
+<script defer src="./swipe.js?v=1"></script>
 </body>
 </html>
