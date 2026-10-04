@@ -5294,6 +5294,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  pharmacy: {
+    id: "pharmacy",
+    icon: "💊",
+    title: {
+      ja: "💊 薬局",
+      en: "💊 Pharmacy",
+      es: "💊 Farmacia",
+      fr: "💊 Pharmacie",
+      de: "💊 Apotheke",
+      zh: "💊 药店",
+      ko: "💊 약국"
+    },
+
+    background: "pharmacy.webp",
+    subtitle: "単語学習 薬局編",
+    documentTitle: "SALP WORDS | 単語学習 薬局編",
+    alt: "薬局の絵(アニメ風の背景イラスト)",
+    ariaLabel: "薬局の単語学習",
+    help: "薬局の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "薬局の物を選んでください",
+
+    items: [
+      {
+        id: "medicineShelf",
+        emoji: "🗄️",
+        x: 3,
+        y: 12,
+        w: 59,
+        h: 19,
+        z: 40,
+        words: {
+          ja: { word: "薬棚", reading: "くすりだな" },
+          en: { word: "medicine shelf", reading: "MED-i-sin shelf" },
+          es: { word: "estante de medicinas", reading: "es-TAN-te de me-dee-SEE-nas" },
+          fr: { word: "étagère à médicaments", reading: "ay-ta-ZHER a may-dee-ka-MON" },
+          de: { word: "Medikamentenregal", reading: "me-dee-ka-MEN-ten-re-gaal" },
+          zh: { word: "药架", reading: "yàojià" },
+          ko: { word: "약 선반", reading: "yak seonban" }
+        }
+      },
+
+      {
+        id: "mask",
+        emoji: "😷",
+        x: 64,
+        y: 23.5,
+        w: 28,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "マスク", reading: "ますく" },
+          en: { word: "face mask", reading: "FAYS mask" },
+          es: { word: "mascarilla", reading: "mas-ka-REE-ya" },
+          fr: { word: "masque", reading: "MASK" },
+          de: { word: "Mundschutz", reading: "MOONT-shuts" },
+          zh: { word: "口罩", reading: "kǒuzhào" },
+          ko: { word: "마스크", reading: "maseukeu" }
+        }
+      },
+
+      {
+        id: "tablets",
+        emoji: "💊",
+        x: 4,
+        y: 35,
+        w: 29,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "錠剤", reading: "じょうざい" },
+          en: { word: "tablets", reading: "TAB-lets" },
+          es: { word: "pastillas", reading: "pas-TEE-yas" },
+          fr: { word: "comprimés", reading: "kon-pree-MAY" },
+          de: { word: "Tabletten", reading: "ta-BLE-ten" },
+          zh: { word: "药片", reading: "yàopiàn" },
+          ko: { word: "알약", reading: "allyak" }
+        }
+      },
+
+      {
+        id: "medicineBag",
+        emoji: "🛍️",
+        x: 40,
+        y: 34.5,
+        w: 23,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "薬の袋", reading: "くすりのふくろ" },
+          en: { word: "medicine bag", reading: "MED-i-sin bag" },
+          es: { word: "bolsa de medicinas", reading: "BOL-sa de me-dee-SEE-nas" },
+          fr: { word: "sachet de médicaments", reading: "sa-SHAY de may-dee-ka-MON" },
+          de: { word: "Medikamententüte", reading: "me-dee-ka-MEN-ten-tü-te" },
+          zh: { word: "药袋", reading: "yàodài" },
+          ko: { word: "약봉지", reading: "yakbongji" }
+        }
+      },
+
+      {
+        id: "eyeDrops",
+        emoji: "👁️",
+        x: 72.5,
+        y: 35.5,
+        w: 22,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "目薬", reading: "めぐすり" },
+          en: { word: "eye drops", reading: "EYE drops" },
+          es: { word: "gotas para los ojos", reading: "GO-tas PA-ra los O-khos" },
+          fr: { word: "collyre", reading: "ko-LEER" },
+          de: { word: "Augentropfen", reading: "OW-gen-trop-fen" },
+          zh: { word: "眼药水", reading: "yǎnyàoshuǐ" },
+          ko: { word: "안약", reading: "anyak" }
+        }
+      },
+
+      {
+        id: "adhesiveBandage",
+        emoji: "🩹",
+        x: 4,
+        y: 48,
+        w: 28,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "絆創膏", reading: "ばんそうこう" },
+          en: { word: "adhesive bandage", reading: "ad-HEE-siv BAN-dij" },
+          es: { word: "tirita", reading: "tee-REE-ta" },
+          fr: { word: "pansement", reading: "pans-MON" },
+          de: { word: "Pflaster", reading: "PFLAS-ter" },
+          zh: { word: "创可贴", reading: "chuāngkětiē" },
+          ko: { word: "반창고", reading: "banchanggo" }
+        }
+      },
+
+      {
+        id: "compressPatch",
+        emoji: "🟦",
+        x: 39.5,
+        y: 50,
+        w: 25,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "湿布", reading: "しっぷ" },
+          en: { word: "medicated patch", reading: "MED-i-kay-tid pach" },
+          es: { word: "parche medicinal", reading: "PAR-che me-dee-see-NAL" },
+          fr: { word: "patch médical", reading: "patch may-dee-KAL" },
+          de: { word: "Schmerzpflaster", reading: "SHMERTS-pflas-ter" },
+          zh: { word: "膏药贴", reading: "gāoyàotiē" },
+          ko: { word: "파스", reading: "paseu" }
+        }
+      },
+
+      {
+        id: "sanitizer",
+        emoji: "🧴",
+        x: 76,
+        y: 49.5,
+        w: 17,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "消毒液", reading: "しょうどくえき" },
+          en: { word: "hand sanitizer", reading: "HAND SAN-i-ty-zer" },
+          es: { word: "gel desinfectante", reading: "khel des-een-fek-TAN-te" },
+          fr: { word: "gel hydroalcoolique", reading: "zhel ee-dro-al-ko-LEEK" },
+          de: { word: "Desinfektionsmittel", reading: "des-in-fek-TSYOHNS-mi-tel" },
+          zh: { word: "消毒液", reading: "xiāodúyè" },
+          ko: { word: "손 소독제", reading: "son sodokje" }
+        }
+      },
+
+      {
+        id: "syrup",
+        emoji: "🍯",
+        x: 8,
+        y: 61.5,
+        w: 24,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "せき止めシロップ", reading: "せきどめしろっぷ" },
+          en: { word: "cough syrup", reading: "KOF SIR-up" },
+          es: { word: "jarabe para la tos", reading: "kha-RA-be PA-ra la TOS" },
+          fr: { word: "sirop contre la toux", reading: "see-RO KON-tre la TOO" },
+          de: { word: "Hustensaft", reading: "HOOS-ten-zaft" },
+          zh: { word: "止咳糖浆", reading: "zhǐké tángjiāng" },
+          ko: { word: "기침 시럽", reading: "gichim sireop" }
+        }
+      },
+
+      {
+        id: "supplement",
+        emoji: "🟠",
+        x: 37,
+        y: 61.5,
+        w: 29,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ビタミン", reading: "びたみん" },
+          en: { word: "vitamins", reading: "VY-tuh-minz" },
+          es: { word: "vitaminas", reading: "bee-ta-MEE-nas" },
+          fr: { word: "vitamines", reading: "vee-ta-MEEN" },
+          de: { word: "Vitamine", reading: "vi-ta-MEE-ne" },
+          zh: { word: "维生素", reading: "wéishēngsù" },
+          ko: { word: "비타민", reading: "bitamin" }
+        }
+      },
+
+      {
+        id: "sunscreen",
+        emoji: "🧴",
+        x: 73,
+        y: 62,
+        w: 23,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "日焼け止め", reading: "ひやけどめ" },
+          en: { word: "sunscreen", reading: "SUN-skreen" },
+          es: { word: "protector solar", reading: "pro-tek-TOR so-LAR" },
+          fr: { word: "crème solaire", reading: "krem so-LER" },
+          de: { word: "Sonnencreme", reading: "ZO-nen-krem-e" },
+          zh: { word: "防晒霜", reading: "fángshàishuāng" },
+          ko: { word: "선크림", reading: "seonkeurim" }
+        }
+      },
+
+      {
+        id: "tissue",
+        emoji: "🧻",
+        x: 3,
+        y: 75.5,
+        w: 31,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ティッシュ", reading: "てぃっしゅ" },
+          en: { word: "tissues", reading: "TISH-ooz" },
+          es: { word: "pañuelos de papel", reading: "pa-NWE-los de pa-PEL" },
+          fr: { word: "mouchoirs", reading: "moo-SHWAR" },
+          de: { word: "Taschentücher", reading: "TA-shen-tü-kher" },
+          zh: { word: "纸巾", reading: "zhǐjīn" },
+          ko: { word: "휴지", reading: "hyuji" }
+        }
+      },
+
+      {
+        id: "handCream",
+        emoji: "🧴",
+        x: 43,
+        y: 75.5,
+        w: 16,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ハンドクリーム", reading: "はんどくりーむ" },
+          en: { word: "hand cream", reading: "HAND kreem" },
+          es: { word: "crema de manos", reading: "KRE-ma de MA-nos" },
+          fr: { word: "crème pour les mains", reading: "krem poor lay MAN" },
+          de: { word: "Handcreme", reading: "HENT-kre-me" },
+          zh: { word: "护手霜", reading: "hùshǒushuāng" },
+          ko: { word: "핸드크림", reading: "haendeukeurim" }
+        }
+      },
+
+      {
+        id: "coldMedicine",
+        emoji: "🤧",
+        x: 71,
+        y: 75.5,
+        w: 26,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "風邪薬", reading: "かぜぐすり" },
+          en: { word: "cold medicine", reading: "KOHLD MED-i-sin" },
+          es: { word: "medicina para el resfriado", reading: "me-dee-SEE-na PA-ra el rres-FRYA-do" },
+          fr: { word: "médicament contre le rhume", reading: "may-dee-ka-MON kontr le RÜM" },
+          de: { word: "Erkältungsmittel", reading: "er-KEL-tungs-mi-tel" },
+          zh: { word: "感冒药", reading: "gǎnmàoyào" },
+          ko: { word: "감기약", reading: "gamgiyak" }
+        }
+      }
+    ]
   }
 };
 
