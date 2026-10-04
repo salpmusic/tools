@@ -6820,6 +6820,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  salon: {
+    id: "salon",
+    icon: "💈",
+    title: {
+      ja: "💈 美容院",
+      en: "💈 Hair Salon",
+      es: "💈 Peluquería",
+      fr: "💈 Salon de coiffure",
+      de: "💈 Friseursalon",
+      zh: "💈 美发店",
+      ko: "💈 미용실"
+    },
+
+    background: "salon.webp",
+    subtitle: "単語学習 美容院編",
+    documentTitle: "SALP WORDS | 単語学習 美容院編",
+    alt: "美容院の絵(アニメ風の背景イラスト)",
+    ariaLabel: "美容院の単語学習",
+    help: "美容院の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "美容院の物を選んでください",
+
+    items: [
+      {
+        id: "mirror",
+        emoji: "🪞",
+        x: 3,
+        y: 12,
+        w: 63,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "鏡", reading: "かがみ" },
+          en: { word: "mirror", reading: "MIR-er" },
+          es: { word: "espejo", reading: "es-PE-kho" },
+          fr: { word: "miroir", reading: "mee-RWAR" },
+          de: { word: "Spiegel", reading: "SHPEE-gel" },
+          zh: { word: "镜子", reading: "jìngzi" },
+          ko: { word: "거울", reading: "geoul" }
+        }
+      },
+
+      {
+        id: "plant",
+        emoji: "🪴",
+        x: 68.5,
+        y: 12,
+        w: 28,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "観葉植物", reading: "かんようしょくぶつ" },
+          en: { word: "potted plant", reading: "POT-id plant" },
+          es: { word: "planta", reading: "PLAN-ta" },
+          fr: { word: "plante verte", reading: "plant vert" },
+          de: { word: "Pflanze", reading: "PFLAN-tse" },
+          zh: { word: "绿植", reading: "lǜzhí" },
+          ko: { word: "식물", reading: "sikmul" }
+        }
+      },
+
+      {
+        id: "chair",
+        emoji: "🪑",
+        x: 3.5,
+        y: 23.5,
+        w: 25,
+        h: 16.5,
+        z: 40,
+        words: {
+          ja: { word: "椅子", reading: "いす" },
+          en: { word: "chair", reading: "chair" },
+          es: { word: "silla", reading: "SEE-ya" },
+          fr: { word: "chaise", reading: "shez" },
+          de: { word: "Stuhl", reading: "shtool" },
+          zh: { word: "椅子", reading: "yǐzi" },
+          ko: { word: "의자", reading: "uija" }
+        }
+      },
+
+      {
+        id: "shampooBasin",
+        emoji: "🚿",
+        x: 34,
+        y: 21,
+        w: 36,
+        h: 18.5,
+        z: 40,
+        words: {
+          ja: { word: "シャンプー台", reading: "しゃんぷーだい" },
+          en: { word: "shampoo basin", reading: "sham-POO BAY-sin" },
+          es: { word: "lavacabezas", reading: "la-ba-ka-BE-sas" },
+          fr: { word: "bac à shampoing", reading: "bak a shan-PWAN" },
+          de: { word: "Haarwaschbecken", reading: "HAR-vash-bek-en" },
+          zh: { word: "洗头台", reading: "xǐtóutái" },
+          ko: { word: "샴푸대", reading: "syampudae" }
+        }
+      },
+
+      {
+        id: "cape",
+        emoji: "🧥",
+        x: 72,
+        y: 23.5,
+        w: 24.5,
+        h: 19,
+        z: 40,
+        words: {
+          ja: { word: "ヘアケープ", reading: "へあけーぷ" },
+          en: { word: "haircut cape", reading: "HAIR-kut kayp" },
+          es: { word: "capa de peluquería", reading: "KA-pa de pe-lu-ke-REE-a" },
+          fr: { word: "cape de coiffure", reading: "kap duh kwa-FÜR" },
+          de: { word: "Frisierumhang", reading: "fri-ZEER-oom-hang" },
+          zh: { word: "理发围布", reading: "lǐfà wéibù" },
+          ko: { word: "커트보", reading: "keoteubo" }
+        }
+      },
+
+      {
+        id: "scissors",
+        emoji: "✂️",
+        x: 4,
+        y: 45.5,
+        w: 27,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "はさみ", reading: "はさみ" },
+          en: { word: "scissors", reading: "SIZ-erz" },
+          es: { word: "tijeras", reading: "tee-HE-ras" },
+          fr: { word: "ciseaux", reading: "see-ZOH" },
+          de: { word: "Schere", reading: "SHAY-re" },
+          zh: { word: "剪刀", reading: "jiǎndāo" },
+          ko: { word: "가위", reading: "gawi" }
+        }
+      },
+
+      {
+        id: "comb",
+        emoji: "🪮",
+        x: 36.5,
+        y: 45,
+        w: 26,
+        h: 7.5,
+        z: 40,
+        words: {
+          ja: { word: "くし", reading: "くし" },
+          en: { word: "comb", reading: "KOHM" },
+          es: { word: "peine", reading: "PAY-ne" },
+          fr: { word: "peigne", reading: "PEN-yuh" },
+          de: { word: "Kamm", reading: "KAM" },
+          zh: { word: "梳子", reading: "shūzi" },
+          ko: { word: "빗", reading: "bit" }
+        }
+      },
+
+      {
+        id: "hairBrush",
+        emoji: "🖌️",
+        x: 70.5,
+        y: 44.5,
+        w: 26.5,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "ヘアブラシ", reading: "へあぶらし" },
+          en: { word: "hairbrush", reading: "HAIR-brush" },
+          es: { word: "cepillo para el pelo", reading: "se-PEE-yo PA-ra el PE-lo" },
+          fr: { word: "brosse à cheveux", reading: "bros a shuh-VUH" },
+          de: { word: "Haarbürste", reading: "HAR-bür-ste" },
+          zh: { word: "发梳", reading: "fàshū" },
+          ko: { word: "헤어브러시", reading: "heeobeureosi" }
+        }
+      },
+
+      {
+        id: "hairDryer",
+        emoji: "💨",
+        x: 4,
+        y: 55.5,
+        w: 26,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "ドライヤー", reading: "どらいやー" },
+          en: { word: "hair dryer", reading: "HAIR DRY-er" },
+          es: { word: "secador de pelo", reading: "se-ka-DOR de PE-lo" },
+          fr: { word: "sèche-cheveux", reading: "sesh-shuh-VUH" },
+          de: { word: "Föhn", reading: "FÖÖN" },
+          zh: { word: "吹风机", reading: "chuīfēngjī" },
+          ko: { word: "드라이기", reading: "deuraigi" }
+        }
+      },
+
+      {
+        id: "hairSpray",
+        emoji: "🧴",
+        x: 44,
+        y: 53.5,
+        w: 14,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "ヘアスプレー", reading: "へあすぷれー" },
+          en: { word: "hairspray", reading: "HAIR-spray" },
+          es: { word: "laca para el pelo", reading: "LA-ka PA-ra el PE-lo" },
+          fr: { word: "laque", reading: "LAK" },
+          de: { word: "Haarspray", reading: "HAR-spray" },
+          zh: { word: "发胶", reading: "fàjiāo" },
+          ko: { word: "헤어스프레이", reading: "heeoseupeurei" }
+        }
+      },
+
+      {
+        id: "hairIron",
+        emoji: "♨️",
+        x: 70.5,
+        y: 57,
+        w: 26.5,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "ヘアアイロン", reading: "へああいろん" },
+          en: { word: "hair straightener", reading: "HAIR STRAY-ten-er" },
+          es: { word: "plancha de pelo", reading: "PLAN-cha de PE-lo" },
+          fr: { word: "lisseur", reading: "lee-SUR" },
+          de: { word: "Glätteisen", reading: "GLET-eye-zen" },
+          zh: { word: "直发器", reading: "zhífàqì" },
+          ko: { word: "고데기", reading: "godegi" }
+        }
+      },
+
+      {
+        id: "towel",
+        emoji: "🧖",
+        x: 3.5,
+        y: 69.5,
+        w: 25,
+        h: 10.5,
+        z: 40,
+        words: {
+          ja: { word: "タオル", reading: "たおる" },
+          en: { word: "towel", reading: "TOW-el" },
+          es: { word: "toalla", reading: "to-A-ya" },
+          fr: { word: "serviette", reading: "ser-VYET" },
+          de: { word: "Handtuch", reading: "HANT-tookh" },
+          zh: { word: "毛巾", reading: "máojīn" },
+          ko: { word: "수건", reading: "sugeon" }
+        }
+      },
+
+      {
+        id: "hairClips",
+        emoji: "📎",
+        x: 36.5,
+        y: 73,
+        w: 27.5,
+        h: 7,
+        z: 40,
+        words: {
+          ja: { word: "ヘアクリップ", reading: "へあくりっぷ" },
+          en: { word: "hair clips", reading: "HAIR klips" },
+          es: { word: "pinzas para el pelo", reading: "PEEN-sas PA-ra el PE-lo" },
+          fr: { word: "pinces à cheveux", reading: "pans a shuh-VUH" },
+          de: { word: "Haarklammern", reading: "HAR-klam-ern" },
+          zh: { word: "发夹", reading: "fàjiā" },
+          ko: { word: "헤어 클립", reading: "heeo keullip" }
+        }
+      },
+
+      {
+        id: "salonTrolley",
+        emoji: "🧰",
+        x: 70.5,
+        y: 68,
+        w: 26.5,
+        h: 22,
+        z: 40,
+        words: {
+          ja: { word: "ワゴン", reading: "わごん" },
+          en: { word: "salon trolley", reading: "SA-lon TROL-ee" },
+          es: { word: "carrito auxiliar", reading: "ka-REE-to ow-ksee-LYAR" },
+          fr: { word: "servante de coiffure", reading: "ser-VANT duh kwa-FÜR" },
+          de: { word: "Rollwagen", reading: "ROL-vah-gen" },
+          zh: { word: "美发推车", reading: "měifà tuīchē" },
+          ko: { word: "미용 카트", reading: "miyong kateu" }
+        }
+      }
+    ]
   }
 };
 
