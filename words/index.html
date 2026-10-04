@@ -4443,6 +4443,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  postoffice: {
+    id: "postoffice",
+    icon: "📮",
+    title: {
+      ja: "📮 郵便局",
+      en: "📮 Post Office",
+      es: "📮 Correos",
+      fr: "📮 Bureau de poste",
+      de: "📮 Postamt",
+      zh: "📮 邮局",
+      ko: "📮 우체국"
+    },
+
+    background: "postoffice.webp",
+    subtitle: "単語学習 郵便局編",
+    documentTitle: "SALP WORDS | 単語学習 郵便局編",
+    alt: "郵便局の絵(アニメ風の背景イラスト)",
+    ariaLabel: "郵便局の単語学習",
+    help: "郵便局の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "郵便局の物を選んでください",
+
+    items: [
+      {
+        id: "postBox",
+        emoji: "📮",
+        x: 8,
+        y: 12,
+        w: 15.5,
+        h: 14.5,
+        z: 40,
+        words: {
+          ja: { word: "ポスト", reading: "ぽすと" },
+          en: { word: "mailbox", reading: "MAYL-boks" },
+          es: { word: "buzón", reading: "boo-SON" },
+          fr: { word: "boîte aux lettres", reading: "bwat o LETR" },
+          de: { word: "Briefkasten", reading: "BREEF-kas-ten" },
+          zh: { word: "邮筒", reading: "yóutǒng" },
+          ko: { word: "우체통", reading: "ucheTong" }
+        }
+      },
+
+      {
+        id: "counterWindow",
+        emoji: "🪟",
+        x: 32.5,
+        y: 13.5,
+        w: 33,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "窓口", reading: "まどぐち" },
+          en: { word: "service window", reading: "SUR-vis WIN-doh" },
+          es: { word: "ventanilla", reading: "ben-ta-NEE-ya" },
+          fr: { word: "guichet", reading: "gee-SHAY" },
+          de: { word: "Schalter", reading: "SHAL-ter" },
+          zh: { word: "窗口", reading: "chuāngkǒu" },
+          ko: { word: "창구", reading: "changgu" }
+        }
+      },
+
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 80,
+        y: 12,
+        w: 17,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "envelope",
+        emoji: "✉️",
+        x: 4,
+        y: 30,
+        w: 28,
+        h: 8,
+        z: 40,
+        words: {
+          ja: { word: "封筒", reading: "ふうとう" },
+          en: { word: "envelope", reading: "EN-vuh-lohp" },
+          es: { word: "sobre", reading: "SO-bre" },
+          fr: { word: "enveloppe", reading: "on-vuh-LOP" },
+          de: { word: "Briefumschlag", reading: "BREEF-um-shlaak" },
+          zh: { word: "信封", reading: "xìnfēng" },
+          ko: { word: "봉투", reading: "bongtu" }
+        }
+      },
+
+      {
+        id: "postcard",
+        emoji: "💌",
+        x: 37.5,
+        y: 30.5,
+        w: 28.5,
+        h: 7.5,
+        z: 40,
+        words: {
+          ja: { word: "はがき", reading: "はがき" },
+          en: { word: "postcard", reading: "POHST-kard" },
+          es: { word: "postal", reading: "pos-TAL" },
+          fr: { word: "carte postale", reading: "kart pos-TAL" },
+          de: { word: "Postkarte", reading: "POST-kar-te" },
+          zh: { word: "明信片", reading: "míngxìnpiàn" },
+          ko: { word: "엽서", reading: "yeopseo" }
+        }
+      },
+
+      {
+        id: "stamp",
+        emoji: "🏷️",
+        x: 72,
+        y: 30,
+        w: 24,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "切手", reading: "きって" },
+          en: { word: "postage stamp", reading: "POH-stij stamp" },
+          es: { word: "sello", reading: "SE-yo" },
+          fr: { word: "timbre", reading: "TAN-br" },
+          de: { word: "Briefmarke", reading: "BREEF-mar-ke" },
+          zh: { word: "邮票", reading: "yóupiào" },
+          ko: { word: "우표", reading: "upyo" }
+        }
+      },
+
+      {
+        id: "parcel",
+        emoji: "📦",
+        x: 4,
+        y: 41,
+        w: 28,
+        h: 12.5,
+        z: 40,
+        words: {
+          ja: { word: "小包", reading: "こづつみ" },
+          en: { word: "parcel", reading: "PAR-sul" },
+          es: { word: "paquete", reading: "pa-KE-te" },
+          fr: { word: "colis", reading: "ko-LEE" },
+          de: { word: "Paket", reading: "pa-KET" },
+          zh: { word: "包裹", reading: "bāoguǒ" },
+          ko: { word: "소포", reading: "sopo" }
+        }
+      },
+
+      {
+        id: "postalScale",
+        emoji: "⚖️",
+        x: 40,
+        y: 41,
+        w: 21,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "はかり", reading: "はかり" },
+          en: { word: "postal scale", reading: "POH-stul SKAYL" },
+          es: { word: "balanza", reading: "ba-LAN-sa" },
+          fr: { word: "balance", reading: "ba-LANS" },
+          de: { word: "Briefwaage", reading: "BREEF-vaa-ge" },
+          zh: { word: "秤", reading: "chèng" },
+          ko: { word: "저울", reading: "jeoul" }
+        }
+      },
+
+      {
+        id: "mailbag",
+        emoji: "👜",
+        x: 72,
+        y: 41.5,
+        w: 25,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "郵便バッグ", reading: "ゆうびんばっぐ" },
+          en: { word: "mail bag", reading: "MAYL bag" },
+          es: { word: "bolsa de correo", reading: "BOL-sa de ko-RRE-o" },
+          fr: { word: "sacoche postale", reading: "sa-KOSH pos-TAL" },
+          de: { word: "Posttasche", reading: "POST-ta-she" },
+          zh: { word: "邮包", reading: "yóubāo" },
+          ko: { word: "우편 가방", reading: "upyeon gabang" }
+        }
+      },
+
+      {
+        id: "handTruck",
+        emoji: "🛒",
+        x: 4,
+        y: 54.5,
+        w: 28,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "台車", reading: "だいしゃ" },
+          en: { word: "hand truck", reading: "HAND truk" },
+          es: { word: "carretilla", reading: "ka-rre-TEE-ya" },
+          fr: { word: "diable", reading: "DYABL" },
+          de: { word: "Sackkarre", reading: "ZAK-ka-re" },
+          zh: { word: "手推车", reading: "shǒutuīchē" },
+          ko: { word: "손수레", reading: "sonsure" }
+        }
+      },
+
+      {
+        id: "pen",
+        emoji: "🖊️",
+        x: 46,
+        y: 55.5,
+        w: 19,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "ペン", reading: "ぺん" },
+          en: { word: "pen", reading: "PEN" },
+          es: { word: "bolígrafo", reading: "bo-LEE-gra-fo" },
+          fr: { word: "stylo", reading: "stee-LO" },
+          de: { word: "Kugelschreiber", reading: "KOO-gel-shry-ber" },
+          zh: { word: "圆珠笔", reading: "yuánzhūbǐ" },
+          ko: { word: "펜", reading: "pen" }
+        }
+      },
+
+      {
+        id: "tape",
+        emoji: "📼",
+        x: 69,
+        y: 57,
+        w: 28,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "ガムテープ", reading: "がむてーぷ" },
+          en: { word: "packing tape", reading: "PAK-ing tayp" },
+          es: { word: "cinta de embalar", reading: "SEEN-ta de em-ba-LAR" },
+          fr: { word: "ruban adhésif", reading: "rü-BAN a-day-ZEEF" },
+          de: { word: "Klebeband", reading: "KLAYB-bant" },
+          zh: { word: "胶带", reading: "jiāodài" },
+          ko: { word: "박스 테이프", reading: "bakseu teipeu" }
+        }
+      },
+
+      {
+        id: "bicycle",
+        emoji: "🚲",
+        x: 4.5,
+        y: 72.5,
+        w: 33.5,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "自転車", reading: "じてんしゃ" },
+          en: { word: "bicycle", reading: "BAI-si-kəl" },
+          es: { word: "bicicleta", reading: "bee-see-KLE-ta" },
+          fr: { word: "vélo", reading: "vay-LO" },
+          de: { word: "Fahrrad", reading: "FAAR-raat" },
+          zh: { word: "自行车", reading: "zìxíngchē" },
+          ko: { word: "자전거", reading: "jajeongeo" }
+        }
+      },
+
+      {
+        id: "motorbike",
+        emoji: "🛵",
+        x: 40,
+        y: 71.5,
+        w: 32.5,
+        h: 16.5,
+        z: 40,
+        words: {
+          ja: { word: "バイク", reading: "ばいく" },
+          en: { word: "motorbike", reading: "MOH-ter-byk" },
+          es: { word: "moto", reading: "MO-to" },
+          fr: { word: "moto", reading: "mo-TO" },
+          de: { word: "Motorrad", reading: "MOH-tor-raat" },
+          zh: { word: "摩托车", reading: "mótuōchē" },
+          ko: { word: "오토바이", reading: "otobai" }
+        }
+      }
+    ]
   }
 };
 
