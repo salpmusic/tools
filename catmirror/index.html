@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fff3e6">
+<meta name="description" content="左のお手本を、鏡に映したように左右反転して、右の盤面に猫やおもちゃを置くパズル。向きのあるものは、向きも反対になります。ゆっくりモード・見やすいモード対応。">
+<title>鏡の向こうの猫 | salp Tools</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;min-height:100dvh;background:#fff3e6;color:#4a3526;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+}
+body.large{font-size:21px}
+button,select,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+.app{max-width:640px;margin:0 auto;display:grid;gap:6px;justify-items:center;grid-template-areas:"head" "info" "stage" "tools" "ctrl"}
+.app>*{width:100%}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:1rem;letter-spacing:.04em}
+.home{color:#b8641f;font-size:.85rem;text-decoration:none;border:2px solid #f2cfa4;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:5px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #f2cfa4;border-radius:14px;padding:2px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pcard .name{font-size:.8rem;color:#9a7048}
+.pcard .val{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:0 10px;font-size:.72rem;color:#9a7048}
+.stats b{color:#3a2410;font-variant-numeric:tabular-nums}
+.timer{height:12px;background:#fff;border-radius:6px;overflow:hidden;border:2px solid #f2cfa4}
+.timer i{display:block;height:100%;width:100%;background:#ff9f43;transform-origin:left}
+.timer.off i{background:#f3e1c9}
+#msg{min-height:2.1em;font-size:.88rem;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #f2cfa4;border-radius:12px;padding:6px 10px;font-weight:700}
+#bonus:empty{display:none}
+#bonus{min-height:1.2em;text-align:center;color:#d2561f;font-size:.9rem;font-weight:700}
+
+#stage{grid-area:stage;display:block}
+#tools{grid-area:tools;display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px}
+.tl{border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:9px 4px;font-weight:800;color:#8a5518;font-size:.92rem}
+.tl.ok{background:#ff8f5a;border-color:#d5622f;color:#fff;box-shadow:0 3px 0 #d5622f}
+.tl:disabled{opacity:.45}
+#tools:empty{display:none}
+#ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;display:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.3));opacity:.95}
+.shake{animation:shake .3s}
+@keyframes shake{25%{translate:-4px 0}75%{translate:4px 0}}
+.lr{display:flex;justify-content:space-between;font-size:.74rem;color:#9a7048;padding:0 4px;font-weight:700}
+body.hc .lr{color:#fff}
+
+#wrap{width:var(--sq);margin:0 auto;padding:4px 0}
+#pair{display:grid;grid-template-columns:1fr 22px 1fr;gap:4px;align-items:center}
+#mir{text-align:center;font-size:clamp(16px,5vw,24px);writing-mode:vertical-rl;background:linear-gradient(90deg,transparent 46%,#8fb4d9 46%,#8fb4d9 54%,transparent 54%);align-self:stretch;display:flex;align-items:center;justify-content:center}
+.gr{display:grid;gap:3px;padding:4px;background:#8a6b3f;border-radius:10px}
+.gr.ans{background:#4a6a8a}
+.mc{aspect-ratio:1;border-radius:6px;background:#f4e3b8;display:flex;align-items:center;justify-content:center;position:relative;border:0;padding:0;overflow:hidden}
+.ans .mc{background:#e4eef8;cursor:pointer}
+.mc svg{width:86%;height:86%;pointer-events:none}
+.mc.ht{outline:4px solid #ff3b3b;outline-offset:-3px;animation:pls .7s infinite;z-index:2}
+.mc .gh{opacity:.38}
+.mc .gh svg{width:86%;height:86%}
+.mc .em{font-size:.9em}
+.fl svg{transform:scaleX(-1)}
+@keyframes pls{50%{filter:brightness(1.25)}}
+#pal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.pb{width:clamp(40px,12vw,52px);height:clamp(40px,12vw,52px);border-radius:10px;border:3px solid #c9b38a;background:#fff;display:flex;align-items:center;justify-content:center;padding:3px;cursor:pointer;font-size:14px;font-weight:700;color:#4a3a2a}
+.pb svg{width:100%;height:100%;pointer-events:none}
+.pb.sel{border-color:#ff7a3a;background:#fff0e0;box-shadow:0 0 0 2px #ff7a3a}
+body.hc .mc{background:#fff}
+body.hc .ans .mc{background:#dff}
+body.hc .gr{background:#000}
+
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.box{background:#fff;border:2px solid #f2cfa4;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#9a7048;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.15rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.main.stop{background:#a89a8a;box-shadow:0 4px 0 #7a6c5c}
+.tog{background:#fff;border:2px solid #f2cfa4;border-radius:999px;padding:6px 14px;font-weight:700;color:#8a5518}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.tog:disabled{opacity:.5}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.vol input{flex:1;accent-color:#ff8f5a;height:28px}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d5622f;margin-bottom:4px}
+.note{font-size:.75rem;color:#9a7048;text-align:center}
+
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result{background:#000;border:3px solid #fff;color:#fff}
+body.hc .pcard .name,body.hc .stats,body.hc .stats b,body.hc .box h2,body.hc .note,body.hc .lr{color:#fff}
+body.hc #bonus,body.hc #result h2{color:#ffff00}
+body.hc .timer{background:#000;border-color:#fff}body.hc .timer i{background:#ffff00}
+body.hc .home{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .tog,body.hc .tl{background:#000;border-color:#fff;color:#fff}
+body.hc .tl.ok{background:#ffff00;color:#000;box-shadow:none}
+body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
+body.hc .main{background:#ffff00;color:#000;box-shadow:none}
+body.hc .main.stop{background:#fff;color:#000}
+
+.sq,#stage{--sq:min(calc(100vw - 24px),calc(100dvh - 400px),480px)}
+.sq{width:var(--sq);height:var(--sq);margin:0 auto}
+@media (orientation:portrait) and (max-height:760px){
+  .opt{display:none}
+  .pcard .val{font-size:1.15rem}
+  .sq,#stage{--sq:min(calc(100vw - 24px),calc(100dvh - 430px),480px)}
+}
+@media (orientation:landscape) and (max-height:620px){
+  .opt{display:none}
+  .pcard{padding:0 8px}.pcard .val{font-size:1.1rem}
+  .app{max-width:1000px;align-items:start;justify-items:stretch;grid-template-columns:minmax(300px,1.3fr) minmax(260px,1fr);column-gap:12px;
+    grid-template-areas:"head head" "stage info" "stage tools" "ctrl ctrl";grid-template-rows:auto auto auto auto}
+  .sq,#stage{--sq:min(calc(100dvh - 60px),calc(100vw - 340px),480px)}
+}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+.hr{display:flex;align-items:center;gap:6px}
+.lng{display:flex;gap:2px}
+.lng button{border:2px solid #f2cfa4;background:#fff;border-radius:8px;padding:2px 6px;font-size:.7rem;font-weight:800;color:#8a5518}
+.lng button.on{background:#ff8f5a;border-color:#d5622f;color:#fff}
+body.hc .lng button{background:#000;color:#fff;border-color:#fff}body.hc .lng button.on{background:#ffff00;color:#000}
+#guide{background:#fff8e6;border:2px solid #f2cfa4;border-radius:10px;padding:5px 8px;font-size:.78rem;font-weight:700;line-height:1.35;text-align:center;color:#6a4520}
+#guide:empty{display:none}
+body.hc #guide{background:#000;color:#fff;border-color:#fff}
+.app{grid-template-areas:"head" "info" "guide" "stage" "tools" "ctrl"}
+#guide{grid-area:guide}
+@media (orientation:landscape) and (max-height:620px){.app{grid-template-areas:"head head" "stage info" "stage guide" "stage tools" "ctrl ctrl"}}
+#tut{position:fixed;inset:0;z-index:100;background:rgba(60,40,20,.62);display:none;align-items:center;justify-content:center;padding:10px}
+#tut.open{display:flex}
+.tutbox{background:#fff;border:3px solid #f2cfa4;border-radius:16px;max-width:430px;width:100%;max-height:94vh;max-height:94dvh;overflow:auto;padding:12px;color:#4a3526}
+.tutbox h2{font-size:1.05rem;margin-bottom:6px;text-align:center}
+.mini{display:grid;gap:2px;background:#d9b98a;border:3px solid #c99a5a;border-radius:10px;padding:2px;max-width:290px;margin:0 auto}
+.mc{position:relative;aspect-ratio:1;background:#fbf0da;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:visible}
+.mc svg{width:92%;height:92%;display:block}
+.mc.w{background:#a8835c}.mc.g{background:#d8f0ff}.mc.y{background:#fff3a8}.mc.dk{background:#555;color:#fff}.mc.hi{box-shadow:inset 0 0 0 3px #ff7a3a}.mc.ok{background:#e0f6dc}
+.mc .fg{position:absolute;right:-2px;bottom:-8px;font-size:22px;z-index:4;animation:ftap .7s infinite}
+@keyframes ftap{50%{transform:translate(-3px,-5px) scale(.9)}}
+.mc .fx{position:absolute;right:-6px;top:-6px;font-size:18px;z-index:4}
+.tcap{text-align:center;font-weight:800;font-size:.85rem;min-height:1.6em;margin:6px 0 2px;color:#d2561f}
+.tstep h3{font-size:1rem;margin-bottom:2px}.tstep p{font-size:.9rem;line-height:1.5}
+.tdots{display:flex;justify-content:center;gap:6px;margin:6px 0}
+.tdots i{width:10px;height:10px;border-radius:50%;background:#e8d5b5}.tdots i.on{background:#ff8f5a}
+.tnav{display:flex;gap:8px;margin-top:6px}
+.tnav button{flex:1;border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:9px 4px;font-weight:800;color:#8a5518;font-size:.95rem}
+.tnav button.pri{background:#ff8f5a;border-color:#d5622f;color:#fff;box-shadow:0 3px 0 #d5622f}
+.tnav button:disabled{opacity:.4}
+body.hc .tutbox{background:#000;color:#fff;border-color:#fff}body.hc .tcap{color:#ffff00}body.hc .tnav button{background:#000;color:#fff;border-color:#fff}body.hc .tnav button.pri{background:#ffff00;color:#000}body.hc .mc{background:#fff;color:#000}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🪞 <span data-i="title">鏡の向こうの猫</span></h1>
+    <div class="hr"><div class="lng" role="group" aria-label="Language"><button type="button" data-lg="ja" lang="ja">日本語</button><button type="button" data-lg="vi" lang="vi">VI</button><button type="button" data-lg="en" lang="en">EN</button><button type="button" data-lg="tl" lang="tl">TL</button></div><a class="home" href="../" data-i="k.home">← ホーム</a></div>
+  </header>
+
+  <section class="info">
+    <div class="top">
+      <div class="pcard"><div class="name" data-i="k.score">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name" data-i="k.lives">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+    </div>
+    <div class="timer off" id="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <div class="stats">
+      <span><i data-i="k.round">ラウンド</i> <b id="stRound">-</b></span>
+      <span><i data-i="s.placed">おいた数</i> <b id="stPlaced">-</b></span>
+      <span class="opt"><i data-i="s.items">ぜんぶで</i> <b id="stItems">-</b></span>
+      <span><i data-i="k.time">時間</i> <b id="stTime">-</b></span>
+      <span class="opt"><i data-i="k.mode">モード</i> <b id="stMode">ふつう</b></span>
+      <span class="opt"><i data-i="k.best">ベスト</i> <b id="stBest">0</b><i data-i="k.pt">点</i> / <b id="stBestR">0</b>R</span>
+    </div>
+    <div id="msg" role="status" aria-live="polite" data-i="intro">「はじめる」を押してね。左のお手本を鏡に映した形になるように、右に置いていこう!</div>
+    <div id="bonus" aria-live="polite"></div>
+  </section>
+
+  <div id="guide" data-i="guide"></div>
+  <div id="stage"><div id="wrap"><div id="pair"><div class="gr" id="gref"></div><div id="mir">🪞</div><div class="gr ans" id="gans"></div></div><div id="pal"></div></div></div>
+  <div id="tools"><button type="button" class="tl" id="bUndo" disabled data-i="k.undo">↩ もどす</button>
+    <button type="button" class="tl" id="bReset" disabled data-i="k.reset">⟲ やりなおし</button>
+    <button type="button" class="tl" id="bHint" disabled>💡</button></div>
+  <div id="ghost"></div>
+
+  <div class="ctrl">
+    <section id="result" hidden aria-live="polite"></section>
+    <button type="button" class="main" id="start" data-i="k.start">はじめる</button>
+    <section class="box">
+      <h2 data-i="k.how">あそびかた</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSlow" aria-pressed="false"><span data-i="k.slow">🐢 ゆっくりモード(制限時間が長い)</span></button>
+      </div>
+    </section>
+    <section class="box">
+      <h2 data-i="k.sv">音・見やすさ</h2>
+      <div class="row">
+        <button type="button" class="tog" id="tSound" aria-pressed="true">🔊</button>
+        <label class="vol"><span data-i="k.vol">音量</span> <input type="range" id="vol" min="0" max="100" value="60" data-ia="k.vol"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="tog" id="tHc" aria-pressed="false"><span data-i="k.hc">◐ ハイコントラスト</span></button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false"><span data-i="k.lg">🔍 大きな表示</span></button>
+      </div>
+    </section>
+    <p class="note" data-i="note">左の盤面がお手本です。まん中に鏡があると考えて、鏡に映った形(左右を入れかえた形)になるように、右の盤面へ猫やおもちゃを置きましょう。お手本の左はしにあるものは、右の盤面では右はしになります。上下の位置は同じです。魚やねずみなど向きのあるものは、鏡に映ると向きも反対になります。下のどうぐを選んでから、置きたいマスをタップ。同じものがあるマスをもう一度タップすると消えます(「消す」でも消せます)。すべて正しく置くとクリアです。「もどす」で1回前、「やりなおし」で全部消します。ヒントは、まちがっているマスを1つ教えます(回数に限りあり、得点も少しへります)。ラウンドが進むと盤面と数が増え、向きのあるものも出て、制限時間は短くなります。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var NAME='catmirror';
+var I18N={"ja": {"title": "鏡の向こうの猫", "desc": "左のお手本を、鏡に映したように左右反転して、右の盤面に猫やおもちゃを置くパズル。向きのあるものは、向きも反対になります。ゆっくりモード・見やすいモード対応。", "intro": "「はじめる」を押してね。左のお手本を鏡に映した形になるように、右に置いていこう!", "guide": "下のどうぐを選んで、右の盤面をタップして置く。左のお手本の「鏡うつし」(左右反転)にしよう", "note": "左の盤面がお手本です。まん中に鏡があると考えて、鏡に映った形(左右を入れかえた形)になるように、右の盤面へ猫やおもちゃを置きましょう。お手本の左はしにあるものは、右の盤面では右はしになります。上下の位置は同じです。魚やねずみなど向きのあるものは、鏡に映ると向きも反対になります。下のどうぐを選んでから、置きたいマスをタップ。同じものがあるマスをもう一度タップすると消えます(「消す」でも消せます)。すべて正しく置くとクリアです。「もどす」で1回前、「やりなおし」で全部消します。ヒントは、まちがっているマスを1つ教えます(回数に限りあり、得点も少しへります)。ラウンドが進むと盤面と数が増え、向きのあるものも出て、制限時間は短くなります。", "s.placed": "おいた数", "s.items": "ぜんぶで", "m.round": "{0}こを置こう({1}×{2}の盤面)", "m.win": "ぴったり!(ラウンド{0} クリア)", "m.hint": "ヒント!赤い枠のマスに、うすく見えるものを置こう(のこり{0}回)", "m.hempty": "ヒント!赤い枠のマスは、からっぽが正解(のこり{0}回)", "m.hnone": "もうぜんぶ合っているよ", "m.back": "ひとつ戻ったよ", "x.tap": "ムダなし", "x.hint": "ヒント", "erase": "消す", "tut.h1": "左のお手本を、鏡うつしに", "tut.b1": "まん中の鏡🪞に映したように、左のお手本を左右反転した形を、右の盤面に作ります。", "tut.h2": "左はしは右はしになる", "tut.b2": "お手本の左側にあるものは右側へ、右側にあるものは左側へ。上下の高さは同じです。", "tut.h3": "向きも反対になる", "tut.b3": "魚やねずみなど向きのあるものは、鏡に映ると逆向きに。下のどうぐから、向きに合うものを選ぼう。", "c.ref": "左がお手本", "c.mirror": "鏡に映すと、右へ", "c.lr": "左右が入れかわる", "c.same": "同じ位置はちがうよ", "c.dir": "向きも反対", "c.ok": "ぴったり!"}, "vi": {"title": "Mèo bên kia tấm gương", "desc": "Đặt mèo và đồ chơi vào bảng bên phải sao cho giống hình trong gương của mẫu bên trái (lật trái-phải). Đồ vật có hướng cũng đổi hướng. Có chế độ chậm và chế độ dễ nhìn.", "intro": "Bấm \"Bắt đầu\". Đặt đồ vào bảng bên phải sao cho thành hình phản chiếu của mẫu bên trái!", "guide": "Chọn đồ bên dưới rồi chạm ô ở bảng phải để đặt. Hãy làm hình \"phản chiếu\" (lật trái-phải) của mẫu bên trái", "note": "Bảng bên trái là mẫu. Hãy tưởng tượng có một tấm gương ở giữa, rồi đặt mèo và đồ chơi vào bảng bên phải thành hình phản chiếu (đổi trái thành phải). Đồ ở mép trái của mẫu sẽ nằm ở mép phải của bảng phải; độ cao trên dưới giữ nguyên. Đồ có hướng như cá hay chuột sẽ đổi sang hướng ngược lại trong gương. Chọn đồ bên dưới rồi chạm ô muốn đặt. Chạm lại ô có cùng đồ để xóa (hoặc dùng \"Xóa\"). Đặt đúng hết là qua vòng. \"Hoàn tác\" lùi 1 lần, \"Làm lại\" xóa hết. \"Gợi ý\" chỉ 1 ô đang sai (số lần có hạn, bị trừ điểm). Qua mỗi vòng bảng lớn hơn, nhiều đồ hơn, có đồ có hướng và thời gian ngắn hơn.", "s.placed": "Đã đặt", "s.items": "Tổng", "m.round": "Đặt {0} món (bảng {1}×{2})", "m.win": "Chuẩn rồi! (Vòng {0} xong)", "m.hint": "Gợi ý! Hãy đặt món mờ vào ô viền đỏ (còn {0} lần)", "m.hempty": "Gợi ý! Ô viền đỏ phải để trống (còn {0} lần)", "m.hnone": "Đã đúng hết rồi", "m.back": "Đã lùi một lần", "x.tap": "Không thừa thao tác", "x.hint": "Gợi ý", "erase": "Xóa", "tut.h1": "Làm hình phản chiếu của mẫu trái", "tut.b1": "Tưởng tượng tấm gương 🪞 ở giữa: tạo hình lật trái-phải của mẫu bên trái vào bảng bên phải.", "tut.h2": "Mép trái thành mép phải", "tut.b2": "Đồ ở bên trái mẫu sẽ sang bên phải, đồ ở bên phải sang bên trái. Độ cao trên dưới giữ nguyên.", "tut.h3": "Hướng cũng đổi ngược", "tut.b3": "Đồ có hướng như cá, chuột sẽ quay ngược hướng trong gương. Hãy chọn đúng món theo hướng ở bên dưới.", "c.ref": "Bên trái là mẫu", "c.mirror": "Qua gương, sang bên phải", "c.lr": "Trái và phải đổi chỗ", "c.same": "Cùng vị trí là sai", "c.dir": "Hướng cũng ngược lại", "c.ok": "Chuẩn rồi!"}, "en": {"title": "Cat Through the Mirror", "desc": "Place cats and toys on the right board so it looks like the mirror image of the left sample. Things that face a direction flip direction too. Slow mode and easy-to-see mode included.", "intro": "Press \"Start\". Place things on the right board to match the mirror image of the left sample!", "guide": "Pick a tool below, then tap the right board to place it. Make the mirror image (left↔right) of the left sample", "note": "The left board is the sample. Imagine a mirror in the middle and place cats and toys on the right board so it matches the mirror image (left and right swapped). Things at the left edge of the sample go to the right edge of the right board; heights stay the same. Things that face a direction, like fish and mice, face the opposite way in the mirror. Pick a tool below and tap the square you want. Tap a square with the same item again to remove it (or use \"Erase\"). Place everything correctly to clear the round. \"Undo\" steps back once; \"Restart\" clears all. \"Hint\" points out one wrong square (limited uses, small score penalty). Each round has a bigger board, more items, directional items and less time.", "s.placed": "Placed", "s.items": "Total", "m.round": "Place {0} items ({1}×{2} board)", "m.win": "Perfect match! (Round {0} clear)", "m.hint": "Hint! Place the faint item on the red-outlined square ({0} left)", "m.hempty": "Hint! The red-outlined square should be empty ({0} left)", "m.hnone": "Everything already matches", "m.back": "Stepped back", "x.tap": "No waste", "x.hint": "Hint", "erase": "Erase", "tut.h1": "Mirror the left sample", "tut.b1": "Imagine a mirror 🪞 in the middle: build the left-right flipped version of the left sample on the right board.", "tut.h2": "Left edge becomes right edge", "tut.b2": "Things on the left side of the sample go to the right side and vice versa. Heights stay the same.", "tut.h3": "Directions flip too", "tut.b3": "Things that face a direction, like fish and mice, face the opposite way in the mirror. Pick the matching one from the tools below.", "c.ref": "The sample is on the left", "c.mirror": "In the mirror, it goes right", "c.lr": "Left and right swap", "c.same": "The same spot is wrong", "c.dir": "Direction flips too", "c.ok": "Perfect!"}, "tl": {"title": "Pusa sa Kabilang Salamin", "desc": "Ilagay ang mga pusa at laruan sa kanang board para maging salamin ng kaliwang sample (baligtad kaliwa-kanan). Nagbabaligtad din ang direksyon ng mga may direksyon. May slow mode at easy-to-see mode.", "intro": "Pindutin ang \"Simulan\". Maglagay sa kanang board para tumugma sa salamin ng kaliwang sample!", "guide": "Pumili ng gamit sa ibaba, tapos i-tap ang kanang board. Gawin ang salamin (kaliwa↔kanan) ng kaliwang sample", "note": "Ang kaliwang board ang sample. Isipin na may salamin sa gitna, at ilagay ang mga pusa at laruan sa kanang board para maging repleksyon (pinagpalit ang kaliwa at kanan). Ang nasa kaliwang gilid ng sample ay mapupunta sa kanang gilid ng kanang board; pareho pa rin ang taas. Ang mga may direksyon tulad ng isda at daga ay haharap sa kabila sa salamin. Pumili ng gamit sa ibaba at i-tap ang parisukat. I-tap ulit ang parisukat na may parehong gamit para alisin (o gamitin ang \"Burahin\"). Ilagay nang tama ang lahat para matapos ang round. Ang \"Bawiin\" ay umaatras ng isa; ang \"Ulitin\" ay nagbubura ng lahat. Itinuturo ng \"Hint\" ang isang maling parisukat (limitado, may bawas sa puntos). Habang tumatagal, lumalaki ang board, dumadami ang gamit, may mga may direksyon at umiikli ang oras.", "s.placed": "Nailagay", "s.items": "Kabuuan", "m.round": "Maglagay ng {0} gamit ({1}×{2} na board)", "m.win": "Tugmang-tugma! (Round {0} tapos)", "m.hint": "Hint! Ilagay ang malabong gamit sa parisukat na may pulang gilid (may {0} pa)", "m.hempty": "Hint! Dapat walang laman ang parisukat na may pulang gilid (may {0} pa)", "m.hnone": "Tama na lahat", "m.back": "Umatras ng isa", "x.tap": "Walang aksaya", "x.hint": "Hint", "erase": "Burahin", "tut.h1": "Gawing salamin ang kaliwang sample", "tut.b1": "Isipin ang salamin 🪞 sa gitna: buuin sa kanang board ang baligtad (kaliwa-kanan) na bersyon ng kaliwang sample.", "tut.h2": "Ang kaliwang gilid ay magiging kanang gilid", "tut.b2": "Ang nasa kaliwa ng sample ay mapupunta sa kanan, at ang nasa kanan ay sa kaliwa. Pareho ang taas.", "tut.h3": "Nagbabaligtad din ang direksyon", "tut.b3": "Ang mga may direksyon tulad ng isda at daga ay haharap sa kabila sa salamin. Piliin ang tamang gamit sa ibaba.", "c.ref": "Nasa kaliwa ang sample", "c.mirror": "Sa salamin, papunta sa kanan", "c.lr": "Nagpapalit ang kaliwa at kanan", "c.same": "Mali ang parehong lugar", "c.dir": "Nagbabaligtad din ang direksyon", "c.ok": "Tugmang-tugma!"}};
+var $=function(id){return document.getElementById(id)};
+var LS_BEST='salp_'+NAME+'_best_v1', LS_SET='salp_'+NAME+'_settings_v1';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var best=lsGet(LS_BEST)||{};
+var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
+function modeKey(){return set.slow?'slow':'normal'}
+function bestOf(k){return best[k]||{score:0,round:0}}
+var LIVES=3, SLOWX=1.8;
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function range(n){var a=[];for(var i=0;i<n;i++)a.push(i);return a}
+
+/* ================= 4言語 (ja/vi/en/tl) ================= */
+var LANGS=['ja','vi','en','tl'],LANG='ja';
+var KD={
+ja:{'k.home':'← ホーム','k.score':'スコア','k.lives':'のこり','k.round':'ラウンド','k.time':'時間','k.mode':'モード','k.best':'ベスト','k.pt':'点','k.sec':'秒',
+ 'k.normal':'ふつう','k.slowm':'ゆっくり','k.start':'はじめる','k.stop':'やめる','k.again':'もう一度あそぶ','k.how':'あそびかた','k.slow':'🐢 ゆっくりモード(制限時間が長い)',
+ 'k.sv':'音・見やすさ','k.son':'🔊 音 ON','k.soff':'🔈 音 OFF','k.vol':'音量','k.hc':'◐ ハイコントラスト','k.lg':'🔍 大きな表示','k.help':'❓ 遊び方',
+ 'k.go':'スタート!','k.stopped':'やめました。「はじめる」でもう一度あそべます。','k.rmsg':'ラウンド{0}:{1} / {2}秒','k.clear':'ラウンド{0} クリア!',
+ 'k.tbonus':'残り時間','k.hl':'(のこりハート{0}こ)','k.timeout':'時間切れ…!','k.noheart':'ハートがなくなったよ…','k.over':'ゲームおわり({0})',
+ 'k.res':'得点 <b>{0}</b> 点 / クリア <b>{1}</b> ラウンド','k.nb':'🎉 ベスト記録を更新!','k.bl':'ベスト: {0}点 / {1}ラウンド','k.thx':'おつかれさま!また遊んでね',
+ 'k.prev':'← もどる','k.next':'つぎへ →','k.done':'わかった!','k.close':'とじる','k.tuttl':'🐾 遊び方','k.hint':'💡 ヒント({0})','k.undo':'↩ もどす','k.reset':'⟲ やりなおし'},
+vi:{'k.home':'← Trang chủ','k.score':'Điểm','k.lives':'Còn lại','k.round':'Vòng','k.time':'Thời gian','k.mode':'Chế độ','k.best':'Cao nhất','k.pt':' điểm','k.sec':'s',
+ 'k.normal':'Thường','k.slowm':'Chậm','k.start':'Bắt đầu','k.stop':'Dừng','k.again':'Chơi lại','k.how':'Cách chơi','k.slow':'🐢 Chế độ chậm (thêm thời gian)',
+ 'k.sv':'Âm thanh & hiển thị','k.son':'🔊 Âm thanh BẬT','k.soff':'🔈 Âm thanh TẮT','k.vol':'Âm lượng','k.hc':'◐ Tương phản cao','k.lg':'🔍 Hiển thị lớn','k.help':'❓ Cách chơi',
+ 'k.go':'Bắt đầu!','k.stopped':'Đã dừng. Bấm "Bắt đầu" để chơi lại.','k.rmsg':'Vòng {0}: {1} / {2}s','k.clear':'Qua vòng {0}!',
+ 'k.tbonus':'Thời gian còn lại','k.hl':' (còn {0} tim)','k.timeout':'Hết giờ…!','k.noheart':'Hết tim rồi…','k.over':'Kết thúc ({0})',
+ 'k.res':'Điểm <b>{0}</b> / Qua <b>{1}</b> vòng','k.nb':'🎉 Kỷ lục mới!','k.bl':'Cao nhất: {0} điểm / {1} vòng','k.thx':'Vất vả rồi! Hẹn chơi lại nhé',
+ 'k.prev':'← Quay lại','k.next':'Tiếp →','k.done':'Đã hiểu!','k.close':'Đóng','k.tuttl':'🐾 Cách chơi','k.hint':'💡 Gợi ý ({0})','k.undo':'↩ Hoàn tác','k.reset':'⟲ Làm lại'},
+en:{'k.home':'← Home','k.score':'Score','k.lives':'Lives','k.round':'Round','k.time':'Time','k.mode':'Mode','k.best':'Best','k.pt':' pts','k.sec':'s',
+ 'k.normal':'Normal','k.slowm':'Slow','k.start':'Start','k.stop':'Quit','k.again':'Play again','k.how':'How to play','k.slow':'🐢 Slow mode (more time)',
+ 'k.sv':'Sound & visibility','k.son':'🔊 Sound ON','k.soff':'🔈 Sound OFF','k.vol':'Volume','k.hc':'◐ High contrast','k.lg':'🔍 Large display','k.help':'❓ How to play',
+ 'k.go':'Go!','k.stopped':'Stopped. Press "Start" to play again.','k.rmsg':'Round {0}: {1} / {2}s','k.clear':'Round {0} clear!',
+ 'k.tbonus':'Time left','k.hl':' ({0} hearts left)','k.timeout':'Time\'s up…!','k.noheart':'Out of hearts…','k.over':'Game over ({0})',
+ 'k.res':'Score <b>{0}</b> / Cleared <b>{1}</b> rounds','k.nb':'🎉 New best!','k.bl':'Best: {0} pts / {1} rounds','k.thx':'Good job! Come play again',
+ 'k.prev':'← Back','k.next':'Next →','k.done':'Got it!','k.close':'Close','k.tuttl':'🐾 How to play','k.hint':'💡 Hint ({0})','k.undo':'↩ Undo','k.reset':'⟲ Restart'},
+tl:{'k.home':'← Home','k.score':'Puntos','k.lives':'Buhay','k.round':'Round','k.time':'Oras','k.mode':'Mode','k.best':'Pinakamataas','k.pt':' puntos','k.sec':'s',
+ 'k.normal':'Normal','k.slowm':'Mabagal','k.start':'Simulan','k.stop':'Itigil','k.again':'Laro ulit','k.how':'Paano maglaro','k.slow':'🐢 Slow mode (mas mahabang oras)',
+ 'k.sv':'Tunog at paningin','k.son':'🔊 Tunog ON','k.soff':'🔈 Tunog OFF','k.vol':'Lakas','k.hc':'◐ High contrast','k.lg':'🔍 Malaking display','k.help':'❓ Paano maglaro',
+ 'k.go':'Simula!','k.stopped':'Huminto. Pindutin ang "Simulan" para maglaro ulit.','k.rmsg':'Round {0}: {1} / {2}s','k.clear':'Round {0} tapos!',
+ 'k.tbonus':'Natirang oras','k.hl':' (may {0} puso pa)','k.timeout':'Ubos na ang oras…!','k.noheart':'Naubos ang puso…','k.over':'Tapos na ({0})',
+ 'k.res':'Puntos <b>{0}</b> / Natapos <b>{1}</b> round','k.nb':'🎉 Bagong record!','k.bl':'Pinakamataas: {0} puntos / {1} round','k.thx':'Magaling! Laro ulit tayo',
+ 'k.prev':'← Balik','k.next':'Susunod →','k.done':'Naintindihan ko!','k.close':'Isara','k.tuttl':'🐾 Paano maglaro','k.hint':'💡 Hint ({0})','k.undo':'↩ Bawiin','k.reset':'⟲ Ulitin'}
+};
+(function(){
+  var g=(typeof I18N!=='undefined')?I18N:{};
+  LANGS.forEach(function(l){Object.assign(KD[l],g[l]||{})});
+})();
+function _t(key){
+  var d=KD[LANG]||KD.ja,s=d[key];if(s===undefined)s=KD.ja[key];if(s===undefined)s=key;
+  for(var i=1;i<arguments.length;i++)s=s.split('{'+(i-1)+'}').join(arguments[i]);
+  return s;
+}
+function initLang(){
+  var v=null;try{v=localStorage.getItem('salpToolsLanguage_v275')||localStorage.getItem('salpToolsLanguage_v274')}catch(e){}
+  if(LANGS.indexOf(v)<0){var n=(navigator.language||'ja').slice(0,2).toLowerCase();v=n==='fi'?'tl':n}
+  LANG=LANGS.indexOf(v)>=0?v:'ja';
+}
+initLang();
+
+var ctx=null, master=null;
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+var unlockAudio=SalpAudio.unlock;
+var BASE=[440,494,554,622,698,784,880,988,1109]; /* 猫ごとの基本の高さ(Hz) */ /* 猫ごとの基本の高さ(Hz) */
+function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
+function ready(){
+  if(!ctx||!set.sound)return false;
+  if(ctx.state!=='running'&&ctx.resume)ctx.resume().catch(function(){});
+  return true;
+}
+/* にゃん!風: のこぎり波の高さを上げて下げる + 2つの帯域フィルタ(母音「ア」っぽい響き) */
+function meow(i,dur){
+  if(!ready())return;
+  var t=ctx.currentTime+0.005,f=BASE[i];dur=Math.min(0.4,Math.max(0.16,dur||0.28));
+  var o=ctx.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f*0.8,t);
+  o.frequency.linearRampToValueAtTime(f*1.3,t+dur*0.3);
+  o.frequency.linearRampToValueAtTime(f*0.85,t+dur);
+  var lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=7;lg.gain.value=f*0.015;lfo.connect(lg);lg.connect(o.frequency);
+  var f1=ctx.createBiquadFilter();f1.type='bandpass';f1.Q.value=4;
+  f1.frequency.setValueAtTime(500,t);f1.frequency.linearRampToValueAtTime(1100,t+dur*0.35);f1.frequency.linearRampToValueAtTime(700,t+dur);
+  var f2=ctx.createBiquadFilter();f2.type='bandpass';f2.Q.value=6;
+  f2.frequency.setValueAtTime(1800,t);f2.frequency.linearRampToValueAtTime(2600,t+dur*0.35);f2.frequency.linearRampToValueAtTime(2000,t+dur);
+  var g1=ctx.createGain(),g2=ctx.createGain(),eg=ctx.createGain();
+  g1.gain.value=1.4;g2.gain.value=0.7;
+  eg.gain.setValueAtTime(0.0001,t);eg.gain.linearRampToValueAtTime(0.5,t+0.04);
+  eg.gain.setValueAtTime(0.5,t+dur*0.6);eg.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);f1.connect(g1);f2.connect(g2);g1.connect(eg);g2.connect(eg);eg.connect(master);
+  o.start(t);lfo.start(t);o.stop(t+dur+0.03);lfo.stop(t+dur+0.03);
+}
+function blip(freq,t0,dur,type,vol,slideTo){
+  if(!ready())return;
+  var o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'triangle';
+  o.frequency.setValueAtTime(freq,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+  var v=(vol||1)*0.3;g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(v,t0+0.01);
+  g.gain.linearRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+0.02);
+}
+function melody(list,step,dur,type,vol){if(!ready())return;var t=ctx.currentTime+0.02;list.forEach(function(f,i){blip(f,t+i*step,dur,type,vol)})}
+var sfx={
+  clear:function(){melody([784,988,1175,1568],0.09,0.12,'triangle',1)},
+  miss:function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)},
+  over:function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)},
+  start:function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)}
+};
+
+sfx.grab=function(){if(!ready())return;blip(700,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.rot=function(){if(!ready())return;blip(900,ctx.currentTime+0.005,0.05,'square',.3)};
+sfx.place=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(520,t,0.05,'square',.4);blip(780,t+0.05,0.06,'square',.4)};
+sfx.back=function(){if(!ready())return;blip(300,ctx.currentTime+0.005,0.06,'square',.3)};
+sfx.bad=function(){if(!ready())return;blip(170,ctx.currentTime+0.005,0.1,'square',.5)};
+sfx.hint=function(){melody([880,1175],0.08,0.09,'triangle',.7)};
+sfx.win=function(){melody([784,988,1175,1568,1976],0.08,0.11,'square',.5)};
+sfx.over=function(){melody([523,440,392,330,262],0.2,0.22,'triangle',1)};
+sfx.start=function(){melody([660,880,660,990],0.08,0.1,'triangle',.9)};
+sfx.tick=function(){if(!ready())return;blip(1500,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.miss=function(){if(!ready())return;var t=ctx.currentTime+0.01;blip(260,t,0.3,'sawtooth',0.6,120)};
+
+
+/* ---------- 効果音(共通) ---------- */
+sfx.grab=function(){if(!ready())return;blip(700,ctx.currentTime+0.005,0.04,'square',.3)};
+sfx.place=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(520,t,0.05,'square',.4);blip(780,t+0.05,0.06,'square',.4)};
+sfx.back=function(){if(!ready())return;blip(300,ctx.currentTime+0.005,0.06,'square',.3)};
+sfx.bad=function(){if(!ready())return;blip(170,ctx.currentTime+0.005,0.1,'square',.5)};
+sfx.flip=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(600,t,0.04,'triangle',.5);blip(1000,t+0.04,0.05,'triangle',.5)};
+sfx.hint=function(){melody([880,1175],0.08,0.09,'triangle',.7)};
+sfx.win=function(){melody([784,988,1175,1568,1976],0.08,0.11,'square',.5)};
+sfx.step=function(){if(!ready())return;blip(440+rnd(120),ctx.currentTime+0.005,0.04,'triangle',.35)};
+sfx.ok=function(){if(!ready())return;var t=ctx.currentTime+0.005;blip(660,t,0.06,'triangle',.5);blip(990,t+0.06,0.08,'triangle',.5)};
+
+/* ---------- 猫の顔(自作SVG)。type 0..7、mood: open/wow/half/closed/happy/yawn/tongue/sleep ---------- */
+var COATS=[
+  {n:'黒猫',k:'black'},{n:'白猫',k:'white'},{n:'みけ猫',k:'calico'},{n:'茶トラ',k:'orange'},
+  {n:'グレー猫',k:'gray'},{n:'サバトラ',k:'mack'},{n:'シャム猫',k:'siam'},{n:'ハチワレ',k:'hachi'}
+];
+function catSvg(type,px,mood){
+  mood=mood||'open';
+  var k=COATS[type%COATS.length].k,base='#fff',line='#b9b4ac',earIn='#ffb3c0',eye='#2a2a2a',pupil=false,earL=null,earR=null,deco='';
+  if(k==='black'){base='#3b3b46';line='#1d1d24';eye='#ffd54a';pupil=true;earIn='#ff9bb0'}
+  else if(k==='white'){base='#ffffff';line='#aaa59d';eye='#4a8fd0';pupil=true}
+  else if(k==='calico'){earL='#f08a3c';earR='#34343c';deco='<ellipse cx="13.5" cy="17" rx="5.6" ry="4.6" fill="#f08a3c"/><ellipse cx="27" cy="16.5" rx="5" ry="4.4" fill="#34343c"/><ellipse cx="22" cy="31" rx="4" ry="2.6" fill="#f6b46a" opacity=".9"/>'}
+  else if(k==='orange'){base='#f4a259';line='#b8651f';earIn='#ffd0c0';deco='<path d="M20 11.5v6M15.5 12.5l1 5M24.5 12.5l-1 5" stroke="#c9742a" stroke-width="1.7" stroke-linecap="round" fill="none"/>'}
+  else if(k==='gray'){base='#a3a3b2';line='#5e5e6c';earIn='#f0b0c0'}
+  else if(k==='mack'){base='#b9b09a';line='#6b6450';deco='<path d="M20 11.5v6M15.5 12.5l1 5M24.5 12.5l-1 5M7.5 24l4 .8M7.8 28l3.8-.8M32.5 24l-4 .8M32.2 28l-3.8-.8" stroke="#5f5844" stroke-width="1.6" stroke-linecap="round" fill="none"/>'}
+  else if(k==='siam'){base='#f6e9d2';line='#8a6a52';eye='#4aa3e0';pupil=true;earL='#7a5a45';earR='#7a5a45';deco='<ellipse cx="20" cy="27.5" rx="7.2" ry="5.6" fill="#8a6a52" opacity=".9"/>'}
+  else if(k==='hachi'){earL='#34343c';earR='#34343c';deco='<path d="M6.8 20.5C6.5 12 12.5 10.4 19 10.6L17 17.5C13.5 20.5 10 21.5 6.8 20.5Z" fill="#34343c"/><path d="M33.2 20.5C33.5 12 27.5 10.4 21 10.6L23 17.5C26.5 20.5 30 21.5 33.2 20.5Z" fill="#34343c"/>'}
+  var dark=(k==='black'),stroke=dark?'#e8e8ee':'#2a2a2a';
+  var s='<svg viewBox="0 0 40 40" width="'+px+'" height="'+px+'" aria-hidden="true">';
+  s+='<polygon points="6.5,19 7.5,4 18.5,11.5" fill="'+(earL||base)+'" stroke="'+line+'" stroke-width="1.6" stroke-linejoin="round"/>';
+  s+='<polygon points="33.5,19 32.5,4 21.5,11.5" fill="'+(earR||base)+'" stroke="'+line+'" stroke-width="1.6" stroke-linejoin="round"/>';
+  if(!earL)s+='<polygon points="9.5,15 10,8.5 15,12" fill="'+earIn+'"/>';
+  if(!earR)s+='<polygon points="30.5,15 30,8.5 25,12" fill="'+earIn+'"/>';
+  s+='<ellipse cx="20" cy="23" rx="15" ry="13" fill="'+base+'" stroke="'+line+'" stroke-width="1.8"/>';
+  s+=deco;
+  [13.5,26.5].forEach(function(x){
+    if(mood==='open'){
+      if(pupil)s+='<circle cx="'+x+'" cy="22.5" r="2.7" fill="'+eye+'"/><ellipse cx="'+x+'" cy="22.5" rx="1" ry="2.2" fill="#111"/><circle cx="'+(x+.9)+'" cy="21.4" r=".7" fill="#fff"/>';
+      else s+='<ellipse cx="'+x+'" cy="22.5" rx="1.9" ry="2.4" fill="'+eye+'"/><circle cx="'+(x+.6)+'" cy="21.6" r=".65" fill="#fff"/>';
+    }else if(mood==='wow')s+='<circle cx="'+x+'" cy="22.5" r="3.2" fill="#fff" stroke="#2a2a2a" stroke-width=".8"/><circle cx="'+x+'" cy="22.5" r="2.2" fill="#2a2a2a"/><circle cx="'+(x+.7)+'" cy="21.6" r=".8" fill="#fff"/>';
+    else if(mood==='half')s+='<ellipse cx="'+x+'" cy="23.4" rx="1.9" ry="1.1" fill="'+stroke+'"/><path d="M'+(x-2.4)+' 22.2q2.4 -1.4 4.8 0" stroke="'+stroke+'" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+    else if(mood==='closed'||mood==='tongue')s+='<path d="M'+(x-2.2)+' 22.4q2.2 2.4 4.4 0" stroke="'+stroke+'" stroke-width="1.3" fill="none" stroke-linecap="round"/>';
+    else if(mood==='happy')s+='<path d="M'+(x-2.2)+' 23.4q2.2 -3.2 4.4 0" stroke="'+stroke+'" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+    else if(mood==='yawn')s+='<path d="M'+(x-2.2)+' 21.6l4.4 1.6l-4.4 1.6" stroke="'+stroke+'" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="'+(x<20?'':'translate('+(2*x)+' 0) scale(-1 1)')+'"/>';
+    else s+='<path d="M'+(x-2.2)+' 23h4.4" stroke="'+stroke+'" stroke-width="1.4" stroke-linecap="round"/>';
+  });
+  var nose=(k==='siam')?'#f4a0a8':'#ff7a96',mc=(k==='black')?'#d8d0d0':(k==='siam'?'#f3e6d0':'#5a3a2a');
+  s+='<path d="M18.6 27.2h2.8l-1.4 1.6z" fill="'+nose+'"/>';
+  if(mood==='yawn')s+='<ellipse cx="20" cy="31.4" rx="3.2" ry="3.4" fill="#c4455a"/><ellipse cx="20" cy="33" rx="1.9" ry="1.2" fill="#ff9bb0"/>';
+  else if(mood==='happy')s+='<path d="M16.5 29.2q3.5 4.4 7 0z" fill="#c4455a" stroke="'+mc+'" stroke-width=".6"/>';
+  else s+='<path d="M20 28.8q-1.8 2.2 -3.8 .8M20 28.8q1.8 2.2 3.8 .8" fill="none" stroke="'+mc+'" stroke-width=".9" stroke-linecap="round"/>'+(mood==='tongue'?'<ellipse cx="20" cy="31.8" rx="1.8" ry="2" fill="#ff8aa8"/>':'');
+  s+='<g stroke="'+(dark?'#cfcfd6':'#8a8a8a')+'" stroke-width=".6" stroke-linecap="round"><path d="M4 26.5l7-1M4 29.5l7-.5M36 26.5l-7-1M36 29.5l-7-.5"/></g>';
+  s+='<circle cx="9.5" cy="27.5" r="2" fill="#ff9bb0" opacity=".35"/><circle cx="30.5" cy="27.5" r="2" fill="#ff9bb0" opacity=".35"/>';
+  return s+'</svg>';
+}
+
+
+/* ================= 共通の進行 ================= */
+var G={run:0,phase:'idle',mode:modeKey(),round:0,score:0,lives:LIVES,cleared:0,L:null,timeMs:0,deadline:0,timer:null,iv:null,newBest:false,lastSec:-1,hintsLeft:0,hintsUsed:0,ops:0,conf:0};
+var K={};
+K.after=function(ms,fn){var r=G.run;clearTimeout(G.timer);G.timer=setTimeout(function(){if(r===G.run)fn()},ms)};
+function say(t){$('msg').textContent=t}
+function bonusSay(t){$('bonus').textContent=t||''}
+function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';return s}
+function mul(){return G.mode==='slow'?0.7:1}
+function setTimerBar(f,off){$('tbar').style.transform='scaleX('+Math.max(0,Math.min(1,f))+')';$('timer').classList.toggle('off',!!off)}
+
+
+/* ---------- 鏡の向こうの猫 ---------- */
+function fishSvg(){return '<svg viewBox="0 0 40 40"><path d="M6 20C11 11 24 11 30 20C24 29 11 29 6 20Z" fill="#4aa3e0" stroke="#1d5f93" stroke-width="1.5"/><path d="M30 20L37 12V28Z" fill="#4aa3e0" stroke="#1d5f93" stroke-width="1.5" stroke-linejoin="round"/><circle cx="13" cy="18.5" r="2" fill="#fff"/><circle cx="12.5" cy="18.5" r="1" fill="#222"/></svg>'}
+function mouseSvg(){return '<svg viewBox="0 0 40 40"><path d="M30 24Q37 24 36 31" stroke="#d98f8f" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="24" rx="12" ry="8.5" fill="#b9b3c4" stroke="#6f6a7c" stroke-width="1.5"/><circle cx="19" cy="14.5" r="4.6" fill="#d9c5d0" stroke="#6f6a7c" stroke-width="1.3"/><path d="M8.5 24L4 26.5L8.6 28Z" fill="#ff9bb0" stroke="#6f6a7c" stroke-width="1.2" stroke-linejoin="round"/><circle cx="11.5" cy="22.2" r="1.5" fill="#222"/></svg>'}
+function toySvg(e){return '<span class="em">'+e+'</span>'}
+/* アイテム: id → {h:html, d:向きあり(0/1/2=左右), m:鏡うつしのid} */
+var IT={
+ c0:{h:function(){return catSvg(0,'100%','open')},m:'c0'},
+ c1:{h:function(){return catSvg(2,'100%','open')},m:'c1'},
+ c2:{h:function(){return catSvg(3,'100%','open')},m:'c2'},
+ y:{h:function(){return toySvg('🧶')},m:'y'},
+ b:{h:function(){return toySvg('⚽')},m:'b'},
+ s:{h:function(){return toySvg('🧸')},m:'s'},
+ fR:{h:function(){return fishSvg()},m:'fL',fl:0},
+ fL:{h:function(){return fishSvg()},m:'fR',fl:1},
+ mR:{h:function(){return mouseSvg()},m:'mL',fl:1},
+ mL:{h:function(){return mouseSvg()},m:'mR',fl:0}
+};
+/* 魚は右向き、ねずみは左向きで描いてあり、fl=1 は左右反転して表示 */
+function itHtml(id){var it=IT[id],f=(id==='fL'||id==='mR');return '<span class="'+(f?'fl':'')+'" style="display:contents">'+it.h()+'</span>'}
+var LV=[
+ /* W,H,個数,基本の種類,向きあり種類 */
+ [3,3,2,['c0'],[]],[3,3,3,['c0','y'],[]],[4,3,4,['c0','y'],[]],[4,4,5,['c0','y','b'],[]],
+ [4,4,6,['c0','y','b'],['f']],[5,4,7,['c0','c1','y','b'],['f']],[5,5,8,['c0','c1','y','b'],['f','m']],
+ [5,5,10,['c0','c1','y','b','s'],['f','m']],[5,5,12,['c0','c1','c2','y','b','s'],['f','m']],[5,5,14,['c0','c1','c2','y','b','s'],['f','m']]];
+var P=null,ans=[],hist=[],cur='c0',taps=0,hintCell=-1,busy=false;
+function level(r){var a=LV[Math.min(r,10)-1];return {W:a[0],H:a[1],n:a[2],base:a[3],dir:a[4],f:Math.max(0.3,1-0.05*(r-1)),r:r}}
+function mirrorOf(ref,W,H){var o=new Array(W*H).fill(null);for(var y=0;y<H;y++)for(var x=0;x<W;x++){var v=ref[y*W+x];if(v)o[y*W+(W-1-x)]=IT[v].m}return o}
+function genPuzzle(L){
+  var W=L.W,H=L.H,pool=L.base.slice();
+  L.dir.forEach(function(d){pool.push(d+'R');pool.push(d+'L')});
+  var pal=pool.slice();
+  for(var t=0;t<200;t++){
+    var cells=shuffle(Array.apply(null,Array(W*H)).map(function(_,i){return i})).slice(0,L.n),ref=new Array(W*H).fill(null);
+    cells.forEach(function(c,i){ref[c]=(i<pool.length&&t<150)?pool[i%pool.length]:pool[rnd(pool.length)]});
+    if(L.dir.length){var nd=ref.filter(function(v){return v&&IT[v].fl!==undefined}).length;if(nd<Math.min(2,L.n))continue}
+    var m=mirrorOf(ref,W,H);
+    if(m.join()===ref.join())continue; /* 鏡うつしが元と同じになる盤面はさける */
+    return {ref:ref,target:m,pal:pal};
+  }
+  var ref2=new Array(W*H).fill(null);ref2[0]=L.base[0];
+  return {ref:ref2,target:mirrorOf(ref2,W,H),pal:pal};
+}
+var GR=$('gref'),GA=$('gans'),PAL=$('pal');
+function cellHtml(id,cls){return '<div class="mc'+(cls||'')+'">'+(id?itHtml(id):'')+'</div>'}
+function draw(){
+  if(!P)return;
+  var W=P.W,H=P.H,s='',i;
+  GR.style.gridTemplateColumns=GA.style.gridTemplateColumns='repeat('+W+',1fr)';
+  for(i=0;i<W*H;i++)s+=cellHtml(P.ref[i]);
+  GR.innerHTML=s;s='';
+  for(i=0;i<W*H;i++){
+    var inner=ans[i]?itHtml(ans[i]):'';
+    if(i===hintCell&&P.target[i]&&!ans[i])inner='<span class="gh" style="display:contents">'+itHtml(P.target[i])+'</span>';
+    s+='<button type="button" class="mc'+(i===hintCell?' ht':'')+'" data-c="'+i+'" aria-label="cell '+(i+1)+'">'+inner+'</button>';
+  }
+  GA.innerHTML=s;
+  var ps='';
+  P.pal.forEach(function(id){ps+='<button type="button" class="pb'+(cur===id?' sel':'')+'" data-it="'+id+'" aria-label="'+id+'">'+itHtml(id)+'</button>'});
+  ps+='<button type="button" class="pb'+(cur==='x'?' sel':'')+'" data-it="x">'+_t('erase')+'</button>';
+  PAL.innerHTML=ps;
+}
+function placed(){return ans.filter(function(v){return v}).length}
+function stats(){$('stPlaced').textContent=G.round>0&&P?placed():'-';$('stItems').textContent=G.round>0&&P?P.n:'-'}
+function setup(){ans=new Array(P.W*P.H).fill(null);hist=[];taps=0;hintCell=-1;cur=P.pal[0];G.ops=0}
+function same(){for(var i=0;i<ans.length;i++)if((ans[i]||null)!==(P.target[i]||null))return false;return true}
+function put(c){
+  if(G.phase!=='play'||busy)return;
+  hist.push(ans.slice());taps++;G.ops++;hintCell=-1;
+  if(cur==='x'||ans[c]===cur)ans[c]=null;else ans[c]=cur;
+  sfx.step();draw();stats();
+  if(same())win();
+}
+function undo(){
+  if(G.phase!=='play'||busy||!hist.length)return;ans=hist.pop();taps=Math.max(0,taps-1);hintCell=-1;sfx.back();draw();stats();say(_t('m.back'));
+}
+function win(){
+  busy=true;var r=G.round;
+  K.win({base:40+25*r,extra:[[_t('x.tap'),Math.max(0,P.n*2-taps)*4*r],[_t('x.hint'),-G.hintsUsed*40*r]],msg:_t('m.win',r)});
+  meow(0,0.3);
+}
+GA.addEventListener('click',function(e){var el=e.target.closest('.mc');if(el)put(+el.dataset.c)});
+PAL.addEventListener('click',function(e){var el=e.target.closest('.pb');if(!el)return;cur=el.dataset.it;sfx.grab&&sfx.grab();draw()});
+$('bUndo').onclick=undo;
+$('bReset').onclick=function(){if(G.phase!=='play'||busy)return;hist.push(ans.slice());ans=new Array(P.W*P.H).fill(null);hintCell=-1;sfx.back();draw();stats()};
+$('bHint').onclick=function(){
+  if(G.phase!=='play'||busy||G.hintsLeft<=0)return;
+  var bad=[];for(var i=0;i<ans.length;i++)if((ans[i]||null)!==(P.target[i]||null))bad.push(i);
+  if(!bad.length){say(_t('m.hnone'));return}
+  hintCell=bad[rnd(bad.length)];G.hintsLeft--;G.hintsUsed++;sfx.hint();draw();K.render();
+  say(_t(P.target[hintCell]?'m.hint':'m.hempty',G.hintsLeft));
+};
+var GAME={
+  level:level,
+  secs:function(L){return Math.round((14+L.n*4.5)*L.f)},
+  hints:function(){return set.slow?5:3},
+  build:function(L,demo){
+    var g=genPuzzle(L);
+    P={W:L.W,H:L.H,n:L.n,ref:g.ref,target:g.target,pal:g.pal};
+    setup();busy=false;draw();stats();
+    return _t('m.round',L.n,L.W,L.H);
+  },
+  stats:stats,
+  tools:function(en){$('bUndo').disabled=!en;$('bReset').disabled=!en;$('bHint').disabled=!(en&&G.hintsLeft>0);$('bHint').textContent=_t('k.hint',G.round>0?G.hintsLeft:(set.slow?5:3))},
+  redraw:function(){draw()},
+  abort:function(){},
+  tutN:3,
+  tut:function(step){
+    /* 7列×3行: 左3列=お手本、まん中=鏡、右3列=こたえ */
+    var cat=catSvg(0,'100%','open'),fish=itHtml('fR'),fishL=itHtml('fL');
+    function fr(L,R,o){
+      var cells=[];
+      for(var y=0;y<3;y++)for(var x=0;x<7;x++){
+        var c;
+        if(x===3)c={c:y===1?'🪞':'',cls:'dk'};
+        else if(x<3){var v=L[y*3+x];c={c:v||'',cls:v?'y':'w'}}
+        else{var v2=R[y*3+(x-4)];c={c:v2||'',cls:v2?'g':''}}
+        if(o.fg&&o.fg[0]===x&&o.fg[1]===y)c.fg=true;
+        if(o.fx&&o.fx[0]===x&&o.fx[1]===y)c.fx=o.fxe;
+        cells.push(c);
+      }
+      return {cols:7,cells:cells,cap:o.cap,ms:o.ms||900};
+    }
+    var n=null,Lf=[cat,n,n, n,n,n, n,n,'🧶'],E=[n,n,n, n,n,n, n,n,n];
+    if(step===0)return [fr(Lf,E,{cap:_t('c.ref'),ms:1400}),fr(Lf,E,{fg:[6,0],cap:_t('c.mirror'),ms:900}),fr(Lf,[n,n,cat, n,n,n, n,n,n],{cap:_t('c.mirror'),ms:900}),fr(Lf,[n,n,cat, n,n,n, '🧶',n,n],{cap:_t('c.ok'),fx:[4,2],fxe:'🎉',ms:1500})];
+    if(step===1)return [fr(Lf,[cat,n,n, n,n,n, n,n,n],{cap:_t('c.same'),fx:[4,0],fxe:'❌',ms:1300}),fr(Lf,[n,n,cat, n,n,n, '🧶',n,n],{cap:_t('c.lr'),fx:[6,0],fxe:'⭕',ms:1500})];
+    var Ld=[n,n,n, fish,n,n, n,n,n];
+    return [fr(Ld,E,{cap:_t('c.dir'),ms:1200}),fr(Ld,[n,n,n, n,n,fishL, n,n,n],{cap:_t('c.dir'),fx:[6,1],fxe:'⭕',ms:1600})];
+  }
+};
+GAME.test={info:function(){return {W:P.W,H:P.H,n:P.n,ref:P.ref,target:P.target,ans:ans.slice(),pal:P.pal}},gen:genPuzzle,mirrorOf:mirrorOf};
+
+
+K.secsLeft=function(){return Math.max(0,(G.deadline-performance.now())/1000)};
+K.render=function(){
+  $('sc').textContent=G.score;$('lives').textContent=hearts();
+  $('stRound').textContent=G.round>0?G.round:'-';
+  var m=G.phase==='idle'?modeKey():G.mode;$('stMode').textContent=m==='slow'?_t('k.slowm'):_t('k.normal');
+  var b=bestOf(m);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+  if(GAME.stats)GAME.stats();
+  if(GAME.tools)GAME.tools(G.phase==='play');
+};
+K.shake=function(id){var e=$(id||'stage');e.classList.remove('shake');void e.offsetWidth;e.classList.add('shake')};
+K.startGame=function(){
+  unlockAudio();G.run++;clearTimeout(G.timer);clearInterval(G.iv);
+  G.mode=modeKey();G.round=0;G.score=0;G.lives=LIVES;G.cleared=0;G.newBest=false;G.phase='between';G.hintsLeft=GAME.hints?GAME.hints():0;
+  $('result').hidden=true;setStart('k.stop');$('start').classList.add('stop');$('tSlow').disabled=true;
+  sfx.start();say(_t('k.go'));bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';K.render();K.after(900,K.nextRound);
+};
+K.stopGame=function(){
+  G.run++;clearTimeout(G.timer);clearInterval(G.iv);G.round=0;bonusSay('');setTimerBar(1,true);$('stTime').textContent='-';
+  setStart('k.start');$('start').classList.remove('stop');$('tSlow').disabled=false;
+  G.phase='idle';if(GAME.abort)GAME.abort();say(_t('k.stopped'));K.demo();
+};
+K.demo=function(){G.L=GAME.level(1);G.phase='idle';GAME.build(G.L,true);K.render()};
+K.nextRound=function(){
+  G.round++;var L=GAME.level(G.round);G.L=L;G.phase='play';G.ops=0;G.conf=0;G.hintsUsed=0;
+  var intro=GAME.build(L,false);bonusSay('');
+  G.timeMs=Math.round(GAME.secs(L)*(set.slow?SLOWX:1))*1000;G.deadline=performance.now()+G.timeMs;G.lastSec=-1;
+  K.render();say(_t('k.rmsg',G.round,intro||'',G.timeMs/1000));
+  setTimerBar(1,false);clearInterval(G.iv);
+  var run=G.run;
+  G.iv=setInterval(function(){
+    if(run!==G.run){clearInterval(G.iv);return}
+    var left=G.deadline-performance.now();setTimerBar(left/G.timeMs,false);
+    var sec=Math.max(0,Math.ceil(left/1000));$('stTime').textContent=sec+_t('k.sec');
+    if(sec<=5&&sec>0&&sec!==G.lastSec&&G.phase==='play')sfx.tick();
+    G.lastSec=sec;
+    if(left<=0){clearInterval(G.iv);if(G.phase==='play')K.timeout()}
+  },100);
+};
+/* o: {base, extra:[[ラベル,増減]...], msg, delay} */
+K.win=function(o){
+  clearInterval(G.iv);G.phase='between';G.cleared=G.round;if(GAME.abort)GAME.abort();
+  var m=mul(),r=G.round,left=K.secsLeft();
+  var base=Math.round(o.base*m),tb=Math.round(left*r*0.8*m),tot=base+tb,txt='+'+base+(tb?' / '+_t('k.tbonus')+' +'+tb:'');
+  (o.extra||[]).forEach(function(x){var v=Math.round(x[1]*m);if(v){tot+=v;txt+=' / '+x[0]+' '+(v>0?'+':'−')+Math.abs(v)}});
+  tot=Math.max(0,tot);G.score+=tot;K.render();
+  say(o.msg||_t('k.clear',r));bonusSay(txt);
+  sfx.win();setTimeout(function(){meow(r%8,0.26)},450);
+  K.after(o.delay||2300,K.nextRound);
+};
+/* まちがい: ハートを1つへらす。まだ続けられるなら true */
+K.miss=function(msg,lastMsg){
+  G.lives--;sfx.miss();K.shake();
+  if(G.lives<=0){G.phase='between';clearInterval(G.iv);if(GAME.abort)GAME.abort();say(lastMsg||_t('k.noheart'));K.render();K.after(1800,K.gameOver);return false}
+  say(msg+_t('k.hl',G.lives));K.render();return true;
+};
+K.timeout=function(){
+  G.phase='between';if(GAME.abort)GAME.abort();G.lives--;sfx.miss();
+  say(_t('k.timeout')+_t('k.hl',Math.max(0,G.lives)));K.render();
+  if(G.lives<=0){K.after(1800,K.gameOver);return}
+  K.after(2000,K.nextRound);
+};
+K.gameOver=function(){
+  var k=G.mode,b=bestOf(k),cleared=G.cleared,nb={score:b.score,round:b.round};
+  if(G.score>nb.score){nb.score=G.score;G.newBest=true}
+  if(cleared>nb.round){nb.round=cleared;G.newBest=true}
+  if(G.newBest){best[k]=nb;lsSet(LS_BEST,best)}
+  G.phase='idle';b=bestOf(k);
+  $('result').innerHTML='<h2>'+_t('k.over',k==='slow'?_t('k.slowm'):_t('k.normal'))+'</h2><p>'+_t('k.res',G.score,cleared)+'</p>'+
+    (G.newBest?'<p>'+_t('k.nb')+'</p>':'<p>'+_t('k.bl',b.score,b.round)+'</p>');
+  $('result').hidden=false;sfx.over();say(_t('k.thx'));
+  setStart('k.again');$('start').classList.remove('stop');$('tSlow').disabled=false;
+  G.round=0;setTimerBar(1,true);$('stTime').textContent='-';K.render();
+};
+
+/* 発音はresume完了後に鳴らす(SalpAudio.gate) */
+Object.keys(sfx).forEach(function(k){sfx[k]=SalpAudio.gate(sfx[k])});
+meow=SalpAudio.gate(meow);
+
+/* ---------- UI ---------- */
+function applySet(){
+  document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
+  $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
+  $('tSlow').setAttribute('aria-pressed',String(set.slow));
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?_t('k.son'):_t('k.soff');
+  $('vol').value=set.vol;applyVol();
+  if(GAME.redraw)GAME.redraw();
+}
+function save(){lsSet(LS_SET,set)}
+$('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();K.render()};
+$('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
+$('tLg').onclick=function(){set.large=!set.large;save();applySet()};
+$('tSound').onclick=function(){set.sound=!set.sound;save();applySet();unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(4,0.28)};
+$('start').onclick=function(){if(G.phase==='idle')K.startGame();else K.stopGame()};
+['gesturestart','gesturechange'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()})});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+window.__g={G:G,K:K,GAME:GAME};
+/* ---------- 言語 ---------- */
+function setStart(key){var b=$('start');b.setAttribute('data-i',key);b.textContent=_t(key)}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-i]'),function(e){
+    var k=e.getAttribute('data-i');if(k==='intro'&&G.phase!=='idle')return;
+    var s=_t(k);if(s!==k)e.innerHTML=s;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ia]'),function(e){e.setAttribute('aria-label',_t(e.getAttribute('data-ia')))});
+  document.title=_t('title')+' | salp Tools';
+  Array.prototype.forEach.call(document.querySelectorAll('.lng button'),function(b){b.classList.toggle('on',b.dataset.lg===LANG)});
+  if(G.phase==='idle'&&$('result').hidden===false){}
+  applySet();K.render();
+  if(GAME.relang)GAME.relang();
+  if(window.tutRefresh)tutRefresh();
+}
+Array.prototype.forEach.call(document.querySelectorAll('.lng button'),function(b){b.onclick=function(){LANG=b.dataset.lg;try{localStorage.setItem('salpToolsLanguage_v275',LANG)}catch(e){}applyLang()}});
+/* ---------- 遊び方(図解) ---------- */
+(function(){
+  var tb=document.createElement('button');tb.type='button';tb.className='tl';tb.id='bHelp';tb.setAttribute('data-i','k.help');tb.textContent=_t('k.help');$('tools').appendChild(tb);
+  var KEY='salp_'+NAME+'_tut_v1',step=0,iv=null,startAfter=false;
+  function seen(){try{return localStorage.getItem(KEY)==='1'}catch(e){return true}}
+  function play(){
+    clearTimeout(iv);if(!GAME.tut)return;
+    var F=GAME.tut(step),i=0;if(!F||!F.length)return;
+    (function tick(){
+      var m=$('tutMini');if(!m)return;
+      var fr=F[i%F.length];i++;
+      m.style.gridTemplateColumns='repeat('+fr.cols+',1fr)';
+      m.innerHTML=fr.cells.map(function(c){return '<div class="mc'+(c.cls?' '+c.cls:'')+'">'+(c.c||'')+(c.fg?'<span class="fg">👆</span>':'')+(c.fx?'<span class="fx">'+c.fx+'</span>':'')+'</div>'}).join('');
+      $('tutCap').textContent=fr.cap||'';
+      iv=setTimeout(tick,fr.ms||800);
+    })();
+  }
+  function render(){
+    var n=GAME.tutN||3,box=$('tutBox');
+    var dots='';for(var i=0;i<n;i++)dots+='<i class="'+(i===step?'on':'')+'"></i>';
+    box.innerHTML='<h2>'+_t('k.tuttl')+'</h2><div class="mini" id="tutMini" aria-hidden="true"></div><div class="tcap" id="tutCap" aria-live="polite"></div><div class="tstep"><h3>'+_t('tut.h'+(step+1))+'</h3><p>'+_t('tut.b'+(step+1))+'</p></div><div class="tdots">'+dots+'</div><div class="tnav"><button type="button" id="tutPrev"'+(step===0?' disabled':'')+'>'+_t('k.prev')+'</button>'+(step<n-1?'<button type="button" class="pri" id="tutNext">'+_t('k.next')+'</button>':'<button type="button" class="pri" id="tutDone">'+_t('k.done')+'</button>')+'<button type="button" id="tutClose">'+_t('k.close')+'</button></div>';
+    play();
+  }
+  function open(sa){
+    startAfter=!!sa;step=0;
+    var t=$('tut');
+    if(!t){
+      t=document.createElement('div');t.id='tut';t.setAttribute('role','dialog');t.setAttribute('aria-modal','true');
+      t.innerHTML='<div class="tutbox" id="tutBox"></div>';document.body.appendChild(t);
+      t.addEventListener('click',function(e){
+        var b=e.target.closest('button');
+        if(e.target===t){close();return}
+        if(!b)return;
+        if(b.id==='tutPrev'){step=Math.max(0,step-1);render()}
+        else if(b.id==='tutNext'){step=Math.min((GAME.tutN||3)-1,step+1);render()}
+        else if(b.id==='tutDone'||b.id==='tutClose')close();
+      });
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&t.classList.contains('open'))close()});
+    }
+    t.classList.add('open');render();
+    var nb=$('tutNext')||$('tutDone');if(nb)nb.focus();
+  }
+  function close(){
+    var t=$('tut');if(!t||!t.classList.contains('open'))return;
+    t.classList.remove('open');clearTimeout(iv);iv=null;
+    try{localStorage.setItem(KEY,'1')}catch(e){}
+    var sa=startAfter;startAfter=false;
+    if(sa&&G.phase==='idle')$('start').click();
+  }
+  window.tutRefresh=function(){var t=$('tut');if(t&&t.classList.contains('open'))render()};
+  tb.onclick=function(){open(false)};
+  $('start').addEventListener('click',function(e){
+    if(!seen()&&G.phase==='idle'&&GAME.tut){e.stopImmediatePropagation();e.preventDefault();open(true)}
+  },true);
+})();
+K.demo();setStart("k.start");applyLang();
+
+})();
+</script>
+</body>
+</html>
