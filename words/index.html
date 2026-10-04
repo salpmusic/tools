@@ -5023,6 +5023,277 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  airport: {
+    id: "airport",
+    icon: "✈️",
+    title: {
+      ja: "✈️ 空港",
+      en: "✈️ Airport",
+      es: "✈️ Aeropuerto",
+      fr: "✈️ Aéroport",
+      de: "✈️ Flughafen",
+      zh: "✈️ 机场",
+      ko: "✈️ 공항"
+    },
+
+    background: "airport.webp",
+    subtitle: "単語学習 空港編",
+    documentTitle: "SALP WORDS | 単語学習 空港編",
+    alt: "空港の絵(アニメ風の背景イラスト)",
+    ariaLabel: "空港の単語学習",
+    help: "空港の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "空港の物を選んでください",
+
+    items: [
+      {
+        id: "airplane",
+        emoji: "✈️",
+        x: 17,
+        y: 10,
+        w: 43,
+        h: 18,
+        z: 40,
+        words: {
+          ja: { word: "飛行機", reading: "ひこうき" },
+          en: { word: "airplane", reading: "AIR-playn" },
+          es: { word: "avión", reading: "a-BYON" },
+          fr: { word: "avion", reading: "a-VYON" },
+          de: { word: "Flugzeug", reading: "FLOOK-tsoyk" },
+          zh: { word: "飞机", reading: "fēijī" },
+          ko: { word: "비행기", reading: "bihaenggi" }
+        }
+      },
+
+      {
+        id: "controlTower",
+        emoji: "🗼",
+        x: 84,
+        y: 8,
+        w: 9,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "管制塔", reading: "かんせいとう" },
+          en: { word: "control tower", reading: "kun-TROHL TOW-er" },
+          es: { word: "torre de control", reading: "TO-rre de kon-TROL" },
+          fr: { word: "tour de contrôle", reading: "toor de kon-TROL" },
+          de: { word: "Kontrollturm", reading: "kon-TROL-toorm" },
+          zh: { word: "塔台", reading: "tǎtái" },
+          ko: { word: "관제탑", reading: "gwanjetap" }
+        }
+      },
+
+      {
+        id: "boardingBridge",
+        emoji: "🌉",
+        x: 61,
+        y: 19.5,
+        w: 37,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "搭乗橋", reading: "とうじょうきょう" },
+          en: { word: "boarding bridge", reading: "BOR-ding brij" },
+          es: { word: "pasarela de embarque", reading: "pa-sa-RE-la de em-BAR-ke" },
+          fr: { word: "passerelle d'embarquement", reading: "pas-REL dom-bar-ke-MON" },
+          de: { word: "Fluggastbrücke", reading: "FLOOK-gast-brü-ke" },
+          zh: { word: "登机桥", reading: "dēngjīqiáo" },
+          ko: { word: "탑승교", reading: "tapseunggyo" }
+        }
+      },
+
+      {
+        id: "departureBoard",
+        emoji: "🪧",
+        x: 36,
+        y: 30.5,
+        w: 31,
+        h: 6.5,
+        z: 40,
+        words: {
+          ja: { word: "案内板", reading: "あんないばん" },
+          en: { word: "departure board", reading: "dee-PAR-cher bord" },
+          es: { word: "panel de salidas", reading: "pa-NEL de sa-LEE-das" },
+          fr: { word: "tableau des départs", reading: "ta-BLO day day-PAR" },
+          de: { word: "Abfahrtstafel", reading: "AP-fahrts-taa-fel" },
+          zh: { word: "列车信息屏", reading: "lièchē xìnxīpíng" },
+          ko: { word: "출발 안내판", reading: "chulbal annaepan" }
+        }
+      },
+
+      {
+        id: "securityGate",
+        emoji: "🚧",
+        x: 70,
+        y: 31,
+        w: 29,
+        h: 19,
+        z: 40,
+        words: {
+          ja: { word: "金属探知機", reading: "きんぞくたんちき" },
+          en: { word: "metal detector", reading: "MET-ul di-TEK-ter" },
+          es: { word: "detector de metales", reading: "de-tek-TOR de me-TA-les" },
+          fr: { word: "portique de sécurité", reading: "por-TEEK de say-kü-ree-TAY" },
+          de: { word: "Metalldetektor", reading: "me-TAL-de-tek-tor" },
+          zh: { word: "金属探测门", reading: "jīnshǔ tàncèmén" },
+          ko: { word: "금속 탐지기", reading: "geumsok tamjigi" }
+        }
+      },
+
+      {
+        id: "checkInCounter",
+        emoji: "🛄",
+        x: 3,
+        y: 40,
+        w: 58,
+        h: 15,
+        z: 40,
+        words: {
+          ja: { word: "チェックインカウンター", reading: "ちぇっくいんかうんたー" },
+          en: { word: "check-in counter", reading: "CHEK-in KOWN-ter" },
+          es: { word: "mostrador de facturación", reading: "mos-tra-DOR de fak-too-ra-SYON" },
+          fr: { word: "comptoir d'enregistrement", reading: "kon-TWAR don-re-zhees-tre-MON" },
+          de: { word: "Check-in-Schalter", reading: "CHEK-in-shal-ter" },
+          zh: { word: "值机柜台", reading: "zhíjī guìtái" },
+          ko: { word: "체크인 카운터", reading: "chekeuin kaunteo" }
+        }
+      },
+
+      {
+        id: "passport",
+        emoji: "🛂",
+        x: 77,
+        y: 50.5,
+        w: 20,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "パスポート", reading: "ぱすぽーと" },
+          en: { word: "passport", reading: "PAS-port" },
+          es: { word: "pasaporte", reading: "pa-sa-POR-te" },
+          fr: { word: "passeport", reading: "pas-POR" },
+          de: { word: "Reisepass", reading: "RY-ze-pas" },
+          zh: { word: "护照", reading: "hùzhào" },
+          ko: { word: "여권", reading: "yeogwon" }
+        }
+      },
+
+      {
+        id: "suitcase",
+        emoji: "🧳",
+        x: 8,
+        y: 59,
+        w: 24,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "スーツケース", reading: "すーつけーす" },
+          en: { word: "suitcase", reading: "SOOT-kays" },
+          es: { word: "maleta", reading: "ma-LE-ta" },
+          fr: { word: "valise", reading: "va-LEEZ" },
+          de: { word: "Koffer", reading: "KO-fer" },
+          zh: { word: "行李箱", reading: "xínglixiāng" },
+          ko: { word: "캐리어", reading: "kaerieo" }
+        }
+      },
+
+      {
+        id: "luggageCart",
+        emoji: "🧳",
+        x: 40.5,
+        y: 57.5,
+        w: 23,
+        h: 17.5,
+        z: 40,
+        words: {
+          ja: { word: "荷物カート", reading: "にもつかーと" },
+          en: { word: "luggage cart", reading: "LUG-ij kart" },
+          es: { word: "carrito de equipaje", reading: "ka-RREE-to de e-kee-PA-khe" },
+          fr: { word: "chariot à bagages", reading: "sha-RYO a ba-GAZH" },
+          de: { word: "Gepäckwagen", reading: "ge-PEK-vaa-gen" },
+          zh: { word: "行李推车", reading: "xíngli tuīchē" },
+          ko: { word: "수하물 카트", reading: "suhamul kateu" }
+        }
+      },
+
+      {
+        id: "baggageCarousel",
+        emoji: "🔄",
+        x: 68,
+        y: 62,
+        w: 31,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "ターンテーブル", reading: "たーんてーぶる" },
+          en: { word: "baggage carousel", reading: "BAG-ij KAR-uh-sel" },
+          es: { word: "cinta de equipajes", reading: "SEEN-ta de e-kee-PA-khes" },
+          fr: { word: "tapis à bagages", reading: "ta-PEE a ba-GAZH" },
+          de: { word: "Gepäckband", reading: "ge-PEK-bant" },
+          zh: { word: "行李传送带", reading: "xíngli chuánsòngdài" },
+          ko: { word: "수하물 컨베이어", reading: "suhamul keonbeieo" }
+        }
+      },
+
+      {
+        id: "bench",
+        emoji: "🪑",
+        x: 3,
+        y: 78.5,
+        w: 33,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "ベンチ", reading: "べんち" },
+          en: { word: "bench", reading: "bench" },
+          es: { word: "banco", reading: "BAN-ko" },
+          fr: { word: "banc", reading: "ban" },
+          de: { word: "Bank", reading: "bank" },
+          zh: { word: "长椅", reading: "chángyǐ" },
+          ko: { word: "벤치", reading: "benchi" }
+        }
+      },
+
+      {
+        id: "neckPillow",
+        emoji: "💤",
+        x: 41,
+        y: 82,
+        w: 25,
+        h: 11.5,
+        z: 40,
+        words: {
+          ja: { word: "ネックピロー", reading: "ねっくぴろー" },
+          en: { word: "neck pillow", reading: "NEK PIL-oh" },
+          es: { word: "almohada de viaje", reading: "al-mo-A-da de BYA-khe" },
+          fr: { word: "coussin de voyage", reading: "koo-SAN de vwa-YAZH" },
+          de: { word: "Nackenkissen", reading: "NA-ken-ki-sen" },
+          zh: { word: "颈枕", reading: "jǐngzhěn" },
+          ko: { word: "목베개", reading: "mokbegae" }
+        }
+      },
+
+      {
+        id: "backpack",
+        emoji: "🎒",
+        x: 75,
+        y: 78,
+        w: 24,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "リュック", reading: "りゅっく" },
+          en: { word: "backpack", reading: "BAK-pak" },
+          es: { word: "mochila", reading: "mo-CHEE-la" },
+          fr: { word: "sac à dos", reading: "sak a DO" },
+          de: { word: "Rucksack", reading: "RUK-zak" },
+          zh: { word: "背包", reading: "bēibāo" },
+          ko: { word: "배낭", reading: "baenang" }
+        }
+      }
+    ]
   }
 };
 
