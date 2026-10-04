@@ -4733,6 +4733,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  library: {
+    id: "library",
+    icon: "📚",
+    title: {
+      ja: "📚 図書館",
+      en: "📚 Library",
+      es: "📚 Biblioteca",
+      fr: "📚 Bibliothèque",
+      de: "📚 Bibliothek",
+      zh: "📚 图书馆",
+      ko: "📚 도서관"
+    },
+
+    background: "library.webp",
+    subtitle: "単語学習 図書館編",
+    documentTitle: "SALP WORDS | 単語学習 図書館編",
+    alt: "図書館の絵(アニメ風の背景イラスト)",
+    ariaLabel: "図書館の単語学習",
+    help: "図書館の絵の中の物をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "図書館の物を選んでください",
+
+    items: [
+      {
+        id: "clock",
+        emoji: "🕰️",
+        x: 19.5,
+        y: 11.5,
+        w: 14.5,
+        h: 5.5,
+        z: 40,
+        words: {
+          ja: { word: "時計", reading: "とけい" },
+          en: { word: "clock", reading: "klok" },
+          es: { word: "reloj", reading: "re-LOH" },
+          fr: { word: "horloge", reading: "or-LOZH" },
+          de: { word: "Uhr", reading: "uur" },
+          zh: { word: "时钟", reading: "shízhōng" },
+          ko: { word: "시계", reading: "sigye" }
+        }
+      },
+
+      {
+        id: "bookshelf",
+        emoji: "📚",
+        x: 37,
+        y: 12,
+        w: 27,
+        h: 20.5,
+        z: 40,
+        words: {
+          ja: { word: "本棚", reading: "ほんだな" },
+          en: { word: "bookshelf", reading: "BOOK-shelf" },
+          es: { word: "estantería", reading: "es-tan-te-REE-a" },
+          fr: { word: "bibliothèque", reading: "bee-blee-o-TEK" },
+          de: { word: "Bücherregal", reading: "BÜ-kher-ray-gaal" },
+          zh: { word: "书架", reading: "shūjià" },
+          ko: { word: "책장", reading: "chaekjang" }
+        }
+      },
+
+      {
+        id: "stepLadder",
+        emoji: "🪜",
+        x: 76,
+        y: 18,
+        w: 13,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "脚立", reading: "きゃたつ" },
+          en: { word: "stepladder", reading: "STEP-lad-er" },
+          es: { word: "escalera de mano", reading: "es-ka-LE-ra de MA-no" },
+          fr: { word: "escabeau", reading: "es-ka-BO" },
+          de: { word: "Trittleiter", reading: "TRIT-ly-ter" },
+          zh: { word: "梯子", reading: "tīzi" },
+          ko: { word: "사다리", reading: "sadari" }
+        }
+      },
+
+      {
+        id: "computer",
+        emoji: "🖥️",
+        x: 10,
+        y: 22.5,
+        w: 24,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "パソコン", reading: "ぱそこん" },
+          en: { word: "computer", reading: "kum-PYOO-ter" },
+          es: { word: "ordenador", reading: "or-de-na-DOR" },
+          fr: { word: "ordinateur", reading: "or-dee-na-TŒR" },
+          de: { word: "Computer", reading: "kom-PYOO-ter" },
+          zh: { word: "电脑", reading: "diànnǎo" },
+          ko: { word: "컴퓨터", reading: "keompyuteo" }
+        }
+      },
+
+      {
+        id: "dictionary",
+        emoji: "📖",
+        x: 72,
+        y: 33.5,
+        w: 24,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "辞書", reading: "じしょ" },
+          en: { word: "dictionary", reading: "DIK-shuh-ner-ee" },
+          es: { word: "diccionario", reading: "deek-syo-NA-ryo" },
+          fr: { word: "dictionnaire", reading: "deek-syo-NER" },
+          de: { word: "Wörterbuch", reading: "VÖR-ter-bookh" },
+          zh: { word: "词典", reading: "cídiǎn" },
+          ko: { word: "사전", reading: "sajeon" }
+        }
+      },
+
+      {
+        id: "book",
+        emoji: "📘",
+        x: 8,
+        y: 44,
+        w: 30,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "本", reading: "ほん" },
+          en: { word: "book", reading: "book" },
+          es: { word: "libro", reading: "LEE-bro" },
+          fr: { word: "livre", reading: "leevr" },
+          de: { word: "Buch", reading: "buukh" },
+          zh: { word: "书", reading: "shū" },
+          ko: { word: "책", reading: "chaek" }
+        }
+      },
+
+      {
+        id: "deskLamp",
+        emoji: "💡",
+        x: 50,
+        y: 40.5,
+        w: 17,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "電気スタンド", reading: "でんきすたんど" },
+          en: { word: "desk lamp", reading: "DESK lamp" },
+          es: { word: "lámpara de escritorio", reading: "LAM-pa-ra de es-kree-TO-ryo" },
+          fr: { word: "lampe de bureau", reading: "lanp de bü-RO" },
+          de: { word: "Schreibtischlampe", reading: "SHRYP-tish-lam-pe" },
+          zh: { word: "台灯", reading: "táidēng" },
+          ko: { word: "스탠드", reading: "seutaendeu" }
+        }
+      },
+
+      {
+        id: "teddyBear",
+        emoji: "🧸",
+        x: 78,
+        y: 45.5,
+        w: 18,
+        h: 8.5,
+        z: 40,
+        words: {
+          ja: { word: "くまのぬいぐるみ", reading: "くまのぬいぐるみ" },
+          en: { word: "teddy bear", reading: "TED-ee bair" },
+          es: { word: "osito de peluche", reading: "o-SEE-to de pe-LOO-che" },
+          fr: { word: "ours en peluche", reading: "oors on pe-LÜSH" },
+          de: { word: "Teddybär", reading: "TE-dee-bair" },
+          zh: { word: "泰迪熊", reading: "tàidíxióng" },
+          ko: { word: "곰 인형", reading: "gom inhyeong" }
+        }
+      },
+
+      {
+        id: "desk",
+        emoji: "🪵",
+        x: 4,
+        y: 53,
+        w: 31,
+        h: 17,
+        z: 40,
+        words: {
+          ja: { word: "机", reading: "つくえ" },
+          en: { word: "desk", reading: "desk" },
+          es: { word: "pupitre", reading: "poo-PEE-tre" },
+          fr: { word: "pupitre", reading: "pü-PEETR" },
+          de: { word: "Schultisch", reading: "SHOOL-tish" },
+          zh: { word: "课桌", reading: "kèzhuō" },
+          ko: { word: "책상", reading: "chaeksang" }
+        }
+      },
+
+      {
+        id: "sofa",
+        emoji: "🛋️",
+        x: 36,
+        y: 56,
+        w: 36,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "ソファ", reading: "そふぁ" },
+          en: { word: "sofa", reading: "SOH-fuh" },
+          es: { word: "sofá", reading: "so-FA" },
+          fr: { word: "canapé", reading: "ka-na-PAY" },
+          de: { word: "Sofa", reading: "ZOH-fa" },
+          zh: { word: "沙发", reading: "shāfā" },
+          ko: { word: "소파", reading: "sopa" }
+        }
+      },
+
+      {
+        id: "bookCart",
+        emoji: "🛒",
+        x: 76,
+        y: 54.5,
+        w: 21,
+        h: 14.5,
+        z: 40,
+        words: {
+          ja: { word: "ブックカート", reading: "ぶっくかーと" },
+          en: { word: "book cart", reading: "BUK kart" },
+          es: { word: "carrito de libros", reading: "ka-RREE-to de LEE-bros" },
+          fr: { word: "chariot à livres", reading: "sha-RYO a LEEVR" },
+          de: { word: "Bücherwagen", reading: "BÜ-kher-vaa-gen" },
+          zh: { word: "图书推车", reading: "túshū tuīchē" },
+          ko: { word: "북카트", reading: "bukateu" }
+        }
+      },
+
+      {
+        id: "rug",
+        emoji: "🟫",
+        x: 3,
+        y: 71.5,
+        w: 33,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "じゅうたん", reading: "じゅうたん" },
+          en: { word: "rug", reading: "RUG" },
+          es: { word: "alfombra", reading: "al-FOM-bra" },
+          fr: { word: "tapis", reading: "ta-PEE" },
+          de: { word: "Teppich", reading: "TE-pikh" },
+          zh: { word: "地毯", reading: "dìtǎn" },
+          ko: { word: "카펫", reading: "kapet" }
+        }
+      },
+
+      {
+        id: "headphones",
+        emoji: "🎧",
+        x: 42,
+        y: 72.5,
+        w: 18,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "ヘッドホン", reading: "へっどほん" },
+          en: { word: "headphones", reading: "HED-fohnz" },
+          es: { word: "auriculares", reading: "ow-ree-koo-LA-res" },
+          fr: { word: "casque audio", reading: "kask o-DYO" },
+          de: { word: "Kopfhörer", reading: "KOPF-hö-rer" },
+          zh: { word: "耳机", reading: "ěrjī" },
+          ko: { word: "헤드폰", reading: "hedeupon" }
+        }
+      },
+
+      {
+        id: "returnBox",
+        emoji: "📥",
+        x: 75,
+        y: 71,
+        w: 21,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "返却ボックス", reading: "へんきゃくぼっくす" },
+          en: { word: "return box", reading: "ri-TURN boks" },
+          es: { word: "buzón de devolución", reading: "boo-SON de de-bo-loo-SYON" },
+          fr: { word: "boîte de retour", reading: "bwat de re-TOOR" },
+          de: { word: "Rückgabebox", reading: "RÜK-gaa-be-boks" },
+          zh: { word: "还书箱", reading: "huánshūxiāng" },
+          ko: { word: "반납함", reading: "bannapham" }
+        }
+      }
+    ]
   }
 };
 
