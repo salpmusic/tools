@@ -32,17 +32,17 @@ $('boot').onclick=async()=>{
   cx=await engine.Linux.create({mounts:[{type:'ext2',path:'/',dev:overlay},{type:'devs',path:'/dev'}],networkInterface:{loginUrlCb:url=>{$('login').href=url;$('login').hidden=false;},stateUpdateCb:state=>{$('netStatus').textContent=String(state);}}});
   send=cx.setCustomConsole(buf=>write(decoder.decode(buf,{stream:true})),60,24);
   const probe=await cx.run('/bin/sh',['-c','printf "SALP_LINUX_PROBE_OK\\n"'],{uid:0,gid:0});
-  if(probe!==0)throw new Error('Linuxコマンドの実行確認に失敗しました: '+probe);
+  if(probe?.status!==0)throw new Error('Linuxコマンドの実行確認に失敗しました: '+JSON.stringify(probe));
   log('Linux command probe: exit 0');
   if(failed)return;
   $('network').disabled=false;
   if(gui){
    $('screen').hidden=false;fit();cx.setKmsCanvas($('display'),720,1080);
    log('KMS set once: 720x1080');window.salpStage('GUI起動を開始しました','画面の表示を確認してください');
-   cx.run('/sbin/init',[],{uid:0,gid:0}).then(code=>{if(!failed){log('init exited: '+code);window.salpStage('GUI init終了',String(code));}},fatal);
+   cx.run('/sbin/init',[],{uid:0,gid:0}).then(result=>{if(!failed){log('init exited: '+result.status);window.salpStage('GUI init終了',String(result.status));}},fatal);
   }else{
    controls(true);window.salpStage('Linuxコマンド実行確認済み','シェルを開始します');
-   cx.run('/bin/ash',['-l'],{uid:1000,gid:1000,cwd:'/home/user',env:['HOME=/home/user','USER=user','SHELL=/bin/ash','TERM=dumb','LANG=C.UTF-8']}).then(code=>{if(!failed){controls(false);log('shell exited: '+code);window.salpStage('Linuxシェル終了',String(code));}},fatal);
+   cx.run('/bin/ash',['-l'],{uid:1000,gid:1000,cwd:'/home/user',env:['HOME=/home/user','USER=user','SHELL=/bin/ash','TERM=dumb','LANG=C.UTF-8']}).then(result=>{if(!failed){controls(false);log('shell exited: '+result.status);window.salpStage('Linuxシェル終了',String(result.status));}},fatal);
   }
  }catch(e){fatal(e);}finally{busy=false;}
 };
