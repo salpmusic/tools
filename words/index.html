@@ -523,6 +523,106 @@ main{
   display:block;
 }
 
+
+/* ---------- 花屋など zoom:true 場面の拡大オーバーレイ ---------- */
+.zoomOverlay{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  padding:max(12px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+  background:rgba(6,10,8,.86);
+  color:#fff;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  touch-action:manipulation;
+  cursor:pointer;
+}
+.zoomOverlay[hidden]{display:none !important}
+.zoomHint{
+  flex:0 0 auto;
+  font-size:.78rem;
+  font-weight:800;
+  opacity:.85;
+  text-align:center;
+}
+.zoomCrop{
+  flex:0 1 auto;
+  position:relative;
+  width:min(92vw, 520px);
+  max-height:min(52vh, 520px);
+  margin:0 auto;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 10px 36px rgba(0,0,0,.45);
+  background:#111;
+  pointer-events:none;
+}
+.zoomCropInner{
+  position:absolute;
+  background-repeat:no-repeat;
+  background-color:#222;
+}
+.zoomMeta{
+  flex:0 1 auto;
+  width:min(92vw, 520px);
+  max-height:min(38vh, 360px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:16px;
+  padding:14px 16px 16px;
+  pointer-events:auto;
+  cursor:default;
+}
+.zoomEmoji{font-size:1.6rem;line-height:1}
+.zoomWord{
+  font-size:clamp(1.35rem, 5.5vw, 2rem);
+  font-weight:900;
+  line-height:1.2;
+  margin:.2rem 0 .15rem;
+  word-break:break-word;
+}
+.easy .zoomWord{font-size:clamp(1.7rem, 6.5vw, 2.4rem)}
+.zoomReading{
+  font-size:clamp(.95rem, 3.6vw, 1.15rem);
+  font-weight:700;
+  opacity:.9;
+  margin-bottom:.55rem;
+}
+.easy .zoomReading{font-size:clamp(1.1rem, 4.2vw, 1.35rem)}
+.zoomDesc{
+  font-size:clamp(.92rem, 3.4vw, 1.05rem);
+  font-weight:600;
+  line-height:1.55;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.easy .zoomDesc{font-size:clamp(1.05rem, 4vw, 1.25rem); line-height:1.6}
+.zoomSpeakDesc{
+  margin-top:10px;
+  border:0;
+  border-radius:999px;
+  padding:8px 14px;
+  font-weight:900;
+  font-size:.85rem;
+  background:#ffe07a;
+  color:#1a1a12;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+@media (orientation:landscape) and (max-height:430px){
+  .zoomOverlay{flex-direction:row; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:12px}
+  .zoomHint{width:100%}
+  .zoomCrop{width:min(46vw, 420px); max-height:min(78vh, 360px)}
+  .zoomMeta{width:min(46vw, 420px); max-height:min(78vh, 360px)}
+}
+
 /* ---------- 単語オーバーレイ(絵の下部・タップを邪魔しない) ---------- */
 .wordPanel{
   position:fixed;
@@ -1094,6 +1194,28 @@ main{
   </div>
 </section>
 
+</div>
+
+
+<div
+  id="zoomOverlay"
+  class="zoomOverlay"
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="zoomWord"
+>
+  <div class="zoomHint" id="zoomHint">タップで戻る / Tap to close</div>
+  <div class="zoomCrop" id="zoomCrop" aria-hidden="true">
+    <div class="zoomCropInner" id="zoomCropInner"></div>
+  </div>
+  <div class="zoomMeta" id="zoomMeta">
+    <div class="zoomEmoji" id="zoomEmoji" aria-hidden="true"></div>
+    <div class="zoomWord" id="zoomWord"></div>
+    <div class="zoomReading" id="zoomReading"></div>
+    <div class="zoomDesc" id="zoomDesc"></div>
+    <button type="button" class="zoomSpeakDesc" id="zoomSpeakDesc">🔊 解説を読む</button>
+  </div>
 </div>
 
 <script>
@@ -7110,6 +7232,387 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  florist: {
+    id: "florist",
+    icon: "💐",
+    zoom: true,
+    title: {
+      ja: "💐 花屋",
+      en: "💐 Florist",
+      es: "💐 Floristería",
+      fr: "💐 Fleuriste",
+      de: "💐 Blumenladen",
+      zh: "💐 花店",
+      ko: "💐 꽃집"
+    },
+
+    background: "florist.webp",
+    subtitle: "単語学習 花屋編(拡大表示つき)",
+    documentTitle: "SALP WORDS | 単語学習 花屋編",
+    alt: "花屋の店内のイラスト(花と道具が並ぶ)",
+    ariaLabel: "花屋の単語学習",
+    help: "花をタッチすると名前を読み上げ、大きく拡大して特徴も見られます。もう一度タッチ(またはEsc)で戻ります。じょうろなど道具は通常どおりです。",
+    promptJa: "花屋の物を選んでください",
+
+    items: [
+      {
+        id: "morningGlory",
+        emoji: "🌺",
+        x: 3.5,
+        y: 13.5,
+        w: 29,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "朝顔", reading: "あさがお" },
+          en: { word: "Morning Glory", reading: "MOR-ning GLO-ree" },
+          es: { word: "gloria de la mañana", reading: "GLÓ-ria de la ma-NYA-na" },
+          fr: { word: "ipomée", reading: "ee-po-MAY" },
+          de: { word: "Prunkwinde", reading: "PROONK-vin-de" },
+          zh: { word: "牵牛花", reading: "qiān niú huā" },
+          ko: { word: "나팔꽃", reading: "napal-kkot" }
+        },
+        desc: {
+          ja: "青、紫、ピンク、白などの大きなラッパ形の花を咲かせ、つるを伸ばして育ちます。夏に咲き、朝に花を開いて昼ごろにはしぼむことが多い花です。日本で親しまれる朝顔は古くから栽培され、「朝顔」という名前は朝に美しく咲く姿に由来します。代表的な花言葉は「愛情」「結束」「はかない恋」です。",
+          en: "Morning glory produces large, trumpet-shaped flowers in colors such as blue, purple, pink, and white, and grows as a climbing vine. It blooms in summer, usually opening in the morning and fading around midday. It has been cultivated and loved in Japan for centuries, and its Japanese name, asagao, means “morning face,” referring to its beautiful morning blooms. Common flower meanings include “affection,” “strong bonds,” and “fleeting love.”",
+          es: "La gloria de la mañana produce grandes flores en forma de trompeta de colores como azul, morado, rosa y blanco, y crece como una planta trepadora. Florece en verano y normalmente abre sus flores por la mañana, que suelen marchitarse hacia el mediodía. Se cultiva y aprecia en Japón desde hace siglos, y su nombre japonés, asagao, significa “rostro de la mañana”, por su bella floración matutina. Entre sus significados florales más conocidos están “afecto”, “lazos fuertes” y “amor efímero”.",
+          fr: "L’ipomée produit de grandes fleurs en forme de trompette, bleues, violettes, roses ou blanches, et pousse comme une plante grimpante. Elle fleurit en été, s’ouvrant généralement le matin avant de se faner vers midi. Elle est cultivée et appréciée au Japon depuis des siècles, et son nom japonais, asagao, signifie « visage du matin », en référence à sa belle floraison matinale. Ses significations florales les plus connues sont « affection », « liens solides » et « amour éphémère ».",
+          de: "Die Prunkwinde bildet große, trompetenförmige Blüten in Blau, Violett, Rosa oder Weiß und wächst als Kletterpflanze. Sie blüht im Sommer, öffnet ihre Blüten meist am Morgen und verwelkt oft gegen Mittag. In Japan wird sie seit Jahrhunderten kultiviert und geschätzt; ihr japanischer Name Asagao bedeutet „Morgengesicht“ und bezieht sich auf ihre schönen Blüten am Morgen. Zu ihren bekannten Blumenbedeutungen gehören „Zuneigung“, „starke Verbundenheit“ und „vergängliche Liebe“.",
+          zh: "牵牛花会开出蓝色、紫色、粉色或白色等大型喇叭形花朵，并以藤蔓的方式生长。它在夏季开花，通常早晨开放，到中午前后便开始凋谢。在日本，人们自古就栽培并喜爱这种花，日语名“朝顔”意为“清晨的面容”，来自它清晨美丽开放的样子。代表性的花语有“爱情”“紧密的羁绊”和“短暂的爱”。",
+          ko: "나팔꽃은 파랑, 보라, 분홍, 흰색 등 다양한 색의 크고 나팔 모양인 꽃을 피우며 덩굴을 뻗어 자랍니다. 여름에 피고 보통 아침에 꽃이 열려 낮 무렵이면 시들기 시작합니다. 일본에서는 오래전부터 재배되어 사랑받아 왔으며, 일본 이름인 ‘아사가오’는 아침에 아름답게 피는 모습에서 유래했습니다. 대표적인 꽃말은 ‘애정’, ‘굳은 유대’, ‘덧없는 사랑’입니다."
+        }
+      },
+
+      {
+        id: "egretOrchid",
+        emoji: "🕊️",
+        x: 35,
+        y: 15,
+        w: 30,
+        h: 14.5,
+        z: 40,
+        words: {
+          ja: { word: "鷺草", reading: "さぎそう" },
+          en: { word: "White Egret Orchid", reading: "WHITE EE-grit OR-kid" },
+          es: { word: "orquídea garza blanca", reading: "or-KEE-de-a GAR-sa BLAN-ka" },
+          fr: { word: "orchidée aigrette blanche", reading: "or-kee-DAY eh-GRET blahnsh" },
+          de: { word: "Weiße Reiherorchidee", reading: "VAI-se RAI-er-or-khee-DEE-e" },
+          zh: { word: "白鹭兰", reading: "bái lù lán" },
+          ko: { word: "해오라비난초", reading: "haeorabi-nancho" }
+        },
+        desc: {
+          ja: "真っ白な花びらが細かく分かれ、白鷺が翼を広げて飛んでいるように見える小さなランです。日本では夏の7～8月ごろ、湿地で美しい花を咲かせます。日本や朝鮮半島、中国などに分布し、「鷺草」という名前は花の形が白鷺に似ていることに由来します。代表的な花言葉は「清純」「繊細」「神秘」です。",
+          en: "The white egret orchid is a small orchid with pure white, finely divided petals that look like a white egret spreading its wings in flight. In Japan, it blooms beautifully in wetlands around July and August. It is found in Japan, the Korean Peninsula, China, and nearby regions, and its Japanese name, sagisō, comes from the flower’s resemblance to a white egret. Common flower meanings include “purity,” “delicacy,” and “mystery.”",
+          es: "La orquídea garza blanca es una pequeña orquídea de pétalos blancos finamente divididos que parecen una garza blanca volando con las alas abiertas. En Japón florece en humedales durante el verano, especialmente alrededor de julio y agosto. Se encuentra en Japón, la península de Corea, China y regiones cercanas, y su nombre japonés, sagisō, procede de su parecido con una garza blanca. Sus significados florales más conocidos son “pureza”, “delicadeza” y “misterio”.",
+          fr: "L’orchidée aigrette est une petite orchidée aux pétales d’un blanc pur, finement découpés, qui ressemblent à une aigrette blanche déployant ses ailes en plein vol. Au Japon, elle fleurit dans les zones humides en été, surtout en juillet et en août. Elle est présente au Japon, dans la péninsule coréenne, en Chine et dans les régions voisines, et son nom japonais, sagisō, vient de sa ressemblance avec une aigrette blanche. Ses significations florales les plus connues sont « pureté », « délicatesse » et « mystère ».",
+          de: "Die Weiße Reiherorchidee ist eine kleine Orchidee mit reinweißen, fein geteilten Blütenblättern, die wie ein fliegender weißer Reiher mit ausgebreiteten Flügeln aussehen. In Japan blüht sie im Sommer, besonders im Juli und August, in Feuchtgebieten. Sie kommt in Japan, auf der Koreanischen Halbinsel, in China und angrenzenden Regionen vor; ihr japanischer Name Sagisō bezieht sich auf die Ähnlichkeit mit einem weißen Reiher. Bekannte Blumenbedeutungen sind „Reinheit“, „Feinheit“ und „Geheimnis“.",
+          zh: "鹭草是一种小型兰花，纯白而细裂的花瓣看起来就像一只展开双翼飞翔的白鹭。在日本，它通常于夏季的7月至8月在湿地开花。它分布于日本、朝鲜半岛、中国等地区，日语名“鷺草”正是因为花朵形似白鹭而得名。代表性的花语有“纯洁”“纤细”和“神秘”。",
+          ko: "해오라비난초는 순백색의 꽃잎이 섬세하게 갈라져 있어 흰 백로가 날개를 펼치고 나는 것처럼 보이는 작은 난초입니다. 일본에서는 여름인 7~8월 무렵 습지에서 아름다운 꽃을 피웁니다. 일본과 한반도, 중국 등지에 분포하며, 일본 이름 ‘사기소’는 꽃의 모습이 흰 백로를 닮은 데서 유래했습니다. 대표적인 꽃말은 ‘순수’, ‘섬세함’, ‘신비’입니다."
+        }
+      },
+
+      {
+        id: "commonMallow",
+        emoji: "🌸",
+        x: 67,
+        y: 13.5,
+        w: 30.5,
+        h: 15.5,
+        z: 40,
+        words: {
+          ja: { word: "ウスベニアオイ", reading: "うすべにあおい" },
+          en: { word: "Common Mallow", reading: "KOM-un MAL-oh" },
+          es: { word: "malva común", reading: "MAL-ba ko-MOON" },
+          fr: { word: "mauve commune", reading: "MOV ko-MOON" },
+          de: { word: "Wilde Malve", reading: "VIL-de MAL-ve" },
+          zh: { word: "锦葵", reading: "jǐn kuí" },
+          ko: { word: "당아욱", reading: "dang-auk" }
+        },
+        desc: {
+          ja: "淡いピンクから紫色の花を咲かせ、5枚の花びらには中心から外へ伸びる濃い筋があります。初夏から夏にかけて次々と花を咲かせます。ヨーロッパ、北アフリカ、西アジアなどに自生し、日本名の「ウスベニアオイ」は淡い紅色の花を咲かせることに由来します。代表的な花言葉は「穏やか」「柔和な心」です。",
+          en: "Common mallow has pale pink to purple flowers with five petals marked by darker veins spreading outward from the center. It produces flowers one after another from early summer into summer. It is native to parts of Europe, North Africa, and western Asia, and its Japanese name refers to the soft reddish-pink color of its flowers. Common flower meanings include “gentleness” and “a mild heart.”",
+          es: "La malva común tiene flores de color rosa pálido a morado, con cinco pétalos atravesados por venas más oscuras que parten del centro. Florece sucesivamente desde comienzos del verano y durante esta estación. Es originaria de partes de Europa, el norte de África y Asia occidental, y su nombre japonés hace referencia al suave tono rosado rojizo de sus flores. Sus significados florales más conocidos son “serenidad” y “corazón amable”.",
+          fr: "La mauve sylvestre porte des fleurs allant du rose pâle au violet, avec cinq pétales marqués de nervures plus foncées partant du centre. Elle fleurit successivement du début de l’été et pendant la saison estivale. Elle est originaire de certaines régions d’Europe, d’Afrique du Nord et d’Asie occidentale, et son nom japonais fait référence à la douce couleur rose rougeâtre de ses fleurs. Ses significations florales les plus connues sont « douceur » et « cœur paisible ».",
+          de: "Die Wilde Malve trägt blassrosa bis violette Blüten mit fünf Blütenblättern, auf denen dunklere Adern von der Mitte nach außen verlaufen. Vom Frühsommer bis in den Sommer hinein erscheinen immer wieder neue Blüten. Sie stammt aus Teilen Europas, Nordafrikas und Westasiens; ihr japanischer Name bezieht sich auf die zarte rötlich-rosa Blütenfarbe. Bekannte Blumenbedeutungen sind „Sanftmut“ und „ein mildes Herz“.",
+          zh: "锦葵会开出淡粉色至紫色的花，五片花瓣上有从中心向外延伸的深色条纹。它从初夏到夏季会接连不断地开花。它原产于欧洲部分地区、北非和西亚，日语名来自花朵淡淡的红粉色（意为淡红色的葵）。代表性的花语有“温和”和“温柔的心”。",
+          ko: "당아욱은 연한 분홍색에서 보라색의 꽃을 피우며, 다섯 장의 꽃잎에는 중심에서 바깥쪽으로 뻗는 진한 줄무늬가 있습니다. 초여름부터 여름까지 꽃이 차례차례 피어납니다. 유럽 일부와 북아프리카, 서아시아가 원산지이며, 일본 이름 ‘우스베니아오이’는 꽃의 연한 붉은빛에서 유래했습니다. 대표적인 꽃말은 ‘온화함’과 ‘부드러운 마음’입니다."
+        }
+      },
+
+      {
+        id: "queenOfNight",
+        emoji: "🌙",
+        x: 3.5,
+        y: 29.5,
+        w: 29,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "月下美人", reading: "げっかびじん" },
+          en: { word: "Queen of the Night", reading: "KWEEN uv thuh NIGHT" },
+          es: { word: "reina de la noche", reading: "RREI-na de la NO-che" },
+          fr: { word: "reine de la nuit", reading: "REN duh la NWEE" },
+          de: { word: "Königin der Nacht", reading: "KÖ-ni-gin dair NAKHT" },
+          zh: { word: "昙花", reading: "tán huā" },
+          ko: { word: "월하미인", reading: "wolha-miin" }
+        },
+        desc: {
+          ja: "大きな純白の花で、細長い花びらが幾重にも広がり、強い香りがあります。春の終わりから夏ごろに咲き、夕方から夜に開いて朝までにはしぼむ一夜花です。メキシコから中央アメリカにかけてが原産で、日本名の「月下美人」は月の下で美しく咲く姿を思わせる名前です。代表的な花言葉は「艶やかな美人」「はかない恋」です。",
+          en: "Queen of the night has very large, pure white flowers with many long, narrow petals and a strong fragrance. It generally blooms from late spring into summer, opening in the evening or at night and fading by morning. It is native from Mexico through Central America, and its Japanese name, gekkabijin, evokes the image of a beautiful woman blooming beneath the moon. Common flower meanings include “glamorous beauty” and “fleeting love.”",
+          es: "La reina de la noche tiene flores muy grandes y blancas, formadas por numerosos pétalos largos y estrechos, y desprende un aroma intenso. Suele florecer desde finales de primavera hasta el verano; sus flores se abren al atardecer o por la noche y se marchitan antes de la mañana. Es originaria de México y América Central, y su nombre japonés, gekkabijin, evoca la imagen de una bella mujer que florece bajo la luna. Sus significados florales más conocidos son “belleza deslumbrante” y “amor efímero”.",
+          fr: "La reine de la nuit possède de très grandes fleurs d’un blanc pur, composées de nombreux pétales longs et fins, et dégage un parfum puissant. Elle fleurit généralement de la fin du printemps à l’été ; ses fleurs s’ouvrent le soir ou pendant la nuit et se fanent avant le matin. Elle est originaire du Mexique et d’Amérique centrale, et son nom japonais, gekkabijin, évoque une belle femme fleurissant sous la lune. Ses significations florales les plus connues sont « beauté éclatante » et « amour éphémère ».",
+          de: "Die Königin der Nacht besitzt sehr große, reinweiße Blüten mit vielen langen, schmalen Blütenblättern und einem kräftigen Duft. Sie blüht meist vom späten Frühling bis in den Sommer; die Blüten öffnen sich am Abend oder in der Nacht und verwelken bis zum Morgen. Sie stammt aus Mexiko und Mittelamerika, und ihr japanischer Name Gekkabijin erinnert an das Bild einer schönen Frau, die im Mondlicht erblüht. Bekannte Blumenbedeutungen sind „glanzvolle Schönheit“ und „vergängliche Liebe“.",
+          zh: "昙花拥有非常大的纯白色花朵，许多细长的花瓣层层展开，并带有浓郁的香气。它通常在春末至夏季开花，傍晚或夜间开放，到清晨便会凋谢。它原产于墨西哥至中美洲一带，日语名“月下美人”让人联想到月光下盛开的美丽女子。代表性的花语有“艳丽的美人”和“短暂的爱”。",
+          ko: "월하미인은 크고 순백색인 꽃으로, 길고 가느다란 꽃잎이 여러 겹 펼쳐지며 진한 향기가 납니다. 늦봄부터 여름 무렵에 주로 피며 저녁이나 밤에 꽃이 열리고 아침이 되기 전에 시드는 하루밤 꽃입니다. 멕시코에서 중앙아메리카에 걸친 지역이 원산지이며, 일본 이름 ‘겟카비진’은 달빛 아래에서 아름답게 피는 여인을 떠올리게 하는 이름입니다. 대표적인 꽃말은 ‘아름다운 미인’과 ‘덧없는 사랑’입니다."
+        }
+      },
+
+      {
+        id: "cockscomb",
+        emoji: "🔥",
+        x: 36,
+        y: 29.5,
+        w: 28,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "ケイトウ", reading: "けいとう" },
+          en: { word: "Cockscomb", reading: "KOKS-kohm" },
+          es: { word: "cresta de gallo", reading: "KRES-ta de GA-yo" },
+          fr: { word: "célosie", reading: "say-lo-ZEE" },
+          de: { word: "Hahnenkamm", reading: "HAH-nen-kam" },
+          zh: { word: "鸡冠花", reading: "jī guān huā" },
+          ko: { word: "맨드라미", reading: "maendeurami" }
+        },
+        desc: {
+          ja: "赤、ピンク、黄、オレンジなど鮮やかな色があり、花の集まりが鶏のトサカや炎のような独特の形になります。暑さに強く、夏から秋にかけて長く花を楽しめます。「ケイトウ」は漢字で「鶏頭」と書き、鶏のトサカに似た姿から名づけられました。代表的な花言葉は「おしゃれ」「風変わり」「色褪せぬ恋」です。",
+          en: "Cockscomb comes in vivid colors such as red, pink, yellow, and orange, with unusual flower heads shaped like a rooster’s comb or a flame. It thrives in warm weather and flowers for a long period from summer into fall. The name “cockscomb” comes directly from the flower head’s resemblance to the comb of a rooster. Common flower meanings include “stylishness,” “uniqueness,” and “unfading love.”",
+          es: "La cresta de gallo presenta colores vivos como rojo, rosa, amarillo y naranja, y sus inflorescencias tienen una forma peculiar parecida a la cresta de un gallo o a una llama. Tolera bien el calor y florece durante un largo período desde el verano hasta el otoño. Su nombre procede directamente del parecido de la flor con la cresta de un gallo. Entre sus significados florales más conocidos están “elegancia”, “originalidad” y “amor que no se desvanece”.",
+          fr: "La célosie crête-de-coq offre des couleurs vives comme le rouge, le rose, le jaune et l’orange, avec des inflorescences originales rappelant une crête de coq ou une flamme. Elle supporte bien la chaleur et fleurit longtemps, de l’été jusqu’à l’automne. Son nom vient directement de la ressemblance de son inflorescence avec la crête d’un coq. Ses significations florales les plus connues sont « élégance », « originalité » et « amour qui ne se fane pas ».",
+          de: "Der Hahnenkamm leuchtet in kräftigen Farben wie Rot, Rosa, Gelb und Orange und besitzt ungewöhnliche Blütenstände, die an einen Hahnenkamm oder an Flammen erinnern. Er liebt Wärme und blüht lange vom Sommer bis in den Herbst. Sein Name stammt direkt von der Ähnlichkeit des Blütenstandes mit dem Kamm eines Hahns. Bekannte Blumenbedeutungen sind „Stil“, „Außergewöhnlichkeit“ und „unvergängliche Liebe“.",
+          zh: "鸡冠花有红、粉、黄、橙等鲜艳的颜色，花序形状独特，看起来像公鸡的鸡冠或燃烧的火焰。它耐炎热，从夏季到秋季都能长时间开花。“鸡冠花”这个名字正是来自花序与公鸡鸡冠相似的外形。代表性的花语有“时尚”“与众不同”和“永不褪色的爱”。",
+          ko: "맨드라미는 빨강, 분홍, 노랑, 주황 등 선명한 색을 띠며, 꽃이 모인 모습이 수탉의 볏이나 불꽃처럼 독특합니다. 더위에 강하고 여름부터 가을까지 오랫동안 꽃을 볼 수 있습니다. ‘Cockscomb’이라는 이름은 꽃 모양이 수탉의 볏을 닮은 데서 유래했습니다. 대표적인 꽃말은 ‘멋스러움’, ‘독특함’, ‘변치 않는 사랑’입니다."
+        }
+      },
+
+      {
+        id: "freesia",
+        emoji: "💐",
+        x: 68,
+        y: 29.5,
+        w: 28,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "フリージア", reading: "ふりーじあ" },
+          en: { word: "Freesia", reading: "FREE-zhuh" },
+          es: { word: "fresia", reading: "FRE-sya" },
+          fr: { word: "freesia", reading: "fray-ZYA" },
+          de: { word: "Freesie", reading: "FRAY-zee-eh" },
+          zh: { word: "小苍兰", reading: "xiǎo cāng lán" },
+          ko: { word: "프리지어", reading: "peurijieo" }
+        },
+        desc: {
+          ja: "細長い茎の片側に、白、黄、ピンク、赤、紫などのラッパ形の花が並び、甘くさわやかな香りがあります。日本では春を代表する花の一つで、主に3～4月ごろに咲きます。アフリカ南部を中心とする地域が原産で、「フリージア」という属名はドイツの医師で植物学者のフリードリヒ・フレーゼにちなみます。代表的な花言葉は「親愛の情」「友情」「感謝」です。",
+          en: "Freesias have trumpet-shaped flowers in colors such as white, yellow, pink, red, and purple, arranged along one side of slender stems, and many have a sweet, fresh fragrance. In Japan they are familiar spring flowers, commonly blooming around March and April. The genus is native mainly to southern Africa, and the name Freesia honors the German physician and botanist Friedrich Freese. Common flower meanings include “affection,” “friendship,” and “gratitude.”",
+          es: "Las freesias tienen flores en forma de trompeta de colores como blanco, amarillo, rosa, rojo y morado, dispuestas a un lado de tallos delgados, y muchas poseen un aroma dulce y fresco. En Japón son flores típicas de primavera y suelen florecer alrededor de marzo y abril. El género es originario principalmente del sur de África, y el nombre Freesia honra al médico y botánico alemán Friedrich Freese. Entre sus significados florales más conocidos están “afecto”, “amistad” y “gratitud”.",
+          fr: "Les freesias portent des fleurs en forme de trompette, blanches, jaunes, roses, rouges ou violettes, disposées d’un côté de tiges fines, et beaucoup dégagent un parfum doux et frais. Au Japon, ce sont des fleurs familières du printemps, qui fleurissent généralement vers mars et avril. Le genre est principalement originaire d’Afrique australe, et le nom Freesia rend hommage au médecin et botaniste allemand Friedrich Freese. Ses significations florales les plus connues sont « affection », « amitié » et « gratitude ».",
+          de: "Freesien tragen trompetenförmige Blüten in Weiß, Gelb, Rosa, Rot oder Violett, die auf einer Seite schlanker Stiele angeordnet sind; viele Sorten duften süß und frisch. In Japan gehören sie zu den bekannten Frühlingsblumen und blühen meist im März und April. Die Gattung stammt hauptsächlich aus dem südlichen Afrika, und der Name Freesia ehrt den deutschen Arzt und Botaniker Friedrich Freese. Bekannte Blumenbedeutungen sind „Zuneigung“, „Freundschaft“ und „Dankbarkeit“.",
+          zh: "小苍兰的细长花茎一侧排列着白、黄、粉、红、紫等颜色的喇叭形花朵，许多品种还带有甜美清新的香气。在日本，它是常见的春季花卉，通常在3月至4月开放。小苍兰属主要原产于非洲南部，“Freesia”这个属名是为了纪念德国医生兼植物学家弗里德里希·弗雷泽。代表性的花语有“亲爱”“友情”和“感谢”。",
+          ko: "프리지어는 가느다란 줄기의 한쪽에 흰색, 노란색, 분홍색, 빨간색, 보라색 등의 나팔 모양 꽃이 줄지어 피며, 많은 품종에서 달콤하고 상쾌한 향기가 납니다. 일본에서는 대표적인 봄꽃 가운데 하나로 보통 3~4월 무렵에 핍니다. 주로 아프리카 남부가 원산지이며, Freesia라는 속명은 독일의 의사이자 식물학자인 프리드리히 프레제를 기려 붙인 이름입니다. 대표적인 꽃말은 ‘친애’, ‘우정’, ‘감사’입니다."
+        }
+      },
+
+      {
+        id: "rainLily",
+        emoji: "🌷",
+        x: 3.5,
+        y: 46,
+        w: 29,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "ゼフィランサス", reading: "ぜふぃらんさす" },
+          en: { word: "Rain Lily", reading: "RAIN LIL-ee" },
+          es: { word: "lirio de lluvia", reading: "LEE-ryo de YOO-bya" },
+          fr: { word: "lis de pluie", reading: "LEE duh PLWEE" },
+          de: { word: "Regenlilie", reading: "RAY-gen-LEE-lee-eh" },
+          zh: { word: "风雨兰", reading: "fēng yǔ lán" },
+          ko: { word: "나도사프란", reading: "nado-sapeuran" }
+        },
+        desc: {
+          ja: "白い6枚の花びらが星や小さなユリのように開き、中心には黄色い雄しべが見えます。夏から秋に咲き、まとまった雨のあとに一斉に花を咲かせることから「レインリリー」と呼ばれます。南アメリカ原産で、ゼフィランサスという名前はギリシャ語の「西風」と「花」に由来します。代表的な花言葉は「純白な愛」「期待」です。",
+          en: "Rain lily has six white petals that open like a star or a small lily, with yellow stamens visible in the center. It blooms from summer into fall and is called “rain lily” because its flowers often appear together after a good rainfall. It is native to South America, and the name Zephyranthes comes from Greek words referring to the west wind and a flower. Common flower meanings include “pure love” and “expectation.”",
+          es: "El lirio de lluvia tiene seis pétalos blancos que se abren como una estrella o un pequeño lirio, con estambres amarillos visibles en el centro. Florece desde el verano hasta el otoño y recibe el nombre de “lirio de lluvia” porque suele producir muchas flores después de una lluvia abundante. Es originario de Sudamérica, y el nombre Zephyranthes procede de palabras griegas relacionadas con el viento del oeste y la flor. Sus significados florales más conocidos son “amor puro” y “esperanza”.",
+          fr: "Le lis de pluie possède six pétales blancs qui s’ouvrent comme une étoile ou un petit lis, avec des étamines jaunes visibles au centre. Il fleurit de l’été à l’automne et doit son nom de « lis de pluie » au fait que de nombreuses fleurs apparaissent souvent après une bonne pluie. Il est originaire d’Amérique du Sud, et le nom Zephyranthes vient de mots grecs évoquant le vent d’ouest et la fleur. Ses significations florales les plus connues sont « amour pur » et « attente pleine d’espoir ».",
+          de: "Die Regenlilie besitzt sechs weiße Blütenblätter, die sich sternförmig oder wie eine kleine Lilie öffnen; in der Mitte sind gelbe Staubblätter zu sehen. Sie blüht vom Sommer bis in den Herbst und heißt Regenlilie, weil nach kräftigem Regen oft viele Blüten gleichzeitig erscheinen. Sie stammt aus Südamerika, und der Name Zephyranthes leitet sich von griechischen Wörtern für Westwind und Blume ab. Bekannte Blumenbedeutungen sind „reine Liebe“ und „Erwartung“.",
+          zh: "葱莲有六片白色花瓣，开放时像星星或小百合，花朵中央可以看到黄色的雄蕊。它从夏季开到秋季，经常在一场较大的雨后一起开放，因此也被称为“雨百合”。它原产于南美洲，Zephyranthes这个名字来自表示“西风”和“花”的希腊语词。代表性的花语有“纯洁的爱”和“期待”。",
+          ko: "흰꽃나도사프란은 여섯 장의 흰 꽃잎이 별이나 작은 백합처럼 펼쳐지고 중앙에는 노란 수술이 보입니다. 여름부터 가을까지 피며, 비가 많이 내린 뒤 한꺼번에 꽃을 피우는 경우가 많아 ‘레인 릴리’라고 불립니다. 남아메리카가 원산지이며, Zephyranthes라는 이름은 ‘서풍’과 ‘꽃’을 뜻하는 그리스어에서 유래했습니다. 대표적인 꽃말은 ‘순백의 사랑’과 ‘기대’입니다."
+        }
+      },
+
+      {
+        id: "japaneseAnemone",
+        emoji: "🌼",
+        x: 36,
+        y: 46,
+        w: 28,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "シュウメイギク", reading: "しゅうめいぎく" },
+          en: { word: "Japanese Anemone", reading: "jap-uh-NEEZ uh-NEM-uh-nee" },
+          es: { word: "anémona japonesa", reading: "a-NE-mo-na ha-po-NE-sa" },
+          fr: { word: "anémone du Japon", reading: "a-nay-MON du zha-PON" },
+          de: { word: "Japanische Anemone", reading: "ya-PA-ni-she a-ne-MO-ne" },
+          zh: { word: "秋明菊", reading: "qiū míng jú" },
+          ko: { word: "추명국", reading: "chumyeong-guk" }
+        },
+        desc: {
+          ja: "細長い茎の先に白やピンクの花を咲かせ、中心には黄色い雄しべが集まっています。夏の終わりから秋、主に8～11月ごろに咲く多年草です。中国原産で、日本には古い時代に伝わり、「秋明菊」という名前は秋に咲く菊のような姿にちなみますが、キクの仲間ではなくアネモネの仲間です。代表的な花言葉は「薄れゆく愛」「淡い思い」です。",
+          en: "Japanese anemone produces white or pink flowers on slender stems, with a cluster of yellow stamens in the center. It is a perennial that blooms from late summer through fall, generally from about August to November. It is native to China and was introduced to Japan long ago; its Japanese name means “bright autumn chrysanthemum,” referring to its chrysanthemum-like appearance, although it is actually an anemone rather than a chrysanthemum. Common flower meanings include “fading love” and “gentle affection.”",
+          es: "La anémona japonesa produce flores blancas o rosadas sobre tallos delgados, con un grupo de estambres amarillos en el centro. Es una planta perenne que florece desde finales del verano hasta el otoño, generalmente entre agosto y noviembre. Es originaria de China y llegó a Japón hace mucho tiempo; su nombre japonés significa “crisantemo luminoso de otoño” por su aspecto parecido al crisantemo, aunque en realidad pertenece al grupo de las anémonas. Sus significados florales más conocidos son “amor que se desvanece” y “sentimientos delicados”.",
+          fr: "L’anémone du Japon porte des fleurs blanches ou roses sur de fines tiges, avec un groupe d’étamines jaunes au centre. C’est une plante vivace qui fleurit de la fin de l’été à l’automne, généralement d’août à novembre. Originaire de Chine, elle a été introduite au Japon il y a longtemps ; son nom japonais signifie « chrysanthème lumineux d’automne » en raison de son apparence, bien qu’elle appartienne en réalité aux anémones et non aux chrysanthèmes. Ses significations florales les plus connues sont « amour qui s’efface » et « tendre sentiment ».",
+          de: "Die Herbst-Anemone trägt weiße oder rosafarbene Blüten auf schlanken Stielen, in deren Mitte zahlreiche gelbe Staubblätter sitzen. Sie ist eine mehrjährige Pflanze und blüht vom Spätsommer bis in den Herbst, meist von August bis November. Sie stammt aus China und gelangte schon vor langer Zeit nach Japan; ihr japanischer Name bedeutet sinngemäß „leuchtende Herbstchrysantheme“, weil die Blüten an Chrysanthemen erinnern, obwohl die Pflanze zu den Anemonen gehört. Bekannte Blumenbedeutungen sind „verblassende Liebe“ und „zarte Gefühle“.",
+          zh: "秋明菊在细长的花茎顶端开出白色或粉色花朵，中央聚集着许多黄色雄蕊。它是多年生植物，从夏末到秋季开花，通常花期约为8月至11月。它原产于中国，很早以前传入日本；日语名“秋明菊”来自它秋天开放、外形似菊的特点，不过它并不是菊科植物，而是银莲花的近亲。代表性的花语有“逐渐淡去的爱”和“淡淡的思念”。",
+          ko: "추명국은 가느다란 줄기 끝에 흰색이나 분홍색 꽃을 피우며 중앙에는 노란 수술이 모여 있습니다. 늦여름부터 가을까지, 주로 8~11월 무렵에 피는 여러해살이풀입니다. 중국이 원산지이며 오래전에 일본으로 전해졌고, 일본 이름 ‘슈메이기쿠’는 가을에 피는 국화 같은 모습에서 유래했지만 실제로는 국화가 아니라 아네모네의 한 종류입니다. 대표적인 꽃말은 ‘희미해져 가는 사랑’과 ‘옅은 그리움’입니다."
+        }
+      },
+
+      {
+        id: "whiteLaceFlower",
+        emoji: "☁️",
+        x: 68,
+        y: 45.5,
+        w: 28.5,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "レースフラワー", reading: "れーすふらわー" },
+          en: { word: "White Lace Flower", reading: "WHITE LAYS FLOW-er" },
+          es: { word: "flor de encaje blanco", reading: "FLOR de en-KA-he BLAN-ko" },
+          fr: { word: "fleur de dentelle blanche", reading: "FLUR duh dahn-TEL blahnsh" },
+          de: { word: "Weiße Spitzenblume", reading: "VAI-se SHPIT-sen-bloo-me" },
+          zh: { word: "白蕾丝花", reading: "bái lěi sī huā" },
+          ko: { word: "화이트 레이스 플라워", reading: "hwaiteu reiseu peullawo" }
+        },
+        desc: {
+          ja: "小さな純白の花が傘のように集まり、外側の花びらが大きいため、全体が白いレースのように見えます。春から初夏を中心に、細い茎の先に軽やかな花を咲かせます。ヨーロッパから地中海沿岸などに分布し、「ホワイトレースフラワー」という名前は繊細な白いレースを思わせる花姿に由来します。代表的な花言葉は「可憐な心」「静寂」「細やかな愛情」です。",
+          en: "White lace flower has many tiny pure-white flowers gathered into flat, umbrella-like clusters, with larger outer petals that make the whole bloom look like delicate white lace. It flowers mainly from spring into early summer on slender, branching stems. It is native to parts of Europe and the Mediterranean region, and the name “white lace flower” comes from its fine, lace-like appearance. Common flower meanings include “delicate heart,” “tranquility,” and “tender affection.”",
+          es: "La flor de encaje blanco reúne muchas pequeñas flores blancas en grupos planos parecidos a sombrillas, y sus pétalos exteriores más grandes hacen que el conjunto parezca un delicado encaje blanco. Florece principalmente desde la primavera hasta comienzos del verano sobre tallos finos y ramificados. Es originaria de partes de Europa y de la región mediterránea, y el nombre “flor de encaje blanco” procede de su aspecto fino y parecido al encaje. Sus significados florales más conocidos son “corazón delicado”, “tranquilidad” y “afecto tierno”.",
+          fr: "La fleur de dentelle blanche rassemble de nombreuses petites fleurs d’un blanc pur en ombelles plates, et ses pétales extérieurs plus grands donnent à l’ensemble l’apparence d’une fine dentelle blanche. Elle fleurit principalement du printemps au début de l’été sur des tiges fines et ramifiées. Elle est originaire de certaines régions d’Europe et du bassin méditerranéen, et son nom vient naturellement de son aspect délicat rappelant la dentelle. Ses significations florales les plus connues sont « cœur délicat », « tranquillité » et « tendre affection ».",
+          de: "Die Weiße Spitzenblume trägt viele kleine, reinweiße Blüten in flachen, schirmartigen Blütenständen; größere äußere Blütenblätter lassen den gesamten Blütenstand wie feine weiße Spitze wirken. Sie blüht hauptsächlich vom Frühling bis zum Frühsommer an schlanken, verzweigten Stielen. Sie stammt aus Teilen Europas und dem Mittelmeerraum, und ihr englischer Name „White Lace Flower“ bezieht sich auf ihr zartes, spitzenartiges Aussehen. Bekannte Blumenbedeutungen sind „zartes Herz“, „Stille“ und „liebevolle Zuneigung“.",
+          zh: "白蕾丝花由许多纯白色小花组成扁平的伞状花序，外侧花瓣较大，使整朵花看起来像精致的白色蕾丝。它主要在春季至初夏开花，细长而分枝的花茎显得十分轻盈。它原产于欧洲部分地区和地中海沿岸，“White Lace Flower”这个名字正是来自它像白色蕾丝一样细致的外形。代表性的花语有“可爱的心”“宁静”和“细腻的爱”。",
+          ko: "화이트 레이스 플라워는 작은 순백색 꽃들이 평평한 우산 모양으로 모여 피고, 바깥쪽 꽃잎이 더 커서 전체가 섬세한 흰 레이스처럼 보입니다. 주로 봄부터 초여름까지 가늘고 가지가 갈라진 줄기 끝에서 가볍고 아름답게 핍니다. 유럽 일부와 지중해 지역이 원산지이며, ‘화이트 레이스 플라워’라는 이름은 흰 레이스를 닮은 섬세한 꽃 모양에서 유래했습니다. 대표적인 꽃말은 ‘가련한 마음’, ‘고요함’, ‘섬세한 사랑’입니다."
+        }
+      },
+
+      {
+        id: "cleome",
+        emoji: "🦋",
+        x: 4,
+        y: 60,
+        w: 28,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "クレオメ", reading: "くれおめ" },
+          en: { word: "Cleome", reading: "klee-OH-mee" },
+          es: { word: "cleome", reading: "kle-O-me" },
+          fr: { word: "cléome", reading: "klay-OM" },
+          de: { word: "Spinnenblume", reading: "SHPIN-nen-bloo-me" },
+          zh: { word: "醉蝶花", reading: "zuì dié huā" },
+          ko: { word: "족두리꽃", reading: "jokduri-kkot" }
+        },
+        desc: {
+          ja: "白、ピンク、紫などの4枚の花びらから長い雄しべが大きく突き出し、蝶やクモが舞うような独特の姿をしています。夏から秋にかけて咲き、一つ一つの花は夕方ごろに開き始め、翌日にはしぼむ一日花です。園芸でよく使われるクレオメは南アメリカ原産で、英語では長い雄しべをクモの脚に見立てて「Spider flower」とも呼ばれます。代表的な花言葉は「秘密のひととき」「あなたの容姿に酔う」「小さな愛」です。",
+          en: "Cleome has four petals in shades of white, pink, or purple, with very long stamens projecting outward and giving the flower a distinctive butterfly- or spider-like appearance. It blooms from summer into fall, and each flower usually begins opening in the evening and fades the following day. The cleome commonly grown in gardens is native to South America, and the English name “spider flower” refers to its long, spider-leg-like stamens. Common flower meanings include “a secret moment,” “intoxicated by your beauty,” and “little love.”",
+          es: "La cleome tiene cuatro pétalos blancos, rosados o morados y estambres muy largos que sobresalen, dándole un aspecto peculiar parecido a una mariposa o una araña. Florece desde el verano hasta el otoño, y cada flor suele comenzar a abrirse al atardecer y se marchita al día siguiente. La cleome cultivada habitualmente en jardines es originaria de Sudamérica, y el nombre inglés “spider flower” alude a sus largos estambres, parecidos a patas de araña. Sus significados florales más conocidos son “un momento secreto”, “embriagado por tu belleza” y “pequeño amor”.",
+          fr: "Le cléome possède quatre pétales blancs, roses ou violets et de très longues étamines qui dépassent largement, donnant à la fleur une silhouette originale évoquant un papillon ou une araignée. Il fleurit de l’été à l’automne, chaque fleur commençant généralement à s’ouvrir le soir avant de se faner le lendemain. Le cléome couramment cultivé dans les jardins est originaire d’Amérique du Sud, et son nom anglais « spider flower » fait référence à ses longues étamines ressemblant aux pattes d’une araignée. Ses significations florales les plus connues sont « moment secret », « enivré par ta beauté » et « petit amour ».",
+          de: "Die Spinnenblume besitzt vier weiße, rosa oder violette Blütenblätter und auffallend lange Staubblätter, die ihr ein ungewöhnliches, an Schmetterlinge oder Spinnen erinnerndes Aussehen geben. Sie blüht vom Sommer bis in den Herbst; die einzelnen Blüten öffnen sich meist am Abend und verwelken am folgenden Tag. Die häufig in Gärten kultivierte Cleome stammt aus Südamerika, und der englische Name „Spider Flower“ bezieht sich auf die langen, spinnenbeinähnlichen Staubblätter. Bekannte Blumenbedeutungen sind „ein geheimer Augenblick“, „von deiner Schönheit berauscht“ und „kleine Liebe“.",
+          zh: "醉蝶花有四片白色、粉色或紫色花瓣，细长的雄蕊明显向外伸出，使花朵看起来像飞舞的蝴蝶或蜘蛛。它从夏季开到秋季，每一朵花通常在傍晚开始开放，到第二天便逐渐凋谢。园艺中常见的醉蝶花原产于南美洲，英文名“Spider flower”来自它像蜘蛛长腿一样伸展的雄蕊。代表性的花语有“秘密的时光”“为你的美丽而陶醉”和“小小的爱”。",
+          ko: "클레오메는 흰색, 분홍색, 보라색 등의 네 장 꽃잎에서 매우 긴 수술이 밖으로 뻗어 나와 나비나 거미가 춤추는 듯한 독특한 모습을 보입니다. 여름부터 가을까지 피며, 꽃 하나하나는 보통 저녁 무렵에 열리기 시작해 다음 날이면 시드는 하루꽃입니다. 정원에서 흔히 재배하는 클레오메는 남아메리카가 원산지이며, 영어 이름 ‘Spider flower’는 긴 수술이 거미의 다리처럼 보이는 데서 유래했습니다. 대표적인 꽃말은 ‘비밀스러운 한때’, ‘당신의 아름다움에 취하다’, ‘작은 사랑’입니다."
+        }
+      },
+
+      {
+        id: "wateringCan",
+        emoji: "🚿",
+        x: 37,
+        y: 60,
+        w: 27,
+        h: 14.5,
+        z: 40,
+        words: {
+          ja: { word: "じょうろ", reading: "じょうろ" },
+          en: { word: "Watering Can", reading: "WAW-ter-ing KAN" },
+          es: { word: "regadera", reading: "rre-ga-DE-ra" },
+          fr: { word: "arrosoir", reading: "a-rro-ZWAR" },
+          de: { word: "Gießkanne", reading: "GEES-kan-ne" },
+          zh: { word: "洒水壶", reading: "sǎ shuǐ hú" },
+          ko: { word: "물뿌리개", reading: "mulppurigae" }
+        }
+      },
+
+      {
+        id: "ribbon",
+        emoji: "🎀",
+        x: 68,
+        y: 60,
+        w: 28.5,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "リボン", reading: "りぼん" },
+          en: { word: "Ribbon", reading: "RIB-un" },
+          es: { word: "cinta", reading: "SEEN-ta" },
+          fr: { word: "ruban", reading: "ru-BAHN" },
+          de: { word: "Band", reading: "BANT" },
+          zh: { word: "丝带", reading: "sī dài" },
+          ko: { word: "리본", reading: "ribon" }
+        }
+      },
+
+      {
+        id: "flowerShears",
+        emoji: "✂️",
+        x: 4,
+        y: 76,
+        w: 28,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "花ばさみ", reading: "はなばさみ" },
+          en: { word: "Flower Shears", reading: "FLOW-er SHEERZ" },
+          es: { word: "tijeras para flores", reading: "tee-HE-ras PA-ra FLO-res" },
+          fr: { word: "ciseaux à fleurs", reading: "see-ZOH ah FLUR" },
+          de: { word: "Blumenschere", reading: "BLOO-men-she-re" },
+          zh: { word: "花剪", reading: "huā jiǎn" },
+          ko: { word: "꽃가위", reading: "kkot-gawi" }
+        }
+      },
+
+      {
+        id: "wrappingPaper",
+        emoji: "📜",
+        x: 35.5,
+        y: 75.5,
+        w: 29.5,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "包装紙", reading: "ほうそうし" },
+          en: { word: "Wrapping Paper", reading: "RAP-ing PAY-per" },
+          es: { word: "papel de regalo", reading: "pa-PEL de rre-GA-lo" },
+          fr: { word: "papier cadeau", reading: "pa-PYAY ka-DOH" },
+          de: { word: "Geschenkpapier", reading: "ge-SHENK-pa-PEER" },
+          zh: { word: "包装纸", reading: "bāo zhuāng zhǐ" },
+          ko: { word: "포장지", reading: "pojangji" }
+        }
+      }
+    ]
   }
 };
 
@@ -7338,6 +7841,7 @@ function renderSceneSwitcher(){
 
       currentSceneId = scene.id;
       currentItemId = null;
+      closeZoomOverlay();
 
       safeSet(
         STORAGE.scene,
@@ -7553,9 +8057,15 @@ document.addEventListener("pointerdown", event => {
 });
 
 document.addEventListener("keydown", event => {
-  if(event.key === "Escape" && !menuPanel.hidden){
-    setMenuOpen(false);
-    menuButton.focus();
+  if(event.key === "Escape"){
+    if(isZoomOpen()){
+      closeZoomOverlay();
+      return;
+    }
+    if(!menuPanel.hidden){
+      setMenuOpen(false);
+      menuButton.focus();
+    }
   }
 });
 
@@ -7572,6 +8082,12 @@ function selectItem(itemId, shouldSpeak){
 
   if(shouldSpeak){
     speakCurrentItem();
+  }
+
+  if(getScene().zoom && item.desc){
+    openZoomOverlay(item);
+  }else if(isZoomOpen()){
+    closeZoomOverlay();
   }
 }
 
@@ -7807,6 +8323,15 @@ languageSelect.addEventListener(
 
     renderScene();
 
+    if(isZoomOpen() && zoomItemId){
+      const zItem = getItemById(zoomItemId);
+      if(zItem && zItem.desc){
+        fillZoomOverlay(zItem);
+      }else{
+        closeZoomOverlay();
+      }
+    }
+
     if(currentItemId){
       speakCurrentItem();
     }else{
@@ -7899,6 +8424,163 @@ if("speechSynthesis" in window){
     loadVoices;
 }
 
+
+/* ===== florist zoom overlay (scene.zoom + item.desc) ===== */
+const zoomOverlay = document.getElementById("zoomOverlay");
+const zoomCrop = document.getElementById("zoomCrop");
+const zoomCropInner = document.getElementById("zoomCropInner");
+const zoomEmoji = document.getElementById("zoomEmoji");
+const zoomWord = document.getElementById("zoomWord");
+const zoomReading = document.getElementById("zoomReading");
+const zoomDesc = document.getElementById("zoomDesc");
+const zoomSpeakDesc = document.getElementById("zoomSpeakDesc");
+const zoomHint = document.getElementById("zoomHint");
+let zoomItemId = null;
+let zoomIgnoreUntil = 0;
+
+const ZOOM_HINT = {
+  ja: "タップで戻る",
+  en: "Tap to close",
+  es: "Toca para cerrar",
+  fr: "Touchez pour fermer",
+  de: "Tippen zum Schließen",
+  zh: "点按即可返回",
+  ko: "탭하면 돌아갑니다"
+};
+const ZOOM_SPEAK_LABEL = {
+  ja: "🔊 解説を読む",
+  en: "🔊 Read description",
+  es: "🔊 Leer descripción",
+  fr: "🔊 Lire la description",
+  de: "🔊 Beschreibung vorlesen",
+  zh: "🔊 朗读说明",
+  ko: "🔊 설명 읽기"
+};
+
+function isZoomOpen(){
+  return zoomOverlay && !zoomOverlay.hidden;
+}
+
+function getItemDesc(item){
+  if(!item || !item.desc) return "";
+  return item.desc[currentLanguage] || item.desc.en || item.desc.ja || "";
+}
+
+function closeZoomOverlay(){
+  if(!zoomOverlay || zoomOverlay.hidden) return;
+  zoomOverlay.hidden = true;
+  zoomItemId = null;
+  zoomCropInner.style.backgroundImage = "";
+  document.body.style.overflow = "";
+}
+
+function layoutZoomCrop(item){
+  const img = sceneImage;
+  const iw = img.naturalWidth || 941;
+  const ih = img.naturalHeight || 1672;
+  const x = Number(item.x) || 0;
+  const y = Number(item.y) || 0;
+  const w = Math.max(Number(item.w) || 1, 1);
+  const h = Math.max(Number(item.h) || 1, 1);
+  const cropAspect = (w / 100 * iw) / (h / 100 * ih);
+
+  const maxW = Math.min(window.innerWidth * 0.92, 520);
+  const maxH = Math.min(window.innerHeight * 0.52, 520);
+  let cw = maxW;
+  let ch = cw / cropAspect;
+  if(ch > maxH){
+    ch = maxH;
+    cw = ch * cropAspect;
+  }
+  zoomCrop.style.width = cw + "px";
+  zoomCrop.style.height = ch + "px";
+
+  const fullW = cw * (100 / w);
+  const fullH = ch * (100 / h);
+  zoomCropInner.style.width = fullW + "px";
+  zoomCropInner.style.height = fullH + "px";
+  zoomCropInner.style.left = (-x / w * cw) + "px";
+  zoomCropInner.style.top = (-y / h * ch) + "px";
+  zoomCropInner.style.backgroundImage =
+    'url("' + getScene().background.replace(/"/g, '\\"') + '")';
+  zoomCropInner.style.backgroundSize = "100% 100%";
+  zoomCropInner.style.backgroundPosition = "0 0";
+}
+
+function fillZoomOverlay(item){
+  const localized = getLocalizedItem(item);
+  if(!localized) return;
+  zoomEmoji.textContent = item.emoji || "";
+  zoomWord.textContent = localized.word;
+  zoomReading.textContent = localized.reading || "";
+  zoomDesc.textContent = getItemDesc(item);
+  zoomHint.textContent =
+    ZOOM_HINT[currentLanguage] || ZOOM_HINT.en;
+  zoomSpeakDesc.textContent =
+    ZOOM_SPEAK_LABEL[currentLanguage] || ZOOM_SPEAK_LABEL.en;
+  layoutZoomCrop(item);
+}
+
+function openZoomOverlay(item){
+  if(!getScene().zoom || !item || !item.desc) return;
+  zoomItemId = item.id;
+  fillZoomOverlay(item);
+  zoomOverlay.hidden = false;
+  document.body.style.overflow = "hidden";
+  zoomIgnoreUntil = Date.now() + 400;
+  zoomOverlay.focus({ preventScroll: true });
+}
+
+function speakZoomDescription(){
+  const item = zoomItemId ? getItemById(zoomItemId) : null;
+  const text = getItemDesc(item);
+  if(!text) return;
+  if(
+    !("speechSynthesis" in window) ||
+    !("SpeechSynthesisUtterance" in window)
+  ){
+    return;
+  }
+  const langInfo = LANGS[currentLanguage];
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = langInfo.locale;
+  utterance.volume = volume;
+  utterance.rate = rate;
+  utterance.pitch = 1;
+  const voice = chooseVoice(langInfo.locale);
+  if(voice) utterance.voice = voice;
+  window.speechSynthesis.cancel();
+  window.setTimeout(() => {
+    window.speechSynthesis.speak(utterance);
+  }, 40);
+}
+
+if(zoomOverlay){
+  zoomOverlay.tabIndex = -1;
+  zoomOverlay.addEventListener("pointerup", event => {
+    if(Date.now() < zoomIgnoreUntil) return;
+    if(event.target.closest("#zoomSpeakDesc")) return;
+    event.preventDefault();
+    closeZoomOverlay();
+  });
+  zoomSpeakDesc.addEventListener("pointerup", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    speakZoomDescription();
+  });
+  zoomSpeakDesc.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+}
+
+window.addEventListener("resize", () => {
+  if(isZoomOpen() && zoomItemId){
+    const item = getItemById(zoomItemId);
+    if(item) layoutZoomCrop(item);
+  }
+});
+
 function init(){
   loadSettings();
 
@@ -7915,5 +8597,6 @@ function init(){
 
 init();
 </script>
+
 </body>
 </html>
