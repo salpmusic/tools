@@ -4,4 +4,4 @@
 - 新しい部屋を追加するときは、必ず一番上（roomGrid の先頭）に入れる。
 - 現在の並び（新しい順）: Moonlight → Coffee → Reggae → Morning
 - 2026-10-06追記: 先頭は Osmanthus morning → night → reggae → Cleome…
-
+- 部屋カードの文言(room* / room*Desc)は translations に ja/en/vi/tl/my/mni の6言語すべて必要(無い言語は英語表示になる)。my=ミャンマー語(Unicode)、mni=マニプリ語(メイテイ・マエク文字)。

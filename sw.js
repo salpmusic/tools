@@ -1,5 +1,5 @@
-/* salp Tools Service Worker v2.7.2 — S26 Edition */
-const CACHE_NAME = 'salp-tools-v2.7.2-s26';
+/* salp Tools Service Worker v2.7.3 — S26 Edition */
+const CACHE_NAME = 'salp-tools-v2.7.3-s26';
 
 // 実在する主要ファイルだけを対象にする。
 // 1つ欠けてもService Worker全体が失敗しないよう個別に保存する。
@@ -10,7 +10,10 @@ const CORE_FILES = [
   './manifest.webmanifest',
   './salp-s26-basic.html',
   './s26basic.html',
-  './s26basic-core.html'
+  './s26basic-core.html',
+  './fonts/NotoSansMeeteiMayek-VF.woff2',
+  './fonts/Padauk-Regular.woff2',
+  './fonts/Padauk-Bold.woff2'
 ];
 
 self.addEventListener('install', event => {
