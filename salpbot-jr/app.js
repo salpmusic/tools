@@ -4,7 +4,11 @@
   const memoryAPI =
     window.SalpbotMemory;
 
+  const brainAPI =
+    window.SalpbotBrain;
+
   const HISTORY_TO_SEND = 8;
+
 
   const elements = {
     botName:
@@ -25,6 +29,16 @@
     brainStatus:
       document.getElementById(
         "brainStatus"
+      ),
+
+    footerBrain:
+      document.getElementById(
+        "footerBrain"
+      ),
+
+    brainProviderSelect:
+      document.getElementById(
+        "brainProviderSelect"
       ),
 
     chatArea:
@@ -52,6 +66,11 @@
         "importButton"
       ),
 
+    restoreButton:
+      document.getElementById(
+        "restoreButton"
+      ),
+
     clearButton:
       document.getElementById(
         "clearButton"
@@ -62,6 +81,26 @@
         "importFileInput"
       ),
 
+    importModeDialog:
+      document.getElementById(
+        "importModeDialog"
+      ),
+
+    importReplaceButton:
+      document.getElementById(
+        "importReplaceButton"
+      ),
+
+    importMergeButton:
+      document.getElementById(
+        "importMergeButton"
+      ),
+
+    importCancelButton:
+      document.getElementById(
+        "importCancelButton"
+      ),
+
     messageCount:
       document.getElementById(
         "messageCount"
@@ -70,6 +109,11 @@
     memoryMessage:
       document.getElementById(
         "memoryMessage"
+      ),
+
+    backupInfo:
+      document.getElementById(
+        "backupInfo"
       ),
 
     workerUrlInput:
@@ -101,6 +145,8 @@
 
   let personality = null;
 
+  let basePersonality = null;
+
   let memory = null;
 
   let connection = {
@@ -110,14 +156,21 @@
 
   let sending = false;
 
+  let pendingImport = null;
 
-  async function loadPersonality() {
+
+  // =========================================================
+  // Personality
+  // =========================================================
+
+  async function loadPersonalityFile() {
     try {
       const response =
         await fetch(
           "./personality.json",
           {
-            cache: "no-store"
+            cache:
+              "no-store"
           }
         );
 
@@ -162,8 +215,22 @@
           "カネちゃん、salpbot Jr.です。",
 
         local_reply:
-          "了解、カネちゃん。今はローカルモードだよ。Workerを設定するとAIと会話できるようになるよ。"
+          "了解、カネちゃん。今はローカルモードだよ。"
       };
+    }
+  }
+
+
+  // 読み込んだ人格が personality.json と同じなら上書きを持たない
+  // (personality.json の今後の更新がそのまま反映されるように)
+  function syncPersonalityOverride() {
+    if (
+      basePersonality &&
+      JSON.stringify(personality) ===
+        JSON.stringify(basePersonality)
+    ) {
+      memoryAPI
+        .savePersonalityOverride(null);
     }
   }
 
@@ -185,36 +252,119 @@
   }
 
 
-  function isOnlineConfigured() {
-    return Boolean(
-      connection.workerUrl &&
-      connection.token
-    );
+  // =========================================================
+  // Brain
+  // =========================================================
+
+  function populateBrainProviders() {
+    elements.brainProviderSelect
+      .innerHTML = "";
+
+    for (
+      const provider
+      of brainAPI.list()
+    ) {
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        provider.id;
+
+      option.textContent =
+        provider.label;
+
+      elements.brainProviderSelect
+        .appendChild(
+          option
+        );
+    }
+
+    const active =
+      brainAPI.getActiveId();
+
+    if (
+      brainAPI.get(active)
+    ) {
+      elements.brainProviderSelect
+        .value = active;
+
+    } else {
+      brainAPI.setActive(
+        "local"
+      );
+
+      elements.brainProviderSelect
+        .value = "local";
+    }
   }
 
 
-  function updateConnectionUI() {
+  function updateBrainUI() {
+    const active =
+      brainAPI.getActiveId();
+
     const online =
-      isOnlineConfigured();
+      active !== "local";
 
-    elements.brainStatus.textContent =
-      online
-        ? "ONLINE"
-        : "LOCAL";
+    elements.brainStatus
+      .textContent =
+        online
+          ? "ONLINE"
+          : "LOCAL";
 
-    elements.brainStatus.classList
-      .toggle(
+    elements.brainStatus
+      .classList.toggle(
         "online",
         online
       );
 
-    elements.brainStatus.classList
-      .toggle(
+    elements.brainStatus
+      .classList.toggle(
         "offline",
         !online
       );
+
+    elements.footerBrain
+      .textContent =
+        `Brain: ${active}`;
+
+    elements.brainProviderSelect
+      .value = active;
+
+    renderConversation();
   }
 
+
+  function handleBrainChange() {
+    const id =
+      elements.brainProviderSelect
+        .value;
+
+    try {
+      brainAPI.setActive(id);
+
+      updateBrainUI();
+
+      showConnectionMessage(
+        `Brainを ${
+          brainAPI.get()?.label ||
+          id
+        } に切り替えました。`
+      );
+
+    } catch (error) {
+      showConnectionMessage(
+        error.message
+      );
+    }
+  }
+
+
+  // =========================================================
+  // Connection
+  // =========================================================
 
   function loadConnectionUI() {
     connection =
@@ -226,8 +376,6 @@
 
     elements.workerTokenInput.value =
       connection.token;
-
-    updateConnectionUI();
   }
 
 
@@ -282,17 +430,27 @@
     elements.workerTokenInput.value =
       connection.token;
 
-    updateConnectionUI();
+    if (
+      connection.workerUrl &&
+      connection.token &&
+      brainAPI.get("worker-openai")
+    ) {
+      brainAPI.setActive(
+        "worker-openai"
+      );
 
-    if (isOnlineConfigured()) {
+      updateBrainUI();
+
       showConnectionMessage(
-        "AI接続設定を保存しました。次の送信からONLINEです。"
+        "接続設定を保存しました。Brain: OpenAI (Worker) / ONLINE"
       );
-    } else {
-      showConnectionMessage(
-        "設定を保存しました。Worker URLとTokenの両方が揃うまではLOCALです。"
-      );
+
+      return;
     }
+
+    showConnectionMessage(
+      "接続設定を保存しました。"
+    );
   }
 
 
@@ -307,15 +465,24 @@
     elements.workerTokenInput.value =
       "";
 
-    updateConnectionUI();
+    if (
+      brainAPI.getActiveId() ===
+      "worker-openai"
+    ) {
+      brainAPI.setActive("local");
+
+      updateBrainUI();
+    }
 
     showConnectionMessage(
-      "AI接続設定を削除しました。LOCALモードです。"
+      "接続設定を削除しました。LOCALモードです。"
     );
   }
 
 
-  function showConnectionMessage(text) {
+  function showConnectionMessage(
+    text
+  ) {
     elements.connectionMessage
       .textContent = text;
 
@@ -331,14 +498,22 @@
   }
 
 
+  // =========================================================
+  // Conversation
+  // =========================================================
+
   function renderConversation() {
-    elements.chatArea.innerHTML = "";
+    elements.chatArea.innerHTML =
+      "";
 
     const history =
-      memory?.conversation_history ||
+      memory
+        ?.conversation_history ||
       [];
 
-    if (history.length === 0) {
+    if (
+      history.length === 0
+    ) {
       const empty =
         document.createElement(
           "div"
@@ -361,33 +536,44 @@
           "span"
         );
 
-      text.textContent =
-        isOnlineConfigured()
-          ? "ONLINEモードです。Worker経由でAIと会話できます。"
-          : "LOCALモードです。Workerを設定するとAIと会話できます。";
+      const active =
+        brainAPI.getActiveId();
 
-      empty.appendChild(strong);
-      empty.appendChild(text);
+      text.textContent =
+        active === "local"
+          ? "LOCALモードです。会話はこの端末に保存されます。"
+          : `${brainAPI.get()?.label || active} を使用します。`;
+
+      empty.appendChild(
+        strong
+      );
+
+      empty.appendChild(
+        text
+      );
 
       elements.chatArea
-        .appendChild(empty);
+        .appendChild(
+          empty
+        );
 
     } else {
-
-      history.forEach(
-        (message) => {
-          elements.chatArea
-            .appendChild(
-              createMessageElement(
-                message
-              )
-            );
-        }
-      );
+      for (
+        const message
+        of history
+      ) {
+        elements.chatArea
+          .appendChild(
+            createMessageElement(
+              message
+            )
+          );
+      }
     }
 
-    elements.messageCount.textContent =
-      `${history.length} messages`;
+    elements.messageCount
+      .textContent =
+        `${history.length} messages`;
 
     requestAnimationFrame(() => {
       elements.chatArea.scrollTop =
@@ -460,7 +646,9 @@
   }
 
 
-  function formatTime(timestamp) {
+  function formatTime(
+    timestamp
+  ) {
     try {
       return new Intl
         .DateTimeFormat(
@@ -468,7 +656,9 @@
           {
             month: "numeric",
             day: "numeric",
+
             hour: "2-digit",
+
             minute: "2-digit"
           }
         )
@@ -514,10 +704,6 @@
       return;
     }
 
-    // Workerへ送る直前の
-    // 過去履歴を保持する。
-    // 今回の新規発言は別 message で送る。
-
     const previousHistory =
       (
         memory
@@ -547,34 +733,6 @@
 
     renderConversation();
 
-    // --------------------------------------
-    // LOCAL
-    // --------------------------------------
-
-    if (!isOnlineConfigured()) {
-      window.setTimeout(() => {
-        const reply =
-          personality.local_reply ||
-          "了解、カネちゃん。今はLOCALモードだよ。";
-
-        memory =
-          memoryAPI.addMessage(
-            memory,
-            "assistant",
-            reply
-          );
-
-        renderConversation();
-
-      }, 180);
-
-      return;
-    }
-
-    // --------------------------------------
-    // ONLINE
-    // --------------------------------------
-
     setSending(true);
 
     showMemoryMessage(
@@ -583,10 +741,18 @@
 
     try {
       const reply =
-        await requestWorker(
-          text,
-          previousHistory
-        );
+        await brainAPI.send({
+          personality,
+
+          memories:
+            collectImportantMemories(),
+
+          history:
+            previousHistory,
+
+          message:
+            text
+        });
 
       memory =
         memoryAPI.addMessage(
@@ -598,96 +764,28 @@
       renderConversation();
 
       showMemoryMessage(
-        "ONLINE応答を受信しました。"
+        "返答を受信しました。"
       );
 
     } catch (error) {
       console.error(
-        "Worker request failed:",
+        "Brain error:",
         error
       );
 
       showMemoryMessage(
         `エラー: ${
           error.message ||
-          "AIとの通信に失敗しました。"
+          "返答を取得できませんでした。"
         }`
       );
 
     } finally {
       setSending(false);
 
-      elements.messageInput.focus();
+      elements.messageInput
+        .focus();
     }
-  }
-
-
-  async function requestWorker(
-    message,
-    history
-  ) {
-    const importantMemories =
-      collectImportantMemories();
-
-    const response =
-      await fetch(
-        connection.workerUrl,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            "Authorization":
-              `Bearer ${connection.token}`
-          },
-
-          body:
-            JSON.stringify({
-              personality,
-
-              important_memories:
-                importantMemories,
-
-              history,
-
-              message
-            })
-        }
-      );
-
-    let data;
-
-    try {
-      data =
-        await response.json();
-    } catch {
-      throw new Error(
-        `WorkerからJSON以外の応答が返りました。HTTP ${response.status}`
-      );
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        data?.error ||
-        `Worker HTTP ${response.status}`
-      );
-    }
-
-    if (
-      !data ||
-      data.ok !== true ||
-      typeof data.reply !==
-        "string" ||
-      !data.reply.trim()
-    ) {
-      throw new Error(
-        "Workerから返事を取得できませんでした。"
-      );
-    }
-
-    return data.reply.trim();
   }
 
 
@@ -699,9 +797,13 @@
         ?.profile
         ?.important_notes;
 
-    if (Array.isArray(notes)) {
-      for (const note of notes) {
-
+    if (
+      Array.isArray(notes)
+    ) {
+      for (
+        const note
+        of notes
+      ) {
         if (
           typeof note ===
           "string"
@@ -715,8 +817,6 @@
 
         } else if (
           note &&
-          typeof note ===
-            "object" &&
           typeof note.content ===
             "string"
         ) {
@@ -744,11 +844,10 @@
           typeof item ===
           "string"
         ) {
-          const clean =
-            item.trim();
-
-          if (clean) {
-            result.push(clean);
+          if (item.trim()) {
+            result.push(
+              item.trim()
+            );
           }
 
         } else if (
@@ -767,19 +866,353 @@
                     : ""
                 );
 
-          const clean =
-            text.trim();
-
-          if (clean) {
-            result.push(clean);
+          if (text.trim()) {
+            result.push(
+              text.trim()
+            );
           }
         }
       }
     }
 
-    return result.slice(0, 20);
+    return result.slice(
+      0,
+      20
+    );
   }
 
+
+  // =========================================================
+  // Backup UI
+  // =========================================================
+
+  function updateBackupUI() {
+    const last =
+      memoryAPI
+        .getLastBackupAt();
+
+    const old =
+      memoryAPI
+        .isBackupOld(7);
+
+    elements.backupInfo
+      .classList.toggle(
+        "warning",
+        old
+      );
+
+    if (!last) {
+      elements.backupInfo
+        .textContent =
+          "まだ完全バックアップがありません。ときどき保存しておくと安心です。";
+
+    } else {
+      const date =
+        new Intl.DateTimeFormat(
+          "ja-JP",
+          {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        ).format(
+          new Date(last)
+        );
+
+      elements.backupInfo
+        .textContent =
+          old
+            ? `最終バックアップ: ${date}。7日以上空いています。そろそろ保存しておくと安心です。`
+            : `最終バックアップ: ${date}`;
+    }
+
+    elements.restoreButton.disabled =
+      !memoryAPI
+        .hasTemporaryBackup();
+  }
+
+
+  function handleExport() {
+    try {
+      memoryAPI
+        .exportFullBackup({
+          memory,
+
+          personality,
+
+          activeProvider:
+            brainAPI
+              .getActiveId()
+        });
+
+      updateBackupUI();
+
+      showMemoryMessage(
+        "完全バックアップを書き出しました。アクセストークンは含まれていません。"
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      showMemoryMessage(
+        "バックアップを書き出せませんでした。"
+      );
+    }
+  }
+
+
+  function handleImportClick() {
+    elements.importFileInput
+      .value = "";
+
+    elements.importFileInput
+      .click();
+  }
+
+
+  async function handleImportFile(
+    event
+  ) {
+    const file =
+      event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      pendingImport =
+        await memoryAPI
+          .readBackupFile(file);
+
+      if (
+        typeof elements
+          .importModeDialog
+          .showModal ===
+          "function"
+      ) {
+        elements
+          .importModeDialog
+          .showModal();
+
+      } else {
+        const merge =
+          window.confirm(
+            "OK: マージ\nキャンセル: 置き換え"
+          );
+
+        await executeImport(
+          merge
+            ? "merge"
+            : "replace"
+        );
+      }
+
+    } catch (error) {
+      console.error(error);
+
+      showMemoryMessage(
+        error.message ||
+        "JSONを読み込めませんでした。"
+      );
+    }
+  }
+
+
+  async function executeImport(
+    mode
+  ) {
+    if (!pendingImport) {
+      return;
+    }
+
+    try {
+      memoryAPI
+        .createTemporaryBackup({
+          memory,
+
+          personality,
+
+          activeProvider:
+            brainAPI
+              .getActiveId()
+        });
+
+      const result =
+        memoryAPI
+          .applyImportedData({
+            imported:
+              pendingImport.data,
+
+            mode,
+
+            currentMemory:
+              memory,
+
+            currentPersonality:
+              personality
+          });
+
+      memory =
+        result.memory;
+
+      if (
+        result.personality
+      ) {
+        personality =
+          result.personality;
+
+        syncPersonalityOverride();
+
+        applyPersonality();
+      }
+
+      if (
+        result.activeProvider &&
+        brainAPI.get(
+          result.activeProvider
+        )
+      ) {
+        brainAPI.setActive(
+          result.activeProvider
+        );
+      }
+
+      loadConnectionUI();
+
+      updateBrainUI();
+
+      renderConversation();
+
+      updateBackupUI();
+
+      showMemoryMessage(
+        mode === "merge"
+          ? "バックアップをマージしました。"
+          : "バックアップで置き換えました。"
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      showMemoryMessage(
+        error.message ||
+        "読み込みに失敗しました。"
+      );
+
+    } finally {
+      pendingImport = null;
+
+      if (
+        elements
+          .importModeDialog
+          .open
+      ) {
+        elements
+          .importModeDialog
+          .close();
+      }
+    }
+  }
+
+
+  function restorePreviousState() {
+    const backup =
+      memoryAPI
+        .readTemporaryBackup();
+
+    if (!backup) {
+      showMemoryMessage(
+        "戻せる一時バックアップがありません。"
+      );
+
+      return;
+    }
+
+    const ok =
+      window.confirm(
+        "JSON読み込み直前の状態に戻しますか？"
+      );
+
+    if (!ok) {
+      return;
+    }
+
+    try {
+      const result =
+        memoryAPI
+          .applyImportedData({
+            imported:
+              backup,
+
+            mode:
+              "replace",
+
+            currentMemory:
+              memory,
+
+            currentPersonality:
+              personality,
+
+            restoreEmptyWorkerUrl:
+              true
+          });
+
+      memory =
+        result.memory;
+
+      if (
+        result.personality
+      ) {
+        personality =
+          result.personality;
+
+        syncPersonalityOverride();
+
+        applyPersonality();
+      }
+
+      if (
+        result.activeProvider &&
+        brainAPI.get(
+          result.activeProvider
+        )
+      ) {
+        brainAPI.setActive(
+          result.activeProvider
+        );
+      }
+
+      loadConnectionUI();
+
+      memoryAPI
+        .clearTemporaryBackup();
+
+      updateBrainUI();
+
+      renderConversation();
+
+      updateBackupUI();
+
+      showMemoryMessage(
+        "直前の状態に戻しました。"
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      showMemoryMessage(
+        "元に戻せませんでした。"
+      );
+    }
+  }
+
+
+  // =========================================================
+  // Other UI
+  // =========================================================
 
   function showMemoryMessage(
     text
@@ -799,73 +1232,10 @@
   }
 
 
-  function handleExport() {
-    try {
-      memoryAPI.exportMemory(
-        memory
-      );
-
-      showMemoryMessage(
-        "記憶JSONを書き出しました。接続トークンは含まれていません。"
-      );
-
-    } catch (error) {
-      console.error(error);
-
-      showMemoryMessage(
-        "JSONを書き出せませんでした。"
-      );
-    }
-  }
-
-
-  function handleImportClick() {
-    elements.importFileInput.value =
-      "";
-
-    elements.importFileInput.click();
-  }
-
-
-  async function handleImportChange(
-    event
-  ) {
-    const file =
-      event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    try {
-      memory =
-        await memoryAPI
-          .importMemoryFile(
-            file,
-            personality
-          );
-
-      renderConversation();
-
-      showMemoryMessage(
-        "記憶JSONを読み込みました。"
-      );
-
-    } catch (error) {
-      console.error(error);
-
-      showMemoryMessage(
-        error.message ||
-        "JSONを読み込めませんでした。"
-      );
-    }
-  }
-
-
   function handleClear() {
     const ok =
       window.confirm(
-        "この端末に保存されている会話履歴を消去しますか？\n\n記憶JSONを書き出してから消去することもできます。"
+        "この端末に保存されている会話履歴を消去しますか？"
       );
 
     if (!ok) {
@@ -885,6 +1255,10 @@
     );
   }
 
+
+  // =========================================================
+  // Events
+  // =========================================================
 
   function registerEvents() {
     elements.sendButton
@@ -909,6 +1283,27 @@
         }
       );
 
+
+    elements.brainProviderSelect
+      .addEventListener(
+        "change",
+        handleBrainChange
+      );
+
+
+    elements.saveConnectionButton
+      .addEventListener(
+        "click",
+        saveConnection
+      );
+
+    elements.clearConnectionButton
+      .addEventListener(
+        "click",
+        clearConnection
+      );
+
+
     elements.exportButton
       .addEventListener(
         "click",
@@ -924,39 +1319,79 @@
     elements.importFileInput
       .addEventListener(
         "change",
-        handleImportChange
+        handleImportFile
       );
+
+
+    elements.importReplaceButton
+      .addEventListener(
+        "click",
+        () =>
+          executeImport(
+            "replace"
+          )
+      );
+
+    elements.importMergeButton
+      .addEventListener(
+        "click",
+        () =>
+          executeImport(
+            "merge"
+          )
+      );
+
+    elements.importCancelButton
+      .addEventListener(
+        "click",
+        () => {
+          pendingImport = null;
+
+          elements
+            .importModeDialog
+            .close();
+        }
+      );
+
+
+    elements.restoreButton
+      .addEventListener(
+        "click",
+        restorePreviousState
+      );
+
 
     elements.clearButton
       .addEventListener(
         "click",
         handleClear
       );
-
-    elements.saveConnectionButton
-      .addEventListener(
-        "click",
-        saveConnection
-      );
-
-    elements.clearConnectionButton
-      .addEventListener(
-        "click",
-        clearConnection
-      );
   }
 
 
+  // =========================================================
+  // Init
+  // =========================================================
+
   async function init() {
+    basePersonality =
+      await loadPersonalityFile();
+
+    const override =
+      memoryAPI
+        .loadPersonalityOverride();
+
     personality =
-      await loadPersonality();
+      override ||
+      basePersonality;
 
     applyPersonality();
 
     memory =
-      memoryAPI.loadMemory(
-        personality
-      );
+      memoryAPI
+        .loadMemory(
+          personality
+        );
 
     memory.bot = {
       ...memory.bot,
@@ -977,20 +1412,25 @@
     };
 
     memory =
-      memoryAPI.saveMemory(
-        memory
-      );
+      memoryAPI
+        .saveMemory(
+          memory
+        );
 
     loadConnectionUI();
 
+    populateBrainProviders();
+
     registerEvents();
+
+    updateBrainUI();
 
     renderConversation();
 
+    updateBackupUI();
+
     showMemoryMessage(
-      isOnlineConfigured()
-        ? "記憶を読み込みました。ONLINE設定済みです。"
-        : "ローカル記憶を読み込みました。"
+      "salpbot Jr.を読み込みました。"
     );
   }
 

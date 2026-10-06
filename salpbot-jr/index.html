@@ -2,42 +2,118 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111827">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#111827"
+  >
+
   <title>salpbot Jr.</title>
-  <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./style.css">
+
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./style.css"
+  >
 </head>
+
 <body>
+
   <div class="app">
+
     <header class="appHeader">
+
       <div class="brandRow">
-        <span class="botMark" aria-hidden="true">🤖</span>
+
+        <span
+          class="botMark"
+          aria-hidden="true"
+        >
+          🤖
+        </span>
+
         <div>
-          <h1 id="botName">salpbot Jr.</h1>
-          <p id="botSubtitle">カネちゃん専用アシスタント</p>
+          <h1 id="botName">
+            salpbot Jr.
+          </h1>
+
+          <p id="botSubtitle">
+            カネちゃん専用アシスタント
+          </p>
         </div>
+
       </div>
-      <span id="brainStatus" class="statusBadge offline">LOCAL</span>
+
+      <span
+        id="brainStatus"
+        class="statusBadge offline"
+      >
+        LOCAL
+      </span>
+
     </header>
 
+
     <section class="personalityPanel">
-      <div class="panelTitle">PERSONALITY</div>
-      <p id="personalityText">人格を読み込んでいます…</p>
+
+      <div class="panelTitle">
+        PERSONALITY
+      </div>
+
+      <p id="personalityText">
+        人格を読み込んでいます…
+      </p>
+
     </section>
 
+
     <section class="connectionPanel">
+
       <div class="panelTitle">
+        BRAIN
+      </div>
+
+      <p class="connectionHelp">
+        使用する頭脳を選べます。
+        将来別のAIを追加できます。
+      </p>
+
+      <div class="settingRow">
+
+        <label for="brainProviderSelect">
+          Provider
+        </label>
+
+        <select
+          id="brainProviderSelect"
+        >
+        </select>
+
+      </div>
+
+
+      <div class="panelTitle connectionSubTitle">
         AI CONNECTION
       </div>
 
       <p class="connectionHelp">
-        Workerを設定するとGPTモードになります。
-        アクセストークンはこの端末だけに保存され、
-        記憶JSONには書き出されません。
+        Worker URLとアクセストークンは
+        この端末に保存されます。
+        完全バックアップにはWorker URLだけ入り、
+        アクセストークンは絶対に入りません。
       </p>
 
       <div class="settingRow">
+
         <label for="workerUrlInput">
           Worker URL
         </label>
@@ -49,9 +125,11 @@
           autocomplete="off"
           placeholder="https://salpbot-jr-api.xxxxx.workers.dev"
         >
+
       </div>
 
       <div class="settingRow">
+
         <label for="workerTokenInput">
           Access Token
         </label>
@@ -62,9 +140,11 @@
           autocomplete="off"
           placeholder="SALPBOT_TOKEN"
         >
+
       </div>
 
       <div class="connectionButtons">
+
         <button
           id="saveConnectionButton"
           type="button"
@@ -76,47 +156,198 @@
           id="clearConnectionButton"
           type="button"
         >
-          LOCALに戻す
+          接続設定を消去
         </button>
+
       </div>
 
       <p
         id="connectionMessage"
         class="memoryMessage"
       ></p>
+
     </section>
 
-    <main id="chatArea" class="chatArea" aria-live="polite"></main>
+
+    <main
+      id="chatArea"
+      class="chatArea"
+      aria-live="polite"
+    >
+    </main>
+
 
     <section class="composer">
-      <label class="srOnly" for="messageInput">メッセージ</label>
-      <textarea id="messageInput" rows="2" maxlength="2000" placeholder="Jr.に話しかける..."></textarea>
-      <button id="sendButton" class="primaryButton" type="button">送信</button>
+
+      <label
+        class="srOnly"
+        for="messageInput"
+      >
+        メッセージ
+      </label>
+
+      <textarea
+        id="messageInput"
+        rows="2"
+        maxlength="2000"
+        placeholder="Jr.に話しかける..."
+      ></textarea>
+
+      <button
+        id="sendButton"
+        class="primaryButton"
+        type="button"
+      >
+        送信
+      </button>
+
     </section>
+
 
     <section class="memoryTools">
+
       <div class="toolsHeader">
+
         <div>
-          <div class="panelTitle">MEMORY</div>
-          <p>端末内保存 / JSONバックアップ</p>
+
+          <div class="panelTitle">
+            BACKUP
+          </div>
+
+          <p>
+            記憶・人格・履歴・設定を保存
+          </p>
+
         </div>
-        <span id="messageCount" class="countBadge">0 messages</span>
+
+        <span
+          id="messageCount"
+          class="countBadge"
+        >
+          0 messages
+        </span>
+
       </div>
+
+
+      <div
+        id="backupInfo"
+        class="backupInfo"
+      >
+      </div>
+
+
       <div class="toolButtons">
-        <button id="exportButton" type="button">JSONを書き出す</button>
-        <button id="importButton" type="button">JSONを読み込む</button>
-        <button id="clearButton" class="dangerButton" type="button">履歴を消去</button>
+
+        <button
+          id="exportButton"
+          type="button"
+        >
+          完全バックアップ
+        </button>
+
+        <button
+          id="importButton"
+          type="button"
+        >
+          JSONを読み込む
+        </button>
+
+        <button
+          id="restoreButton"
+          type="button"
+          disabled
+        >
+          直前の状態に戻す
+        </button>
+
+        <button
+          id="clearButton"
+          class="dangerButton"
+          type="button"
+        >
+          履歴を消去
+        </button>
+
       </div>
-      <input id="importFileInput" type="file" accept=".json,application/json" hidden>
-      <p id="memoryMessage" class="memoryMessage"></p>
+
+
+      <input
+        id="importFileInput"
+        type="file"
+        accept=".json,application/json"
+        hidden
+      >
+
+
+      <dialog
+        id="importModeDialog"
+        class="importDialog"
+      >
+
+        <h2>
+          JSONの読み込み
+        </h2>
+
+        <p>
+          現在の状態は読み込み前に
+          自動で一時退避します。
+        </p>
+
+        <div class="dialogButtons">
+
+          <button
+            id="importReplaceButton"
+            type="button"
+          >
+            置き換え
+          </button>
+
+          <button
+            id="importMergeButton"
+            type="button"
+          >
+            マージ
+          </button>
+
+          <button
+            id="importCancelButton"
+            type="button"
+          >
+            キャンセル
+          </button>
+
+        </div>
+
+      </dialog>
+
+
+      <p
+        id="memoryMessage"
+        class="memoryMessage"
+      ></p>
+
     </section>
 
+
     <footer>
-      <span>salpbot-jr v0.2</span>
-      <span>Brain: LOCAL / Worker経由GPT</span>
+
+      <span>
+        salpbot-jr v0.3
+      </span>
+
+      <span id="footerBrain">
+        Brain: local
+      </span>
+
     </footer>
+
   </div>
+
+
   <script src="./memory.js"></script>
+  <script src="./brain.js"></script>
   <script src="./app.js"></script>
+
 </body>
 </html>
