@@ -7613,6 +7613,296 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  cotton: {
+    id: "cotton",
+    icon: "☁️",
+    title: {
+      ja: "☁️ 綿（コットン）",
+      en: "☁️ Cotton",
+      es: "☁️ Algodón",
+      fr: "☁️ Coton",
+      de: "☁️ Baumwolle",
+      zh: "☁️ 棉花",
+      ko: "☁️ 면(코튼)"
+    },
+
+    background: "cotton.webp",
+    subtitle: "単語学習 綿（コットン）編",
+    documentTitle: "SALP WORDS | 単語学習 綿（コットン）編",
+    alt: "コットン用品のお店の店内と、窓の外に広がる綿畑のイラスト",
+    ariaLabel: "綿（コットン）の単語学習",
+    help: "綿（コットン）に関係する物の絵をタッチすると、名前を表示して読み上げます。同じ物を何度タッチしても発音できます。「見やすい」をONにするとタッチ場所も表示します。",
+    promptJa: "綿に関係する物を選んでください",
+
+    items: [
+      {
+        id: "cottonField",
+        emoji: "🌱",
+        x: 5.5,
+        y: 12.5,
+        w: 72.5,
+        h: 7,
+        z: 40,
+        words: {
+          ja: { word: "綿畑", reading: "わたばたけ" },
+          en: { word: "cotton field", reading: "KOT-un FEELD" },
+          es: { word: "campo de algodón", reading: "KAM-po de al-go-DON" },
+          fr: { word: "champ de coton", reading: "SHAHN de ko-TOHN" },
+          de: { word: "Baumwollfeld", reading: "BOWM-vol-felt" },
+          zh: { word: "棉花田", reading: "miánhuātián" },
+          ko: { word: "목화밭", reading: "mokhwabat" }
+        }
+      },
+
+      {
+        id: "cottonBoll",
+        emoji: "☁️",
+        x: 78.5,
+        y: 12,
+        w: 18.5,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "綿の実", reading: "わたのみ" },
+          en: { word: "cotton boll", reading: "KOT-un BOHL" },
+          es: { word: "cápsula de algodón", reading: "KAP-soo-la de al-go-DON" },
+          fr: { word: "capsule de coton", reading: "kap-SÜL de ko-TOHN" },
+          de: { word: "Baumwollkapsel", reading: "BOWM-vol-kap-sel" },
+          zh: { word: "棉桃", reading: "miántáo" },
+          ko: { word: "목화송이", reading: "mokhwasongi" }
+        }
+      },
+
+      {
+        id: "futon",
+        emoji: "🛏️",
+        x: 3.5,
+        y: 22.5,
+        w: 32,
+        h: 12,
+        z: 40,
+        words: {
+          ja: { word: "布団", reading: "ふとん" },
+          en: { word: "futon", reading: "FOO-ton" },
+          es: { word: "futón", reading: "foo-TON" },
+          fr: { word: "futon", reading: "fü-TOHN" },
+          de: { word: "Futon", reading: "FOO-ton" },
+          zh: { word: "被褥", reading: "bèirù" },
+          ko: { word: "이불", reading: "ibul" }
+        }
+      },
+
+      {
+        id: "pillow",
+        emoji: "😴",
+        x: 37,
+        y: 23.5,
+        w: 28,
+        h: 10,
+        z: 40,
+        words: {
+          ja: { word: "枕", reading: "まくら" },
+          en: { word: "pillow", reading: "PIL-oh" },
+          es: { word: "almohada", reading: "al-mo-A-da" },
+          fr: { word: "oreiller", reading: "o-re-YAY" },
+          de: { word: "Kopfkissen", reading: "KOPF-ki-sen" },
+          zh: { word: "枕头", reading: "zhěntou" },
+          ko: { word: "베개", reading: "begae" }
+        }
+      },
+
+      {
+        id: "teddyBear",
+        emoji: "🧸",
+        x: 72.5,
+        y: 23,
+        w: 16.5,
+        h: 11,
+        z: 40,
+        words: {
+          ja: { word: "くまのぬいぐるみ", reading: "くまのぬいぐるみ" },
+          en: { word: "teddy bear", reading: "TED-ee bair" },
+          es: { word: "osito de peluche", reading: "o-SEE-to de pe-LOO-che" },
+          fr: { word: "ours en peluche", reading: "oors on pe-LÜSH" },
+          de: { word: "Teddybär", reading: "TE-dee-bair" },
+          zh: { word: "泰迪熊", reading: "tàidíxióng" },
+          ko: { word: "곰 인형", reading: "gom inhyeong" }
+        }
+      },
+
+      {
+        id: "tShirt",
+        emoji: "👕",
+        x: 3.5,
+        y: 34.5,
+        w: 28.5,
+        h: 14.5,
+        z: 40,
+        words: {
+          ja: { word: "Tシャツ", reading: "てぃーしゃつ" },
+          en: { word: "T-shirt", reading: "TEE-shurt" },
+          es: { word: "camiseta", reading: "ka-mee-SE-ta" },
+          fr: { word: "tee-shirt", reading: "tee-SHURT" },
+          de: { word: "T-Shirt", reading: "TEE-shurt" },
+          zh: { word: "T恤", reading: "tī xù" },
+          ko: { word: "티셔츠", reading: "tisyeocheu" }
+        }
+      },
+
+      {
+        id: "socks",
+        emoji: "🧦",
+        x: 35,
+        y: 38.5,
+        w: 30.5,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "靴下", reading: "くつした" },
+          en: { word: "socks", reading: "SOKS" },
+          es: { word: "calcetines", reading: "kal-se-TEE-nes" },
+          fr: { word: "chaussettes", reading: "sho-SET" },
+          de: { word: "Socken", reading: "ZO-ken" },
+          zh: { word: "袜子", reading: "wàzi" },
+          ko: { word: "양말", reading: "yangmal" }
+        }
+      },
+
+      {
+        id: "handkerchief",
+        emoji: "🤍",
+        x: 67,
+        y: 38,
+        w: 30,
+        h: 9.5,
+        z: 40,
+        words: {
+          ja: { word: "ハンカチ", reading: "はんかち" },
+          en: { word: "handkerchief", reading: "HANG-ker-chif" },
+          es: { word: "pañuelo", reading: "pa-NYWE-lo" },
+          fr: { word: "mouchoir", reading: "moo-SHWAR" },
+          de: { word: "Taschentuch", reading: "TA-shen-tookh" },
+          zh: { word: "手帕", reading: "shǒupà" },
+          ko: { word: "손수건", reading: "sonsugeon" }
+        }
+      },
+
+      {
+        id: "towel",
+        emoji: "🧖",
+        x: 2.5,
+        y: 50,
+        w: 28,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "タオル", reading: "たおる" },
+          en: { word: "towel", reading: "TOW-el" },
+          es: { word: "toalla", reading: "to-A-ya" },
+          fr: { word: "serviette", reading: "ser-VYET" },
+          de: { word: "Handtuch", reading: "HANT-tookh" },
+          zh: { word: "毛巾", reading: "máojīn" },
+          ko: { word: "수건", reading: "sugeon" }
+        }
+      },
+
+      {
+        id: "threadSpool",
+        emoji: "🧵",
+        x: 37.5,
+        y: 53,
+        w: 27.5,
+        h: 9,
+        z: 40,
+        words: {
+          ja: { word: "糸巻き", reading: "いとまき" },
+          en: { word: "spool of thread", reading: "SPOOL uv THRED" },
+          es: { word: "carrete de hilo", reading: "ka-RRE-te de EE-lo" },
+          fr: { word: "bobine de fil", reading: "bo-BEEN de FEEL" },
+          de: { word: "Garnrolle", reading: "GARN-ro-le" },
+          zh: { word: "线轴", reading: "xiànzhóu" },
+          ko: { word: "실패", reading: "silpae" }
+        }
+      },
+
+      {
+        id: "toteBag",
+        emoji: "👜",
+        x: 72,
+        y: 47.5,
+        w: 23.5,
+        h: 16,
+        z: 40,
+        words: {
+          ja: { word: "トートバッグ", reading: "とーとばっぐ" },
+          en: { word: "tote bag", reading: "TOHT BAG" },
+          es: { word: "bolsa de tela", reading: "BOL-sa de TE-la" },
+          fr: { word: "sac en toile", reading: "SAK on TWAL" },
+          de: { word: "Stofftasche", reading: "SHTOF-ta-she" },
+          zh: { word: "帆布袋", reading: "fānbùdài" },
+          ko: { word: "에코백", reading: "ekobaek" }
+        }
+      },
+
+      {
+        id: "cottonSwab",
+        emoji: "👂",
+        x: 2.5,
+        y: 65.5,
+        w: 26.5,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "綿棒", reading: "めんぼう" },
+          en: { word: "cotton swab", reading: "KOT-un SWOB" },
+          es: { word: "bastoncillo", reading: "bas-ton-SEE-yo" },
+          fr: { word: "coton-tige", reading: "ko-tohn-TEEZH" },
+          de: { word: "Wattestäbchen", reading: "VA-te-shtep-khen" },
+          zh: { word: "棉签", reading: "miánqiān" },
+          ko: { word: "면봉", reading: "myeonbong" }
+        }
+      },
+
+      {
+        id: "cottonPad",
+        emoji: "⚪",
+        x: 36,
+        y: 66,
+        w: 29,
+        h: 13.5,
+        z: 40,
+        words: {
+          ja: { word: "コットンパフ", reading: "こっとんぱふ" },
+          en: { word: "cotton pad", reading: "KOT-un PAD" },
+          es: { word: "disco de algodón", reading: "DEES-ko de al-go-DON" },
+          fr: { word: "disque de coton", reading: "DEESK de ko-TOHN" },
+          de: { word: "Wattepad", reading: "VA-te-pet" },
+          zh: { word: "化妆棉", reading: "huàzhuāngmián" },
+          ko: { word: "화장솜", reading: "hwajangsom" }
+        }
+      },
+
+      {
+        id: "cottonCandy",
+        emoji: "🍭",
+        x: 72,
+        y: 64.5,
+        w: 25,
+        h: 14.5,
+        z: 40,
+        words: {
+          ja: { word: "綿あめ", reading: "わたあめ" },
+          en: { word: "cotton candy", reading: "KOT-un KAN-dee" },
+          es: { word: "algodón de azúcar", reading: "al-go-DON de a-SOO-kar" },
+          fr: { word: "barbe à papa", reading: "BARB a pa-PA" },
+          de: { word: "Zuckerwatte", reading: "TSU-ker-va-te" },
+          zh: { word: "棉花糖", reading: "miánhuātáng" },
+          ko: { word: "솜사탕", reading: "somsatang" }
+        }
+      }
+    ]
   }
 };
 
