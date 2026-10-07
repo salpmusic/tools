@@ -732,7 +732,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 <h2 data-i18n="sectionHBrain">🧠 脳トレゲーム</h2>
 <p data-i18n="sectionPBrain">記憶力・集中力・反応を楽しく鍛えられる、ブラウザで遊べる脳トレゲームです。</p>
 </div>
-<span class="count">42 GAMES</span>
+<span class="count">43 GAMES</span>
 </div>
 <div class="brainFilter" id="brainFilter" hidden>
 <p class="brainFilterLabel" id="brainFilterLabel" data-i18n="brainFilterLabel">絞り込み・並び替え（標準は新作順）</p>
@@ -744,6 +744,14 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </div>
 </div>
 <div class="grid">
+<article class="card gutbacteria">
+<span class="status">NEW</span>
+<div class="cardTop"><div class="icon">🦠</div><h3>菌のごはん便<br><small lang="en">Gut Bacteria Café</small></h3></div>
+<p>12種類の腸内細菌と、代表的な「ごはん」の組み合わせを覚えて届けよう！図鑑付き、3段階の難しさ、時間制限・自動進行・早さで変わる得点。1人／2人交互対戦、見やすいモード対応。日本語で遊べます。</p>
+<div class="tags"><span class="tag">Memory</span><span class="tag">Learning</span><span class="tag">2 Players</span><span class="tag">Mobile</span></div>
+<a class="open" href="./salp-gut-bacteria-v1.0.html">菌のごはん便を遊ぶ</a>
+</article>
+
 <article class="card memory9">
 <span class="status">NEW</span>
 <div class="cardTop">
@@ -1966,6 +1974,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
      → 新作順(added 降順。同じ日は後から足した方が先)・各チップ・件数・お気に入り★は自動。「33 GAMES」の数字もJSが実数で上書きする。
      (METAが無い/added が空のカードは「最新扱い」で新作順の先頭に出る=足し忘れに気付ける。) */
 window.SALP_FINDER_META = {
+  "./salp-gut-bacteria-v1.0.html": {"added":"2026-10-08","updated":"2026-10-08","ver":"1.0","tags":["memory"],"kw":["菌のごはん便","腸内細菌","菌","ビフィズス菌","ごはん","図鑑","記憶","脳トレ","2人","gut","bacteria","cafe","learning"]},
   "./salp-cotton-morning-v1.0.html": { added: "2026-10-07", updated: "2026-10-07", ver: "1.0", kw: ["猫", "ねこ", "部屋", "ワタの花", "綿", "cotton", "ふわふわ日記"] },
   "./salp-cotton-night-v1.0.html": { added: "2026-10-07", updated: "2026-10-07", ver: "1.0", kw: ["猫", "ねこ", "部屋", "ワタの花", "綿", "cotton", "夜", "ふわふわ日記"] },
   "./salp-cotton-reggae-v1.0.html": { added: "2026-10-07", updated: "2026-10-07", ver: "1.0", kw: ["猫", "ねこ", "部屋", "ワタの花", "綿", "cotton", "レゲエ", "ふわふわ日記"] },
