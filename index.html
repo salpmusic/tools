@@ -732,7 +732,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 <h2 data-i18n="sectionHBrain">🧠 脳トレゲーム</h2>
 <p data-i18n="sectionPBrain">記憶力・集中力・反応を楽しく鍛えられる、ブラウザで遊べる脳トレゲームです。</p>
 </div>
-<span class="count">46 GAMES</span>
+<span class="count">47 GAMES</span>
 </div>
 <div class="brainFilter" id="brainFilter" hidden>
 <p class="brainFilterLabel" id="brainFilterLabel" data-i18n="brainFilterLabel">絞り込み・並び替え（標準は新作順）</p>
@@ -744,6 +744,14 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </div>
 </div>
 <div class="grid">
+<article class="card mindweather">
+<span class="status">NEW</span>
+<div class="cardTop"><div class="icon">☁️</div><h3>こころの天気便<br><small lang="en">Mind Weather Memory</small></h3></div>
+<p>メンタルヘルスデーをテーマに、天気と休憩アイテムの組み合わせを覚えて選ぼう。難しさは5段階。レベル1は見本10秒・2択・時間制限なし・ヒント付きで、まちがえても選び直せます。1人／2人交互プレイ、大きな絵と文字、見やすいモード、効果音付き。気分の診断ではなく、記憶を楽しむゲームです。</p>
+<div class="tags"><span class="tag">Memory</span><span class="tag">2 Players</span><span class="tag">Mobile</span></div>
+<a class="open" href="./salp-mind-weather-v1.0.html">こころの天気便を遊ぶ</a>
+</article>
+
 <article class="card catcafe">
 <span class="status">NEW</span>
 <div class="cardTop"><div class="icon">🐈</div><h3>看板猫のおやつカフェ<br><small lang="en">Cat’s Treat Café</small></h3></div>
@@ -2012,6 +2020,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
      → 新作順(added 降順。同じ日は後から足した方が先)・各チップ・件数・お気に入り★は自動。「33 GAMES」の数字もJSが実数で上書きする。
      (METAが無い/added が空のカードは「最新扱い」で新作順の先頭に出る=足し忘れに気付ける。) */
 window.SALP_FINDER_META = {
+  "./salp-mind-weather-v1.0.html": {"added":"2026-10-10","updated":"2026-10-10","ver":"1.0","tags":["memory"],"kw":["こころの天気便","メンタルヘルスデー","心","天気","休憩","記憶","絵合わせ","5段階","2人","mind","weather","mental health","memory"]},
   "./salp-cat-cafe-v1.0.html": {"added":"2026-10-09","updated":"2026-10-09","ver":"1.1","tags":["cat","memory"],"kw":["看板猫","おやつ","カフェ","三毛猫","注文","記憶","5段階","2人","BGM","cat","cafe","memory"]},
   "./salp-post-office-v1.0.html": {"added":"2026-10-09","updated":"2026-10-09","ver":"1.1","tags":["memory","observe"],"kw":["郵便局","郵便","仕分け","配達","手紙","切手","宛先","記憶","ルール切替","2人","BGM","音楽","post office","postal","letter","memory"]},
   "./salp-gut-bacteria-v1.0.html": {"added":"2026-10-08","updated":"2026-10-09","ver":"1.2","tags":["memory"],"kw":["菌のごはん便","腸内細菌","菌","ビフィズス菌","ごはん","図鑑","記憶","脳トレ","2人","gut","bacteria","cafe","learning"]},
