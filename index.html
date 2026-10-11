@@ -732,7 +732,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 <h2 data-i18n="sectionHBrain">🧠 脳トレゲーム</h2>
 <p data-i18n="sectionPBrain">記憶力・集中力・反応を楽しく鍛えられる、ブラウザで遊べる脳トレゲームです。</p>
 </div>
-<span class="count">48 GAMES</span>
+<span class="count">49 GAMES</span>
 </div>
 <div class="brainFilter" id="brainFilter" hidden>
 <p class="brainFilterLabel" id="brainFilterLabel" data-i18n="brainFilterLabel">絞り込み・並び替え（標準は新作順）</p>
@@ -744,6 +744,13 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </div>
 </div>
 <div class="grid">
+<article class="card sportsrelay">
+<span class="status">NEW</span>
+<div class="cardTop"><div class="icon">🏅</div><h3>スポーツ道具リレー<br><small lang="en">Sports Gear Relay</small></h3></div>
+<p>スポーツの日にちなんだ、競技の順番を覚えて道具を選ぶ脳トレ。難しさ5段階、最初は見本10秒・答え付き・時間制限なし。1人／2人交代、見やすいモード、休憩機能、効果音とオリジナルBGM「Sports Day Relay」付き。</p>
+<div class="tags"><span class="tag">Memory</span><span class="tag">2 Players</span><span class="tag">Mobile</span></div>
+<a class="open" href="./salp-sports-relay-v1.0.html">スポーツ道具リレーを遊ぶ</a>
+</article>
 <article class="card dreamsteps">
 <span class="status">NEW</span>
 <div class="cardTop"><div class="icon">⭐</div><h3>ゆめのステップ<br><small lang="en">Dream Steps Memory</small></h3></div>
@@ -2028,6 +2035,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
      → 新作順(added 降順。同じ日は後から足した方が先)・各チップ・件数・お気に入り★は自動。「33 GAMES」の数字もJSが実数で上書きする。
      (METAが無い/added が空のカードは「最新扱い」で新作順の先頭に出る=足し忘れに気付ける。) */
 window.SALP_FINDER_META = {
+  "./salp-sports-relay-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.1","tags":["memory"],"kw":["スポーツ","スポーツの日","道具","リレー","順番","記憶","サッカー","野球","水泳","5段階","2人","sports","gear","relay","memory"]},
   "./salp-dream-steps-v1.0.html": {"added":"2026-10-11","updated":"2026-10-11","ver":"1.1","tags":["memory"],"kw":["ゆめのステップ","夢","国際ガールズデー","順番","記憶","宇宙","科学","アート","音楽","5段階","2人","dream","steps","girls","memory"]},
   "./salp-mind-weather-v1.0.html": {"added":"2026-10-10","updated":"2026-10-10","ver":"1.0","tags":["memory"],"kw":["こころの天気便","メンタルヘルスデー","心","天気","休憩","記憶","絵合わせ","5段階","2人","mind","weather","mental health","memory"]},
   "./salp-cat-cafe-v1.0.html": {"added":"2026-10-09","updated":"2026-10-09","ver":"1.1","tags":["cat","memory"],"kw":["看板猫","おやつ","カフェ","三毛猫","注文","記憶","5段階","2人","BGM","cat","cafe","memory"]},
