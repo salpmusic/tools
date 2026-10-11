@@ -182,14 +182,20 @@ h1 {
 
 .personalityPanel,
 .connectionPanel,
-.memoryTools {
+.memoryTools,
+.manualMemoryPanel {
   border:
     1px solid var(--border);
 
   border-radius: 16px;
 
   background: var(--panel);
+}
 
+
+.personalityPanel,
+.connectionPanel,
+.memoryTools {
   padding: 14px;
 }
 
@@ -309,12 +315,387 @@ h1 {
 }
 
 
+/* =========================================================
+   Manual Memory
+   ========================================================= */
+
+.manualMemoryPanel {
+  margin-top: 12px;
+
+  overflow: hidden;
+}
+
+
+.manualMemoryPanel summary {
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 12px;
+
+  padding: 14px;
+
+  cursor: pointer;
+
+  color: var(--accent);
+
+  font-size: 0.72rem;
+
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+
+  list-style: none;
+}
+
+
+.manualMemoryPanel summary::-webkit-details-marker {
+  display: none;
+}
+
+
+.manualMemoryPanel summary::before {
+  content: "▶";
+
+  margin-right: 8px;
+
+  color: var(--muted);
+
+  font-size: 0.65rem;
+
+  transition:
+    transform 0.15s ease;
+}
+
+
+.manualMemoryPanel[open]
+summary::before {
+  transform:
+    rotate(90deg);
+}
+
+
+.manualMemoryPanel summary > span:first-of-type {
+  margin-right: auto;
+}
+
+
+.summaryCount {
+  color: var(--muted);
+
+  font-size: 0.7rem;
+
+  font-weight: 600;
+
+  letter-spacing: 0;
+}
+
+
+.manualMemoryBody {
+  padding:
+    0 14px 14px;
+}
+
+
+.memoryForm {
+  padding: 12px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 12px;
+
+  background:
+    var(--panel-2);
+}
+
+
+.memoryForm textarea {
+  background: var(--bg);
+}
+
+
+.memoryFormButtons {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+
+.memoryFormButtons button {
+  min-height: 40px;
+
+  padding: 8px 14px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: var(--panel);
+
+  color: var(--text);
+}
+
+
+.memoryFormButtons
+.primarySmallButton {
+  border-color:
+    transparent;
+
+  background:
+    var(--accent);
+
+  color: #062316;
+
+  font-weight: 800;
+}
+
+
+.memoryFilterRow {
+  display: grid;
+
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+
+.memoryFilterRow label {
+  color: var(--muted);
+
+  font-size: 0.75rem;
+}
+
+
+.memoryFilterRow select {
+  min-height: 38px;
+
+  padding: 7px 9px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 10px;
+
+  background:
+    var(--panel-2);
+
+  color: var(--text);
+}
+
+
+.manualMemoryList {
+  display: grid;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+
+.manualMemoryItem {
+  padding: 11px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 12px;
+
+  background:
+    var(--panel-2);
+}
+
+
+.manualMemoryItemHeader {
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 8px;
+
+  margin-bottom: 8px;
+}
+
+
+.memoryCategoryBadge {
+  display: inline-block;
+
+  max-width: 65%;
+
+  overflow: hidden;
+
+  text-overflow:
+    ellipsis;
+
+  white-space: nowrap;
+
+  padding: 4px 7px;
+
+  border-radius: 999px;
+
+  background:
+    var(--accent-dark);
+
+  color:
+    var(--accent);
+
+  font-size: 0.68rem;
+
+  font-weight: 700;
+}
+
+
+.memoryItemDate {
+  color:
+    var(--muted);
+
+  font-size: 0.63rem;
+
+  white-space: nowrap;
+}
+
+
+.manualMemoryContent {
+  color:
+    var(--text);
+
+  line-height: 1.55;
+
+  white-space:
+    pre-wrap;
+
+  overflow-wrap:
+    anywhere;
+
+  font-size: 0.85rem;
+}
+
+
+.memoryItemButtons {
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  gap: 7px;
+
+  margin-top: 9px;
+}
+
+
+.memoryItemButtons button {
+  min-height: 34px;
+
+  padding: 5px 10px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 9px;
+
+  background:
+    var(--panel);
+
+  color:
+    var(--text);
+
+  font-size: 0.72rem;
+}
+
+
+.memoryItemButtons
+.memoryDeleteButton {
+  color:
+    var(--danger);
+}
+
+
+.memoryEmptyState {
+  padding: 18px;
+
+  border:
+    1px dashed var(--border);
+
+  border-radius: 12px;
+
+  color: var(--muted);
+
+  text-align: center;
+
+  font-size: 0.78rem;
+}
+
+
+/* =========================================================
+   History search
+   ========================================================= */
+
+.historySearch {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin:
+    14px 4px 0;
+}
+
+
+.historySearch input {
+  width: 100%;
+
+  min-height: 38px;
+
+  padding: 8px 11px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background:
+    var(--panel);
+
+  color:
+    var(--text);
+
+  font-size: 0.8rem;
+}
+
+
+.historySearch input:focus {
+  border-color:
+    var(--accent);
+}
+
+
+/* =========================================================
+   Chat
+   ========================================================= */
+
 .chatArea {
   min-height: 300px;
 
   max-height: 52dvh;
 
-  margin: 14px 0;
+  margin: 8px 0 14px;
 
   padding: 4px;
 
@@ -479,6 +860,10 @@ textarea:focus {
   cursor: wait;
 }
 
+
+/* =========================================================
+   Backup
+   ========================================================= */
 
 .memoryTools {
   margin-top: 8px;
@@ -708,6 +1093,20 @@ footer {
 
   .connectionButtons,
   .toolButtons {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .memoryFilterRow {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .memoryFormButtons {
+    display: grid;
+
     grid-template-columns:
       1fr;
   }

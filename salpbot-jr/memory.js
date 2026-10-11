@@ -31,6 +31,122 @@
   }
 
 
+  function createId(
+    prefix = "item"
+  ) {
+    if (
+      typeof crypto !==
+        "undefined" &&
+      typeof crypto.randomUUID ===
+        "function"
+    ) {
+      return (
+        `${prefix}-` +
+        crypto.randomUUID()
+      );
+    }
+
+    return (
+      prefix +
+      "-" +
+      Date.now().toString(36) +
+      "-" +
+      Math.random()
+        .toString(36)
+        .slice(2)
+    );
+  }
+
+
+  function normalizeMemoryItem(
+    item
+  ) {
+    const now = nowISO();
+
+    if (
+      typeof item === "string"
+    ) {
+      const content =
+        item.trim();
+
+      if (!content) {
+        return null;
+      }
+
+      return {
+        id:
+          createId("mem"),
+
+        category:
+          "その他",
+
+        content,
+
+        created_at:
+          now,
+
+        updated_at:
+          now
+      };
+    }
+
+    if (
+      !item ||
+      typeof item !== "object"
+    ) {
+      return null;
+    }
+
+    const content =
+      String(
+        item.content ??
+        item.text ??
+        ""
+      ).trim();
+
+    if (!content) {
+      return null;
+    }
+
+    return {
+      id:
+        typeof item.id === "string" &&
+        item.id.trim()
+          ? item.id
+          : createId("mem"),
+
+      category:
+        typeof item.category ===
+          "string" &&
+        item.category.trim()
+          ? item.category.trim()
+          : "その他",
+
+      content,
+
+      created_at:
+        typeof item.created_at ===
+          "string" &&
+        item.created_at
+          ? item.created_at
+          : now,
+
+      updated_at:
+        typeof item.updated_at ===
+          "string" &&
+        item.updated_at
+          ? item.updated_at
+          : (
+              typeof item.created_at ===
+                "string" &&
+              item.created_at
+                ? item.created_at
+                : now
+            )
+    };
+  }
+
+
   function createDefaultMemory(
     personality = null
   ) {
@@ -140,6 +256,10 @@
     normalized.memories =
       Array.isArray(raw.memories)
         ? raw.memories
+            .map(
+              normalizeMemoryItem
+            )
+            .filter(Boolean)
         : [];
 
     normalized.conversation_history =
@@ -282,30 +402,170 @@
   }
 
 
-  function createId(
-    prefix = "item"
-  ) {
-    if (
-      typeof crypto !==
-        "undefined" &&
-      typeof crypto.randomUUID ===
-        "function"
-    ) {
-      return (
-        `${prefix}-` +
-        crypto.randomUUID()
+  // =========================================================
+  // Manual memories
+  // =========================================================
+
+  const MAX_MEMORY_CONTENT = 500; // Workerが1件500文字で切り捨てるため合わせる
+  const MAX_MEMORY_CATEGORY = 40;
+
+
+  function checkMemoryInput(category, content) {
+    if (content.length > MAX_MEMORY_CONTENT) {
+      throw new Error(
+        `記憶内容は${MAX_MEMORY_CONTENT}文字以内にしてください。`
       );
     }
 
-    return (
-      prefix +
-      "-" +
-      Date.now().toString(36) +
-      "-" +
-      Math.random()
-        .toString(36)
-        .slice(2)
-    );
+    if (
+      String(category || "").trim().length >
+      MAX_MEMORY_CATEGORY
+    ) {
+      throw new Error(
+        `カテゴリは${MAX_MEMORY_CATEGORY}文字以内にしてください。`
+      );
+    }
+  }
+
+
+  function addMemory(
+    memory,
+    {
+      category,
+      content
+    }
+  ) {
+    const cleanContent =
+      String(
+        content || ""
+      ).trim();
+
+    if (!cleanContent) {
+      throw new Error(
+        "記憶内容を入力してください。"
+      );
+    }
+
+    checkMemoryInput(category, cleanContent);
+
+    const next =
+      normalizeMemory(memory);
+
+    const now =
+      nowISO();
+
+    next.memories.push({
+      id:
+        createId("mem"),
+
+      category:
+        String(
+          category ||
+          "その他"
+        ).trim() ||
+        "その他",
+
+      content:
+        cleanContent,
+
+      created_at:
+        now,
+
+      updated_at:
+        now
+    });
+
+    return saveMemory(next);
+  }
+
+
+  function updateMemory(
+    memory,
+    id,
+    {
+      category,
+      content
+    }
+  ) {
+    const cleanId =
+      String(id || "").trim();
+
+    const cleanContent =
+      String(
+        content || ""
+      ).trim();
+
+    if (!cleanId) {
+      throw new Error(
+        "記憶IDがありません。"
+      );
+    }
+
+    if (!cleanContent) {
+      throw new Error(
+        "記憶内容を入力してください。"
+      );
+    }
+
+    checkMemoryInput(category, cleanContent);
+
+    const next =
+      normalizeMemory(memory);
+
+    const index =
+      next.memories.findIndex(
+        (item) =>
+          item.id === cleanId
+      );
+
+    if (index < 0) {
+      throw new Error(
+        "編集する記憶が見つかりません。"
+      );
+    }
+
+    next.memories[index] = {
+      ...next.memories[index],
+
+      category:
+        String(
+          category ||
+          "その他"
+        ).trim() ||
+        "その他",
+
+      content:
+        cleanContent,
+
+      updated_at:
+        nowISO()
+    };
+
+    return saveMemory(next);
+  }
+
+
+  function deleteMemory(
+    memory,
+    id
+  ) {
+    const cleanId =
+      String(id || "").trim();
+
+    if (!cleanId) {
+      return memory;
+    }
+
+    const next =
+      normalizeMemory(memory);
+
+    next.memories =
+      next.memories.filter(
+        (item) =>
+          item.id !== cleanId
+      );
+
+    return saveMemory(next);
   }
 
 
@@ -1083,6 +1343,10 @@
 
     addMessage,
     clearConversation,
+
+    addMemory,
+    updateMemory,
+    deleteMemory,
 
     loadConnectionSettings,
     saveConnectionSettings,

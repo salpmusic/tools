@@ -46,6 +46,16 @@
         "chatArea"
       ),
 
+    historySearchInput:
+      document.getElementById(
+        "historySearchInput"
+      ),
+
+    historySearchCount:
+      document.getElementById(
+        "historySearchCount"
+      ),
+
     messageInput:
       document.getElementById(
         "messageInput"
@@ -139,6 +149,51 @@
     connectionMessage:
       document.getElementById(
         "connectionMessage"
+      ),
+
+    manualMemoryCount:
+      document.getElementById(
+        "manualMemoryCount"
+      ),
+
+    memoryEditId:
+      document.getElementById(
+        "memoryEditId"
+      ),
+
+    memoryCategoryInput:
+      document.getElementById(
+        "memoryCategoryInput"
+      ),
+
+    memoryContentInput:
+      document.getElementById(
+        "memoryContentInput"
+      ),
+
+    memorySaveButton:
+      document.getElementById(
+        "memorySaveButton"
+      ),
+
+    memoryCancelEditButton:
+      document.getElementById(
+        "memoryCancelEditButton"
+      ),
+
+    memoryCategoryFilter:
+      document.getElementById(
+        "memoryCategoryFilter"
+      ),
+
+    memoryFilteredCount:
+      document.getElementById(
+        "memoryFilteredCount"
+      ),
+
+    manualMemoryList:
+      document.getElementById(
+        "manualMemoryList"
       )
   };
 
@@ -469,7 +524,9 @@
       brainAPI.getActiveId() ===
       "worker-openai"
     ) {
-      brainAPI.setActive("local");
+      brainAPI.setActive(
+        "local"
+      );
 
       updateBrainUI();
     }
@@ -499,6 +556,538 @@
 
 
   // =========================================================
+  // Manual memories
+  // =========================================================
+
+  function getMemoryCategories() {
+    const categories =
+      new Set();
+
+    for (
+      const item
+      of (
+        memory?.memories ||
+        []
+      )
+    ) {
+      const category =
+        String(
+          item?.category ||
+          "その他"
+        ).trim() ||
+        "その他";
+
+      categories.add(
+        category
+      );
+    }
+
+    return Array
+      .from(categories)
+      .sort(
+        (a, b) =>
+          a.localeCompare(
+            b,
+            "ja"
+          )
+      );
+  }
+
+
+  function updateMemoryCategoryFilter() {
+    const current =
+      elements.memoryCategoryFilter
+        .value;
+
+    elements.memoryCategoryFilter
+      .innerHTML = "";
+
+    const all =
+      document.createElement(
+        "option"
+      );
+
+    all.value = "";
+    all.textContent =
+      "すべて";
+
+    elements.memoryCategoryFilter
+      .appendChild(all);
+
+    for (
+      const category
+      of getMemoryCategories()
+    ) {
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        category;
+
+      option.textContent =
+        category;
+
+      elements.memoryCategoryFilter
+        .appendChild(
+          option
+        );
+    }
+
+    const exists =
+      Array.from(
+        elements
+          .memoryCategoryFilter
+          .options
+      ).some(
+        (option) =>
+          option.value === current
+      );
+
+    elements.memoryCategoryFilter
+      .value =
+        exists
+          ? current
+          : "";
+  }
+
+
+  function renderManualMemories() {
+    updateMemoryCategoryFilter();
+
+    const memories =
+      memory?.memories ||
+      [];
+
+    const selectedCategory =
+      elements.memoryCategoryFilter
+        .value;
+
+    const filtered =
+      memories.filter(
+        (item) => {
+          if (!selectedCategory) {
+            return true;
+          }
+
+          return (
+            item.category ===
+            selectedCategory
+          );
+        }
+      );
+
+    elements.manualMemoryCount
+      .textContent =
+        `${memories.length}件`;
+
+    elements.memoryFilteredCount
+      .textContent =
+        selectedCategory
+          ? `${filtered.length} / ${memories.length}件`
+          : `${memories.length}件`;
+
+    elements.manualMemoryList
+      .innerHTML = "";
+
+    if (
+      filtered.length === 0
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "memoryEmptyState";
+
+      empty.textContent =
+        memories.length === 0
+          ? "まだ記憶はありません。"
+          : "このカテゴリの記憶はありません。";
+
+      elements.manualMemoryList
+        .appendChild(
+          empty
+        );
+
+      return;
+    }
+
+    for (
+      const item
+      of filtered
+    ) {
+      elements.manualMemoryList
+        .appendChild(
+          createMemoryItemElement(
+            item
+          )
+        );
+    }
+  }
+
+
+  function createMemoryItemElement(
+    item
+  ) {
+    const card =
+      document.createElement(
+        "article"
+      );
+
+    card.className =
+      "manualMemoryItem";
+
+
+    const header =
+      document.createElement(
+        "div"
+      );
+
+    header.className =
+      "manualMemoryItemHeader";
+
+
+    const category =
+      document.createElement(
+        "span"
+      );
+
+    category.className =
+      "memoryCategoryBadge";
+
+    category.textContent =
+      item.category ||
+      "その他";
+
+
+    const date =
+      document.createElement(
+        "span"
+      );
+
+    date.className =
+      "memoryItemDate";
+
+    date.textContent =
+      `更新 ${formatDateTime(
+        item.updated_at
+      )}`;
+
+
+    header.appendChild(
+      category
+    );
+
+    header.appendChild(
+      date
+    );
+
+
+    const content =
+      document.createElement(
+        "div"
+      );
+
+    content.className =
+      "manualMemoryContent";
+
+    content.textContent =
+      item.content;
+
+
+    const buttons =
+      document.createElement(
+        "div"
+      );
+
+    buttons.className =
+      "memoryItemButtons";
+
+
+    const editButton =
+      document.createElement(
+        "button"
+      );
+
+    editButton.type =
+      "button";
+
+    editButton.textContent =
+      "編集";
+
+    editButton.addEventListener(
+      "click",
+      () =>
+        startMemoryEdit(
+          item.id
+        )
+    );
+
+
+    const deleteButton =
+      document.createElement(
+        "button"
+      );
+
+    deleteButton.type =
+      "button";
+
+    deleteButton.className =
+      "memoryDeleteButton";
+
+    deleteButton.textContent =
+      "削除";
+
+    deleteButton.addEventListener(
+      "click",
+      () =>
+        handleMemoryDelete(
+          item.id
+        )
+    );
+
+
+    buttons.appendChild(
+      editButton
+    );
+
+    buttons.appendChild(
+      deleteButton
+    );
+
+
+    card.appendChild(
+      header
+    );
+
+    card.appendChild(
+      content
+    );
+
+    card.appendChild(
+      buttons
+    );
+
+    return card;
+  }
+
+
+  function formatDateTime(
+    value
+  ) {
+    if (!value) {
+      return "-";
+    }
+
+    try {
+      return new Intl
+        .DateTimeFormat(
+          "ja-JP",
+          {
+            year:
+              "numeric",
+
+            month:
+              "numeric",
+
+            day:
+              "numeric",
+
+            hour:
+              "2-digit",
+
+            minute:
+              "2-digit"
+          }
+        )
+        .format(
+          new Date(value)
+        );
+
+    } catch {
+      return value;
+    }
+  }
+
+
+  function clearMemoryForm() {
+    elements.memoryEditId
+      .value = "";
+
+    elements.memoryCategoryInput
+      .value = "";
+
+    elements.memoryContentInput
+      .value = "";
+
+    elements.memorySaveButton
+      .textContent =
+        "追加";
+
+    elements.memoryCancelEditButton
+      .hidden = true;
+  }
+
+
+  function startMemoryEdit(
+    id
+  ) {
+    const item =
+      (
+        memory?.memories ||
+        []
+      ).find(
+        (memoryItem) =>
+          memoryItem.id === id
+      );
+
+    if (!item) {
+      showMemoryMessage(
+        "編集する記憶が見つかりません。"
+      );
+
+      return;
+    }
+
+    elements.memoryEditId
+      .value =
+        item.id;
+
+    elements.memoryCategoryInput
+      .value =
+        item.category ||
+        "";
+
+    elements.memoryContentInput
+      .value =
+        item.content ||
+        "";
+
+    elements.memorySaveButton
+      .textContent =
+        "更新";
+
+    elements.memoryCancelEditButton
+      .hidden = false;
+
+    elements.memoryContentInput
+      .focus();
+  }
+
+
+  function handleMemorySave() {
+    const editId =
+      elements.memoryEditId
+        .value
+        .trim();
+
+    const category =
+      elements.memoryCategoryInput
+        .value
+        .trim();
+
+    const content =
+      elements.memoryContentInput
+        .value
+        .trim();
+
+    try {
+      if (editId) {
+        memory =
+          memoryAPI
+            .updateMemory(
+              memory,
+              editId,
+              {
+                category,
+                content
+              }
+            );
+
+        showMemoryMessage(
+          "記憶を更新しました。"
+        );
+
+      } else {
+        memory =
+          memoryAPI
+            .addMemory(
+              memory,
+              {
+                category,
+                content
+              }
+            );
+
+        showMemoryMessage(
+          "記憶を追加しました。"
+        );
+      }
+
+      clearMemoryForm();
+
+      renderManualMemories();
+
+    } catch (error) {
+      showMemoryMessage(
+        error.message ||
+        "記憶を保存できませんでした。"
+      );
+    }
+  }
+
+
+  function handleMemoryDelete(
+    id
+  ) {
+    const item =
+      (
+        memory?.memories ||
+        []
+      ).find(
+        (memoryItem) =>
+          memoryItem.id === id
+      );
+
+    if (!item) {
+      return;
+    }
+
+    const ok =
+      window.confirm(
+        `この記憶を削除しますか？\n\n${item.content}`
+      );
+
+    if (!ok) {
+      return;
+    }
+
+    memory =
+      memoryAPI
+        .deleteMemory(
+          memory,
+          id
+        );
+
+    if (
+      elements.memoryEditId
+        .value === id
+    ) {
+      clearMemoryForm();
+    }
+
+    renderManualMemories();
+
+    showMemoryMessage(
+      "記憶を削除しました。"
+    );
+  }
+
+
+  // =========================================================
   // Conversation
   // =========================================================
 
@@ -510,6 +1099,30 @@
       memory
         ?.conversation_history ||
       [];
+
+    const query =
+      elements
+        .historySearchInput
+        ?.value
+        .trim()
+        .toLocaleLowerCase(
+          "ja"
+        ) || "";
+
+    const filteredHistory =
+      query
+        ? history.filter(
+            (message) =>
+              String(
+                message.content ||
+                ""
+              )
+                .toLocaleLowerCase(
+                  "ja"
+                )
+                .includes(query)
+          )
+        : history;
 
     if (
       history.length === 0
@@ -557,10 +1170,50 @@
           empty
         );
 
+    } else if (
+      filteredHistory.length === 0
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "emptyState";
+
+      const strong =
+        document.createElement(
+          "strong"
+        );
+
+      strong.textContent =
+        "見つかりませんでした";
+
+      const text =
+        document.createElement(
+          "span"
+        );
+
+      text.textContent =
+        "検索文字を変えてみてください。";
+
+      empty.appendChild(
+        strong
+      );
+
+      empty.appendChild(
+        text
+      );
+
+      elements.chatArea
+        .appendChild(
+          empty
+        );
+
     } else {
       for (
         const message
-        of history
+        of filteredHistory
       ) {
         elements.chatArea
           .appendChild(
@@ -574,6 +1227,16 @@
     elements.messageCount
       .textContent =
         `${history.length} messages`;
+
+    if (query) {
+      elements.historySearchCount
+        .textContent =
+          `${filteredHistory.length} / ${history.length}`;
+
+    } else {
+      elements.historySearchCount
+        .textContent = "";
+    }
 
     requestAnimationFrame(() => {
       elements.chatArea.scrollTop =
@@ -1080,11 +1743,15 @@
         );
       }
 
+      clearMemoryForm();
+
       loadConnectionUI();
 
       updateBrainUI();
 
       renderConversation();
+
+      renderManualMemories();
 
       updateBackupUI();
 
@@ -1190,9 +1857,13 @@
       memoryAPI
         .clearTemporaryBackup();
 
+      clearMemoryForm();
+
       updateBrainUI();
 
       renderConversation();
+
+      renderManualMemories();
 
       updateBackupUI();
 
@@ -1284,6 +1955,13 @@
       );
 
 
+    elements.historySearchInput
+      .addEventListener(
+        "input",
+        renderConversation
+      );
+
+
     elements.brainProviderSelect
       .addEventListener(
         "change",
@@ -1301,6 +1979,25 @@
       .addEventListener(
         "click",
         clearConnection
+      );
+
+
+    elements.memorySaveButton
+      .addEventListener(
+        "click",
+        handleMemorySave
+      );
+
+    elements.memoryCancelEditButton
+      .addEventListener(
+        "click",
+        clearMemoryForm
+      );
+
+    elements.memoryCategoryFilter
+      .addEventListener(
+        "change",
+        renderManualMemories
       );
 
 
@@ -1426,6 +2123,8 @@
     updateBrainUI();
 
     renderConversation();
+
+    renderManualMemories();
 
     updateBackupUI();
 

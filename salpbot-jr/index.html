@@ -169,6 +169,149 @@
     </section>
 
 
+    <details class="manualMemoryPanel">
+
+      <summary>
+        <span>
+          MEMORY
+        </span>
+
+        <span
+          id="manualMemoryCount"
+          class="summaryCount"
+        >
+          0件
+        </span>
+      </summary>
+
+
+      <div class="manualMemoryBody">
+
+        <p class="connectionHelp">
+          Jr.に覚えておいてほしい情報を
+          手動で管理します。
+          ここに保存した内容は完全バックアップに含まれ、
+          ONLINE時は重要記憶としてAIへ渡されます。
+        </p>
+
+
+        <div class="memoryForm">
+
+          <input
+            id="memoryEditId"
+            type="hidden"
+          >
+
+
+          <div class="settingRow">
+
+            <label for="memoryCategoryInput">
+              カテゴリ
+            </label>
+
+            <input
+              id="memoryCategoryInput"
+              type="text"
+              maxlength="40"
+              placeholder="例: 音楽 / Web制作 / 好み"
+            >
+
+          </div>
+
+
+          <div class="settingRow">
+
+            <label for="memoryContentInput">
+              記憶内容
+            </label>
+
+            <textarea
+              id="memoryContentInput"
+              rows="3"
+              maxlength="500"
+              placeholder="例: TikTokでは朝の投稿が伸びやすい。"
+            ></textarea>
+
+          </div>
+
+
+          <div class="memoryFormButtons">
+
+            <button
+              id="memorySaveButton"
+              type="button"
+              class="primarySmallButton"
+            >
+              追加
+            </button>
+
+            <button
+              id="memoryCancelEditButton"
+              type="button"
+              hidden
+            >
+              編集をやめる
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="memoryFilterRow">
+
+          <label for="memoryCategoryFilter">
+            絞り込み
+          </label>
+
+          <select
+            id="memoryCategoryFilter"
+          >
+            <option value="">
+              すべて
+            </option>
+          </select>
+
+          <span
+            id="memoryFilteredCount"
+            class="countBadge"
+          >
+            0 / 0件
+          </span>
+
+        </div>
+
+
+        <div
+          id="manualMemoryList"
+          class="manualMemoryList"
+        >
+        </div>
+
+      </div>
+
+    </details>
+
+
+    <div class="historySearch">
+
+      <input
+        id="historySearchInput"
+        type="search"
+        autocomplete="off"
+        placeholder="会話履歴を検索..."
+        aria-label="会話履歴を検索"
+      >
+
+      <span
+        id="historySearchCount"
+        class="countBadge"
+      >
+      </span>
+
+    </div>
+
+
     <main
       id="chatArea"
       class="chatArea"
@@ -333,7 +476,7 @@
     <footer>
 
       <span>
-        salpbot-jr v0.3
+        salpbot-jr v0.4
       </span>
 
       <span id="footerBrain">
