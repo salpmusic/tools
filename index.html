@@ -2183,7 +2183,7 @@ const lang=()=>{const l=(document.documentElement.lang||"ja").toLowerCase().spli
 const t=k=>I18N[lang()][k]||I18N.en[k]||I18N.ja[k]||k;
 
 const norm=s=>String(s||"").normalize("NFKC").toLowerCase().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+0x60)).replace(/\s+/g," ").trim();
-const keyOf=href=>{try{const s=new URL(href,BASE).href;return s.indexOf(BASE)===0?s.slice(BASE.length):s}catch(e){return String(href||"")}};
+const keyOf=href=>{try{const u=new URL(href,BASE);u.search="";u.hash="";const s=u.href;return s.indexOf(BASE)===0?s.slice(BASE.length):s}catch(e){return String(href||"")}};
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
 
 const RAW=window.SALP_FINDER_META||{};
