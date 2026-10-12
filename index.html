@@ -732,7 +732,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 <h2 data-i18n="sectionHBrain">🧠 脳トレゲーム</h2>
 <p data-i18n="sectionPBrain">記憶力・集中力・反応を楽しく鍛えられる、ブラウザで遊べる脳トレゲームです。</p>
 </div>
-<span class="count">49 GAMES</span>
+<span class="count">50 GAMES</span>
 </div>
 <div class="brainFilter" id="brainFilter" hidden>
 <p class="brainFilterLabel" id="brainFilterLabel" data-i18n="brainFilterLabel">絞り込み・並び替え（標準は新作順）</p>
@@ -744,6 +744,13 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </div>
 </div>
 <div class="grid">
+<article class="card englishrelay">
+<span class="status">NEW</span>
+<div class="cardTop"><div class="icon">💬</div><h3>英会話リレー<br><small lang="en">English Reply Relay</small></h3></div>
+<p>英語の質問を順番に覚えて、合う返事を選ぼう。日常会話／ホテル英会話、難しさ5段階、1人／2人交代。最初は日本語と答え付き・時間制限なし。英文読み上げ・見やすいモード・休憩機能付き。</p>
+<div class="tags"><span class="tag">英会話</span><span class="tag">Memory</span><span class="tag">2 Players</span></div>
+<a class="open" href="./salp-english-reply-relay-v1.0.html">英会話リレーを遊ぶ</a>
+</article>
 <article class="card sportsrelay">
 <span class="status">NEW</span>
 <div class="cardTop"><div class="icon">🏅</div><h3>スポーツ道具リレー<br><small lang="en">Sports Gear Relay</small></h3></div>
@@ -2035,6 +2042,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
      → 新作順(added 降順。同じ日は後から足した方が先)・各チップ・件数・お気に入り★は自動。「33 GAMES」の数字もJSが実数で上書きする。
      (METAが無い/added が空のカードは「最新扱い」で新作順の先頭に出る=足し忘れに気付ける。) */
 window.SALP_FINDER_META = {
+  "./salp-english-reply-relay-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.0","tags":["english","memory"],"kw":["英会話","英語","英会話リレー","日常会話","ホテル","質問","返事","読み上げ","記憶","5段階","2人","english","conversation","reply","relay","hotel"]},
   "./salp-sports-relay-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.1","tags":["memory"],"kw":["スポーツ","スポーツの日","道具","リレー","順番","記憶","サッカー","野球","水泳","5段階","2人","sports","gear","relay","memory"]},
   "./salp-dream-steps-v1.0.html": {"added":"2026-10-11","updated":"2026-10-11","ver":"1.1","tags":["memory"],"kw":["ゆめのステップ","夢","国際ガールズデー","順番","記憶","宇宙","科学","アート","音楽","5段階","2人","dream","steps","girls","memory"]},
   "./salp-mind-weather-v1.0.html": {"added":"2026-10-10","updated":"2026-10-10","ver":"1.0","tags":["memory"],"kw":["こころの天気便","メンタルヘルスデー","心","天気","休憩","記憶","絵合わせ","5段階","2人","mind","weather","mental health","memory"]},
@@ -2351,10 +2359,10 @@ function cleanup(){
 }
 /* ---- 🧠 脳トレ欄: 絞り込み / 新作順 / お気に入り。データは SALP_FINDER_META の added と tags だけ(チップ・件数・順序は自動生成) ----
    表示順は CSS の order(--btOrder) だけで変える=DOMは動かさない。JSが失敗してもカードは元の順で全表示される。 */
-const BT_TAGS=["cat","retro","cards","calc","memory","puzzle","observe"]; /* チップの並び順。ここに無いタグもMETAにあれば末尾に自動追加 */
+const BT_TAGS=["cat","retro","cards","calc","memory","puzzle","observe","english"]; /* チップの並び順。ここに無いタグもMETAにあれば末尾に自動追加 */
 const BT_FAV="salpFavBrain_v1";
 let bt=null;
-const btLab=k=>I18N[lang()][k]||I18N.en[k]||I18N.ja[k]||String(k).replace(/^bt_/,"");
+const btLab=k=>k==="bt_english"?({ja:"💬 英会話",en:"💬 English conversation",vi:"💬 Hội thoại tiếng Anh",tl:"💬 Usapang Ingles",my:"💬 အင်္ဂလိပ်စကားပြော",mni:"💬 English conversation"}[lang()]||"💬 English conversation"):(I18N[lang()][k]||I18N.en[k]||I18N.ja[k]||String(k).replace(/^bt_/,""));
 function btFavs(){try{const a=JSON.parse(localStorage.getItem(BT_FAV)||"[]");return Array.isArray(a)?a:[]}catch(e){return []}}
 function btSaveFavs(a){try{localStorage.setItem(BT_FAV,JSON.stringify(a))}catch(e){}}
 function btMatch(it,mode,favs){
