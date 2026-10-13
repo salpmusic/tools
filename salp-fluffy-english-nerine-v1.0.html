@@ -1,0 +1,1832 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#6b357f"><title>ふわふわ英語脳トレ · ネリネの朝 | salp</title><style>
+:root{--bg:#fff5ef;--paper:#fffefb;--ink:#352341;--muted:#624d68;--accent:#6b357f;--soft:#f3eafa;--line:#c5accf;--gold:#ffe0a0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.6 system-ui,sans-serif;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}main{max-width:740px;margin:auto}button,select{font:inherit;color:inherit}button,select,a{touch-action:manipulation}button{cursor:pointer;border:2px solid var(--line);border-radius:14px;background:var(--paper);padding:10px 13px;min-height:54px;font-weight:700}button:disabled{opacity:.5;cursor:default}button:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:4px solid #c75b00;outline-offset:3px}a{color:var(--accent)}h1{font-size:33px;line-height:1.3;margin:10px 0}h2{font-size:26px;line-height:1.4;margin:0 0 12px}p{margin:8px 0}.sub{font-size:16px;color:var(--muted)}.toolbar,.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap}.toolbar{padding:12px 0;font-size:16px}.toolbar button{font-size:16px}.panel{background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:20px;margin:15px 0;box-shadow:0 5px 0 #e3d7e6}.hero{padding:20px 0 8px}.flowers{font-size:42px;letter-spacing:8px}.badge{background:var(--soft);border-radius:10px;padding:5px 10px;font-weight:800}.settings{display:grid;gap:14px;margin:18px 0}label{font-weight:700}select{display:block;margin-top:5px;width:100%;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:12px}.primary{background:var(--accent);color:#fff;border-color:var(--accent);width:100%;font-size:23px}.note{padding:12px;background:var(--soft);border-left:5px solid var(--accent);border-radius:10px}.english{font-size:28px;font-weight:800;line-height:1.5;overflow-wrap:anywhere}.japanese{font-size:21px}.prompt{background:var(--soft);padding:18px;border-radius:16px;margin:16px 0}.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.option{display:flex;flex-direction:column;gap:6px;min-width:0}.option>.answer{width:100%;min-height:112px;font-size:23px;line-height:1.45;overflow-wrap:anywhere}.listen{font-size:17px;min-height:48px}.hint{border:4px solid #1b7850!important;background:#def4e7!important}.feedback{background:var(--soft);border-radius:14px;padding:14px;margin:15px 0;overflow-wrap:anywhere}.feedback:empty{display:none}.hidden{display:none!important}.clock{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums}.track{display:flex;gap:2px;margin:12px 0}.dot{height:13px;flex:1;background:#ded4e5;border-radius:4px}.dot.done{background:#6b357f}.dot.now{background:#b67400}.tokens{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.token{font-size:24px;min-height:58px;padding:12px 16px}.assembled{background:var(--soft);border:2px dashed var(--line);border-radius:14px;padding:14px;min-height:90px;font-size:26px;font-weight:800;line-height:1.5}.score{font-size:37px;font-weight:900}.overlay{position:fixed;inset:0;z-index:10;background:#2a183ce8;display:grid;place-items:center;padding:18px}.overlay>.panel{max-width:470px;width:100%;max-height:90dvh;overflow:auto}.overlay button{width:100%;margin-top:10px}details{margin:16px 0}summary{cursor:pointer;font-weight:800}.studycard{border-bottom:2px solid var(--line);padding:16px 0}.studycard:last-child{border:0}.studycard .english{font-size:24px}footer{font-size:15px;color:var(--muted);padding:20px 0}.hc{--bg:#150e20;--paper:#251a32;--ink:#fff;--muted:#e9ddef;--accent:#77419b;--soft:#392749;--line:#d2bde1;font-size:22px}.hc a{color:#ead1ff}.hc .hint{background:#215638!important;color:#fff!important;border-color:#bbffc9!important}.hc .english{font-size:31px}.hc .answer{font-size:25px}.playing .hero{display:none}.playing .panel{padding:15px;margin:9px 0}@media(max-width:430px){h1{font-size:29px}.panel{padding:15px}.english{font-size:25px}.choices{gap:9px}.option>.answer{font-size:21px}.token{font-size:22px;padding:10px 12px}}@media(prefers-reduced-motion:no-preference){button:active:not(:disabled){transform:scale(.98)}}
+</style></head><body><main><nav class="toolbar"><a href="https://salpmusic.github.io/tools/">← salp Tools</a><div class="row"><button id="contrast" aria-pressed="false">見やすく</button><button id="sound" aria-pressed="true">効果音 ON</button></div></nav><header class="hero"><div class="flowers" aria-hidden="true">🌸 🐈 ☕ 🔦</div><p class="sub">ふわふわ日記連動 · 英会話ジャンル</p><h1>ふわふわ英語脳トレ<br>ネリネの朝</h1><p lang="en">Fluffy English · Nerine Morning</p></header>
+<section id="home" class="panel"><h2>いつもの朝と小さな備えを、英語で。</h2><p>窓辺のネリネ、紅茶、三毛猫、そして防災バッグの確認。今日の歌詞から選んだ103の表現で練習しよう。</p><p class="note">例：<strong lang="en">Just in case</strong><br>「念のために」<br>🔊ボタンは<strong>英語だけ</strong>を読み上げます。</p><div class="settings"><label>難しさ<select id="level"><option value="1">1 · はじめて／意味合わせ・2択・答え付き・時間なし</option><option value="2">2 · やさしい／意味合わせ・3択・25秒</option><option value="3">3 · 穴埋め／英単語4択・25秒</option><option value="4">4 · 語順並べ／英文を組み立て・35秒</option><option value="5">5 · チャレンジ／3種類ミックス・20秒</option></select></label><label>問題数<select id="questionCount"><option value="10">10問 · お試し</option><option value="20">20問</option><option value="30">30問</option><option value="50">50問</option><option value="100">100問</option><option value="103">103問 · 全表現を1回</option><option value="150">150問 · 復習付き</option><option value="200">200問 · じっくり復習</option></select></label><label>出題順<select id="questionOrder"><option value="lyrics">歌詞順 · 始まりからラストまで</option><option value="shuffle">シャッフル</option></select></label><label>人数<select id="players"><option value="1">1人</option><option value="2">2人 · 1問ずつ交代</option></select></label><label>英語の読み上げ速度<select id="rate"><option value="0.7">ゆっくり</option><option value="0.85">ややゆっくり</option><option value="1">ふつう</option></select></label></div><button id="sample">🔊 英語音声を試す</button><p id="speechNotice" class="sub" role="status"></p><p id="best" class="sub"></p><button id="start" class="primary">🌸 スタート</button><details><summary>遊び方・音声について</summary><p>10〜200問を選べます。103表現を収録。歌詞順の短いコースは全体から均等に選び、最後の一節まで進みます。103問なら全表現を1回、103問を超えるコースは表現が復習として繰り返されます。2人用は各自同じ問題数です。歌詞から抜き出した短い英語を学びます。レベル1は最初に10秒の見本を表示し、その後も答えと緑の枠を見ながら練習できます。次へ進むのは自分のペースです。</p><p>意味合わせ：日本語に合う英語を選ぶ。穴埋め：歌詞の空欄に入る単語を選ぶ。語順並べ：英語のかたまりを順に押して文を作る。「1つ戻す」「やり直す」で修正できます。</p><p>レベル2～5は答えを最初に表示しません。正解100点＋残り時間ボーナス最大100点。不正解・時間切れは答えを確認してから「次へ」で進みます。</p><p>音声は端末の読み上げ機能を使用し、言語は米国英語です。🔊は自分で押して再生します。再生中は時計を止めます。再生できなくても文字で遊べます。読み上げは歌の音源・歌声ではありません。</p><p>歌詞の気温63度・79度は華氏として扱い、約17℃・約26℃と補足しています。防災や花の表現も、この歌詞をもとに英語を練習するための内容です。</p><p>2人は同じ問題に交代で挑戦します。相手の番には画面と音声を見聞きしないで待ってね。点数はゲーム内の結果で、英語力や健康状態の判定ではありません。</p></details><details><summary>📖 歌詞の英語を練習する（103表現）</summary><div id="study"></div></details></section>
+<section id="game" class="panel hidden"><div class="row"><span id="who" class="badge"></span><span id="progress"></span><button id="pause">ひと休み</button></div><div id="track" class="track"></div><div class="row"><span id="score"></span><span id="clock" class="clock" role="timer"></span></div><h2 id="instruction" style="margin-top:14px"></h2><div id="prompt" class="prompt"></div><div id="previewControls" class="hidden"><button id="previewListen">🔊 見本の英語を聞く</button></div><div id="choices" class="choices"></div><div id="orderUI" class="hidden"><div id="assembled" class="assembled" lang="en" aria-live="polite"></div><div id="tokens" class="tokens"></div><div class="row"><button id="undo">1つ戻す</button><button id="clear">やり直す</button></div><button id="check" class="primary" style="margin-top:14px">この語順で答える</button></div><p id="gameSpeech" class="sub" role="status"></p><div id="feedback" class="feedback" aria-live="polite"></div></section>
+<section id="result" class="panel hidden" aria-live="polite"></section><div id="overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div id="dialog" class="panel"></div></div><footer>salp · v1.0 · 歌詞提供：salp<br>設定と1人用最高得点だけを端末に保存します。マイク録音・外部へのデータ送信はありません。</footer></main><script>
+(()=>{'use strict';const el=id=>document.getElementById(id),KEY='salp.english.fluffy.nerine.v1';let COUNT=10;
+const phrases=[
+  {
+    "rank": 0,
+    "en": "It's half past seven in the morning",
+    "chunks": [
+      "It's",
+      "half past seven",
+      "in the morning"
+    ],
+    "ja": "朝の7時半です",
+    "word": "seven",
+    "wrong": [
+      "three",
+      "five",
+      "nine"
+    ],
+    "hint": "seven＝7",
+    "icon": "🕢"
+  },
+  {
+    "rank": 1,
+    "en": "I open the window",
+    "chunks": [
+      "I",
+      "open",
+      "the window"
+    ],
+    "ja": "私は窓を開ける",
+    "word": "window",
+    "wrong": [
+      "radio",
+      "table",
+      "bag"
+    ],
+    "hint": "window＝窓",
+    "icon": "🪟"
+  },
+  {
+    "rank": 2,
+    "en": "The cool air",
+    "chunks": [
+      "The cool",
+      "air"
+    ],
+    "ja": "ひんやりした空気",
+    "word": "cool",
+    "wrong": [
+      "warm",
+      "hot",
+      "bright"
+    ],
+    "hint": "cool＝ひんやりした",
+    "icon": "🍃"
+  },
+  {
+    "rank": 3,
+    "en": "At around sixty-three",
+    "chunks": [
+      "At around",
+      "sixty-three"
+    ],
+    "ja": "約63度で（華氏）",
+    "word": "sixty-three",
+    "wrong": [
+      "seventy-nine",
+      "eighty-one",
+      "ninety"
+    ],
+    "hint": "sixty-three＝63（華氏63度は約17℃）",
+    "icon": "🌡️"
+  },
+  {
+    "rank": 4,
+    "en": "Quietly drifts into the room",
+    "chunks": [
+      "Quietly",
+      "drifts",
+      "into the room"
+    ],
+    "ja": "静かに部屋へふわりと流れ込む",
+    "word": "Quietly",
+    "wrong": [
+      "Suddenly",
+      "Quickly",
+      "Loudly"
+    ],
+    "hint": "Quietly＝静かに",
+    "icon": "🍃"
+  },
+  {
+    "rank": 5,
+    "en": "The sun is shining today",
+    "chunks": [
+      "The sun",
+      "is shining",
+      "today"
+    ],
+    "ja": "今日は太陽が輝いている",
+    "word": "sun",
+    "wrong": [
+      "cat",
+      "tea",
+      "bag"
+    ],
+    "hint": "sun＝太陽",
+    "icon": "☀️"
+  },
+  {
+    "rank": 6,
+    "en": "Soft morning light",
+    "chunks": [
+      "Soft",
+      "morning",
+      "light"
+    ],
+    "ja": "やわらかな朝の光",
+    "word": "morning",
+    "wrong": [
+      "evening",
+      "winter",
+      "summer"
+    ],
+    "hint": "morning＝朝",
+    "icon": "🌤️"
+  },
+  {
+    "rank": 7,
+    "en": "Reaches all the way to the window",
+    "chunks": [
+      "Reaches",
+      "all the way",
+      "to the window"
+    ],
+    "ja": "窓までずっと届く",
+    "word": "window",
+    "wrong": [
+      "flashlight",
+      "kit",
+      "radio"
+    ],
+    "hint": "window＝窓",
+    "icon": "🪟"
+  },
+  {
+    "rank": 8,
+    "en": "By the window",
+    "chunks": [
+      "By",
+      "the window"
+    ],
+    "ja": "窓のそばで",
+    "word": "window",
+    "wrong": [
+      "table",
+      "radio",
+      "shelf"
+    ],
+    "hint": "window＝窓",
+    "icon": "🪟"
+  },
+  {
+    "rank": 9,
+    "en": "Nerine flowers are blooming",
+    "chunks": [
+      "Nerine flowers",
+      "are blooming"
+    ],
+    "ja": "ネリネの花が咲いている",
+    "word": "blooming",
+    "wrong": [
+      "walking",
+      "resting",
+      "drinking"
+    ],
+    "hint": "blooming＝花が咲いている",
+    "icon": "🌸"
+  },
+  {
+    "rank": 10,
+    "en": "At the tops of slender stems",
+    "chunks": [
+      "At the tops",
+      "of slender stems"
+    ],
+    "ja": "細い茎の先で",
+    "word": "stems",
+    "wrong": [
+      "paws",
+      "eyes",
+      "hands"
+    ],
+    "hint": "stems＝茎",
+    "icon": "🌿"
+  },
+  {
+    "rank": 11,
+    "en": "Pink petals gather together",
+    "chunks": [
+      "Pink petals",
+      "gather together"
+    ],
+    "ja": "ピンクの花びらが集まる",
+    "word": "petals",
+    "wrong": [
+      "paws",
+      "eyes",
+      "hands"
+    ],
+    "hint": "petals＝花びら",
+    "icon": "🌸"
+  },
+  {
+    "rank": 12,
+    "en": "When the morning light falls across them",
+    "chunks": [
+      "When the morning light",
+      "falls across them"
+    ],
+    "ja": "朝の光が花に差すとき",
+    "word": "light",
+    "wrong": [
+      "water",
+      "tea",
+      "bag"
+    ],
+    "hint": "light＝光",
+    "icon": "🌤️"
+  },
+  {
+    "rank": 13,
+    "en": "They seem to sparkle just a little",
+    "chunks": [
+      "They seem",
+      "to sparkle",
+      "just a little"
+    ],
+    "ja": "花は少しだけきらめくように見える",
+    "word": "sparkle",
+    "wrong": [
+      "walk",
+      "sniff",
+      "sit"
+    ],
+    "hint": "sparkle＝きらめく",
+    "icon": "✨"
+  },
+  {
+    "rank": 14,
+    "en": "That's why",
+    "chunks": [
+      "That's",
+      "why"
+    ],
+    "ja": "そういうわけで",
+    "word": "why",
+    "wrong": [
+      "where",
+      "when",
+      "who"
+    ],
+    "hint": "why＝なぜ／そういうわけ",
+    "icon": "💡"
+  },
+  {
+    "rank": 15,
+    "en": "Nerine is sometimes called the diamond lily",
+    "chunks": [
+      "Nerine is",
+      "sometimes called",
+      "the diamond lily"
+    ],
+    "ja": "ネリネはダイヤモンド・リリーと呼ばれることもある",
+    "word": "diamond",
+    "wrong": [
+      "morning",
+      "autumn",
+      "emergency"
+    ],
+    "hint": "diamond＝ダイヤモンド",
+    "icon": "💎"
+  },
+  {
+    "rank": 16,
+    "en": "Right beside them sits the calico cat",
+    "chunks": [
+      "Right beside them",
+      "sits",
+      "the calico cat"
+    ],
+    "ja": "花のすぐそばに三毛猫が座っている",
+    "word": "calico",
+    "wrong": [
+      "cool",
+      "pink",
+      "slender"
+    ],
+    "hint": "calico＝三毛の",
+    "icon": "🐈"
+  },
+  {
+    "rank": 17,
+    "en": "Her front paws together",
+    "chunks": [
+      "Her front paws",
+      "together"
+    ],
+    "ja": "猫は前足をそろえて",
+    "word": "paws",
+    "wrong": [
+      "petals",
+      "stems",
+      "flowers"
+    ],
+    "hint": "paws＝動物の足",
+    "icon": "🐾"
+  },
+  {
+    "rank": 18,
+    "en": "She watches the flowers closely",
+    "chunks": [
+      "She watches",
+      "the flowers",
+      "closely"
+    ],
+    "ja": "猫は花をじっと見つめる",
+    "word": "closely",
+    "wrong": [
+      "suddenly",
+      "loudly",
+      "quickly"
+    ],
+    "hint": "closely＝注意深く／じっと",
+    "icon": "🐈"
+  },
+  {
+    "rank": 19,
+    "en": "She leans in",
+    "chunks": [
+      "She",
+      "leans in"
+    ],
+    "ja": "猫は身を乗り出す",
+    "word": "leans",
+    "wrong": [
+      "blooms",
+      "shines",
+      "sparkles"
+    ],
+    "hint": "leans＝身を傾ける",
+    "icon": "🐈"
+  },
+  {
+    "rank": 20,
+    "en": "For one little sniff",
+    "chunks": [
+      "For",
+      "one little sniff"
+    ],
+    "ja": "ちょっとひと嗅ぎするために",
+    "word": "sniff",
+    "wrong": [
+      "sip",
+      "step",
+      "glow"
+    ],
+    "hint": "sniff＝鼻でにおいを嗅ぐこと",
+    "icon": "👃"
+  },
+  {
+    "rank": 21,
+    "en": "Then, as if nothing happened",
+    "chunks": [
+      "Then,",
+      "as if",
+      "nothing happened"
+    ],
+    "ja": "それから、何もなかったかのように",
+    "word": "nothing",
+    "wrong": [
+      "everything",
+      "something",
+      "anything"
+    ],
+    "hint": "nothing＝何もないこと",
+    "icon": "🐈"
+  },
+  {
+    "rank": 22,
+    "en": "She settles back by the window",
+    "chunks": [
+      "She settles back",
+      "by the window"
+    ],
+    "ja": "猫は窓辺でまた落ち着く",
+    "word": "window",
+    "wrong": [
+      "shelf",
+      "table",
+      "bag"
+    ],
+    "hint": "window＝窓",
+    "icon": "🐈"
+  },
+  {
+    "rank": 23,
+    "en": "On the table",
+    "chunks": [
+      "On",
+      "the table"
+    ],
+    "ja": "テーブルの上に",
+    "word": "table",
+    "wrong": [
+      "shelf",
+      "window",
+      "bag"
+    ],
+    "hint": "table＝テーブル",
+    "icon": "☕"
+  },
+  {
+    "rank": 24,
+    "en": "A warm cup of tea",
+    "chunks": [
+      "A warm",
+      "cup",
+      "of tea"
+    ],
+    "ja": "温かい一杯の紅茶",
+    "word": "tea",
+    "wrong": [
+      "water",
+      "news",
+      "light"
+    ],
+    "hint": "tea＝お茶／ここでは紅茶",
+    "icon": "☕"
+  },
+  {
+    "rank": 25,
+    "en": "A thin ribbon of steam",
+    "chunks": [
+      "A thin ribbon",
+      "of steam"
+    ],
+    "ja": "細い筋の湯気",
+    "word": "steam",
+    "wrong": [
+      "light",
+      "air",
+      "water"
+    ],
+    "hint": "steam＝湯気",
+    "icon": "☕"
+  },
+  {
+    "rank": 26,
+    "en": "Slowly rises into the air",
+    "chunks": [
+      "Slowly rises",
+      "into the air"
+    ],
+    "ja": "空気の中へゆっくり立ち上る",
+    "word": "Slowly",
+    "wrong": [
+      "Suddenly",
+      "Quickly",
+      "Loudly"
+    ],
+    "hint": "Slowly＝ゆっくりと",
+    "icon": "☕"
+  },
+  {
+    "rank": 27,
+    "en": "From the old radio comes a gentle song",
+    "chunks": [
+      "From the old radio",
+      "comes a gentle song"
+    ],
+    "ja": "古いラジオからやさしい歌が流れてくる",
+    "word": "radio",
+    "wrong": [
+      "window",
+      "bag",
+      "kit"
+    ],
+    "hint": "radio＝ラジオ",
+    "icon": "📻"
+  },
+  {
+    "rank": 28,
+    "en": "I take a small sip of tea",
+    "chunks": [
+      "I take",
+      "a small sip",
+      "of tea"
+    ],
+    "ja": "私は紅茶を少しひと口飲む",
+    "word": "sip",
+    "wrong": [
+      "sniff",
+      "step",
+      "glow"
+    ],
+    "hint": "sip＝飲み物のひと口",
+    "icon": "☕"
+  },
+  {
+    "rank": 29,
+    "en": "And suddenly remember",
+    "chunks": [
+      "And",
+      "suddenly",
+      "remember"
+    ],
+    "ja": "そしてふと思い出す",
+    "word": "remember",
+    "wrong": [
+      "forget",
+      "run",
+      "sleep"
+    ],
+    "hint": "remember＝思い出す／覚えている",
+    "icon": "💭"
+  },
+  {
+    "rank": 30,
+    "en": "The little bag on the shelf",
+    "chunks": [
+      "The little bag",
+      "on the shelf"
+    ],
+    "ja": "棚の上の小さなバッグ",
+    "word": "shelf",
+    "wrong": [
+      "table",
+      "window",
+      "room"
+    ],
+    "hint": "shelf＝棚",
+    "icon": "🎒"
+  },
+  {
+    "rank": 31,
+    "en": "Today is October thirteenth",
+    "chunks": [
+      "Today is",
+      "October thirteenth"
+    ],
+    "ja": "今日は10月13日です",
+    "word": "thirteenth",
+    "wrong": [
+      "third",
+      "fifth",
+      "seventh"
+    ],
+    "hint": "thirteenth＝13日／13番目の",
+    "icon": "📅"
+  },
+  {
+    "rank": 32,
+    "en": "International Day for Disaster Risk Reduction",
+    "chunks": [
+      "International Day",
+      "for Disaster Risk Reduction"
+    ],
+    "ja": "国際防災デー",
+    "word": "Disaster",
+    "wrong": [
+      "Morning",
+      "Flower",
+      "Music"
+    ],
+    "hint": "Disaster＝災害",
+    "icon": "🌍"
+  },
+  {
+    "rank": 33,
+    "en": "It's been a while",
+    "chunks": [
+      "It's been",
+      "a while"
+    ],
+    "ja": "しばらくぶりです",
+    "word": "while",
+    "wrong": [
+      "sip",
+      "glow",
+      "petal"
+    ],
+    "hint": "while＝しばらくの時間",
+    "icon": "⌛"
+  },
+  {
+    "rank": 34,
+    "en": "So I open the emergency kit",
+    "chunks": [
+      "So I open",
+      "the emergency kit"
+    ],
+    "ja": "そこで私は防災セットを開ける",
+    "word": "emergency",
+    "wrong": [
+      "morning",
+      "autumn",
+      "pink"
+    ],
+    "hint": "emergency＝緊急時の",
+    "icon": "🎒"
+  },
+  {
+    "rank": 35,
+    "en": "Just to take a quick look inside",
+    "chunks": [
+      "Just to take",
+      "a quick look",
+      "inside"
+    ],
+    "ja": "中をちょっと確認するためだけに",
+    "word": "inside",
+    "wrong": [
+      "outside",
+      "above",
+      "behind"
+    ],
+    "hint": "inside＝中を／中に",
+    "icon": "🔎"
+  },
+  {
+    "rank": 36,
+    "en": "Some drinking water",
+    "chunks": [
+      "Some",
+      "drinking water"
+    ],
+    "ja": "いくらかの飲料水",
+    "word": "water",
+    "wrong": [
+      "tea",
+      "music",
+      "news"
+    ],
+    "hint": "water＝水",
+    "icon": "💧"
+  },
+  {
+    "rank": 37,
+    "en": "A small flashlight",
+    "chunks": [
+      "A small",
+      "flashlight"
+    ],
+    "ja": "小さな懐中電灯",
+    "word": "flashlight",
+    "wrong": [
+      "radio",
+      "window",
+      "shelf"
+    ],
+    "hint": "flashlight＝懐中電灯",
+    "icon": "🔦"
+  },
+  {
+    "rank": 38,
+    "en": "A few simple things",
+    "chunks": [
+      "A few",
+      "simple things"
+    ],
+    "ja": "いくつかの簡単なもの",
+    "word": "simple",
+    "wrong": [
+      "complicated",
+      "curious",
+      "precious"
+    ],
+    "hint": "simple＝簡単な／シンプルな",
+    "icon": "🎒"
+  },
+  {
+    "rank": 39,
+    "en": "We keep there",
+    "chunks": [
+      "We",
+      "keep",
+      "there"
+    ],
+    "ja": "私たちがそこに置いておく",
+    "word": "keep",
+    "wrong": [
+      "lose",
+      "forget",
+      "drink"
+    ],
+    "hint": "keep＝保管する／とっておく",
+    "icon": "🎒"
+  },
+  {
+    "rank": 40,
+    "en": "Just in case",
+    "chunks": [
+      "Just",
+      "in case"
+    ],
+    "ja": "念のために",
+    "word": "case",
+    "wrong": [
+      "place",
+      "pace",
+      "face"
+    ],
+    "hint": "case＝just in caseで「念のため」",
+    "icon": "🛟"
+  },
+  {
+    "rank": 41,
+    "en": "Nothing complicated",
+    "chunks": [
+      "Nothing",
+      "complicated"
+    ],
+    "ja": "難しいことは何もない",
+    "word": "complicated",
+    "wrong": [
+      "simple",
+      "gentle",
+      "ordinary"
+    ],
+    "hint": "complicated＝複雑な",
+    "icon": "🍃"
+  },
+  {
+    "rank": 42,
+    "en": "Just a quiet reminder",
+    "chunks": [
+      "Just a quiet",
+      "reminder"
+    ],
+    "ja": "ただの静かな気づきのきっかけ",
+    "word": "reminder",
+    "wrong": [
+      "radio",
+      "petal",
+      "flashlight"
+    ],
+    "hint": "reminder＝思い出させるもの",
+    "icon": "💭"
+  },
+  {
+    "rank": 43,
+    "en": "A little preparation",
+    "chunks": [
+      "A little",
+      "preparation"
+    ],
+    "ja": "少しの準備",
+    "word": "preparation",
+    "wrong": [
+      "temperature",
+      "flower",
+      "radio"
+    ],
+    "hint": "preparation＝準備",
+    "icon": "🎒"
+  },
+  {
+    "rank": 44,
+    "en": "Can be part of everyday life",
+    "chunks": [
+      "Can be",
+      "part of",
+      "everyday life"
+    ],
+    "ja": "日々の暮らしの一部になれる",
+    "word": "everyday",
+    "wrong": [
+      "slender",
+      "pink",
+      "curious"
+    ],
+    "hint": "everyday＝日常の",
+    "icon": "🏠"
+  },
+  {
+    "rank": 45,
+    "en": "The calico cat slowly walks over",
+    "chunks": [
+      "The calico cat",
+      "slowly walks over"
+    ],
+    "ja": "三毛猫がゆっくり近寄ってくる",
+    "word": "slowly",
+    "wrong": [
+      "suddenly",
+      "loudly",
+      "quickly"
+    ],
+    "hint": "slowly＝ゆっくりと",
+    "icon": "🐈"
+  },
+  {
+    "rank": 46,
+    "en": "To see what I'm doing",
+    "chunks": [
+      "To see",
+      "what I'm doing"
+    ],
+    "ja": "私が何をしているか見るために",
+    "word": "doing",
+    "wrong": [
+      "blooming",
+      "shining",
+      "drinking"
+    ],
+    "hint": "doing＝している",
+    "icon": "🐈"
+  },
+  {
+    "rank": 47,
+    "en": "She peers into the bag",
+    "chunks": [
+      "She peers",
+      "into the bag"
+    ],
+    "ja": "猫はバッグの中をのぞく",
+    "word": "bag",
+    "wrong": [
+      "window",
+      "radio",
+      "shelf"
+    ],
+    "hint": "bag＝バッグ",
+    "icon": "🎒"
+  },
+  {
+    "rank": 48,
+    "en": "Sniffs once",
+    "chunks": [
+      "Sniffs",
+      "once"
+    ],
+    "ja": "一度においを嗅ぐ",
+    "word": "once",
+    "wrong": [
+      "twice",
+      "again",
+      "tomorrow"
+    ],
+    "hint": "once＝一度",
+    "icon": "👃"
+  },
+  {
+    "rank": 49,
+    "en": "Then sits down right beside it",
+    "chunks": [
+      "Then sits down",
+      "right beside it"
+    ],
+    "ja": "それからバッグのすぐそばに座る",
+    "word": "beside",
+    "wrong": [
+      "above",
+      "behind",
+      "under"
+    ],
+    "hint": "beside＝～のそばに",
+    "icon": "🐈"
+  },
+  {
+    "rank": 50,
+    "en": "Being prepared",
+    "chunks": [
+      "Being",
+      "prepared"
+    ],
+    "ja": "備えていること",
+    "word": "prepared",
+    "wrong": [
+      "curious",
+      "slender",
+      "pink"
+    ],
+    "hint": "prepared＝準備のできた／備えた",
+    "icon": "🎒"
+  },
+  {
+    "rank": 51,
+    "en": "Can sound a little serious",
+    "chunks": [
+      "Can sound",
+      "a little serious"
+    ],
+    "ja": "少し深刻そうに聞こえることがある",
+    "word": "serious",
+    "wrong": [
+      "gentle",
+      "pink",
+      "slender"
+    ],
+    "hint": "serious＝真剣な／深刻な",
+    "icon": "💭"
+  },
+  {
+    "rank": 52,
+    "en": "But maybe",
+    "chunks": [
+      "But",
+      "maybe"
+    ],
+    "ja": "でも、もしかしたら",
+    "word": "maybe",
+    "wrong": [
+      "quietly",
+      "closely",
+      "slowly"
+    ],
+    "hint": "maybe＝もしかしたら",
+    "icon": "💭"
+  },
+  {
+    "rank": 53,
+    "en": "It doesn't have to mean living in fear",
+    "chunks": [
+      "It doesn't have to mean",
+      "living in fear"
+    ],
+    "ja": "それは恐れて暮らすという意味である必要はない",
+    "word": "fear",
+    "wrong": [
+      "music",
+      "tea",
+      "sunlight"
+    ],
+    "hint": "fear＝恐れ",
+    "icon": "🍃"
+  },
+  {
+    "rank": 54,
+    "en": "Maybe it means taking care of the ordinary things",
+    "chunks": [
+      "Maybe it means",
+      "taking care",
+      "of the ordinary things"
+    ],
+    "ja": "たぶんそれは、日常のものを大切にするということ",
+    "word": "ordinary",
+    "wrong": [
+      "slender",
+      "pink",
+      "cool"
+    ],
+    "hint": "ordinary＝いつもの／普通の",
+    "icon": "🏠"
+  },
+  {
+    "rank": 55,
+    "en": "The mornings we know",
+    "chunks": [
+      "The mornings",
+      "we know"
+    ],
+    "ja": "私たちのよく知っている朝",
+    "word": "mornings",
+    "wrong": [
+      "flowers",
+      "petals",
+      "stems"
+    ],
+    "hint": "mornings＝朝（複数）",
+    "icon": "🌤️"
+  },
+  {
+    "rank": 56,
+    "en": "The room we come home to",
+    "chunks": [
+      "The room",
+      "we come home to"
+    ],
+    "ja": "私たちが帰ってくる部屋",
+    "word": "room",
+    "wrong": [
+      "kit",
+      "radio",
+      "flashlight"
+    ],
+    "hint": "room＝部屋",
+    "icon": "🏠"
+  },
+  {
+    "rank": 57,
+    "en": "And the people we hope to see again",
+    "chunks": [
+      "And the people",
+      "we hope",
+      "to see again"
+    ],
+    "ja": "そして、また会いたいと願う人たち",
+    "word": "again",
+    "wrong": [
+      "once",
+      "closely",
+      "quietly"
+    ],
+    "hint": "again＝再び／また",
+    "icon": "🤝"
+  },
+  {
+    "rank": 58,
+    "en": "Just keeping a little space in everyday life",
+    "chunks": [
+      "Just keeping",
+      "a little space",
+      "in everyday life"
+    ],
+    "ja": "日常の中に少し余裕を持っておくこと",
+    "word": "space",
+    "wrong": [
+      "sip",
+      "petal",
+      "stem"
+    ],
+    "hint": "space＝空間／余裕",
+    "icon": "🏠"
+  },
+  {
+    "rank": 59,
+    "en": "For being ready",
+    "chunks": [
+      "For",
+      "being ready"
+    ],
+    "ja": "備えておくために",
+    "word": "ready",
+    "wrong": [
+      "pink",
+      "slender",
+      "curious"
+    ],
+    "hint": "ready＝準備ができている",
+    "icon": "🎒"
+  },
+  {
+    "rank": 60,
+    "en": "Nerine is sometimes associated with looking forward to meeting again",
+    "chunks": [
+      "Nerine is sometimes associated",
+      "with looking forward",
+      "to meeting again"
+    ],
+    "ja": "ネリネには再会を楽しみにするイメージが結びつけられることもある",
+    "word": "meeting",
+    "wrong": [
+      "drinking",
+      "walking",
+      "sparkling"
+    ],
+    "hint": "meeting＝会うこと",
+    "icon": "🌸"
+  },
+  {
+    "rank": 61,
+    "en": "Today and tomorrow",
+    "chunks": [
+      "Today",
+      "and tomorrow"
+    ],
+    "ja": "今日と明日",
+    "word": "tomorrow",
+    "wrong": [
+      "yesterday",
+      "morning",
+      "autumn"
+    ],
+    "hint": "tomorrow＝明日",
+    "icon": "📅"
+  },
+  {
+    "rank": 62,
+    "en": "Seeing familiar faces",
+    "chunks": [
+      "Seeing",
+      "familiar faces"
+    ],
+    "ja": "見慣れた顔に会うこと",
+    "word": "familiar",
+    "wrong": [
+      "slender",
+      "cool",
+      "pink"
+    ],
+    "hint": "familiar＝なじみのある／見慣れた",
+    "icon": "🤝"
+  },
+  {
+    "rank": 63,
+    "en": "In familiar places",
+    "chunks": [
+      "In",
+      "familiar places"
+    ],
+    "ja": "なじみのある場所で",
+    "word": "places",
+    "wrong": [
+      "petals",
+      "stems",
+      "paws"
+    ],
+    "hint": "places＝場所（複数）",
+    "icon": "🏠"
+  },
+  {
+    "rank": 64,
+    "en": "Things that seem so ordinary",
+    "chunks": [
+      "Things that seem",
+      "so ordinary"
+    ],
+    "ja": "とても当たり前に思えるもの",
+    "word": "ordinary",
+    "wrong": [
+      "curious",
+      "slender",
+      "pink"
+    ],
+    "hint": "ordinary＝普通の／当たり前の",
+    "icon": "🍃"
+  },
+  {
+    "rank": 65,
+    "en": "May be more precious than we usually notice",
+    "chunks": [
+      "May be more precious",
+      "than we usually notice"
+    ],
+    "ja": "普段気づいている以上に大切なのかもしれない",
+    "word": "precious",
+    "wrong": [
+      "slender",
+      "complicated",
+      "cool"
+    ],
+    "hint": "precious＝大切な／貴重な",
+    "icon": "💛"
+  },
+  {
+    "rank": 66,
+    "en": "I switch on the little flashlight",
+    "chunks": [
+      "I",
+      "switch on",
+      "the little flashlight"
+    ],
+    "ja": "私は小さな懐中電灯をつける",
+    "word": "on",
+    "wrong": [
+      "off",
+      "under",
+      "beside"
+    ],
+    "hint": "on＝switch onで「電源を入れる」",
+    "icon": "🔦"
+  },
+  {
+    "rank": 67,
+    "en": "Just once",
+    "chunks": [
+      "Just",
+      "once"
+    ],
+    "ja": "ほんの一度だけ",
+    "word": "once",
+    "wrong": [
+      "twice",
+      "again",
+      "tomorrow"
+    ],
+    "hint": "once＝一度",
+    "icon": "🔦"
+  },
+  {
+    "rank": 68,
+    "en": "A small glow appears in my hand",
+    "chunks": [
+      "A small glow",
+      "appears",
+      "in my hand"
+    ],
+    "ja": "小さな光が私の手の中に現れる",
+    "word": "glow",
+    "wrong": [
+      "sip",
+      "sniff",
+      "petal"
+    ],
+    "hint": "glow＝やわらかな光",
+    "icon": "✨"
+  },
+  {
+    "rank": 69,
+    "en": "The calico cat looks at it",
+    "chunks": [
+      "The calico cat",
+      "looks at it"
+    ],
+    "ja": "三毛猫がその光を見る",
+    "word": "cat",
+    "wrong": [
+      "radio",
+      "flower",
+      "bag"
+    ],
+    "hint": "cat＝猫",
+    "icon": "🐈"
+  },
+  {
+    "rank": 70,
+    "en": "With wide curious eyes",
+    "chunks": [
+      "With wide",
+      "curious",
+      "eyes"
+    ],
+    "ja": "好奇心いっぱいに目を大きく開いて",
+    "word": "curious",
+    "wrong": [
+      "slender",
+      "pink",
+      "ordinary"
+    ],
+    "hint": "curious＝興味津々の／好奇心のある",
+    "icon": "👀"
+  },
+  {
+    "rank": 71,
+    "en": "I smile",
+    "chunks": [
+      "I",
+      "smile"
+    ],
+    "ja": "私は微笑む",
+    "word": "smile",
+    "wrong": [
+      "sniff",
+      "bloom",
+      "sparkle"
+    ],
+    "hint": "smile＝微笑む",
+    "icon": "😊"
+  },
+  {
+    "rank": 72,
+    "en": "And put it back where it belongs",
+    "chunks": [
+      "And put it back",
+      "where it belongs"
+    ],
+    "ja": "そして、それを元の場所に戻す",
+    "word": "belongs",
+    "wrong": [
+      "sparkles",
+      "blooms",
+      "shines"
+    ],
+    "hint": "belongs＝属する／ここでは元の場所にあるべき",
+    "icon": "🎒"
+  },
+  {
+    "rank": 73,
+    "en": "The old radio keeps playing its gentle morning song",
+    "chunks": [
+      "The old radio",
+      "keeps playing",
+      "its gentle morning song"
+    ],
+    "ja": "古いラジオはやさしい朝の歌を流し続ける",
+    "word": "gentle",
+    "wrong": [
+      "complicated",
+      "serious",
+      "slender"
+    ],
+    "hint": "gentle＝やさしい／穏やかな",
+    "icon": "📻"
+  },
+  {
+    "rank": 74,
+    "en": "If something happened someday",
+    "chunks": [
+      "If",
+      "something happened",
+      "someday"
+    ],
+    "ja": "もし、いつか何かが起きたら",
+    "word": "someday",
+    "wrong": [
+      "today",
+      "now",
+      "once"
+    ],
+    "hint": "someday＝いつか",
+    "icon": "💭"
+  },
+  {
+    "rank": 75,
+    "en": "That same radio might carry important news",
+    "chunks": [
+      "That same radio",
+      "might carry",
+      "important news"
+    ],
+    "ja": "その同じラジオが大切な知らせを届けるかもしれない",
+    "word": "news",
+    "wrong": [
+      "tea",
+      "petals",
+      "steam"
+    ],
+    "hint": "news＝ニュース／知らせ",
+    "icon": "📻"
+  },
+  {
+    "rank": 76,
+    "en": "But right now",
+    "chunks": [
+      "But",
+      "right now"
+    ],
+    "ja": "でも、今この瞬間は",
+    "word": "now",
+    "wrong": [
+      "tomorrow",
+      "yesterday",
+      "someday"
+    ],
+    "hint": "now＝今",
+    "icon": "🌤️"
+  },
+  {
+    "rank": 77,
+    "en": "It's simply filling the room with music",
+    "chunks": [
+      "It's simply filling",
+      "the room",
+      "with music"
+    ],
+    "ja": "ただ部屋を音楽で満たしている",
+    "word": "music",
+    "wrong": [
+      "water",
+      "petals",
+      "steam"
+    ],
+    "hint": "music＝音楽",
+    "icon": "🎶"
+  },
+  {
+    "rank": 78,
+    "en": "The nerine petals keep sparkling by the window",
+    "chunks": [
+      "The nerine petals",
+      "keep sparkling",
+      "by the window"
+    ],
+    "ja": "ネリネの花びらは窓辺できらめき続ける",
+    "word": "sparkling",
+    "wrong": [
+      "walking",
+      "drinking",
+      "resting"
+    ],
+    "hint": "sparkling＝きらめいている",
+    "icon": "✨"
+  },
+  {
+    "rank": 79,
+    "en": "We don't have to prepare for everything all at once",
+    "chunks": [
+      "We don't have to",
+      "prepare for everything",
+      "all at once"
+    ],
+    "ja": "すべてに一度に備える必要はない",
+    "word": "prepare",
+    "wrong": [
+      "forget",
+      "drink",
+      "bloom"
+    ],
+    "hint": "prepare＝準備する／備える",
+    "icon": "🎒"
+  },
+  {
+    "rank": 80,
+    "en": "Sometimes it's enough to remember",
+    "chunks": [
+      "Sometimes",
+      "it's enough",
+      "to remember"
+    ],
+    "ja": "時には、忘れずにいるだけでも十分",
+    "word": "enough",
+    "wrong": [
+      "curious",
+      "slender",
+      "pink"
+    ],
+    "hint": "enough＝十分な／十分に",
+    "icon": "💭"
+  },
+  {
+    "rank": 81,
+    "en": "To glance at the emergency kit",
+    "chunks": [
+      "To glance at",
+      "the emergency kit"
+    ],
+    "ja": "防災セットをちらっと見ること",
+    "word": "glance",
+    "wrong": [
+      "drink",
+      "bloom",
+      "sleep"
+    ],
+    "hint": "glance＝ちらっと見る",
+    "icon": "🔎"
+  },
+  {
+    "rank": 82,
+    "en": "To think for a moment about what matters",
+    "chunks": [
+      "To think",
+      "for a moment",
+      "about what matters"
+    ],
+    "ja": "大切なことについて少し考えること",
+    "word": "matters",
+    "wrong": [
+      "blooms",
+      "shines",
+      "sparkles"
+    ],
+    "hint": "matters＝大切である／重要である",
+    "icon": "💛"
+  },
+  {
+    "rank": 83,
+    "en": "Small habits can still help protect an ordinary day",
+    "chunks": [
+      "Small habits",
+      "can still help",
+      "protect an ordinary day"
+    ],
+    "ja": "小さな習慣もいつもの一日を守る助けになる",
+    "word": "habits",
+    "wrong": [
+      "petals",
+      "stems",
+      "paws"
+    ],
+    "hint": "habits＝習慣（複数）",
+    "icon": "🛟"
+  },
+  {
+    "rank": 84,
+    "en": "The morning air is cool now",
+    "chunks": [
+      "The morning air",
+      "is cool now"
+    ],
+    "ja": "今、朝の空気はひんやりしている",
+    "word": "cool",
+    "wrong": [
+      "warm",
+      "hot",
+      "bright"
+    ],
+    "hint": "cool＝ひんやりした",
+    "icon": "🍃"
+  },
+  {
+    "rank": 85,
+    "en": "But later today",
+    "chunks": [
+      "But",
+      "later today"
+    ],
+    "ja": "でも今日このあとには",
+    "word": "later",
+    "wrong": [
+      "quietly",
+      "closely",
+      "slowly"
+    ],
+    "hint": "later＝あとで",
+    "icon": "☀️"
+  },
+  {
+    "rank": 86,
+    "en": "The temperature may climb to around seventy-nine",
+    "chunks": [
+      "The temperature",
+      "may climb",
+      "to around seventy-nine"
+    ],
+    "ja": "気温は華氏79度（約26℃）まで上がるかもしれない",
+    "word": "seventy-nine",
+    "wrong": [
+      "sixty-three",
+      "fifty",
+      "forty"
+    ],
+    "hint": "seventy-nine＝79（華氏79度は約26℃）",
+    "icon": "🌡️"
+  },
+  {
+    "rank": 87,
+    "en": "The afternoon will feel much warmer",
+    "chunks": [
+      "The afternoon",
+      "will feel",
+      "much warmer"
+    ],
+    "ja": "午後はずっと暖かく感じられるだろう",
+    "word": "warmer",
+    "wrong": [
+      "cooler",
+      "colder",
+      "darker"
+    ],
+    "hint": "warmer＝より暖かい",
+    "icon": "☀️"
+  },
+  {
+    "rank": 88,
+    "en": "Morning and daytime may carry two different kinds of autumn air",
+    "chunks": [
+      "Morning and daytime",
+      "may carry",
+      "two different kinds of autumn air"
+    ],
+    "ja": "朝と日中では二種類の違う秋の空気を感じるかもしれない",
+    "word": "autumn",
+    "wrong": [
+      "spring",
+      "summer",
+      "winter"
+    ],
+    "hint": "autumn＝秋",
+    "icon": "🍂"
+  },
+  {
+    "rank": 89,
+    "en": "The calico cat curls up beside the nerine flowers",
+    "chunks": [
+      "The calico cat",
+      "curls up",
+      "beside the nerine flowers"
+    ],
+    "ja": "三毛猫はネリネの花のそばで丸くなる",
+    "word": "curls",
+    "wrong": [
+      "shines",
+      "blooms",
+      "sparkles"
+    ],
+    "hint": "curls＝curls upで「丸くなる」",
+    "icon": "🐈"
+  },
+  {
+    "rank": 90,
+    "en": "I take my tea and sit beside her",
+    "chunks": [
+      "I take my tea",
+      "and sit beside her"
+    ],
+    "ja": "私は紅茶を持って猫のそばに座る",
+    "word": "beside",
+    "wrong": [
+      "above",
+      "behind",
+      "under"
+    ],
+    "hint": "beside＝～のそばに",
+    "icon": "☕"
+  },
+  {
+    "rank": 91,
+    "en": "Sunlight quietly spreads across the room",
+    "chunks": [
+      "Sunlight",
+      "quietly spreads",
+      "across the room"
+    ],
+    "ja": "日差しが静かに部屋全体へ広がる",
+    "word": "Sunlight",
+    "wrong": [
+      "Steam",
+      "Water",
+      "Music"
+    ],
+    "hint": "Sunlight＝日差し／太陽の光",
+    "icon": "🌤️"
+  },
+  {
+    "rank": 92,
+    "en": "An ordinary morning is continuing",
+    "chunks": [
+      "An ordinary morning",
+      "is continuing"
+    ],
+    "ja": "いつもの朝が続いている",
+    "word": "continuing",
+    "wrong": [
+      "blooming",
+      "drinking",
+      "sniffing"
+    ],
+    "hint": "continuing＝続いている",
+    "icon": "🏠"
+  },
+  {
+    "rank": 93,
+    "en": "Just as it usually does",
+    "chunks": [
+      "Just as",
+      "it usually does"
+    ],
+    "ja": "いつもどおりに",
+    "word": "usually",
+    "wrong": [
+      "suddenly",
+      "loudly",
+      "closely"
+    ],
+    "hint": "usually＝いつもは／普段は",
+    "icon": "🍃"
+  },
+  {
+    "rank": 94,
+    "en": "And somehow that feels a little precious",
+    "chunks": [
+      "And somehow",
+      "that feels",
+      "a little precious"
+    ],
+    "ja": "そして、なぜかそれが少し大切に感じられる",
+    "word": "somehow",
+    "wrong": [
+      "tomorrow",
+      "once",
+      "again"
+    ],
+    "hint": "somehow＝どういうわけか／なぜか",
+    "icon": "💛"
+  },
+  {
+    "rank": 95,
+    "en": "Fluffy sparkling",
+    "chunks": [
+      "Fluffy",
+      "sparkling"
+    ],
+    "ja": "ふわふわ、きらきら",
+    "word": "Fluffy",
+    "wrong": [
+      "Serious",
+      "Complicated",
+      "Slender"
+    ],
+    "hint": "Fluffy＝ふわふわした",
+    "icon": "✨"
+  },
+  {
+    "rank": 96,
+    "en": "A cool sunny autumn morning",
+    "chunks": [
+      "A cool sunny",
+      "autumn morning"
+    ],
+    "ja": "ひんやりした晴れた秋の朝",
+    "word": "sunny",
+    "wrong": [
+      "rainy",
+      "cloudy",
+      "snowy"
+    ],
+    "hint": "sunny＝晴れた",
+    "icon": "🍂"
+  },
+  {
+    "rank": 97,
+    "en": "With nerine flowers and the calico cat",
+    "chunks": [
+      "With nerine flowers",
+      "and the calico cat"
+    ],
+    "ja": "ネリネの花と三毛猫とともに",
+    "word": "calico",
+    "wrong": [
+      "cool",
+      "pink",
+      "slender"
+    ],
+    "hint": "calico＝三毛の",
+    "icon": "🌸"
+  },
+  {
+    "rank": 98,
+    "en": "Good morning",
+    "chunks": [
+      "Good",
+      "morning"
+    ],
+    "ja": "おはよう",
+    "word": "morning",
+    "wrong": [
+      "evening",
+      "night",
+      "afternoon"
+    ],
+    "hint": "morning＝朝",
+    "icon": "🌤️"
+  },
+  {
+    "rank": 99,
+    "en": "Little preparations",
+    "chunks": [
+      "Little",
+      "preparations"
+    ],
+    "ja": "小さな備え",
+    "word": "preparations",
+    "wrong": [
+      "flowers",
+      "petals",
+      "stems"
+    ],
+    "hint": "preparations＝準備／備え（複数）",
+    "icon": "🎒"
+  },
+  {
+    "rank": 100,
+    "en": "Nerine flower",
+    "chunks": [
+      "Nerine",
+      "flower"
+    ],
+    "ja": "ネリネの花",
+    "word": "flower",
+    "wrong": [
+      "radio",
+      "flashlight",
+      "bag"
+    ],
+    "hint": "flower＝花",
+    "icon": "🌸"
+  },
+  {
+    "rank": 101,
+    "en": "Every quiet morning is something worth protecting",
+    "chunks": [
+      "Every quiet morning",
+      "is something",
+      "worth protecting"
+    ],
+    "ja": "静かな朝はどれも、守る価値のあるもの",
+    "word": "protecting",
+    "wrong": [
+      "forgetting",
+      "drinking",
+      "blooming"
+    ],
+    "hint": "protecting＝守ること",
+    "icon": "💛"
+  },
+  {
+    "rank": 102,
+    "en": "Every little preparation can help tomorrow feel a little safer",
+    "chunks": [
+      "Every little preparation",
+      "can help tomorrow feel",
+      "a little safer"
+    ],
+    "ja": "小さな備えの一つひとつが、明日を少し安心できるものにしてくれる",
+    "word": "safer",
+    "wrong": [
+      "colder",
+      "darker",
+      "slender"
+    ],
+    "hint": "safer＝より安全な／安心できる",
+    "icon": "🛟"
+  }
+];
+const levels={1:{mode:'meaning',options:2,time:0},2:{mode:'meaning',options:3,time:25},3:{mode:'gap',options:4,time:25},4:{mode:'order',time:35},5:{mode:'mixed',options:4,time:20}};
+let prefs={};try{const p=JSON.parse(localStorage.getItem(KEY)||'{}');if(p&&typeof p==='object'&&!Array.isArray(p))prefs=p}catch{}let s=null,raf=0,ctx=null,sound=prefs.sound!==false,speechJob=null,speechSerial=0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch{}}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function escapeHTML(t){return t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function beep(ok){if(!sound)return;try{ctx??=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume().catch(()=>{});const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.frequency.value=ok?660:294;g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+.22)}catch{}}
+function stopClock(){cancelAnimationFrame(raf)}
+function remaining(){return Math.max(0,s.left-(performance.now()-s.started))}
+function cancelVoice(resume=false){const job=speechJob;speechSerial++;speechJob=null;if(window.speechSynthesis)window.speechSynthesis.cancel();el('gameSpeech').textContent='';if(job&&job.session===s){s.started=performance.now();if(resume&&['preview','active'].includes(s.phase))tick()}}
+function speakEnglish(text){if(typeof text!=='string'||!text.trim())return;const synth=window.speechSynthesis,Utterance=window.SpeechSynthesisUtterance;if(!synth||!Utterance){el(s?'gameSpeech':'speechNotice').textContent='この端末では読み上げを使えません。文字で遊べます。';return}cancelVoice(false);const id=++speechSerial,session=s;let phase=session?.phase;if(session&&['preview','active'].includes(phase)){session.left=remaining();stopClock();session.started=performance.now()}speechJob={id,session,phase};el(session?'gameSpeech':'speechNotice').textContent='英語を読み上げ中'+(session&&['preview','active'].includes(phase)?' · 時計は停止':'');const u=new Utterance(text.replace(/[’]/g,"'"));u.lang='en-US';u.rate=Number(el('rate').value)||.85;const voices=synth.getVoices();const voice=voices.find(v=>/^en-US$/i.test(v.lang))||voices.find(v=>/^en\b/i.test(v.lang));if(voice)u.voice=voice;function done(error=false){if(!speechJob||speechJob.id!==id)return;speechJob=null;el(session?'gameSpeech':'speechNotice').textContent=error?'音声を再生できませんでした。文字で続けられます。':'';if(session===s&&session&&['preview','active'].includes(session.phase)){session.started=performance.now();tick()}}u.onend=()=>done();u.onerror=()=>done(true);try{synth.speak(u)}catch{done(true)}}
+function show(id){['home','game','result'].forEach(x=>el(x).classList.toggle('hidden',x!==id));document.body.classList.toggle('playing',id==='game');window.scrollTo(0,0)}
+function best(){el('best').textContent=`レベル${el('level').value} · ${el('questionCount').value}問 · 1人用ベスト ${Number(prefs['best_'+el('level').value+'_'+el('questionCount').value])||0}点`}
+function goHome(){cancelVoice();stopClock();s=null;el('overlay').classList.add('hidden');show('home');best();el('start').focus()}
+function start(){cancelVoice();stopClock();const level=levels[el('level').value]?Number(el('level').value):1,n=el('players').value==='2'?2:1;COUNT=[10,20,30,50,100,103,150,200].includes(Number(el("questionCount").value))?Number(el("questionCount").value):10;const ordered=el("questionOrder").value!=="shuffle",pool=ordered?[...phrases]:shuffle(phrases);const chosen=Array.from({length:COUNT},(_,i)=>COUNT<pool.length?pool[Math.round(i*(pool.length-1)/(COUNT-1))]:pool[i%pool.length]),cfg=levels[level];const deck=chosen.map((p,i)=>{const mode=cfg.mode==='mixed'?['meaning','gap','order'][i%3]:cfg.mode;const options=mode==='meaning'?shuffle([p.en,...shuffle(phrases.filter(x=>x!==p)).slice(0,cfg.options-1).map(x=>x.en)]):mode==='gap'?shuffle([p.word,...p.wrong]):[];return{p,mode,options,tokens:shuffle(p.chunks.map((text,id)=>({text,id})))}});s={level,n,deck,round:0,player:0,scores:[0,0],hits:[0,0],phase:'ready',picked:[]};prefs.level=level;prefs.questionCount=COUNT;prefs.questionOrder=el("questionOrder").value;prefs.players=n;prefs.rate=el('rate').value;save();el('overlay').classList.add('hidden');show('game');turn()}
+function dialog(html){el('dialog').innerHTML=html;el('overlay').classList.remove('hidden');el('dialog').querySelector('button')?.focus()}
+function turn(){if(s.n===2){s.phase='ready';dialog(`<h2 id="dialogTitle">プレイヤー${s.player+1}の番</h2><p>問題 ${s.round+1} / ${COUNT}</p><p>相手は画面と音声を見聞きせずに待ってね。</p><button id="ready" class="primary">始める</button><button id="leave">設定へ戻る</button>`);el('ready').onclick=()=>{el('overlay').classList.add('hidden');begin()};el('leave').onclick=goHome}else begin()}
+function status(){el('who').textContent=s.n===2?`プレイヤー${s.player+1}`:'ふわふわ英語';el('progress').textContent=`${s.round+1} / ${COUNT}問`;el('score').textContent=`${s.scores[s.player]}点`;el('track').innerHTML=Array.from({length:Math.min(COUNT,20)},(_,i)=>`<span class="dot ${i<Math.floor(s.round*Math.min(COUNT,20)/COUNT)?'done':i===Math.floor(s.round*Math.min(COUNT,20)/COUNT)?'now':''}"></span>`).join('');el('track').setAttribute('aria-label',`${COUNT}問中${s.round+1}問目`)}
+function begin(){cancelVoice();s.picked=[];status();el('feedback').innerHTML='';el('orderUI').classList.add('hidden');el('choices').innerHTML='';if(s.level===1){s.phase='preview';s.left=10000;s.started=performance.now();const p=s.deck[s.round].p;el('instruction').textContent='10秒の見本。英語と意味を見よう';el('prompt').innerHTML=`<p class="english" lang="en">${escapeHTML(p.en)}</p><p class="japanese">${p.icon} ${p.ja}</p>`;el('previewControls').classList.remove('hidden');el('previewListen').onclick=()=>speakEnglish(p.en);tick()}else question()}
+function question(){const q=s.deck[s.round],cfg=levels[s.level],p=q.p;s.phase='active';s.left=cfg.time*1000;s.started=performance.now();el('previewControls').classList.add('hidden');el('instruction').textContent=q.mode==='meaning'?'日本語に合う英語は？':q.mode==='gap'?'歌詞の空欄に入る単語は？':'歌詞の英語を順番に組み立てよう';el('prompt').innerHTML=q.mode==='gap'?`<p class="english" lang="en">${escapeHTML(p.en.replace(p.word,'______'))}</p><p class="japanese">${p.icon} ${p.ja}</p>`:`<p class="japanese">${p.icon} ${p.ja}</p>${s.level===1?`<p class="english" lang="en">見本：<span lang="en">${escapeHTML(p.en)}</span></p>`:''}`;if(q.mode==='order'){el('choices').innerHTML='';el('orderUI').classList.remove('hidden');renderOrder()}else{el('orderUI').classList.add('hidden');el('choices').innerHTML=q.options.map((x,i)=>`<div class="option"><button class="answer ${s.level===1&&x===p.en?'hint':''}" data-answer="${i}" lang="en">${escapeHTML(x)}</button><button class="listen" data-listen="${i}" aria-label="選択肢${i+1}の英語を聞く">🔊 聞く</button></div>`).join('');el('choices').querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>answer(Number(b.dataset.answer)));el('choices').querySelectorAll('[data-listen]').forEach(b=>b.onclick=()=>speakEnglish(q.options[Number(b.dataset.listen)]))}tick()}
+function renderOrder(){const q=s.deck[s.round];el('assembled').textContent=s.picked.length?s.picked.map(id=>q.p.chunks[id]).join(' '):'英語のかたまりを押してね';el('tokens').innerHTML=q.tokens.map(x=>`<button class="token" lang="en" data-token="${x.id}" ${s.picked.includes(x.id)?'disabled':''}>${escapeHTML(x.text)}</button>`).join('');el('tokens').querySelectorAll('button').forEach(b=>b.onclick=()=>pick(Number(b.dataset.token)));el('undo').disabled=!s.picked.length;el('clear').disabled=!s.picked.length;el('check').disabled=s.picked.length!==q.p.chunks.length}
+function pick(id){if(!s||s.phase!=='active'||speechJob||s.picked.includes(id))return;if(remaining()<=0){complete(false,true);return}s.picked.push(id);renderOrder()}
+function answer(i){if(!s||s.phase!=='active'||speechJob)return;const q=s.deck[s.round],cfg=levels[s.level];if(cfg.time&&remaining()<=0){complete(false,true);return}const correct=q.options[i]===(q.mode==='meaning'?q.p.en:q.p.word);if(!correct&&s.level===1){beep(false);el('feedback').textContent='もう一度どうぞ。緑の枠が答えのヒント！';return}complete(correct)}
+function complete(ok,timeout=false){if(!s||s.phase!=='active')return;const cfg=levels[s.level];if(cfg.time&&remaining()<=0){ok=false;timeout=true}const bonus=ok&&cfg.time?Math.round(remaining()/cfg.time/10):0;cancelVoice();stopClock();s.phase='feedback';if(ok){s.scores[s.player]+=100+bonus;s.hits[s.player]++}beep(ok);status();el('choices').querySelectorAll('button').forEach(b=>b.disabled=true);el('orderUI').querySelectorAll('button').forEach(b=>b.disabled=true);const p=s.deck[s.round].p;el('feedback').innerHTML=`<h2>${ok?'🌼 正解！ +'+(100+bonus)+'点':timeout?'時間になったね。':'歌詞の英語を確認しよう'}</h2><p class="english" lang="en">${escapeHTML(p.en)}</p><p class="japanese">${p.ja}</p><p>${p.hint}</p><button id="answerListen">🔊 正解の英語を聞く</button><button id="next" class="primary" style="margin-top:12px">次の問題へ</button>`;el('answerListen').onclick=()=>speakEnglish(p.en);el('next').onclick=advance;el('clock').textContent='答えを確認しよう';el('next').focus()}
+function advance(){if(!s||s.phase!=='feedback')return;cancelVoice();if(s.n===2&&s.player===0)s.player=1;else{s.player=0;s.round++}if(s.round===COUNT)results();else turn()}
+function results(){cancelVoice();stopClock();s.phase='result';show('result');if(s.n===1){prefs['best_'+s.level+'_'+COUNT]=Math.max(Number(prefs['best_'+s.level+'_'+COUNT])||0,s.scores[0]);save()}const title=s.n===1?'🌼 おつかれさま！':s.scores[0]===s.scores[1]?'🌼 ふたりとも同点！':`🌼 プレイヤー${s.scores[0]>s.scores[1]?1:2}が高得点！`;el('result').innerHTML=`<h2>${title}</h2>${s.scores.slice(0,s.n).map((v,i)=>`<div class="prompt"><strong>${s.n===2?'プレイヤー'+(i+1):'得点'}</strong><div class="score">${v}点</div><p>正解 ${s.hits[i]} / ${COUNT}問</p></div>`).join('')}<p class="note" lang="en">Every quiet morning is something worth protecting.</p><p>静かな朝はどれも、守る価値のあるもの。</p><button id="again" class="primary">もう一度遊ぶ</button><button id="back" style="width:100%;margin-top:12px">設定・英語の練習へ</button>`;el('again').onclick=start;el('back').onclick=goHome;el('again').focus()}
+function tick(){if(!s||!['preview','active'].includes(s.phase)||speechJob)return;if(s.phase==='active'&&!levels[s.level].time){el('clock').textContent='時間制限なし';return}const left=remaining();el('clock').textContent=s.phase==='preview'?`見本 あと${Math.ceil(left/1000)}秒`:`あと ${(left/1000).toFixed(1)}秒`;if(left<=0){if(s.phase==='preview')question();else complete(false,true);return}raf=requestAnimationFrame(tick)}
+function pause(){if(!s||!['preview','active','feedback'].includes(s.phase))return;const speaking=!!speechJob;if(speaking)cancelVoice(false);s.before=s.phase;if(!speaking&&['preview','active'].includes(s.phase))s.left=remaining();stopClock();s.phase='paused';dialog('<h2 id="dialogTitle">ひと休み</h2><p>時計と音声は止まっています。</p><button id="resume" class="primary">続ける</button><button id="leave">設定へ戻る</button>');el('resume').onclick=()=>{el('overlay').classList.add('hidden');s.phase=s.before;s.started=performance.now();tick();el('pause').focus()};el('leave').onclick=goHome}
+el('start').onclick=start;el('pause').onclick=pause;el('sample').onclick=()=>speakEnglish('Good morning. Just in case. A little preparation.');el('level').onchange=best;el('questionCount').onchange=best;el('rate').onchange=()=>{prefs.rate=el('rate').value;save()};el('undo').onclick=()=>{if(s?.phase==='active'&&!speechJob){s.picked.pop();renderOrder()}};el('clear').onclick=()=>{if(s?.phase==='active'&&!speechJob){s.picked=[];renderOrder()}};el('check').onclick=()=>{if(s?.phase==='active'&&!speechJob&&s.picked.length===s.deck[s.round].p.chunks.length)complete(s.picked.every((id,i)=>id===i))};el('contrast').onclick=()=>{prefs.contrast=!prefs.contrast;document.body.classList.toggle('hc',prefs.contrast);el('contrast').setAttribute('aria-pressed',String(prefs.contrast));save()};el('sound').onclick=()=>{sound=!sound;prefs.sound=sound;el('sound').textContent=sound?'効果音 ON':'効果音 OFF';el('sound').setAttribute('aria-pressed',String(sound));save()};el('study').innerHTML=phrases.map((p,i)=>`<div class="studycard"><p class="english" lang="en">${p.icon} ${escapeHTML(p.en)}</p><p>${p.ja}</p><p class="sub">${p.hint}</p><button data-study="${i}">🔊 英語を聞く</button></div>`).join('');el('study').querySelectorAll('button').forEach(b=>b.onclick=()=>speakEnglish(phrases[Number(b.dataset.study)].en));document.addEventListener('visibilitychange',()=>{if(document.hidden){if(s)pause();else cancelVoice()}});document.addEventListener('keydown',e=>{if(e.key==='Escape')pause();if(e.key==='Tab'&&!el('overlay').classList.contains('hidden')){const a=el('dialog').querySelectorAll('button'),first=a[0],last=a[a.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});el('questionCount').value=[10,20,30,50,100,103,150,200].includes(Number(prefs.questionCount))?String(prefs.questionCount):'10';el('questionOrder').value=prefs.questionOrder==='shuffle'?'shuffle':'lyrics';el('level').value=levels[prefs.level]?String(prefs.level):'1';el('players').value=prefs.players===2?'2':'1';el('rate').value=['0.7','0.85','1'].includes(String(prefs.rate))?String(prefs.rate):'0.85';document.body.classList.toggle('hc',!!prefs.contrast);el('contrast').setAttribute('aria-pressed',String(!!prefs.contrast));el('sound').textContent=sound?'効果音 ON':'効果音 OFF';el('sound').setAttribute('aria-pressed',String(sound));best();
+})();
+</script></body></html>
