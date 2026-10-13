@@ -732,7 +732,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 <h2 data-i18n="sectionHBrain">🧠 脳トレゲーム</h2>
 <p data-i18n="sectionPBrain">記憶力・集中力・反応を楽しく鍛えられる、ブラウザで遊べる脳トレゲームです。</p>
 </div>
-<span class="count">51 GAMES</span>
+<span class="count">52 GAMES</span>
 </div>
 <div class="brainFilter" id="brainFilter" hidden>
 <p class="brainFilterLabel" id="brainFilterLabel" data-i18n="brainFilterLabel">絞り込み・並び替え（標準は新作順）</p>
@@ -744,6 +744,13 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </div>
 </div>
 <div class="grid">
+<article class="card fluffynerine">
+<span class="status">NEW</span>
+<div class="cardTop"><div class="icon">🌸</div><h3>ふわふわ英語脳トレ<br><small>ネリネの朝 · Nerine Morning</small></h3></div>
+<p>ふわふわ日記の歌詞と連動！ネリネ、三毛猫、紅茶、小さな備えの朝を103の英語表現で練習。最後の一節まで、意味合わせ・穴埋め・語順並べ。10〜200問、歌詞順／シャッフル、難しさ5段階、1人／2人、英語だけの読み上げ・速度調整・見やすいモード付き。</p>
+<div class="tags"><span class="tag">英会話</span><span class="tag">ふわふわ日記</span><span class="tag">Memory</span></div>
+<a class="open" href="./salp-fluffy-english-nerine-v1.0.html">ネリネの朝で英語を遊ぶ</a>
+</article>
 <article class="card fluffyenglish">
 <span class="status">NEW</span>
 <div class="cardTop"><div class="icon">🌼</div><h3>ふわふわ英語脳トレ<br><small>ガーベラの朝 · Gerbera Morning</small></h3></div>
@@ -2049,6 +2056,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
      → 新作順(added 降順。同じ日は後から足した方が先)・各チップ・件数・お気に入り★は自動。「33 GAMES」の数字もJSが実数で上書きする。
      (METAが無い/added が空のカードは「最新扱い」で新作順の先頭に出る=足し忘れに気付ける。) */
 window.SALP_FINDER_META = {
+  "./salp-fluffy-english-nerine-v1.0.html": {"added":"2026-10-13","updated":"2026-10-13","ver":"1.0","tags":["english","memory","cat"],"kw":["英会話","英語","ふわふわ日記","ネリネ","三毛猫","防災","紅茶","歌詞","読み上げ","200問","103表現","fluffy","nerine","calico","lyrics","english","preparation"]},
   "./salp-fluffy-english-gerbera-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.1","tags":["english","memory","cat"],"kw":["英会話","英語","ふわふわ日記","ガーベラ","三毛猫","紅茶","歌詞","意味合わせ","穴埋め","語順","読み上げ","5段階","2人","200問","81表現","fluffy","gerbera","calico","lyrics","english"]},
   "./salp-english-reply-relay-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.0","tags":["english","memory"],"kw":["英会話","英語","英会話リレー","日常会話","ホテル","質問","返事","読み上げ","記憶","5段階","2人","english","conversation","reply","relay","hotel"]},
   "./salp-sports-relay-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.1","tags":["memory"],"kw":["スポーツ","スポーツの日","道具","リレー","順番","記憶","サッカー","野球","水泳","5段階","2人","sports","gear","relay","memory"]},
