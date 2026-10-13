@@ -732,7 +732,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 <h2 data-i18n="sectionHBrain">🧠 脳トレゲーム</h2>
 <p data-i18n="sectionPBrain">記憶力・集中力・反応を楽しく鍛えられる、ブラウザで遊べる脳トレゲームです。</p>
 </div>
-<span class="count">52 GAMES</span>
+<span class="count">53 GAMES</span>
 </div>
 <div class="brainFilter" id="brainFilter" hidden>
 <p class="brainFilterLabel" id="brainFilterLabel" data-i18n="brainFilterLabel">絞り込み・並び替え（標準は新作順）</p>
@@ -1400,6 +1400,13 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </div>
 <a class="open" data-i18n="cardB22" href="./memory.html">神経衰弱を遊ぶ</a>
 </article>
+<article class="card dachsgarden" style="--accent:#84a06e;--icon:#2d3428">
+<span class="status">NEW</span>
+<div class="cardTop"><div class="icon">🐕</div><h3>ダックスちゃんと英語さんぽ<br><small lang="en">Dachshund English Garden</small></h3></div>
+<p>ブラックタンのロングコートのダックスと、英語の声を聞いておもちゃ探し。設定なしでレベル1〜50へ自動アップ！だんだん選択肢・覚える順番が増え、レベル6から時間制限も。聞き直し・ヒント・なでなで・続きの自動保存付き。</p>
+<div class="tags"><span class="tag">英会話</span><span class="tag">順番記憶</span><span class="tag">50 Levels</span><span class="tag">Mobile</span></div>
+<a class="open" href="./salp-dachs-garden-v1.0.html">ダックスちゃんと遊ぶ</a>
+</article>
 </div>
 </section>
 <section class="section" id="words">
@@ -2056,6 +2063,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
      → 新作順(added 降順。同じ日は後から足した方が先)・各チップ・件数・お気に入り★は自動。「33 GAMES」の数字もJSが実数で上書きする。
      (METAが無い/added が空のカードは「最新扱い」で新作順の先頭に出る=足し忘れに気付ける。) */
 window.SALP_FINDER_META = {
+  "./salp-dachs-garden-v1.0.html": {"added":"2026-10-13","updated":"2026-10-13","ver":"2.0","tags":["english","memory"],"kw":["ダックス","犬","ブラックタン","ロング","英語","英会話","おもちゃ","順番","時間制限","50レベル","dachshund","dog","english","garden","memory"]},
   "./salp-fluffy-english-nerine-v1.0.html": {"added":"2026-10-13","updated":"2026-10-13","ver":"1.0","tags":["english","memory","cat"],"kw":["英会話","英語","ふわふわ日記","ネリネ","三毛猫","防災","紅茶","歌詞","読み上げ","200問","103表現","fluffy","nerine","calico","lyrics","english","preparation"]},
   "./salp-fluffy-english-gerbera-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.1","tags":["english","memory","cat"],"kw":["英会話","英語","ふわふわ日記","ガーベラ","三毛猫","紅茶","歌詞","意味合わせ","穴埋め","語順","読み上げ","5段階","2人","200問","81表現","fluffy","gerbera","calico","lyrics","english"]},
   "./salp-english-reply-relay-v1.0.html": {"added":"2026-10-12","updated":"2026-10-12","ver":"1.0","tags":["english","memory"],"kw":["英会話","英語","英会話リレー","日常会話","ホテル","質問","返事","読み上げ","記憶","5段階","2人","english","conversation","reply","relay","hotel"]},
