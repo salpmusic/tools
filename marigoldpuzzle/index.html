@@ -62,6 +62,9 @@ h1{font-size:1rem;letter-spacing:.03em}
 .tog{background:#fff;border:2px solid #f2cfa4;border-radius:999px;padding:6px 14px;font-weight:700;color:#8a5518}
 .tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
 .vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}.vol input{flex:1;min-width:60px;width:100%;accent-color:#ff8f5a;height:28px}.vol{min-width:0;max-width:100%}
+.bgmline{margin-top:8px}
+.bgmstatus{font-size:.76rem;font-weight:700;color:#8a5518;flex:1;min-width:128px;line-height:1.35}
+body.hc .bgmstatus{color:#fff}
 #result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center;display:grid;gap:6px;justify-items:center}
 #result[hidden]{display:none}
 #result h2{font-size:1.2rem;color:#d5622f}
@@ -129,6 +132,7 @@ body.hc .tile .n{background:#ffff00;color:#000;font-size:.95rem}
    <h2 data-i="sv"></h2>
    <div class="row"><button type="button" class="tog" id="tSound" aria-pressed="true"></button>
    <label class="vol"><span data-i="vol"></span> <input type="range" id="vol" min="0" max="100" value="60"></label></div>
+   <div class="row bgmline"><button type="button" class="tog" id="tBgm" aria-pressed="false">▶ BGM</button><span class="bgmstatus" id="bgmStatus" role="status" aria-live="polite">♫ Marigold Morning</span></div>
    <div class="row" style="margin-top:8px"><button type="button" class="tog" id="tHc" aria-pressed="false" data-i="hc"></button><button type="button" class="tog" id="tLg" aria-pressed="false" data-i="lg"></button></div>
   </section>
   <p class="note" data-i="note"></p>
@@ -285,6 +289,63 @@ var sfx={
  start:SalpAudio.gate(function(){[392,523,659].forEach(function(f,i){tone(f,0.12,'triangle',0.3,i*0.07)})}),
  win:SalpAudio.gate(function(){[523,659,784,1047,784,1047].forEach(function(f,i){tone(f,0.22,'triangle',0.35,i*0.11)})})
 };
+/* ---- Fluffy Marigold Diary Morning BGM ----
+   音源は公開済み「マリーゴールドのモーニングの部屋」の埋め込みMP3を共用。
+   iOS Safariでは再生にタップが必要なため、初期ロード中でもボタンで再試行可能。 */
+var bgm=new Audio(),bgmStatus='idle',bgmPending=null,bgmTapNeeded=false;
+bgm.loop=true;bgm.preload='auto';bgm.setAttribute('playsinline','');
+var BGM_WORDS={
+ ja:{play:'🎵 曲を再生',stop:'⏸ 曲を停止',loading:'モーニングの曲を読み込み中…',error:'音楽を読み込めません。もう一度タップ',tap:'再生するには曲のボタンをタップ'},
+ en:{play:'🎵 Play music',stop:'⏸ Pause music',loading:'Loading Morning music…',error:'Music could not load. Tap to retry',tap:'Tap Play to hear the song'},
+ vi:{play:'🎵 Phát nhạc',stop:'⏸ Tạm dừng',loading:'Đang tải nhạc Morning…',error:'Không tải được nhạc. Chạm để thử lại',tap:'Chạm nút để phát nhạc'},
+ tl:{play:'🎵 Patugtugin',stop:'⏸ Itigil',loading:'Nilo-load ang Morning music…',error:'Hindi na-load. I-tap upang subukan muli',tap:'I-tap para tumugtog'},
+ my:{play:'🎵 သီချင်းဖွင့်',stop:'⏸ သီချင်းရပ်',loading:'Morning တေးသီချင်း ဖွင့်ရန် ပြင်ဆင်နေသည်…',error:'တေးသီချင်းမဖွင့်နိုင်ပါ။ ထပ်နှိပ်ပါ',tap:'ဖွင့်ရန် ခလုတ်ကို နှိပ်ပါ'},
+ mni:{play:'🎵 ꯏꯁꯩ ꯊꯥꯗꯣꯛꯄ',stop:'⏸ ꯏꯁꯩ ꯂꯦꯞꯄ',loading:'Morning ꯏꯁꯩ ꯂꯣꯗ ꯇꯧꯔꯤ…',error:'ꯏꯁꯩ ꯂꯣꯗ ꯇꯧꯕ ꯉꯝꯗꯦ',tap:'ꯏꯁꯩ ꯊꯥꯗꯣꯛꯅꯕ ꯇꯦꯞ ꯇꯧꯕꯤꯌꯨ'}
+};
+function bgmWord(k){return (BGM_WORDS[LANG]||BGM_WORDS.en)[k]||BGM_WORDS.en[k]}
+function setBgmVolume(){bgm.volume=Math.min(1,Math.max(0,S.vol/100*0.7))}
+function updateBgmUI(){
+ var playing=!bgm.paused&&!bgm.ended,b=$('tBgm');if(!b)return;
+ b.textContent=bgmWord(playing?'stop':'play');
+ b.setAttribute('aria-pressed',String(playing));
+ $('bgmStatus').textContent=bgmStatus==='error'?bgmWord('error'):
+  bgmStatus==='loading'?bgmWord('loading'):
+  bgmTapNeeded?bgmWord('tap'):'♫ Fluffy Marigold Diary · Morning';
+}
+function playMorningBgm(){
+ if(!S.bgm||document.hidden)return;
+ if(bgmStatus!=='ready'){loadMorningBgm();return}
+ setBgmVolume();bgmTapNeeded=false;
+ try{var p=bgm.play();
+  if(p&&p.then)p.then(function(){bgmTapNeeded=false;updateBgmUI()},function(){bgmTapNeeded=true;updateBgmUI()});
+ }catch(e){bgmTapNeeded=true}
+ updateBgmUI();
+}
+function loadMorningBgm(){
+ if(bgmStatus==='ready')return Promise.resolve(true);
+ if(bgmPending)return bgmPending;
+ bgmStatus='loading';updateBgmUI();
+ bgmPending=fetch('../salp-marigold-morning-v1.0.html',{cache:'force-cache'})
+ .then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.text()})
+ .then(function(html){
+   var m=html.match(/<audio\b[^>]*\bsrc=["'](data:audio\/mpeg;base64,[A-Za-z0-9+/=]+)["']/i);
+   if(!m)throw Error('Morning MP3 not found');
+   bgm.src=m[1];bgmStatus='ready';setBgmVolume();
+   if(S.bgm&&G.run)playMorningBgm();
+   updateBgmUI();return true;
+ }).catch(function(e){bgmStatus='error';updateBgmUI();return false})
+ .then(function(ok){bgmPending=null;return ok});
+ return bgmPending;
+}
+$('tBgm').onclick=function(){
+ SalpAudio.unlock();
+ if(!bgm.paused){S.bgm=false;bgm.pause();bgmTapNeeded=false}
+ else{S.bgm=true;if(bgmStatus==='error')bgmPending=null;playMorningBgm()}
+ save();updateBgmUI();
+};
+bgm.addEventListener('play',updateBgmUI);bgm.addEventListener('pause',updateBgmUI);
+bgm.addEventListener('error',function(){bgmStatus='error';updateBgmUI()});
+window.addEventListener('pagehide',function(){bgm.pause()});
 /* ---- game ---- */
 var G={C:2,R:4,a:[],blank:0,moves:0,t0:0,el:[],run:false,timer:0,hist:[]};
 var board=$('board');
@@ -316,7 +377,7 @@ function moveTo(p){if(!G.run)return false;var C=G.C,b=G.blank,pr=Math.floor(p/C)
 board.addEventListener('pointerdown',function(e){var el=e.target.closest('.tile');if(!el)return;e.preventDefault();moveTo(G.a.indexOf(+el.dataset.id))});
 document.addEventListener('keydown',function(e){if(!G.run||$('tut').classList.contains('open'))return;var C=G.C,b=G.blank,r=Math.floor(b/C),c=b%C,p=-1;
  if(e.key==='ArrowLeft'&&c<C-1)p=b+1;else if(e.key==='ArrowRight'&&c>0)p=b-1;else if(e.key==='ArrowUp'&&r<G.R-1)p=b+C;else if(e.key==='ArrowDown'&&r>0)p=b-C;else return;e.preventDefault();moveTo(p)});
-function start(){SalpAudio.unlock();G.C=LVS[S.lv][0];G.R=LVS[S.lv][1];shuffle();G.moves=0;G.t0=0;clearInterval(G.timer);G.run=true;
+function start(){SalpAudio.unlock();playMorningBgm();G.C=LVS[S.lv][0];G.R=LVS[S.lv][1];shuffle();G.moves=0;G.t0=0;clearInterval(G.timer);G.run=true;
  board.classList.remove('done');$('full').classList.remove('show');$('result').hidden=true;build();try{board.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}$('mv').textContent='0';tick();say('playing');sfx.start();$('start').textContent=t('restart')}
 function win(){G.run=false;clearInterval(G.timer);var ms=Date.now()-G.t0;$('tm').textContent=fmt(ms);
  var k=key(),b=S.best[k],nb=!b||G.moves<b.m||(G.moves===b.m&&ms<b.t);
@@ -342,7 +403,7 @@ function setNum(){board.classList.toggle('nums',S.num||S.hc);$('bNum').setAttrib
 $('bNum').onclick=function(){S.num=!S.num;save();setNum()};
 function setSnd(){$('tSound').textContent=t(S.snd?'son':'soff');$('tSound').setAttribute('aria-pressed',S.snd);$('vol').value=S.vol;applyVol()}
 $('tSound').onclick=function(){S.snd=!S.snd;save();setSnd();SalpAudio.unlock();sfx.slide()};
-$('vol').oninput=function(){S.vol=+this.value;save();applyVol()};
+$('vol').oninput=function(){S.vol=+this.value;save();applyVol();setBgmVolume()};
 $('vol').onchange=function(){SalpAudio.unlock();sfx.slide()};
 function setVis(){document.body.classList.toggle('hc',S.hc);document.body.classList.toggle('large',S.lg);$('tHc').setAttribute('aria-pressed',S.hc);$('tLg').setAttribute('aria-pressed',S.lg);setNum();setTimeout(layout,30)}
 $('tHc').onclick=function(){S.hc=!S.hc;save();setVis()};$('tLg').onclick=function(){S.lg=!S.lg;save();setVis()};
@@ -364,11 +425,11 @@ function applyLang(){document.documentElement.lang=LANG;document.title='🌼 '+t
  [].forEach.call(document.querySelectorAll('[data-i]'),function(e){e.textContent=t(e.dataset.i)});
  [].forEach.call(document.querySelectorAll('[data-ia]'),function(e){e.setAttribute('aria-label',t(e.dataset.ia))});
  [].forEach.call(document.querySelectorAll('.lng button'),function(b){b.classList.toggle('on',b.dataset.lg===LANG)});
- $('start').textContent=t(G.run?'restart':'start');say(lastMsg);setSnd();drawPick();if($('tut').classList.contains('open'))drawTut()}
+ $('start').textContent=t(G.run?'restart':'start');say(lastMsg);setSnd();drawPick();updateBgmUI();if($('tut').classList.contains('open'))drawTut()}
 document.querySelector('.lng').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;LANG=b.dataset.lg;try{localStorage.setItem(LK,LANG)}catch(x){}applyLang()});
 addEventListener('resize',function(){layout()});
 window.__mp={G:G,start:start,solvable:solvable,shuffle:shuffle,moveTo:moveTo,S:S};
-applyLang();setVis();idle();
+applyLang();setVis();idle();loadMorningBgm();
 })();
 </script>
 </body>
