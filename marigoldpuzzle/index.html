@@ -274,7 +274,7 @@ function t(k){var s=(L[LANG]&&L[LANG][k]);if(s==null)s=L.en[k];if(s==null)s=k;fo
 function $(id){return document.getElementById(id)}
 var PICS=['morning','night','reggae'],LVS=[[2,4],[3,5],[4,7],[5,9]];
 var BK='salp_marigoldpuzzle_v1';
-var S={pic:0,lv:0,snd:true,vol:60,hc:false,lg:false,num:false,best:{},tut:false};
+var S={pic:0,lv:0,snd:true,bgm:true,vol:60,hc:false,lg:false,num:false,best:{},tut:false};
 try{var o=JSON.parse(localStorage.getItem(BK)||'{}');for(var k in o)S[k]=o[k]}catch(e){}
 function save(){try{localStorage.setItem(BK,JSON.stringify(S))}catch(e){}}
 try{var v=localStorage.getItem(LK);if(LANGS.indexOf(v)>=0)LANG=v;else{var n=(navigator.language||'ja').slice(0,2);if(LANGS.indexOf(n)>=0)LANG=n}}catch(e){}
