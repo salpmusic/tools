@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1c31">
+<meta name="description" content="iPhoneの容量整理を安全にサポート。現在のWebサイトのキャッシュ確認と、Apple公式のストレージ整理手順。">
+<title>salp iPhone 容量ケア v1.0</title>
+<style>
+:root{color-scheme:dark;--bg:#091522;--surface:#12263b;--surface2:#182f47;--line:#35536a;--text:#f2f7fd;--muted:#b3c6d9;--accent:#75d9e4;--accentdark:#0d3440;--warn:#ffdb93;--radius:20px;--focus:#ffe49a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 90% -10%,#1b4659 0,transparent 34%),linear-gradient(180deg,#0e2033 0,var(--bg) 480px);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;color:var(--text);line-height:1.55;-webkit-text-size-adjust:100%}
+button,input{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.wrap{max-width:800px;margin:0 auto;padding:18px 16px calc(100px + env(safe-area-inset-bottom))}
+header{display:flex;gap:12px;align-items:center;margin:12px 0 19px}
+.logo{width:58px;height:58px;border-radius:19px;background:linear-gradient(145deg,#77e5d7,#4e91ed);color:#093042;display:grid;place-items:center;flex:none;font-size:29px;box-shadow:0 6px 24px #0006}
+.brand{font-size:13px;color:var(--accent);letter-spacing:.08em;font-weight:700;margin:0}
+h1{font-size:clamp(24px,6vw,33px);line-height:1.24;margin:3px 0 0}
+h2{font-size:21px;line-height:1.35;margin:0 0 12px}
+h3{font-size:17px;margin:0 0 8px}
+p{margin:7px 0 12px}
+.hero{padding:23px 20px;background:linear-gradient(145deg,#183c52,#122a43 70%);border:1px solid #45647b;border-radius:25px;margin:0 0 16px}
+.hero strong{color:#ffffff}.hero .small{color:#dbecf5;margin:8px 0 0}
+.pill{display:inline-block;font-size:12px;letter-spacing:.04em;padding:4px 9px;background:#173f47;border-radius:100px;color:#b5f6f1;border:1px solid #3e9ba1;font-weight:700;margin-bottom:10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 17px;margin:14px 0}
+.muted,.hint{color:var(--muted);font-size:14px}
+.hint{margin-top:12px}
+.caution{background:#3b3020;border:1px solid #8a653d;color:#ffe5b8;border-radius:15px;padding:12px 13px;font-size:14px;margin:12px 0}
+.good{background:#123e3f;border-color:#2d8983;color:#ddfbf7}
+nav{position:sticky;top:0;z-index:2;margin-bottom:17px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border-radius:16px;padding:5px;background:#10273b;border:1px solid var(--line);box-shadow:0 6px 28px #0005}
+nav button{background:none;border:0;color:#b8ccdc;font-size:14px;font-weight:750;padding:12px 2px;border-radius:11px;min-height:47px}
+nav button.active{background:#3e8393;color:white;box-shadow:inset 0 0 0 1px #6edbd7}
+.view[hidden]{display:none!important}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.stat{background:var(--surface2);border:1px solid var(--line);border-radius:15px;padding:12px 7px;text-align:center;min-width:0}
+.stat b{display:block;font-size:clamp(16px,4.5vw,25px);color:#c3f6f2;overflow-wrap:anywhere}
+.stat span{display:block;color:#bad0df;font-size:12px;margin-top:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:50px;background:#77dee0;color:#0d2833;border:1px solid #8ef5ed;border-radius:14px;padding:11px 15px;font-size:16px;font-weight:800;cursor:pointer;text-decoration:none}
+.btn.secondary{background:#29465c;color:var(--text);border-color:#567991}
+.btn.danger{background:#edb7a5;color:#341b1a;border-color:#ffd0bf}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.block{width:100%}
+.subhead{font-size:15px;color:#d6eaf6;font-weight:700;margin:20px 0 7px}
+.item{display:flex;align-items:center;gap:12px;background:#192f43;border:1px solid #35566e;border-radius:13px;padding:12px;margin:8px 0;overflow:hidden}
+.item input{width:23px;height:23px;accent-color:#7cdfdc;flex-shrink:0}
+.item .name{font-weight:700;overflow-wrap:anywhere}
+.item .sub{font-size:13px;color:var(--muted);margin-top:3px}
+.item label{min-width:0;flex:1;cursor:pointer}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-.03em;overflow-wrap:anywhere}
+code{color:#c8f8e8}
+.details{border:1px solid var(--line);border-radius:13px;margin-top:9px;overflow:hidden}
+summary{padding:12px 14px;font-weight:700;cursor:pointer;background:#1b344b}
+.details .inside{padding:12px 14px;font-size:13px;color:#c8dce9;overflow-wrap:anywhere}
+.names{max-height:180px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.status{font-size:14px;margin:10px 0;min-height:22px;color:#caeff1}
+.step{display:flex;gap:11px;margin:14px 0}
+.num{height:29px;width:29px;display:grid;place-items:center;border-radius:50%;background:#3e8191;flex:none;font-weight:800;font-size:14px;color:#fff}
+.step .content{flex:1;padding:0 1px;min-width:0}
+.step b{display:block;font-size:16px;margin-bottom:4px}
+.step p{margin:0;color:#cadae7;font-size:15px}
+.step code{background:#1c3b49;padding:2px 5px;border-radius:5px;font-family:inherit}
+.checklist{padding:0;margin:0;list-style:none}
+.checklist li{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid #304960;padding:12px 0}
+.checklist li:last-child{border-bottom:0}
+.checklist input{flex:none;width:22px;height:22px;accent-color:#7cdfdc;margin-top:2px}
+.checklist label{flex:1}
+.checklist span{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.links a{color:#a9f3ee;text-underline-offset:3px}
+footer{font-size:12px;color:#aebfd2;text-align:center;margin-top:20px}
+.large button,.large .btn{font-size:19px;min-height:58px}.large body{font-size:18px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="logo" aria-hidden="true">🧹</div>
+<div><p class="brand">salp TOOLS ・ ローカル実行</p><h1>iPhone 容量ケア</h1></div>
+</header>
+<div class="hero"><span class="pill">v1.0 ・ 安全重視</span><h2>容量を増やすために、できることから。</h2><p class="small">このアプリは<strong>iPhoneのシステムデータを直接消去できません。</strong>Webページから操作できる範囲の確認と、iPhone本体での整理手順を提供します。</p></div>
+<nav aria-label="画面を切り替える">
+<button type="button" class="active" data-view="inspect" aria-current="page">🔎 Web診断</button>
+<button type="button" data-view="safari">🧭 Safari整理</button>
+<button type="button" data-view="iphone">📱 本体の整理</button>
+</nav>
+<main>
+<section id="inspect" class="view">
+<div class="panel">
+<h2>このWebサイトのデータを調べる</h2>
+<p>今開いているサイトの保存情報だけ確認します。ほかのWebサイトや、iPhoneのシステム領域は読み取れません。</p>
+<p class="hint" id="originText">現在のサイトを確認中...</p>
+<div class="stats" aria-label="サイトの保存情報">
+<div class="stat"><b id="usage">—</b><span>サイト使用量の概算</span></div>
+<div class="stat"><b id="cacheCount">—</b><span>Cache Storage</span></div>
+<div class="stat"><b id="keyCount">—</b><span>保存キー数</span></div>
+</div>
+<button id="scan" class="btn block" type="button">🔎 保存データを確認する</button>
+<p class="hint">※ 使用量はブラウザーが返す概算です。iPhone全体の容量や削除で空く容量ではありません。</p>
+<div id="scanStatus" role="status" class="status" aria-live="polite"></div>
+</div>
+<div class="panel">
+<h2>Cache Storage の整理</h2>
+<p>このサイトのWebアプリが明示的に保存した一時ファイルだけを、名前を確認して選んで削除できます。</p>
+<div class="caution"><b>重要：</b>salp Toolsのように複数アプリを同一サイトに公開している場合、別のゲームやオフライン機能のキャッシュもここに含まれます。自動で全削除はしません。</div>
+<div id="cacheList"><p class="muted">「保存データを確認する」を押すと一覧が出ます。</p></div>
+<button class="btn danger block" id="deleteCaches" type="button" disabled>選択したキャッシュを削除</button>
+<div class="status" role="status" aria-live="polite" id="deleteStatus"></div>
+</div>
+<div class="panel">
+<h2>ゲームの記録などは保護</h2>
+<p>localStorage と IndexedDB に入った保存データは、見つけても<strong>このアプリでは削除しません。</strong>ゲームの進捗、設定、チャットの記憶などを守るためです。</p>
+<details class="details"><summary>localStorage の保存キーを表示（削除不可）</summary><div class="inside"><pre class="names" id="storageNames">まだ調べていません。</pre></div></details>
+<details class="details"><summary>IndexedDB の保存先を表示（削除不可）</summary><div class="inside"><pre class="names" id="dbNames">まだ調べていません。</pre></div></details>
+<p class="hint">Safari独自の通常のページキャッシュ、Cookie、閲覧履歴はここから直接削除できません。次の「Safari整理」を使ってください。</p>
+</div>
+</section>
+<section id="safari" class="view" hidden>
+<div class="panel">
+<h2>履歴を残して Safari を整理</h2>
+<p>Appleの案内に沿った操作。サイトのCookieなどは消え、ログインし直しになる場合があります。</p>
+<div class="step"><div class="num">1</div><div class="content"><b>iPhoneの「設定」を開く</b><p>「アプリ」→「Safari」を選択。</p></div></div>
+<div class="step"><div class="num">2</div><div class="content"><b>「詳細」→「Webサイトデータ」</b><p>Safariの保存したWebサイトデータの画面へ。</p></div></div>
+<div class="step"><div class="num">3</div><div class="content"><b>「全Webサイトデータを削除」</b><p>確認画面で「今すぐ削除」。Safariの閲覧履歴は残ります。</p></div></div>
+<div class="caution">Cookieやログインに使うデータも削除されます。大切なサイトのログイン方法を確認してから操作してください。</div>
+</div>
+<div class="panel">
+<h2>履歴もまとめて削除する場合</h2>
+<p><strong>設定 → アプリ → Safari → 履歴とWebサイトデータを消去</strong> → 期間を選んで「履歴を消去」。</p>
+<p class="muted">履歴、Cookie、サイトデータが対象です。ほかのアプリやiOSのシステムキャッシュは対象外です。</p>
+</div>
+<div class="panel links"><h2>Apple公式の手順</h2><a target="_blank" rel="noopener noreferrer" href="https://support.apple.com/ja-jp/105082">Safariのキャッシュ・Cookie・履歴の消去方法 ↗</a></div>
+</section>
+<section id="iphone" class="view" hidden>
+<div class="panel">
+<h2>iPhone全体の空き容量を確保する</h2>
+<p>システムデータ自体をWebアプリから削除できなくても、容量を整理する方法はあります。</p>
+<div class="step"><div class="num">1</div><div class="content"><b>使用量を見る</b><p>「設定」→「一般」→「iPhoneストレージ」。何が容量を使っているか確認します。</p></div></div>
+<div class="step"><div class="num">2</div><div class="content"><b>「おすすめ」を確認</b><p>iPhoneが提案する容量の節約方法を確認。</p></div></div>
+<div class="step"><div class="num">3</div><div class="content"><b>サイズの大きいアプリを確認</b><p>「Appを取り除く」は書類・データを残し、アプリ本体を解放。「Appを削除」は関連データも削除します。</p></div></div>
+<div class="step"><div class="num">4</div><div class="content"><b>オフライン保存を見直す</b><p>音楽や動画のダウンロード、ファイル、不要な大きい動画などを個別に確認。</p></div></div>
+<div class="step"><div class="num">5</div><div class="content"><b>必要なら再起動</b><p>一時的な問題の切り分けには役立つ場合がありますが、キャッシュが必ず減るわけではありません。</p></div></div>
+</div>
+<div class="panel">
+<h2>整理チェックリスト</h2>
+<p class="muted">チェックはこの画面だけの一時メモです。閉じるとリセットされます。</p>
+<ul class="checklist">
+<li><input id="c1" type="checkbox"><label for="c1">iPhoneストレージのおすすめを確認した<span>設定 → 一般 → iPhoneストレージ</span></label></li>
+<li><input id="c2" type="checkbox"><label for="c2">使っていないアプリを見直した<span>「取り除く」と「削除する」は違います</span></label></li>
+<li><input id="c3" type="checkbox"><label for="c3">オフラインの音楽・動画を見直した<span>必要な作品は残してOK</span></label></li>
+<li><input id="c4" type="checkbox"><label for="c4">写真やファイルの大きいデータを確認した<span>大切なものはバックアップを取ってから</span></label></li>
+<li><input id="c5" type="checkbox"><label for="c5">SafariのWebサイトデータを確認した<span>ログイン情報に注意</span></label></li>
+</ul>
+</div>
+<div class="panel links"><h2>Apple公式の手順</h2><a href="https://support.apple.com/ja-jp/108429" target="_blank" rel="noopener noreferrer">iPhoneのストレージ使用量と整理方法 ↗</a><p class="hint">Appleの説明では、削除可能な一時ファイルは必要に応じてiOSが自動的に整理します。</p></div>
+</section>
+</main>
+<footer>salp iPhone 容量ケア v1.0<br>処理はお使いのブラウザー内で実行。データ送信なし。<br>システムキャッシュ削除や容量改善を保証するものではありません。</footer>
+</div>
+<script>
+'use strict';
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const fmt = (bytes) => {
+    if (!Number.isFinite(bytes) || bytes < 0) return '—';
+    if (bytes < 1024) return Math.round(bytes) + ' B';
+    if (bytes < 1024 ** 2) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1024 ** 3) return (bytes / (1024 ** 2)).toFixed(1) + ' MB';
+    return (bytes / (1024 ** 3)).toFixed(2) + ' GB';
+  };
+  const siteOrigin = location.origin && location.origin !== 'null' ? location.origin : 'ローカルファイル（制限がある場合があります）';
+  $('originText').textContent = '対象：' + siteOrigin + '（このサイトだけ）';
+
+  document.querySelectorAll('nav [data-view]').forEach(button => {
+    button.addEventListener('click', () => {
+      const name = button.dataset.view;
+      document.querySelectorAll('nav [data-view]').forEach(b => {
+        const isActive = b === button;
+        b.classList.toggle('active', isActive);
+        if (isActive) b.setAttribute('aria-current', 'page');
+        else b.removeAttribute('aria-current');
+      });
+      document.querySelectorAll('.view').forEach(v => v.hidden = v.id !== name);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  let selectedNames = new Set();
+  let scanRunning = false;
+  function updateDeleteButton() {
+    const button = $('deleteCaches');
+    button.disabled = scanRunning || selectedNames.size === 0;
+    button.textContent = selectedNames.size ? `選択した${selectedNames.size}件のキャッシュを削除` : '選択したキャッシュを削除';
+  }
+  const showEmpty = (target, message) => { target.textContent = ''; const p = document.createElement('p'); p.className = 'muted'; p.textContent = message; target.appendChild(p); };
+  const safelyCount = async (name) => {
+    try { const cache = await window.caches.open(name); const entries = await cache.keys(); return entries.length; }
+    catch { return null; }
+  };
+
+  async function scan() {
+    if (scanRunning) return;
+    scanRunning = true; selectedNames.clear(); updateDeleteButton();
+    $('scan').disabled = true; $('scan').textContent = '調査中...';
+    $('scanStatus').textContent = 'このWebサイトの保存情報を確認しています。';
+    $('deleteStatus').textContent = '';
+    let errors = [];
+    try {
+      if (navigator.storage && typeof navigator.storage.estimate === 'function') {
+        try { const e = await navigator.storage.estimate(); $('usage').textContent = Number.isFinite(e.usage) ? fmt(e.usage) : '—'; }
+        catch { errors.push('使用量の取得に失敗'); $('usage').textContent = '—'; }
+      } else { $('usage').textContent = '非対応'; }
+
+      try {
+        const names = [];
+        for (let i = 0; i < localStorage.length; i++) names.push(localStorage.key(i));
+        $('keyCount').textContent = String(names.length);
+        $('storageNames').textContent = names.length ? names.sort().join('\n') : '保存キーは見つかりませんでした。';
+      } catch { $('keyCount').textContent = '不可'; $('storageNames').textContent = 'この環境では取得できません。'; }
+
+      if (typeof indexedDB !== 'undefined' && typeof indexedDB.databases === 'function') {
+        try {
+          const dbs = await indexedDB.databases();
+          $('dbNames').textContent = dbs.length ? dbs.map(d => (d.name || '(名前なし)') + ' / version ' + (d.version || '?')).join('\n') : 'IndexedDB は見つかりませんでした。';
+        } catch { $('dbNames').textContent = 'この環境では取得できません。'; }
+      } else { $('dbNames').textContent = 'データベースの一覧取得はこのブラウザーで非対応です。'; }
+
+      if (window.caches && typeof window.caches.keys === 'function') {
+        try {
+          const names = await window.caches.keys();
+          $('cacheCount').textContent = String(names.length);
+          const list = $('cacheList'); list.textContent = '';
+          if (!names.length) showEmpty(list, 'Cache Storage は空です。Safariの通常キャッシュが空という意味ではありません。');
+          for (const name of names) {
+            const count = await safelyCount(name);
+            const row = document.createElement('div'); row.className = 'item';
+            const check = document.createElement('input'); check.type = 'checkbox'; check.id = 'cache-' + Math.random().toString(36).slice(2); check.setAttribute('aria-label', name + ' を削除対象として選択');
+            const label = document.createElement('label'); label.htmlFor = check.id;
+            const title = document.createElement('div'); title.className = 'name mono'; title.textContent = name;
+            const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = count === null ? '保存ファイル数：取得不可' : '保存ファイル：' + count + ' 件';
+            label.append(title, sub); row.append(check, label); list.appendChild(row);
+            check.addEventListener('change', () => { if (check.checked) selectedNames.add(name); else selectedNames.delete(name); updateDeleteButton(); });
+          }
+        } catch { $('cacheCount').textContent = '不可'; showEmpty($('cacheList'), 'キャッシュの一覧を取得できませんでした。'); errors.push('Cache Storage を取得できません'); }
+      } else { $('cacheCount').textContent = '非対応'; showEmpty($('cacheList'), 'この環境ではCache Storageを扱えません。HTTPSで公開すると動く場合があります。'); }
+      $('scanStatus').textContent = errors.length ? '確認完了（一部制限あり）：' + errors.join('、') : '確認完了。自動削除はしていません。';
+    } catch (e) {
+      $('scanStatus').textContent = '確認できませんでした。' + (e && e.message ? ' ' + e.message : '');
+    } finally {
+      scanRunning = false; $('scan').disabled = false; $('scan').textContent = '🔄 もう一度確認する'; updateDeleteButton();
+    }
+  }
+  $('scan').addEventListener('click', scan);
+
+  $('deleteCaches').addEventListener('click', async () => {
+    if (!selectedNames.size || scanRunning) return;
+    const targets = Array.from(selectedNames);
+    const shown = targets.map(name => '・' + name).join('\n');
+    const answer = window.confirm('次の「このサイトのCache Storage」を削除します。\n\n' + shown + '\n\nほかのsalpアプリのオフライン利用に影響する場合があります。localStorageやゲームの記録は削除しません。実行しますか？');
+    if (!answer) return;
+    scanRunning = true; updateDeleteButton(); $('scan').disabled = true;
+    $('deleteStatus').textContent = '選択したキャッシュを削除しています...';
+    let removed = 0; let failed = 0;
+    for (const name of targets) {
+      try { if (await caches.delete(name)) removed++; else failed++; }
+      catch { failed++; }
+    }
+    scanRunning = false; $('scan').disabled = false;
+    await scan();
+    $('deleteStatus').textContent = `${removed}件のCache Storageを削除しました。${failed ? failed + '件は削除できませんでした。' : ''} 削除後の空き容量は保証できません。`;
+  });
+
+  // A browser cannot remove iOS system files, data of other origins or other apps.
+  // This page intentionally does not call localStorage.clear(), indexedDB.deleteDatabase(),
+  // serviceWorker.unregister() or try to create large files to force garbage collection.
+})();
+</script>
+</body>
+</html>
