@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff3e6">
+<meta name="description" content="1016「ふわふわマリーゴールドの日記」の絵(モーニング/ナイト/レゲエ)で遊ぶスライドパズル。入門2×4〜上級5×9、必ず解ける配置、お手本・番号表示、手数/タイムのベスト記録。">
+<title>🌼 マリーゴールドのスライドパズル | salp Tools</title>
+<style>
+@font-face{font-family:"salp Meetei";src:local("Noto Sans Meetei Mayek"),url("../fonts/NotoSansMeeteiMayek-VF.woff2") format("woff2");font-weight:100 900;font-display:swap;unicode-range:U+200C-200D,U+25CC,U+AAE0-AAF6,U+ABC0-ABFF}
+@font-face{font-family:"salp Myanmar";src:local("Padauk"),url("../fonts/Padauk-Regular.woff2") format("woff2");font-weight:100 599;font-display:swap;unicode-range:U+1000-109F,U+200C-200D,U+25CC,U+A9E0-A9FE,U+AA60-AA7F}
+@font-face{font-family:"salp Myanmar";src:local("Padauk Bold"),url("../fonts/Padauk-Bold.woff2") format("woff2");font-weight:600 1000;font-display:swap;unicode-range:U+1000-109F,U+200C-200D,U+25CC,U+A9E0-A9FE,U+AA60-AA7F}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;min-height:100dvh;background:#fff3e6;color:#4a3526;font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,"salp Myanmar","salp Meetei",sans-serif;font-size:16px;line-height:1.45;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+html:lang(my) body{line-height:1.8}html:lang(mni) body{line-height:1.7}
+body.large{font-size:20px}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.app{max-width:640px;margin:0 auto;display:grid;gap:7px;grid-template-areas:"head" "info" "guide" "stage" "tools" "ctrl"}
+header{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+h1{font-size:1rem;letter-spacing:.03em}
+.hr{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lng{display:flex;gap:2px;flex-wrap:wrap}
+.lng button{border:2px solid #f2cfa4;background:#fff;border-radius:8px;padding:2px 6px;font-size:.7rem;font-weight:800;color:#8a5518}
+.lng button.on{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.home{color:#b8641f;font-size:.85rem;text-decoration:none;border:2px solid #f2cfa4;border-radius:999px;padding:4px 12px;white-space:nowrap;background:#fff}
+.info{grid-area:info;display:grid;gap:5px}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{background:#fff;border:3px solid #f2cfa4;border-radius:14px;padding:2px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pcard .name{font-size:.8rem;color:#9a7048}.pcard .val{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums}
+#bestLine{font-size:.74rem;color:#9a7048;text-align:center;font-weight:700}
+#msg{min-height:2.1em;font-size:.88rem;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px dashed #f2cfa4;border-radius:12px;padding:6px 10px;font-weight:700}
+#guide{grid-area:guide;background:#fff8e6;border:2px solid #f2cfa4;border-radius:10px;padding:5px 8px;font-size:.78rem;font-weight:700;text-align:center;color:#6a4520}
+.pick{display:grid;gap:6px}
+.pics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pics button{border:3px solid #f2cfa4;background:#fff;border-radius:12px;padding:4px;display:flex;align-items:center;gap:6px;font-weight:800;font-size:.8rem;color:#8a5518;text-align:left}
+.pics img{width:26px;height:46px;object-fit:cover;border-radius:5px;flex:none}
+.pics button.on,.lvs button.on{border-color:#d5622f;background:#ffe2cf;color:#7a3510}
+.lvs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.lvs button{border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:5px 2px;font-weight:800;font-size:.78rem;color:#8a5518;line-height:1.25}
+.lvs small{display:block;font-size:.72rem;opacity:.8}
+.lvs .ck{color:#2f9e44}
+.pics button,.lvs button,.tl,.pcard,.pcard .name{min-width:0;overflow-wrap:anywhere}
+#stage{grid-area:stage;display:flex;justify-content:center}
+#board{position:relative;--bw:min(calc(100vw - 24px),calc((100dvh - 330px) * 0.5628),420px);width:var(--bw);height:calc(var(--bw) * 1.7768);background:#6b4a2a;border:4px solid #c99a5a;border-radius:12px;overflow:hidden;box-sizing:content-box;touch-action:none}
+.tile{position:absolute;left:0;top:0;background-repeat:no-repeat;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55),inset 0 0 0 2px rgba(0,0,0,.18);transition:transform .12s ease-out;cursor:pointer}
+.tile .n{position:absolute;left:3px;top:2px;min-width:1.4em;padding:0 3px;border-radius:6px;background:rgba(255,255,255,.88);color:#3a2410;font-weight:900;font-size:.8rem;text-align:center;display:none}
+#board.nums .tile .n{display:block}
+#board.done .tile{box-shadow:none;border-radius:0}
+#full,#model{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .5s}
+#full.show{opacity:1}#model.show{opacity:.92}
+#board.idle{display:flex}
+#tools{grid-area:tools;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tl{border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:8px 2px;font-weight:800;color:#8a5518;font-size:.85rem}
+.tl[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.tl:disabled{opacity:.45}
+.ctrl{grid-area:ctrl;display:grid;gap:10px}
+.main{width:100%;border:0;border-radius:14px;background:#ff8f5a;color:#fff;font-weight:800;font-size:1.1rem;padding:12px;box-shadow:0 4px 0 #d5622f}
+.box{background:#fff;border:2px solid #f2cfa4;border-radius:14px;padding:10px 12px}
+.box h2{font-size:.85rem;color:#9a7048;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tog{background:#fff;border:2px solid #f2cfa4;border-radius:999px;padding:6px 14px;font-weight:700;color:#8a5518}
+.tog[aria-pressed=true]{background:#ff8f5a;border-color:#d5622f;color:#fff}
+.vol{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}.vol input{flex:1;min-width:60px;width:100%;accent-color:#ff8f5a;height:28px}.vol{min-width:0;max-width:100%}
+#result{background:#fff;border:3px solid #ff8f5a;border-radius:14px;padding:10px 12px;text-align:center;display:grid;gap:6px;justify-items:center}
+#result[hidden]{display:none}
+#result h2{font-size:1.2rem;color:#d5622f}
+#result img{width:min(70vw,260px);border-radius:12px;border:3px solid #f2cfa4}
+#result .bt{display:flex;gap:8px;width:100%}#result .bt button{flex:1}
+.note{font-size:.75rem;color:#9a7048;text-align:center}
+#tut{position:fixed;inset:0;z-index:100;background:rgba(60,40,20,.62);display:none;align-items:center;justify-content:center;padding:10px}
+#tut.open{display:flex}
+.tutbox{background:#fff;border:3px solid #f2cfa4;border-radius:16px;max-width:430px;width:100%;max-height:94dvh;overflow:auto;padding:12px}
+.tutbox h2{font-size:1.05rem;margin-bottom:6px;text-align:center}
+.mini{display:grid;grid-template-columns:repeat(3,44px);gap:2px;background:#c99a5a;border-radius:8px;padding:2px;width:max-content;margin:0 auto}
+.mc{width:44px;height:52px;background-repeat:no-repeat;border-radius:4px;position:relative;display:flex;align-items:center;justify-content:center;font-size:20px}
+.mc.e{background:#6b4a2a}.mc .fg{position:absolute;right:-4px;bottom:-6px;font-size:20px;animation:ft .7s infinite}
+@keyframes ft{50%{transform:translate(-3px,-5px)}}
+.tcap{text-align:center;font-weight:800;font-size:.85rem;margin:6px 0 2px;color:#d2561f}
+.tstep h3{font-size:1rem}.tstep p{font-size:.9rem;line-height:1.5}
+.tdots{display:flex;justify-content:center;gap:6px;margin:6px 0}.tdots i{width:10px;height:10px;border-radius:50%;background:#e8d5b5}.tdots i.on{background:#ff8f5a}
+.tnav{display:flex;gap:8px}.tnav button{flex:1;border:2px solid #f2cfa4;background:#fff;border-radius:12px;padding:9px 4px;font-weight:800;color:#8a5518}
+.tnav button.pri{background:#ff8f5a;border-color:#d5622f;color:#fff}.tnav button:disabled{opacity:.4}
+body.hc{background:#000;color:#fff}
+body.hc .pcard,body.hc .box,body.hc #msg,body.hc #result,body.hc #guide,body.hc .tutbox{background:#000;border-color:#fff;color:#fff}
+body.hc .pcard .name,body.hc .box h2,body.hc .note,body.hc #bestLine{color:#fff}
+body.hc .tog,body.hc .tl,body.hc .lng button,body.hc .pics button,body.hc .lvs button,body.hc .tnav button,body.hc .home{background:#000;border-color:#fff;color:#fff}
+body.hc .tog[aria-pressed=true],body.hc .tl[aria-pressed=true],body.hc .lng button.on,body.hc .pics button.on,body.hc .lvs button.on,body.hc .main,body.hc .tnav button.pri{background:#ffff00;color:#000;border-color:#ffff00;box-shadow:none}
+body.hc #board{border-color:#ffff00;background:#000}
+body.hc .tile{box-shadow:inset 0 0 0 2px #fff}
+body.hc .tile .n{background:#ffff00;color:#000;font-size:.95rem}
+@media (orientation:landscape) and (max-height:620px){
+ .app{max-width:1000px;grid-template-columns:auto minmax(280px,1fr);column-gap:12px;align-items:start;grid-template-areas:"head head" "stage info" "stage guide" "stage tools" "stage ctrl"}
+ #board{--bw:min(calc((100dvh - 40px) * 0.5628),calc(100vw - 340px))}
+ .ctrl .box,.note{display:none}
+}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+ <header>
+  <h1>🌼 <span data-i="title">マリーゴールドのスライドパズル</span></h1>
+  <div class="hr"><div class="lng" role="group" aria-label="Language"><button type="button" data-lg="ja" lang="ja">日本語</button><button type="button" data-lg="en" lang="en">EN</button><button type="button" data-lg="vi" lang="vi">VI</button><button type="button" data-lg="tl" lang="tl">TL</button><button type="button" data-lg="my" lang="my">MY</button><button type="button" data-lg="mni" lang="mni">MNI</button></div><a class="home" href="../" data-i="home">← ホーム</a></div>
+ </header>
+ <section class="info">
+  <div class="pick">
+   <div class="pics" role="group" data-ia="pic"></div>
+   <div class="lvs" role="group" data-ia="lv"></div>
+  </div>
+  <div class="top">
+   <div class="pcard"><div class="name" data-i="moves">手数</div><div class="val" id="mv">0</div></div>
+   <div class="pcard"><div class="name" data-i="time">タイム</div><div class="val" id="tm">0:00</div></div>
+  </div>
+  <div id="bestLine"></div>
+  <div id="msg" role="status" aria-live="polite"></div>
+ </section>
+ <div id="guide" data-i="guide"></div>
+ <div id="stage"><div id="board" aria-label="puzzle"><img id="model" alt=""><img id="full" alt=""></div></div>
+ <div id="tools">
+  <button type="button" class="tl" id="bModel" aria-pressed="false" data-i="model"></button>
+  <button type="button" class="tl" id="bNum" aria-pressed="false" data-i="num"></button>
+  <button type="button" class="tl" id="bHelp" data-i="help"></button>
+ </div>
+ <div class="ctrl">
+  <section id="result" hidden aria-live="polite"></section>
+  <button type="button" class="main" id="start" data-i="start"></button>
+  <section class="box">
+   <h2 data-i="sv"></h2>
+   <div class="row"><button type="button" class="tog" id="tSound" aria-pressed="true"></button>
+   <label class="vol"><span data-i="vol"></span> <input type="range" id="vol" min="0" max="100" value="60"></label></div>
+   <div class="row" style="margin-top:8px"><button type="button" class="tog" id="tHc" aria-pressed="false" data-i="hc"></button><button type="button" class="tog" id="tLg" aria-pressed="false" data-i="lg"></button></div>
+  </section>
+  <p class="note" data-i="note"></p>
+ </div>
+</div>
+<div id="tut" role="dialog" aria-modal="true"><div class="tutbox"><h2 data-i="tuttl"></h2><div id="tvis"></div><div class="tcap" id="tcap"></div><div class="tstep"><h3 id="th"></h3><p id="tb"></p></div><div class="tdots" id="tdots"><i></i><i></i><i></i></div><div class="tnav"><button type="button" id="tPrev" data-i="prev"></button><button type="button" class="pri" id="tNext"></button><button type="button" id="tClose" data-i="close"></button></div></div></div>
+<script>
+(function(){
+'use strict';
+/* ===== SalpAudio: 音声アンロック共通ヘルパー(各単一HTMLにインラインコピーして使う) =====
+   使い方:
+     var ctx=null, master=null;
+     SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+     var unlockAudio=SalpAudio.unlock;          // 「開始」クリック等の中で呼ぶ
+     sfx[k]=SalpAudio.gate(sfx[k]);             // 発音関数は gate() で包む(resume完了後に鳴らす)
+   要件: 最初の touchstart/pointerdown/mousedown/click/keydown 内で AudioContext 生成+resume+無音1回再生。
+         running になるまでリスナーを外さない。visibilitychange/pageshow/focus/statechange で再アーム。
+         'interrupted'(iOS) も running 以外として扱う。navigator.audioSession.type='playback' (対応環境)。 */
+var SalpAudio=(function(){
+  var ctx=null,master=null,cfg={},armed=false,silentEl=null,silentOk=false;
+  var EVS=['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+  function AC(){return window.AudioContext||window.webkitAudioContext}
+  function session(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
+  function silentWav(){
+    var n=800,b=new Uint8Array(44+n),dv=new DataView(b.buffer);
+    function s(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)}
+    s(0,'RIFF');dv.setUint32(4,36+n,true);s(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+    dv.setUint32(24,8000,true);dv.setUint32(28,8000,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);s(36,'data');dv.setUint32(40,n,true);
+    for(var i=0;i<n;i++)b[44+i]=128;
+    var str='';for(i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,'+btoa(str);
+  }
+  function silentAudio(){ /* iOSのミュートスイッチ回避の補助: 無音の<audio>を1回再生 */
+    try{
+      if(silentOk)return;
+      if(!silentEl){silentEl=new Audio();silentEl.src=silentWav();silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
+      var p=silentEl.play();
+      if(p&&p.then)p.then(function(){silentOk=true}).catch(function(){silentOk=false});else silentOk=true;
+    }catch(e){}
+  }
+  function silentBuffer(){try{var b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0)}catch(e){}}
+  function create(){
+    var C=AC();if(!C)return false;
+    ctx=new C();master=ctx.createGain();master.connect(ctx.destination);
+    try{ctx.onstatechange=function(){if(ctx.state==='running')disarm();else arm()}}catch(e){}
+    if(cfg.onCreate)cfg.onCreate(ctx,master);
+    return true;
+  }
+  function resume(){
+    if(!ctx)return Promise.resolve(false);
+    if(ctx.state==='running')return Promise.resolve(true);
+    var p;try{p=ctx.resume()}catch(e){return Promise.resolve(false)}
+    return Promise.resolve(p).then(function(){return ctx.state==='running'},function(){return false});
+  }
+  function unlock(){ /* ユーザー操作の同期区間内で呼ぶ */
+    try{
+      session();
+      if(!ctx||ctx.state==='closed'){if(!create())return}
+      if(ctx.state!=='running'){silentBuffer();silentAudio()}
+      resume().then(function(ok){if(ok)disarm();else arm()});
+    }catch(e){arm()}
+  }
+  function onEv(){unlock()}
+  function arm(){if(armed)return;armed=true;EVS.forEach(function(t){document.addEventListener(t,onEv,{capture:true,passive:true})})}
+  function disarm(){if(!armed)return;if(ctx&&ctx.state!=='running')return;armed=false;EVS.forEach(function(t){document.removeEventListener(t,onEv,{capture:true})})}
+  function recheck(){ /* 復帰時: 動いていなければ再resumeを試み、次の操作でも再試行できるようアーム */
+    if(ctx&&ctx.state!=='running'){resume().then(function(ok){if(!ok)arm()});arm()}
+  }
+  /* 発音関数を包む: running なら即実行、そうでなければ resume 完了を待ってから実行(失敗時は鳴らさず次回再試行) */
+  function gate(fn){
+    return function(){
+      var self=this,args=arguments,t0=Date.now();
+      if(!ctx)return;
+      if(ctx.state==='running')return fn.apply(self,args);
+      resume().then(function(ok){if(ok&&Date.now()-t0<1200)fn.apply(self,args);else if(!ok)arm()});
+    };
+  }
+  function init(c){
+    cfg=c||{};session();arm();
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+    window.addEventListener('pageshow',recheck);window.addEventListener('focus',recheck);
+  }
+  return {init:init,unlock:unlock,gate:gate,resume:resume,get ctx(){return ctx},get master(){return master}};
+})();
+
+var L={
+ja:{title:'マリーゴールドのスライドパズル',home:'← ホーム',guide:'空きマスのとなりの絵をタップして動かし、絵を完成させよう',pic:'絵をえらぶ',lv:'むずかしさ',p0:'モーニング',p1:'ナイト',p2:'レゲエ',l0:'入門',l1:'初級',l2:'中級',l3:'上級',moves:'手数',time:'タイム',best:'ベスト',start:'はじめる(シャッフル)',restart:'新しく混ぜる',model:'👁 お手本',num:'🔢 番号',help:'❓ 遊び方',sv:'音・見やすさ',son:'🔊 音 ON',soff:'🔈 音 OFF',vol:'音量',hc:'◐ 見やすいモード',lg:'🔍 大きな表示',
+ready:'絵と難しさをえらんで「はじめる」を押してね',playing:'タップでスライド!',clear:'🌼 完成!',res:'{0}手 / {1}',nb:'🎉 ベスト記録を更新!',bl:'ベスト: {0}手 / {1}',nobest:'ベスト: まだなし',next:'次の難しさへ →',again:'もう一度',allclear:'上級までクリア!すばらしい!',
+tuttl:'🐾 遊び方',prev:'← もどる',nxt:'つぎへ →',done:'わかった!',close:'とじる',
+th1:'絵と難しさをえらぶ',tb1:'モーニング・ナイト・レゲエの3枚から好きな絵を選び、入門(2×4)〜上級(5×9)を選んで「はじめる」。',
+th2:'となりのピースをタップ',tb2:'空きマスと同じ列・行のピースをタップすると、空きマスへすべります。矢印キーでも動かせます。',
+th3:'絵を完成させよう',tb3:'「👁 お手本」で完成の絵を見られます。「🔢 番号」で正しい順番の数字が出ます。少ない手数・短いタイムでベスト記録!',
+c1:'好きな絵とサイズ',c2:'タップ → すべる',c3:'そろえば完成!',
+note:'1016「ふわふわマリーゴールドの日記」(世界食料デー)の絵を使ったスライドパズルです。混ぜ方は完成形からランダムに動かしているので、必ず解けます。ベスト記録(手数・タイム)は絵と難しさごとにこの端末に保存されます。'},
+en:{title:'Marigold Slide Puzzle',home:'← Home',guide:'Tap a piece next to the empty space to slide it and complete the picture',pic:'Choose a picture',lv:'Difficulty',p0:'Morning',p1:'Night',p2:'Reggae',l0:'Starter',l1:'Easy',l2:'Medium',l3:'Hard',moves:'Moves',time:'Time',best:'Best',start:'Start (shuffle)',restart:'Shuffle again',model:'👁 Model',num:'🔢 Numbers',help:'❓ How to play',sv:'Sound & visibility',son:'🔊 Sound ON',soff:'🔈 Sound OFF',vol:'Volume',hc:'◐ Easy-to-see mode',lg:'🔍 Large display',
+ready:'Choose a picture and difficulty, then press "Start"',playing:'Tap to slide!',clear:'🌼 Complete!',res:'{0} moves / {1}',nb:'🎉 New best!',bl:'Best: {0} moves / {1}',nobest:'Best: none yet',next:'Next difficulty →',again:'Play again',allclear:'You cleared Hard! Wonderful!',
+tuttl:'🐾 How to play',prev:'← Back',nxt:'Next →',done:'Got it!',close:'Close',
+th1:'Pick a picture and size',tb1:'Choose Morning, Night or Reggae, pick Starter (2×4) to Hard (5×9), and press "Start".',
+th2:'Tap a neighboring piece',tb2:'Tap a piece in the same row or column as the empty space and it slides in. Arrow keys work too.',
+th3:'Complete the picture',tb3:'"👁 Model" shows the finished picture. "🔢 Numbers" shows the correct order. Fewer moves and less time make a new best!',
+c1:'Picture & size',c2:'Tap → slide',c3:'Lined up = done!',
+note:'A slide puzzle using the art of 1016 "Fluffy Marigold Diary" (World Food Day). Shuffling moves pieces randomly from the solved picture, so every puzzle can be solved. Best records (moves and time) are saved on this device for each picture and difficulty.'},
+vi:{title:'Xếp hình trượt Cúc vạn thọ',home:'← Trang chủ',guide:'Chạm mảnh cạnh ô trống để trượt và hoàn thành bức tranh',pic:'Chọn tranh',lv:'Độ khó',p0:'Buổi sáng',p1:'Ban đêm',p2:'Reggae',l0:'Nhập môn',l1:'Dễ',l2:'Vừa',l3:'Khó',moves:'Số bước',time:'Thời gian',best:'Kỷ lục',start:'Bắt đầu (xáo trộn)',restart:'Xáo lại',model:'👁 Tranh mẫu',num:'🔢 Số',help:'❓ Cách chơi',sv:'Âm thanh & hiển thị',son:'🔊 Âm thanh BẬT',soff:'🔈 Âm thanh TẮT',vol:'Âm lượng',hc:'◐ Chế độ dễ nhìn',lg:'🔍 Hiển thị lớn',
+ready:'Chọn tranh và độ khó rồi bấm "Bắt đầu"',playing:'Chạm để trượt!',clear:'🌼 Hoàn thành!',res:'{0} bước / {1}',nb:'🎉 Kỷ lục mới!',bl:'Kỷ lục: {0} bước / {1}',nobest:'Kỷ lục: chưa có',next:'Độ khó tiếp theo →',again:'Chơi lại',allclear:'Đã qua mức Khó! Tuyệt vời!',
+tuttl:'🐾 Cách chơi',prev:'← Quay lại',nxt:'Tiếp →',done:'Đã hiểu!',close:'Đóng',
+th1:'Chọn tranh và kích thước',tb1:'Chọn Buổi sáng, Ban đêm hoặc Reggae, chọn từ Nhập môn (2×4) đến Khó (5×9), rồi bấm "Bắt đầu".',
+th2:'Chạm mảnh bên cạnh',tb2:'Chạm mảnh cùng hàng hoặc cột với ô trống, mảnh sẽ trượt vào. Có thể dùng phím mũi tên.',
+th3:'Hoàn thành bức tranh',tb3:'"👁 Tranh mẫu" cho xem tranh hoàn chỉnh. "🔢 Số" hiện thứ tự đúng. Ít bước và nhanh hơn để lập kỷ lục!',
+c1:'Tranh & kích thước',c2:'Chạm → trượt',c3:'Xếp đúng là xong!',
+note:'Trò xếp hình trượt dùng tranh của 1016 "Fluffy Marigold Diary" (Ngày Lương thực Thế giới). Các mảnh được xáo bằng cách di chuyển ngẫu nhiên từ tranh hoàn chỉnh nên luôn giải được. Kỷ lục (số bước, thời gian) được lưu trên máy này theo từng tranh và độ khó.'},
+tl:{title:'Marigold Slide Puzzle',home:'← Home',guide:'I-tap ang piraso sa tabi ng bakanteng puwang para i-slide at buuin ang larawan',pic:'Pumili ng larawan',lv:'Hirap',p0:'Umaga',p1:'Gabi',p2:'Reggae',l0:'Panimula',l1:'Madali',l2:'Katamtaman',l3:'Mahirap',moves:'Galaw',time:'Oras',best:'Pinakamahusay',start:'Simulan (shuffle)',restart:'Shuffle ulit',model:'👁 Halimbawa',num:'🔢 Numero',help:'❓ Paano maglaro',sv:'Tunog at paningin',son:'🔊 Tunog ON',soff:'🔈 Tunog OFF',vol:'Lakas',hc:'◐ Madaling makita',lg:'🔍 Malaking display',
+ready:'Pumili ng larawan at hirap, saka pindutin ang "Simulan"',playing:'I-tap para mag-slide!',clear:'🌼 Buo na!',res:'{0} galaw / {1}',nb:'🎉 Bagong record!',bl:'Pinakamahusay: {0} galaw / {1}',nobest:'Pinakamahusay: wala pa',next:'Susunod na hirap →',again:'Laro ulit',allclear:'Natapos mo ang Mahirap! Galing!',
+tuttl:'🐾 Paano maglaro',prev:'← Balik',nxt:'Susunod →',done:'Naintindihan ko!',close:'Isara',
+th1:'Pumili ng larawan at laki',tb1:'Pumili ng Umaga, Gabi o Reggae, pumili mula Panimula (2×4) hanggang Mahirap (5×9), at pindutin ang "Simulan".',
+th2:'I-tap ang katabing piraso',tb2:'I-tap ang piraso na nasa parehong hanay o kolum ng bakanteng puwang at dudulas ito roon. Puwede rin ang arrow keys.',
+th3:'Buuin ang larawan',tb3:'Ipinapakita ng "👁 Halimbawa" ang buong larawan. Ipinapakita ng "🔢 Numero" ang tamang ayos. Mas kaunting galaw at oras = bagong record!',
+c1:'Larawan at laki',c2:'Tap → slide',c3:'Ayos na = tapos!',
+note:'Slide puzzle gamit ang larawan ng 1016 "Fluffy Marigold Diary" (World Food Day). Hinahalo ang mga piraso sa random na galaw mula sa buong larawan, kaya laging may solusyon. Nase-save sa device na ito ang record (galaw at oras) para sa bawat larawan at hirap.'},
+my:{title:'ဇီဇဝါပန်း ရွှေ့ပဟေဠိ',home:'← ပင်မ',guide:'ဗလာကွက်ဘေးက အပိုင်းကို နှိပ်ပြီး ရွှေ့ကာ ပုံကို ပြည့်စုံအောင်လုပ်ပါ',pic:'ပုံရွေးပါ',lv:'ခက်ခဲမှု',p0:'မနက်ခင်း',p1:'ည',p2:'Reggae',l0:'အစပြု',l1:'လွယ်',l2:'အလယ်အလတ်',l3:'ခက်',moves:'ရွှေ့အကြိမ်',time:'အချိန်',best:'အကောင်းဆုံး',start:'စတင်မည် (ရောမွှေ)',restart:'ပြန်ရောမွှေ',model:'👁 နမူနာ',num:'🔢 နံပါတ်',help:'❓ ကစားနည်း',sv:'အသံနှင့် မြင်ရလွယ်မှု',son:'🔊 အသံ ဖွင့်',soff:'🔈 အသံ ပိတ်',vol:'အသံအတိုးအကျယ်',hc:'◐ မြင်ရလွယ်မုဒ်',lg:'🔍 အကြီးပြ',
+ready:'ပုံနှင့် ခက်ခဲမှုကို ရွေးပြီး “စတင်မည်” ကို နှိပ်ပါ',playing:'နှိပ်ပြီး ရွှေ့ပါ!',clear:'🌼 ပြီးပါပြီ!',res:'{0} ကြိမ် / {1}',nb:'🎉 စံချိန်သစ်!',bl:'အကောင်းဆုံး: {0} ကြိမ် / {1}',nobest:'အကောင်းဆုံး: မရှိသေး',next:'နောက်အဆင့် →',again:'ထပ်ကစား',allclear:'ခက်အဆင့်အထိ ပြီးပါပြီ! အရမ်းတော်တယ်!',
+tuttl:'🐾 ကစားနည်း',prev:'← နောက်သို့',nxt:'ရှေ့သို့ →',done:'နားလည်ပြီ!',close:'ပိတ်',
+th1:'ပုံနှင့် အရွယ်ရွေးပါ',tb1:'မနက်ခင်း၊ ည သို့မဟုတ် Reggae ပုံကို ရွေးပြီး အစပြု (2×4) မှ ခက် (5×9) အထိ ရွေးကာ “စတင်မည်” ကို နှိပ်ပါ။',
+th2:'ဘေးက အပိုင်းကို နှိပ်ပါ',tb2:'ဗလာကွက်နှင့် တန်း သို့မဟုတ် တိုင်တူသော အပိုင်းကို နှိပ်လျှင် ဗလာကွက်ထဲ ရွှေ့သွားပါမည်။ မြှားခလုတ်လည်း သုံးနိုင်သည်။',
+th3:'ပုံကို ပြည့်စုံအောင်လုပ်ပါ',tb3:'“👁 နမူနာ” ဖြင့် ပြီးဆုံးပုံကို ကြည့်နိုင်သည်။ “🔢 နံပါတ်” က မှန်ကန်သော အစဉ်ကို ပြသည်။ ရွှေ့အကြိမ်နည်းပြီး မြန်လျှင် စံချိန်သစ်!',
+c1:'ပုံနှင့် အရွယ်',c2:'နှိပ် → ရွှေ့',c3:'စီပြီးရင် ပြီးပြီ!',
+note:'1016 “Fluffy Marigold Diary” (ကမ္ဘာ့စားနပ်ရိက္ခာနေ့) ပုံကို အသုံးပြုထားသော ရွှေ့ပဟေဠိဖြစ်သည်။ ပြီးဆုံးပုံမှ ကျပန်းရွှေ့၍ ရောမွှေထားသောကြောင့် အမြဲဖြေရှင်းနိုင်သည်။ အကောင်းဆုံးမှတ်တမ်း (ရွှေ့အကြိမ်၊ အချိန်) ကို ပုံနှင့် ခက်ခဲမှုအလိုက် ဤစက်တွင် သိမ်းသည်။'},
+mni:{title:'ꯃꯦꯔꯤꯒꯣꯜꯗ ꯁ꯭ꯂꯥꯏꯗ ꯄꯖꯜ',home:'← ꯌꯨꯝ',guide:'ꯑꯍꯥꯡꯕ ꯃꯐꯝꯒꯤ ꯃꯅꯥꯛꯇꯥ ꯂꯩꯕ ꯁꯔꯨꯛ ꯑꯗꯨ ꯇꯦꯞ ꯇꯧꯔꯒꯥ ꯂꯦꯡꯍꯟꯗꯨꯅꯥ ꯃꯃꯤ ꯑꯗꯨ ꯃꯄꯨꯡ ꯐꯥꯍꯅꯕꯤꯌꯨ',pic:'ꯃꯃꯤ ꯈꯟꯕꯤꯌꯨ',lv:'ꯑꯔꯨꯕ ꯊꯥꯛ',p0:'ꯑꯌꯨꯛ',p1:'ꯅꯨꯃꯤꯗꯥꯡ',p2:'ꯔꯦꯒꯦ',l0:'ꯍꯧꯔꯛꯄ',l1:'ꯂꯥꯏꯕ',l2:'ꯃꯌꯥꯏ',l3:'ꯑꯔꯨꯕ',moves:'ꯂꯦꯡꯍꯟꯕ',time:'ꯃꯇꯝ',best:'ꯈ꯭ꯕꯥꯏꯗꯒꯤ ꯐꯕ',start:'ꯍꯧꯒꯠꯂꯨ (ꯌꯥꯎꯁꯤꯟꯕ)',restart:'ꯑꯃꯨꯛ ꯍꯟꯅ ꯌꯥꯎꯁꯤꯟꯕ',model:'👁 ꯈꯨꯗꯝ',num:'🔢 ꯃꯁꯤꯡ',help:'❓ ꯁꯥꯟꯅꯕꯒꯤ ꯃꯑꯣꯡ',sv:'ꯈꯣꯟꯖꯦꯜ ꯑꯃꯁꯨꯡ ꯎꯕ',son:'🔊 ꯈꯣꯟꯖꯦꯜ ON',soff:'🔈 ꯈꯣꯟꯖꯦꯜ OFF',vol:'ꯈꯣꯟꯖꯦꯜꯒꯤ ꯆꯥꯡ',hc:'◐ ꯎꯕ ꯂꯥꯏꯕ ꯃꯣꯗ',lg:'🔍 ꯑꯆꯧꯕ ꯎꯠꯄ',
+ready:'ꯃꯃꯤ ꯑꯃꯁꯨꯡ ꯑꯔꯨꯕ ꯊꯥꯛ ꯈꯟꯗꯨꯅꯥ “ꯍꯧꯒꯠꯂꯨ” ꯅꯝꯕꯤꯌꯨ',playing:'ꯇꯦꯞ ꯇꯧꯔꯒꯥ ꯂꯦꯡꯍꯟꯕꯤꯌꯨ!',clear:'🌼 ꯃꯄꯨꯡ ꯐꯥꯔꯦ!',res:'{0} ꯂꯦꯡꯍꯟꯕ / {1}',nb:'🎉 ꯑꯅꯧꯕ ꯔꯦꯀꯣꯔꯗ!',bl:'ꯈ꯭ꯕꯥꯏꯗꯒꯤ ꯐꯕ: {0} / {1}',nobest:'ꯈ꯭ꯕꯥꯏꯗꯒꯤ ꯐꯕ: ꯍꯧꯖꯤꯛ ꯂꯩꯇꯦ',next:'ꯃꯊꯪꯒꯤ ꯊꯥꯛ →',again:'ꯑꯃꯨꯛ ꯁꯥꯟꯕ',allclear:'ꯑꯔꯨꯕ ꯊꯥꯛ ꯐꯥꯑꯣꯕ ꯃꯥꯏꯄꯥꯛꯂꯦ! ꯌꯥꯝꯅ ꯐꯩ!',
+tuttl:'🐾 ꯁꯥꯟꯅꯕꯒꯤ ꯃꯑꯣꯡ',prev:'← ꯍꯟꯕ',nxt:'ꯃꯊꯪ →',done:'ꯈꯉꯂꯦ!',close:'ꯊꯤꯡꯕ',
+th1:'ꯃꯃꯤ ꯑꯃꯁꯨꯡ ꯆꯥꯡ ꯈꯟꯕꯤꯌꯨ',tb1:'ꯑꯌꯨꯛ, ꯅꯨꯃꯤꯗꯥꯡ ꯅꯠꯔꯒꯥ ꯔꯦꯒꯦ ꯈꯟꯗꯨꯅꯥ, ꯍꯧꯔꯛꯄ (2×4) ꯗꯒꯤ ꯑꯔꯨꯕ (5×9) ꯐꯥꯑꯣꯕ ꯈꯟꯗꯨꯅꯥ “ꯍꯧꯒꯠꯂꯨ” ꯅꯝꯕꯤꯌꯨ꯫',
+th2:'ꯃꯅꯥꯛꯀꯤ ꯁꯔꯨꯛ ꯇꯦꯞ ꯇꯧꯕꯤꯌꯨ',tb2:'ꯑꯍꯥꯡꯕ ꯃꯐꯝ ꯑꯗꯨꯒꯥ ꯂꯥꯏꯟ ꯑꯃꯠꯇꯥ ꯂꯩꯕ ꯁꯔꯨꯛ ꯇꯦꯞ ꯇꯧꯔꯕꯗꯤ ꯃꯐꯝ ꯑꯗꯨꯗꯥ ꯆꯦꯟꯊꯔꯛꯀꯅꯤ꯫ ꯑꯦꯔꯣ ꯀꯤ ꯁꯤꯖꯤꯟꯅꯕꯁꯨ ꯌꯥꯏ꯫',
+th3:'ꯃꯃꯤ ꯃꯄꯨꯡ ꯐꯥꯍꯅꯕꯤꯌꯨ',tb3:'“👁 ꯈꯨꯗꯝ” ꯅꯥ ꯃꯄꯨꯡ ꯐꯥꯕ ꯃꯃꯤ ꯎꯠꯂꯤ꯫ “🔢 ꯃꯁꯤꯡ” ꯅꯥ ꯆꯨꯝꯕ ꯃꯊꯪ ꯎꯠꯂꯤ꯫ ꯂꯦꯡꯍꯟꯕ ꯌꯥꯃꯗꯕ ꯑꯃꯁꯨꯡ ꯊꯨꯅꯥ = ꯑꯅꯧꯕ ꯔꯦꯀꯣꯔꯗ!',
+c1:'ꯃꯃꯤ ꯑꯃꯁꯨꯡ ꯆꯥꯡ',c2:'ꯇꯦꯞ → ꯆꯦꯟꯊꯕ',c3:'ꯆꯨꯅꯕ = ꯂꯣꯏꯔꯦ!',
+note:'1016 “Fluffy Marigold Diary” (World Food Day) ꯒꯤ ꯃꯃꯤ ꯁꯤꯖꯤꯟꯅꯕ ꯁ꯭ꯂꯥꯏꯗ ꯄꯖꯜꯅꯤ꯫ ꯃꯄꯨꯡ ꯐꯥꯕ ꯃꯃꯤꯗꯒꯤ ꯌꯥꯎꯁꯤꯟꯕꯅꯥ ꯃꯇꯝ ꯄꯨꯝꯅꯃꯛꯇꯥ ꯁꯣꯜꯕ ꯇꯧꯕ ꯌꯥꯏ꯫ ꯔꯦꯀꯣꯔꯗ (ꯂꯦꯡꯍꯟꯕ, ꯃꯇꯝ) ꯑꯁꯤ ꯗꯤꯚꯥꯏꯁ ꯑꯁꯤꯗꯥ ꯊꯝꯃꯤ꯫'}
+};
+
+var LANGS=['ja','en','vi','tl','my','mni'],LANG='ja',LK='salpToolsLanguage_v275';
+function t(k){var s=(L[LANG]&&L[LANG][k]);if(s==null)s=L.en[k];if(s==null)s=k;for(var i=1;i<arguments.length;i++)s=s.split('{'+(i-1)+'}').join(arguments[i]);return s}
+function $(id){return document.getElementById(id)}
+var PICS=['morning','night','reggae'],LVS=[[2,4],[3,5],[4,7],[5,9]];
+var BK='salp_marigoldpuzzle_v1';
+var S={pic:0,lv:0,snd:true,vol:60,hc:false,lg:false,num:false,best:{},tut:false};
+try{var o=JSON.parse(localStorage.getItem(BK)||'{}');for(var k in o)S[k]=o[k]}catch(e){}
+function save(){try{localStorage.setItem(BK,JSON.stringify(S))}catch(e){}}
+try{var v=localStorage.getItem(LK);if(LANGS.indexOf(v)>=0)LANG=v;else{var n=(navigator.language||'ja').slice(0,2);if(LANGS.indexOf(n)>=0)LANG=n}}catch(e){}
+/* ---- audio ---- */
+var ctx=null,master=null;
+function applyVol(){if(master)master.gain.value=S.snd?S.vol/100*0.5:0}
+SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
+function tone(f,d,type,g,when){if(!ctx||!master||!S.snd)return;var t0=ctx.currentTime+(when||0),o=ctx.createOscillator(),a=ctx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t0);a.gain.setValueAtTime(0.0001,t0);a.gain.exponentialRampToValueAtTime(g||0.4,t0+0.01);a.gain.exponentialRampToValueAtTime(0.0001,t0+d);o.connect(a);a.connect(master);o.start(t0);o.stop(t0+d+0.02)}
+var sfx={
+ slide:SalpAudio.gate(function(){tone(520+Math.random()*80,0.07,'triangle',0.35)}),
+ bump:SalpAudio.gate(function(){tone(150,0.12,'square',0.15)}),
+ start:SalpAudio.gate(function(){[392,523,659].forEach(function(f,i){tone(f,0.12,'triangle',0.3,i*0.07)})}),
+ win:SalpAudio.gate(function(){[523,659,784,1047,784,1047].forEach(function(f,i){tone(f,0.22,'triangle',0.35,i*0.11)})})
+};
+/* ---- game ---- */
+var G={C:2,R:4,a:[],blank:0,moves:0,t0:0,el:[],run:false,timer:0,hist:[]};
+var board=$('board');
+function img(i){return './'+PICS[i]+'.webp'}
+function solvable(a,C,R){var inv=0,b=-1,x=[];for(var i=0;i<a.length;i++){if(a[i]<0)b=i;else x.push(a[i])}for(i=0;i<x.length;i++)for(var j=i+1;j<x.length;j++)if(x[i]>x[j])inv++;if(C%2===1)return inv%2===0;var rb=R-Math.floor(b/C);return (inv+rb)%2===1}
+function nbrs(p,C,R){var r=Math.floor(p/C),c=p%C,o=[];if(r>0)o.push(p-C);if(r<R-1)o.push(p+C);if(c>0)o.push(p-1);if(c<C-1)o.push(p+1);return o}
+function solved(){for(var i=0;i<G.a.length-1;i++)if(G.a[i]!==i)return false;return true}
+function shuffle(){var C=G.C,R=G.R,N=C*R,a=[],i;for(i=0;i<N-1;i++)a.push(i);a.push(-1);
+ var b=N-1,prev=-1,steps=Math.max(60,N*N*3),hist=[];
+ do{for(i=0;i<steps;i++){var ns=nbrs(b,C,R).filter(function(q){return q!==prev});var q=ns[Math.floor(Math.random()*ns.length)];a[b]=a[q];a[q]=-1;prev=b;b=q;hist.push(b)}
+   var mis=0;for(i=0;i<N-1;i++)if(a[i]!==i)mis++;}while(mis<Math.ceil((N-1)*0.6));
+ if(!solvable(a,C,R))throw new Error('unsolvable');G.a=a;G.blank=b;G.hist=hist}
+function layout(){var W=board.clientWidth,H=board.clientHeight,tw=W/G.C,th=H/G.R;
+ G.el.forEach(function(el,id){var p=G.a.indexOf(id);el.style.width=tw+'px';el.style.height=th+'px';el.style.backgroundSize=W+'px '+H+'px';el.style.backgroundPosition=(-(id%G.C)*tw)+'px '+(-Math.floor(id/G.C)*th)+'px';el.style.transform='translate('+((p%G.C)*tw)+'px,'+(Math.floor(p/G.C)*th)+'px)'})}
+function build(){G.el.forEach(function(e){e.remove()});G.el=[];var N=G.C*G.R;
+ for(var id=0;id<N-1;id++){var d=document.createElement('div');d.className='tile';d.style.backgroundImage='url('+img(S.pic)+')';d.innerHTML='<span class="n">'+(id+1)+'</span>';d.dataset.id=id;board.insertBefore(d,$('model'));G.el.push(d)}
+ layout()}
+function fmt(ms){var s=Math.floor(ms/1000);return Math.floor(s/60)+':'+('0'+s%60).slice(-2)}
+function tick(){$('tm').textContent=fmt(G.t0?Date.now()-G.t0:0)}
+function key(){return PICS[S.pic]+'_'+LVS[S.lv].join('x')}
+function bestText(){var b=S.best[key()];return b?t('bl',b.m,fmt(b.t)):t('nobest')}
+function moveTo(p){if(!G.run)return false;var C=G.C,b=G.blank,pr=Math.floor(p/C),pc=p%C,br=Math.floor(b/C),bc=b%C,step;
+ if(p===b)return false;
+ if(pr===br)step=pc>bc?1:-1;else if(pc===bc)step=pr>br?C:-C;else{sfx.bump();board.animate&&board.animate([{transform:'translateX(-3px)'},{transform:'translateX(3px)'},{transform:'none'}],{duration:180});return false}
+ if(!G.t0){G.t0=Date.now();G.timer=setInterval(tick,250)}
+ while(b!==p){var q=b+step;G.a[b]=G.a[q];G.a[q]=-1;b=q;G.moves++}
+ G.blank=b;sfx.slide();layout();$('mv').textContent=G.moves;
+ if(solved())win();return true}
+board.addEventListener('pointerdown',function(e){var el=e.target.closest('.tile');if(!el)return;e.preventDefault();moveTo(G.a.indexOf(+el.dataset.id))});
+document.addEventListener('keydown',function(e){if(!G.run||$('tut').classList.contains('open'))return;var C=G.C,b=G.blank,r=Math.floor(b/C),c=b%C,p=-1;
+ if(e.key==='ArrowLeft'&&c<C-1)p=b+1;else if(e.key==='ArrowRight'&&c>0)p=b-1;else if(e.key==='ArrowUp'&&r<G.R-1)p=b+C;else if(e.key==='ArrowDown'&&r>0)p=b-C;else return;e.preventDefault();moveTo(p)});
+function start(){SalpAudio.unlock();G.C=LVS[S.lv][0];G.R=LVS[S.lv][1];shuffle();G.moves=0;G.t0=0;clearInterval(G.timer);G.run=true;
+ board.classList.remove('done');$('full').classList.remove('show');$('result').hidden=true;build();try{board.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}$('mv').textContent='0';tick();say('playing');sfx.start();$('start').textContent=t('restart')}
+function win(){G.run=false;clearInterval(G.timer);var ms=Date.now()-G.t0;$('tm').textContent=fmt(ms);
+ var k=key(),b=S.best[k],nb=!b||G.moves<b.m||(G.moves===b.m&&ms<b.t);
+ if(nb)S.best[k]={m:G.moves,t:ms};else{if(ms<b.t){b.t=ms;nb=true}}
+ S.clr=S.clr||{};S.clr[k]=1;save();
+ board.classList.add('done');$('full').src=img(S.pic);setTimeout(function(){$('full').classList.add('show')},150);sfx.win();
+ var last=S.lv>=LVS.length-1;
+ var r=$('result');r.innerHTML='<h2>'+t('clear')+'</h2><img src="'+img(S.pic)+'" alt="">'+'<div><b>'+t('res',G.moves,fmt(ms))+'</b></div>'+(nb?'<div>'+t('nb')+'</div>':'')+'<div>'+bestText()+'</div>'+(last?'<div>'+t('allclear')+'</div>':'')+'<div class="bt">'+(last?'':'<button type="button" class="main" id="bNext">'+t('next')+'</button>')+'<button type="button" class="tog" id="bAgain">'+t('again')+'</button></div>';
+ r.hidden=false;say('clear');$('start').textContent=t('start');drawPick();
+ var bn=$('bNext');if(bn)bn.onclick=function(){S.lv++;save();drawPick();start()};$('bAgain').onclick=start;
+ window.__mpWins=(window.__mpWins||0)+1}
+var lastMsg='ready';function say(k){lastMsg=k;$('msg').textContent=t(k)}
+function drawPick(){var p=document.querySelector('.pics');p.innerHTML=PICS.map(function(n,i){return '<button type="button" data-p="'+i+'" class="'+(i===S.pic?'on':'')+'" aria-pressed="'+(i===S.pic)+'"><img src="./'+n+'-s.webp" alt="">'+t('p'+i)+'</button>'}).join('');
+ var l=document.querySelector('.lvs');l.innerHTML=LVS.map(function(z,i){var c=S.clr&&S.clr[PICS[S.pic]+'_'+z.join('x')];return '<button type="button" data-l="'+i+'" class="'+(i===S.lv?'on':'')+'" aria-pressed="'+(i===S.lv)+'">'+t('l'+i)+(c?' <span class="ck">✓</span>':'')+'<small>'+z[0]+'×'+z[1]+'</small></button>'}).join('');
+ $('bestLine').textContent=t('best')+' — '+bestText().replace(/^[^:]*:\s*/,'')}
+document.querySelector('.pics').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;S.pic=+b.dataset.p;save();idle()});
+document.querySelector('.lvs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;S.lv=+b.dataset.l;save();idle()});
+function idle(){G.run=false;clearInterval(G.timer);G.t0=0;G.moves=0;G.C=LVS[S.lv][0];G.R=LVS[S.lv][1];var N=G.C*G.R;G.a=[];for(var i=0;i<N-1;i++)G.a.push(i);G.a.push(-1);G.blank=N-1;
+ build();board.classList.add('done');$('full').src=img(S.pic);$('full').classList.add('show');$('model').src=img(S.pic);$('result').hidden=true;$('mv').textContent='0';tick();say('ready');$('start').textContent=t('start');drawPick()}
+$('start').onclick=function(){if(!S.tut){S.tut=true;save();openTut(0,true);return}start()};
+var mOn=false;$('bModel').onclick=function(){mOn=!mOn;this.setAttribute('aria-pressed',mOn);$('model').src=img(S.pic);$('model').classList.toggle('show',mOn)};
+function setNum(){board.classList.toggle('nums',S.num||S.hc);$('bNum').setAttribute('aria-pressed',S.num)}
+$('bNum').onclick=function(){S.num=!S.num;save();setNum()};
+function setSnd(){$('tSound').textContent=t(S.snd?'son':'soff');$('tSound').setAttribute('aria-pressed',S.snd);$('vol').value=S.vol;applyVol()}
+$('tSound').onclick=function(){S.snd=!S.snd;save();setSnd();SalpAudio.unlock();sfx.slide()};
+$('vol').oninput=function(){S.vol=+this.value;save();applyVol()};
+$('vol').onchange=function(){SalpAudio.unlock();sfx.slide()};
+function setVis(){document.body.classList.toggle('hc',S.hc);document.body.classList.toggle('large',S.lg);$('tHc').setAttribute('aria-pressed',S.hc);$('tLg').setAttribute('aria-pressed',S.lg);setNum();setTimeout(layout,30)}
+$('tHc').onclick=function(){S.hc=!S.hc;save();setVis()};$('tLg').onclick=function(){S.lg=!S.lg;save();setVis()};
+/* tutorial */
+var TS=0,tutStart=false,tAnim=0;
+function mini(cells){return '<div class="mini">'+cells.map(function(c){if(c==='e')return '<div class="mc e"></div>';var id=c.id,x=id%3,y=Math.floor(id/3);return '<div class="mc" style="background-image:url('+img(S.pic)+');background-size:132px 156px;background-position:'+(-x*44)+'px '+(-y*52)+'px">'+(c.f?'<span class="fg">👆</span>':'')+'</div>'}).join('')+'</div>'}
+function drawTut(){clearInterval(tAnim);var v=$('tvis');
+ if(TS===0){v.innerHTML='<div style="display:flex;gap:6px;justify-content:center">'+PICS.map(function(n){return '<img src="./'+n+'-s.webp" style="width:52px;height:92px;border-radius:6px;border:2px solid #f2cfa4;object-fit:cover" alt="">'}).join('')+'</div>'}
+ else if(TS===1){var f=0,A=[[{id:0},{id:1},{id:2},{id:3},{id:5},'e',{id:6},{id:7},{id:4,f:1}],[{id:0},{id:1},{id:2},{id:3},{id:5},{id:4},{id:6},{id:7},'e']];v.innerHTML=mini(A[0]);tAnim=setInterval(function(){f^=1;v.innerHTML=mini(A[f])},1100)}
+ else{var g=0,B=[[{id:0},{id:1},{id:2},{id:3},{id:4},{id:5},{id:6},'e',{id:7,f:1}],[{id:0},{id:1},{id:2},{id:3},{id:4},{id:5},{id:6},{id:7},'e']];v.innerHTML=mini(B[0]);tAnim=setInterval(function(){g^=1;v.innerHTML=mini(B[g])},1100)}
+ $('tcap').textContent=t('c'+(TS+1));$('th').textContent=t('th'+(TS+1));$('tb').textContent=t('tb'+(TS+1));
+ [].forEach.call($('tdots').children,function(d,i){d.className=i===TS?'on':''});$('tPrev').disabled=TS===0;$('tNext').textContent=t(TS===2?'done':'nxt')}
+function openTut(s,st){TS=s||0;tutStart=!!st;$('tut').classList.add('open');drawTut()}
+function closeTut(){clearInterval(tAnim);$('tut').classList.remove('open');if(tutStart){tutStart=false;start()}}
+$('tPrev').onclick=function(){if(TS>0){TS--;drawTut()}};$('tNext').onclick=function(){if(TS<2){TS++;drawTut()}else closeTut()};$('tClose').onclick=closeTut;
+$('bHelp').onclick=function(){openTut(0,false)};
+/* i18n */
+function applyLang(){document.documentElement.lang=LANG;document.title='🌼 '+t('title')+' | salp Tools';
+ [].forEach.call(document.querySelectorAll('[data-i]'),function(e){e.textContent=t(e.dataset.i)});
+ [].forEach.call(document.querySelectorAll('[data-ia]'),function(e){e.setAttribute('aria-label',t(e.dataset.ia))});
+ [].forEach.call(document.querySelectorAll('.lng button'),function(b){b.classList.toggle('on',b.dataset.lg===LANG)});
+ $('start').textContent=t(G.run?'restart':'start');say(lastMsg);setSnd();drawPick();if($('tut').classList.contains('open'))drawTut()}
+document.querySelector('.lng').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;LANG=b.dataset.lg;try{localStorage.setItem(LK,LANG)}catch(x){}applyLang()});
+addEventListener('resize',function(){layout()});
+window.__mp={G:G,start:start,solvable:solvable,shuffle:shuffle,moveTo:moveTo,S:S};
+applyLang();setVis();idle();
+})();
+</script>
+</body>
+</html>
