@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'push' || inputs.mode == 'build' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'build' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     outputs:
@@ -140,14 +140,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download ext2 from this run
-        if: ${{ github.event_name == 'push' || inputs.mode == 'build' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'build' }}
         uses: actions/download-artifact@v4
         with:
           name: salp-firefox-v1.10.14-ext2
           path: _ext2_artifact
 
       - name: Download latest successful ext2 artifact
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy-only' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy-only') }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
