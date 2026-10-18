@@ -1,136 +1,22 @@
-name: Build salp Linux v1.10.14 Firefox Image
+name: Publish salp Tools Pages
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'salp-linux/**'
-      - 'image/**'
-      - 'index.html'
-      - '.github/workflows/build-salp-image.yml'
   workflow_dispatch:
-    inputs:
-      image_size:
-        description: ext2 image size (≤800M for GitHub Pages soft limit)
-        required: true
-        default: 800M
-        type: string
-      mode:
-        description: "build = rebuild ext2; deploy-only = republish latest successful ext2 artifact (no rebuild)"
-        required: true
-        default: build
-        type: choice
-        options:
-          - build
-          - deploy-only
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
-  actions: read
 
 concurrency:
-  group: pages-salp-image
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'build' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 120
-    outputs:
-      artifact_name: salp-firefox-v1.10.14-ext2
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Show runner disk space
-        run: df -h
-
-      - name: Install build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y buildah e2fsprogs git uidmap
-          buildah version
-
-      - name: Build Firefox ESR ext2 image
-        env:
-          IMAGE_SIZE: ${{ inputs.image_size }}
-        run: |
-          sudo --preserve-env=IMAGE_SIZE,GITHUB_WORKSPACE,RUNNER_TEMP \
-            bash image/build-image.sh \
-            "$RUNNER_TEMP/salp-build" \
-            "$GITHUB_WORKSPACE/salp-browser.ext2"
-          sudo chown "$USER:$USER" \
-            salp-browser.ext2 \
-            salp-browser.ext2.sha256 \
-            salp-browser.ext2.manifest.txt
-          # Normalize sha256 to relative path
-          awk '{print $1 "  salp-browser.ext2"}' salp-browser.ext2.sha256 > salp-browser.ext2.sha256.tmp
-          mv salp-browser.ext2.sha256.tmp salp-browser.ext2.sha256
-
-      - name: Verify output files
-        run: |
-          test -s salp-browser.ext2
-          test -s salp-browser.ext2.sha256
-          test -s salp-browser.ext2.manifest.txt
-          sha256sum -c salp-browser.ext2.sha256
-          ls -lh salp-browser.ext2*
-          cat salp-browser.ext2.manifest.txt
-
-      - name: Verify launchers inside ext2
-        run: |
-          set -eux
-          DEBUGFS=$(command -v debugfs || command -v /usr/sbin/debugfs)
-          echo "=== /usr/local/bin listing ==="
-          "$DEBUGFS" -R 'ls -l /usr/local/bin' salp-browser.ext2 || true
-          fail=0
-          for f in /usr/local/bin/salp-gui-start /usr/local/bin/salp-session /usr/local/bin/salp-terminal /usr/local/bin/salp-files /usr/local/bin/salp-browser; do
-            echo "=== stat $f ==="
-            STAT_OUT=$("$DEBUGFS" -R "stat $f" salp-browser.ext2 2>&1) || {
-              echo "FAIL: debugfs could not stat $f" >&2
-              echo "$STAT_OUT" >&2
-              fail=1
-              continue
-            }
-            echo "$STAT_OUT"
-            # debugfs prints e.g. "Mode:  100755"
-            MODE=$(echo "$STAT_OUT" | sed -n 's/.*Mode:[[:space:]]*\([0-7][0-7]*\).*/\1/p' | head -1)
-            if [ -z "$MODE" ]; then
-              echo "FAIL: could not parse Mode for $f" >&2
-              fail=1
-              continue
-            fi
-            # Exact 100755 or any mode whose low 9 bits include owner/group/other execute
-            PERM=$((8#$MODE & 0777))
-            if [ "$MODE" = "100755" ] || [ $((PERM & 0111)) -ne 0 ]; then
-              echo "OK: $f Mode=$MODE (executable)"
-            else
-              echo "FAIL: $f Mode=$MODE missing execute bits (want Mode:  100755)" >&2
-              fail=1
-            fi
-          done
-          test "$fail" -eq 0
-
-      - name: Upload browser image
-        uses: actions/upload-artifact@v4
-        with:
-          name: salp-firefox-v1.10.14-ext2
-          path: |
-            salp-browser.ext2
-            salp-browser.ext2.sha256
-            salp-browser.ext2.manifest.txt
-          compression-level: 0
-          retention-days: 7
-          if-no-files-found: error
-
   deploy:
-    needs: [build]
-    if: ${{ always() && (needs.build.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy-only')) }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -139,73 +25,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download ext2 from this run
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'build' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: salp-firefox-v1.10.14-ext2
-          path: _ext2_artifact
-
-      - name: Download latest successful ext2 artifact
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy-only') }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Prepare static site
         run: |
-          set -eux
-          mkdir -p _ext2_artifact
-          ARTIFACT=salp-firefox-v1.10.14-ext2
-          RUN_ID=""
-          for id in $(gh run list -R "$GITHUB_REPOSITORY" --workflow=build-salp-image.yml -L 30 \
-            --json databaseId,conclusion --jq '.[]|select(.conclusion=="success")|.databaseId'); do
-            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/artifacts" \
-              --jq ".artifacts[]|select(.name==\"$ARTIFACT\" and .expired==false)|.name" | grep -qx "$ARTIFACT"; then
-              RUN_ID="$id"
-              break
-            fi
-          done
-          test -n "$RUN_ID" || { echo "No successful run with artifact $ARTIFACT" >&2; exit 1; }
-          echo "Using run $RUN_ID (has $ARTIFACT)"
-          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n "$ARTIFACT" -D _ext2_artifact
-          ls -lh _ext2_artifact/
-
-      - name: Place ext2 under salp-linux/ for Pages
-        run: |
-          set -eux
-          mkdir -p salp-linux
-          cp -f _ext2_artifact/salp-browser.ext2 salp-linux/salp-browser.ext2
-          cp -f _ext2_artifact/salp-browser.ext2.sha256 salp-linux/salp-browser.ext2.sha256
-          # Normalize sha path
-          awk '{print $1 "  salp-browser.ext2"}' salp-linux/salp-browser.ext2.sha256 > salp-linux/salp-browser.ext2.sha256.tmp
-          mv salp-linux/salp-browser.ext2.sha256.tmp salp-linux/salp-browser.ext2.sha256
-          cp -f _ext2_artifact/salp-browser.ext2.manifest.txt salp-linux/salp-browser.ext2.manifest.txt
-          ls -lh salp-linux/salp-browser.ext2*
-          test -s salp-linux/salp-browser.ext2
-          SIZE_BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
-          echo "ext2 bytes=$SIZE_BYTES"
-          test "$SIZE_BYTES" -gt 100000000
-          (cd salp-linux && sha256sum -c salp-browser.ext2.sha256)
-
-      - name: Prepare Pages publish tree
-        run: |
-          set -eux
-          rm -rf _ext2_artifact .git
-          rm -f salp-browser.ext2 salp-browser.ext2.sha256 salp-browser.ext2.manifest.txt
-          # Static site: keep binaries; never let Jekyll strip .ext2
           touch .nojekyll
-          # upload-pages-artifact respects .gitignore — temporarily allow the ext2
-          if [[ -f .gitignore ]]; then
-            grep -v -E '(^|/)\*?\.ext2$|salp-browser\.ext2' .gitignore > .gitignore.pages || true
-            mv .gitignore.pages .gitignore
-          fi
-          test -s salp-linux/salp-browser.ext2
-          # Fail loudly if publish tree would omit the image
-          BYTES=$(stat -c%s salp-linux/salp-browser.ext2)
-          echo "publish ext2 bytes=$BYTES"
-          test "$BYTES" -ge 700000000
-          ls -la
           test -f index.html
-          test -f salp-linux/salp-browser.html
-          test -f .nojekyll
+          test -f salp-linux/salp-linux.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
