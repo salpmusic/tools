@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.16</title>
+<title>salp Browser OS v1.10.17</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -152,7 +152,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.16 PROC HOTFIX</span>
+  <span class="splashVersion">VERSION 1.10.17 PROC HOTFIX</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -264,7 +264,7 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Mobile v1.10.16</h1>
+   <h1>salp Linux Mobile v1.10.17</h1>
    <p>ブラウザの中でスマホ向けLinux GUIを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
@@ -285,7 +285,7 @@ footer{
 </main>
 
 <footer>
- salp Linux Mobile v1.10.16：Linux GUI内Firefox ESR・NetSurf fallback・Xorg。
+ salp Linux Mobile v1.10.17：Linux GUI内Firefox ESR・NetSurf fallback・Xorg。
 </footer>
 </div>
 
@@ -331,7 +331,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1116");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1117");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -711,22 +711,17 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1114",location.href).href;
+const RELEASE_BROWSER_IMAGE="https://github.com/salpmusic/tools/releases/download/salp-linux-image-v1/salp-browser.ext2";
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
  if(forceOfficial)return {url:"",name:"Official Alpine 3.17",source:"official"};
- const tries=[];
- if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.14",source:"saved"});
- else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.14",source:"local"});
- for(const item of tries){
-  try{
-   const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
-   if(probe.ok)return item;
-   log(`[image] ${item.source} image HEAD ${probe.status}: ${item.url}`);
-  }catch(e){log(`[image] ${item.source} image unavailable: ${e?.message||String(e)}`)}
+ if(saved){
+  return {url:saved,name:localStorage.getItem("salpImageName")||"Custom Firefox Image",source:"saved"};
  }
- return {url:"",name:"Official Alpine 3.17",source:saved?"saved-failed":"local-missing"};
+ // Do not HEAD-probe the large Release asset. CheerpX HttpBytesDevice performs
+ // the real Range-request validation and follows GitHub's asset redirect.
+ return {url:RELEASE_BROWSER_IMAGE,name:"salp Firefox Release Image",source:"release"};
 }
 
 async function boot(){
@@ -734,7 +729,7 @@ async function boot(){
  window.salpStage?.("5/7 Linux起動開始","boot() entered");
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.16...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.17...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const selectedImage=await resolveBrowserImage();
@@ -744,7 +739,7 @@ async function boot(){
   if(configuredUrl){
    try{
     state(configuredName+" を読み込んでいます。");
-    window.salpStage?.("5/7 ext2接続中",selectedImage.source==="local"?"同フォルダ Firefox image":"外部 Firefox image");
+    window.salpStage?.("5/7 ext2接続中",selectedImage.source==="release"?"GitHub Release Firefox image":"外部 Firefox image");
     cloud=await CheerpX.HttpBytesDevice.create(configuredUrl);
     window.salpStage?.("5/7 ext2接続","Firefox image OK");
     log("[1/4] Browser image connected: "+configuredUrl);
