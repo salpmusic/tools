@@ -4,6 +4,7 @@ RUN set -eux; \
     printf '%s\n' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/main' \
       'https://dl-cdn.alpinelinux.org/alpine/v3.17/community' \
+      '@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing' \
       > /etc/apk/repositories; \
     apk update; \
     apk add --no-cache \
