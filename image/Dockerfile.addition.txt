@@ -162,7 +162,7 @@ RUN set -eux; \
 RUN set -eux; \
     mkdir -p /usr/local/share/salp /home/user/.config/i3; \
     printf '%s\n' \
-      '# salp fixed i3 config (no polybar/feh/alpine_bg)' \
+      '# salp fixed i3 config' \
       'set $mod Mod1' \
       'font pango:DejaVu Sans 12' \
       'focus_follows_mouse no' \
@@ -340,5 +340,5 @@ RUN set -eux; \
     test -x /usr/local/bin/salp-files; \
     test -x /usr/local/bin/salp-gui-start; \
     test -x /usr/local/bin/salp-session; \
-    test -f /usr/local/share/salp/i3.config;
+    test -f /usr/local/share/salp/i3.config; \
     test -f /home/user/.config/i3/config
