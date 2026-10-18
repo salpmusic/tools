@@ -9,7 +9,6 @@ RUN set -eux; \
     apk update; \
     apk add --no-cache \
       firefox-esr \
-      netsurf \
       ca-certificates \
       font-noto \
       font-noto-cjk \
@@ -292,12 +291,7 @@ for browser in firefox-esr firefox; do
     launch_firefox "$browser"
   fi
 done
-for browser in netsurf-gtk3 netsurf-gtk netsurf; do
-  if command -v "$browser" >/dev/null 2>&1; then
-    exec "$browser" "$URL"
-  fi
-done
-echo 'salp Browser: Firefox ESR / NetSurf executable was not found.' >&2
+echo 'salp Browser: Firefox ESR executable was not found.' >&2
 exit 127
 SALP_BROWSER
 
@@ -315,14 +309,13 @@ RUN chmod 0755 /usr/local/bin/salp-browser \
  && printf '%s\n' \
     'salp Linux v1.10.14' \
     'browser=firefox-esr' \
-    'fallback=netsurf' \
+    'fallback=none' \
     'homepage=https://www.google.com/' \
     'terminal=xterm' \
     'file_manager=pcmanfm' \
     > /etc/salp-release \
  && command -v /usr/local/bin/salp-browser \
  && (command -v firefox-esr || command -v firefox) \
- && (command -v netsurf-gtk3 || command -v netsurf-gtk || command -v netsurf) \
  && command -v xterm \
  && command -v pcmanfm \
  && test -x /usr/local/bin/salp-terminal \
