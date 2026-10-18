@@ -328,7 +328,7 @@ for i in range(1, 6):
 (async()=>{
   if(!crossOriginIsolated && "serviceWorker" in navigator){
     try{
-      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1114");
+      const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1115");
       if(!navigator.serviceWorker.controller){
         await new Promise(resolve=>{
           navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true});
@@ -613,7 +613,7 @@ const linuxDisplayStatus=$("linuxDisplayStatus");
 if(linuxDisplayStatus) linuxDisplayStatus.textContent="720×1080 / Linux Firefox自動起動";
 function openLinuxFirefox(){
   localStorage.setItem("salpAutoLaunch","1");
-  location.href="./salp-browser.html?v=1114&autobrowser=1";
+  location.href="./salp-browser.html?v=1115&autobrowser=1";
 }
 $("openGuiLinuxBtn")?.addEventListener("click",openLinuxFirefox);
 $("linuxBrowserDesktopBtn")?.addEventListener("click",openLinuxFirefox);
