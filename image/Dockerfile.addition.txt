@@ -1,7 +1,7 @@
 # salp Linux v1.10.14 Firefox browser layer
 # Upstream is Alpine 3.17 with Xorg + i3 + LightDM (slimmed: xterm + pcmanfm only).
 # Stay on 3.17 main+community — slim upstream so sgt-puzzles@testing is never installed.
-# netsurf is absent from 3.17; install that one package from edge/community via --repository.
+# Firefox ESR only; no secondary browser package is required.
 # NOTE: avoid Dockerfile shell heredocs — buildah classic parser splits them into bogus STEPs.
 # v1.10.14: ZIP fonts/i3/salp-browser env + FG-wait fixes (session exit 0, gui-start wait XORGPID, wrappers &+exit).
 RUN set -eux; \
@@ -24,7 +24,8 @@ RUN set -eux; \
       pcmanfm \
       adwaita-icon-theme \
       shared-mime-info \
-      curl wget nano bash python3 git; \    update-ca-certificates; \
+      curl wget nano bash python3 git; \
+    update-ca-certificates; \
     rm -rf /var/cache/apk/* /var/tmp/* /tmp/* /usr/share/doc/* /usr/share/man/* /usr/share/info/*
 
 # Deterministic salp GUI session. Avoid Alpine init/LightDM inside CheerpX.
