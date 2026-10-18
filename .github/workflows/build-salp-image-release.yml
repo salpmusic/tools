@@ -1,0 +1,85 @@
+name: Build salp Linux Firefox Release Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'image/**'
+      - '.github/workflows/build-salp-image-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: salp-linux-release-image
+  cancel-in-progress: false
+
+jobs:
+  build-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y buildah e2fsprogs git uidmap
+          buildah version
+
+      - name: Build Firefox ESR ext2 image
+        env:
+          IMAGE_SIZE: 800M
+        run: |
+          sudo --preserve-env=IMAGE_SIZE,GITHUB_WORKSPACE,RUNNER_TEMP \
+            bash image/build-image.sh \
+            "$RUNNER_TEMP/salp-build" \
+            "$GITHUB_WORKSPACE/salp-browser.ext2"
+          sudo chown "$USER:$USER" \
+            salp-browser.ext2 \
+            salp-browser.ext2.sha256 \
+            salp-browser.ext2.manifest.txt
+          awk '{print $1 "  salp-browser.ext2"}' salp-browser.ext2.sha256 > salp-browser.ext2.sha256.tmp
+          mv salp-browser.ext2.sha256.tmp salp-browser.ext2.sha256
+
+      - name: Verify Firefox image
+        run: |
+          set -eux
+          test -s salp-browser.ext2
+          test -s salp-browser.ext2.sha256
+          test -s salp-browser.ext2.manifest.txt
+          sha256sum -c salp-browser.ext2.sha256
+          SIZE_BYTES=$(stat -c%s salp-browser.ext2)
+          echo "ext2 bytes=$SIZE_BYTES"
+          test "$SIZE_BYTES" -gt 700000000
+          DEBUGFS=$(command -v debugfs || command -v /usr/sbin/debugfs)
+          for f in /usr/local/bin/salp-gui-start /usr/local/bin/salp-browser /usr/local/bin/salp-terminal /usr/local/bin/salp-files; do
+            "$DEBUGFS" -R "stat $f" salp-browser.ext2
+          done
+
+      - name: Publish stable GitHub Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eux
+          TAG="salp-linux-image-v1"
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Updating existing release $TAG"
+          else
+            gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "salp Linux Firefox Image" \
+              --notes "Firefox ESR image for salp Browser Linux. This release asset is used by the web app and may be replaced by newer compatible builds."
+          fi
+          gh release upload "$TAG" -R "$GITHUB_REPOSITORY" \
+            salp-browser.ext2 \
+            salp-browser.ext2.sha256 \
+            salp-browser.ext2.manifest.txt \
+            --clobber
+
+      - name: Show release URL
+        run: |
+          echo "https://github.com/$GITHUB_REPOSITORY/releases/download/salp-linux-image-v1/salp-browser.ext2"
