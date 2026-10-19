@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07110b">
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<title>salp Browser OS v1.10.14</title>
+<title>salp Browser OS v1.10.12</title>
 <style>
 :root{
  --bg:#030604;--panel:#08100b;--line:#21402b;--text:#ebf7ee;
@@ -15,7 +15,7 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
 body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overflow:auto}
-.app{min-height:100dvh;display:grid;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,68dvh) auto}
+.app{min-height:100dvh;display:grid;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,min(68dvh,520px)) auto}
 header{
  display:flex;align-items:center;gap:11px;padding:10px 12px;
  padding-top:calc(10px + env(safe-area-inset-top));
@@ -58,11 +58,10 @@ button:disabled{opacity:.4}
 }
 .dot{width:9px;height:9px;border-radius:50%;background:#667}
 .dot.busy{background:var(--yellow)}.dot.ok{background:var(--green)}.dot.error{background:var(--red)}
-.displayModeBar{display:flex;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#07140d;overflow-x:auto}
-.mobileOnlyBar .label{color:var(--green)}
-.displayModeBar .label{font-weight:900;white-space:nowrap}.displayModeBar button{min-height:36px;font-weight:900}.displayModeNow{font:10px ui-monospace,monospace;color:var(--muted);white-space:nowrap;margin-left:auto}
-@media(max-width:650px){.displayModeBar{flex-wrap:wrap}.displayModeNow{order:3;width:100%;margin-left:0}.displayModeBar #jumpScreenBtn{margin-left:auto}}
-.screenWrap{position:relative;min-height:420px;height:68dvh;background:#000;overflow:hidden;touch-action:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.displayModeBar{display:grid;grid-template-columns:auto 1fr 1fr auto auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#07140d}
+.displayModeBar .label{font-weight:900;color:#eaffef;white-space:nowrap}.displayModeBar button{min-height:40px;font-weight:900}.displayModeBar button.active{border-color:#5ce98f;background:#103c22;color:#d8ffe5;box-shadow:0 0 0 2px #1c6b3b inset}.displayModeNow{font:10px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
+@media(max-width:650px){.displayModeBar{grid-template-columns:1fr 1fr}.displayModeBar .label{grid-column:1/-1}.displayModeNow{grid-column:1/-1}.displayModeBar #jumpScreenBtn{grid-column:1/-1}}
+.screenWrap{position:relative;min-height:420px;height:min(68dvh,520px);background:#000;overflow:hidden;touch-action:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 #display{position:absolute;left:0;top:0;background:#000;touch-action:none;outline:none;transform-origin:0 0;will-change:transform,left,top}
 .viewControls{position:absolute;z-index:4;top:8px;left:8px;display:flex;gap:5px;align-items:center;max-width:calc(100% - 16px);padding:5px;border:1px solid rgba(121,243,157,.24);border-radius:12px;background:rgba(3,8,5,.82);backdrop-filter:blur(9px);overflow-x:auto;box-shadow:0 6px 24px rgba(0,0,0,.32)}
 .viewControls button{min-height:32px;padding:4px 9px;font-size:11px;border-radius:8px}
@@ -141,8 +140,8 @@ footer{
 
 @media(min-width:900px){
  body{overflow:hidden}
- .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(260px,1fr) auto}
- .screenWrap{height:auto;min-height:260px}
+ .app{height:100dvh;min-height:0;grid-template-rows:auto auto auto auto auto auto auto minmax(420px,1fr) auto}
+ .screenWrap{min-height:420px;height:min(68dvh,520px)}
 }
 </style>
 </head>
@@ -152,7 +151,7 @@ footer{
   <div class="splashLogo">🐧</div>
   <h1>salp Linux Desktop</h1>
   <p>Browser Linux Environment</p>
-  <span class="splashVersion">VERSION 1.10.14 MOBILE STABLE</span>
+  <span class="splashVersion">VERSION 1.10.12 GUI PAINT v1132</span>
   <div id="splashDiag" class="splashDiag" role="status" aria-live="polite">
    <strong>起動診断</strong>
    <div id="splashStage" class="stage">0/7 HTMLを読み込みました</div>
@@ -165,7 +164,7 @@ footer{
 <div class="app">
 <header>
  <div class="logo">🌐</div>
- <div class="title"><strong>salp Browser OS</strong><small>salp Linux Mobile Environment</small></div>
+ <div class="title"><strong>salp Browser OS</strong><small>salp Linux Desktop Environment</small></div>
 </header>
 
 <div class="readyStrip" aria-label="システム状態">
@@ -189,8 +188,9 @@ footer{
  <button id="testNetBtn" disabled>📡 通信テスト</button>
  <button id="installBtn" class="install" disabled>🦊 Firefox導入</button>
  <button id="detectBtn" disabled>↻ 再検出</button>
- <button id="launchBtn" disabled>🦊 Linux Firefox</button>
+ <button id="launchBtn" disabled>🌐 起動</button>
  <button id="xtermBtn" disabled>💻 Terminal</button>
+ <button id="diagBtn" disabled>診断</button>
  <button id="filesBtn" disabled>📁 Files</button>
  <button id="keyboardBtn" disabled>⌨️</button>
  <button id="settingsBtn">⚙ Image</button>
@@ -208,10 +208,12 @@ footer{
  <button id="autoToggleBtn">Auto: ON</button>
 </div>
 
-<section class="displayModeBar mobileOnlyBar" aria-label="Linuxスマホ表示">
- <span class="label">📱 Linux スマホ表示専用</span>
- <span id="displayModeNow" class="displayModeNow">720×1080 固定 / 自動Fit</span>
- <button id="jumpScreenBtn" title="Linux画面まで移動">Linux画面へ</button>
+<section class="displayModeBar" aria-label="Linux本体の表示切替">
+ <span class="label">🖥 Linux本体の表示</span>
+ <button id="guiPcBtn" hidden disabled style="display:none" title="Linux GUIを1366×768のPC解像度で起動/再起動">🖥 PC表示 1366×768</button>
+ <button id="guiMobileBtn" title="Linux GUIをスマホ向け解像度で起動/再起動">📱 スマホ表示</button>
+ <span id="displayModeNow" class="displayModeNow">現在：--</span>
+ <button id="jumpScreenBtn" title="Linux画面まで移動">🖥 Linux画面へ</button>
 </section>
 
 <main class="screenWrap" id="screenWrap">
@@ -240,7 +242,7 @@ footer{
   <div class="launchCard">
    <div class="big">🌐</div>
    <h2>salp Browser 起動中</h2>
-   <p id="launchMessage">Linux GUI内でFirefox ESRを準備しています…</p>
+   <p id="launchMessage">Linux GUIとFirefox ESRを準備しています…</p>
    <button id="cancelAutoBtn">自動起動を中止</button>
   </div>
  </section>
@@ -251,7 +253,7 @@ footer{
    <label for="imageUrlInput">External ext2 URL</label>
    <input id="imageUrlInput" placeholder="https://example.com/salp-browser.ext2" autocapitalize="none" autocomplete="off">
    <label for="imageNameInput">表示名</label>
-   <input id="imageNameInput" value="salp Firefox Image v1.10.14">
+   <input id="imageNameInput" value="salp Firefox Image v1.10.12">
    <div class="settingsActions">
     <button id="saveImageBtn" class="primary">保存</button>
     <button id="testImageBtn">接続テスト</button>
@@ -264,11 +266,11 @@ footer{
 
 <section id="bootScreen" class="boot">
   <div class="card">
-   <h1>salp Linux Mobile v1.10.14</h1>
-   <p>ブラウザの中でスマホ向けLinux GUIを起動します。</p>
+   <h1>salp Linux Desktop v1.10.12</h1>
+   <p>ブラウザの中でLinuxデスクトップとPCブラウザーを起動します。</p>
    <div class="info">
     ① Linux Imageを準備<br>
-    ② スマホ向けGUIを起動<br>
+    ② Desktop Environmentを起動<br>
     ③ Networkを接続<br>
     ④ Browserを検出して起動
    </div>
@@ -280,12 +282,12 @@ footer{
  <section id="panel">
   <div class="panelHead"><b>Setup Log</b><button id="hideLogBtn">隠す</button></div>
   <pre id="log"></pre>
-  <div id="browserState" class="browserState">GUI Linuxを起動するとFirefoxをLinux画面内で開きます。</div>
+  <div id="browserState" class="browserState">GUI Linuxを起動してください。</div>
  </section>
 </main>
 
 <footer>
- salp Linux Mobile v1.10.14：Linux GUI内Firefox ESR・NetSurf fallback・Xorg。
+ salp Linux Desktop v1.10.12：Firefox ESR・NetSurf fallback・Xorg Browser Linux。
 </footer>
 </div>
 
@@ -331,7 +333,7 @@ footer{
  if(!crossOriginIsolated&&"serviceWorker"in navigator){
   try{
    window.salpStage?.("2/7 Service Worker登録中","coi-serviceworker.js");
-   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1114");
+   const reg=await navigator.serviceWorker.register("./coi-serviceworker.js?v=1132");
    window.salpStage?.("2/7 Service Worker登録","OK");
    if(!navigator.serviceWorker.controller){
     await new Promise(resolve=>{
@@ -362,16 +364,24 @@ try{
 const $=id=>document.getElementById(id);
 window.salpStage?.("4/7 salp Linux UI初期化","DOM接続成功");
 let cx=null,booting=false,detectedBrowser=null,loginUrl="",networkState="";
-const autoBrowserRequested=new URLSearchParams(location.search).get("autobrowser")==="1";
-if(autoBrowserRequested)localStorage.setItem("salpAutoLaunch","1");
-let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")!=="0";
+const botChromeQuery=new URLSearchParams(location.search).get("botChrome");
+const botChromeOff=botChromeQuery==="0"||/^(false|off)$/i.test(botChromeQuery||"");
+
+// PC表示は安定化完了まで凍結。true に戻せば既存PC表示コードを再利用できる。
+const ENABLE_PC_MODE=false;
+
+let autoLaunchEnabled=localStorage.getItem("salpAutoLaunch")==="1";
 let autoCancelled=false;
 let initPromise=null;
+let guiStartStatus=null; // null=pending/unknown, number=exit status
+let xorgReadyFromLog=false; // set when Setup Log sees [gui-step] 03 Xorg ready (not FAIL)
+window.xorgReadyFromLog=false;
+let guiStepSeen={s04:false,s05:false,s06:false,s07:false};
 
 const candidates=[
- {name:"salp Firefox",path:"/usr/local/bin/salp-browser",pkg:"included"},
  {name:"Firefox ESR",path:"/usr/bin/firefox-esr",pkg:"firefox-esr"},
  {name:"Firefox",path:"/usr/bin/firefox",pkg:"firefox"},
+ {name:"salp Browser",path:"/usr/local/bin/salp-browser",pkg:"included"},
  {name:"NetSurf GTK",path:"/usr/bin/netsurf-gtk3",pkg:"netsurf"},
  {name:"NetSurf GTK",path:"/usr/bin/netsurf-gtk",pkg:"netsurf"},
  {name:"NetSurf",path:"/usr/bin/netsurf",pkg:"netsurf"},
@@ -384,10 +394,24 @@ function status(msg,state=""){
  $("statusText").textContent=msg;
  $("dot").className="dot"+(state?" "+state:"");
 }
+function noteGuiStepFromLine(line){
+ if(typeof line!=="string")return;
+ // Console / Setup Log path: mark Xorg ready without waiting for a free shell slot.
+ if(line.includes("[gui-step] 03 Xorg ready") && !line.includes("FAIL")){
+  xorgReadyFromLog=true;
+  window.xorgReadyFromLog=true;
+ }
+ if(line.includes("[gui-step] 04"))guiStepSeen.s04=true;
+ if(line.includes("[gui-step] 05"))guiStepSeen.s05=true;
+ if(line.includes("[gui-step] 06"))guiStepSeen.s06=true;
+ if(line.includes("[gui-step] 07"))guiStepSeen.s07=true;
+}
 function log(msg){
- $("log").textContent+=msg+"\\n";
+ noteGuiStepFromLine(String(msg));
+ $("log").textContent+=msg+"\n";
  $("log").scrollTop=$("log").scrollHeight;
 }
+if(botChromeOff)log("[botChrome] OFF — skip forceKms/diagnose/post-Ready load");
 function state(msg){$("browserState").textContent=msg}
 function markStep(id,kind){
  $(id).className="step"+(kind?" "+kind:"");
@@ -399,26 +423,66 @@ function setReady(id,kind="",text=""){
  if(text)el.textContent=text;
 }
 function appEnv(){
- return ["HOME=/home/user","USER=user","LOGNAME=user","SHELL=/bin/ash","DISPLAY=:0","XDG_RUNTIME_DIR=/tmp/runtime-user","LANG=C.UTF-8","GDK_BACKEND=x11","MOZ_ENABLE_WAYLAND=0","LIBGL_ALWAYS_SOFTWARE=1"];
+ return ["HOME=/home/user","USER=user","LOGNAME=user","SHELL=/bin/ash","DISPLAY=:0","XDG_RUNTIME_DIR=/tmp/runtime-user","LANG=C.UTF-8"];
 }
-function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/ash","DISPLAY=:0","LANG=C.UTF-8","GDK_BACKEND=x11","MOZ_ENABLE_WAYLAND=0","LIBGL_ALWAYS_SOFTWARE=1"]}
+function rootEnv(){return ["HOME=/root","USER=root","LOGNAME=root","SHELL=/bin/ash","DISPLAY=:0","LANG=C.UTF-8"]}
 
-const GUI_MOBILE={w:720,h:1080};
-// v1.10.14 is deliberately mobile-only.  Keep the Linux KMS geometry fixed
-// while Safari chrome / keyboard / orientation changes only refit the CSS view.
-localStorage.removeItem("salpGuiMode");
-sessionStorage.removeItem("salpDisplayReboot");
-sessionStorage.removeItem("salpDisplayRebootMode");
+const GUI_PC={w:1366,h:768};
+
+let guiMode=ENABLE_PC_MODE?(localStorage.getItem("salpGuiMode")||"pc"):"mobile";
+if(!ENABLE_PC_MODE){
+ guiMode="mobile";
+ localStorage.setItem("salpGuiMode","mobile");
+}
+
 let guestResolutionTimer=null;
 let guiScale=1,guiPanX=0,guiPanY=0,moveMode=false,panPointer=null,panStartX=0,panStartY=0,panOriginX=0,panOriginY=0;
-let guiW=GUI_MOBILE.w,guiH=GUI_MOBILE.h;
+let guiW=0,guiH=0;
 
-function currentVirtualSize(){return GUI_MOBILE}
+let MOBILE_FIXED=null;
+
+function mobileVirtualSize(){
+ if(MOBILE_FIXED)return MOBILE_FIXED;
+
+ const r=$("screenWrap").getBoundingClientRect();
+ const aspect=Math.max(.45,Math.min(1.8,(r.width||390)/(r.height||600)));
+ const w=720;
+ const h=Math.max(540,Math.min(1280,Math.round(w/aspect)));
+
+ MOBILE_FIXED={w,h};
+ log(`[display] mobile size locked ${w}x${h}`);
+ return MOBILE_FIXED;
+}
+
+function currentVirtualSize(){
+ return ENABLE_PC_MODE&&guiMode==="pc"?GUI_PC:mobileVirtualSize();
+}
+
+{
+ const initialSize=currentVirtualSize();
+ guiW=initialSize.w;
+ guiH=initialSize.h;
+}
+
 function updateViewInfo(){
+ const pcBtn=$("guiPcBtn");
+ pcBtn.hidden=!ENABLE_PC_MODE;
+ pcBtn.disabled=!ENABLE_PC_MODE;
+ pcBtn.style.display=ENABLE_PC_MODE?"":"none";
+ pcBtn.classList.toggle("active",ENABLE_PC_MODE&&guiMode==="pc");
+
+ $("guiMobileBtn").classList.toggle("active",guiMode==="mobile");
  $("moveModeBtn").classList.toggle("moveActive",moveMode);
  $("moveModeBtn").textContent=moveMode?"🖐 移動ON":"🖐 移動";
- $("viewInfo").textContent=`📱 ${guiW}×${guiH}  ${Math.round(guiScale*100)}%`;
- if($("displayModeNow")) $("displayModeNow").textContent=`720×1080 固定 / ${Math.round(guiScale*100)}%`;
+ $("viewInfo").textContent=`${guiW}×${guiH}  ${Math.round(guiScale*100)}%`;
+
+ if($("displayModeNow")){
+  $("displayModeNow").textContent=
+   ENABLE_PC_MODE&&guiMode==="pc"
+    ?`現在：PC ${guiW}×${guiH}`
+    :`現在：スマホ ${guiW}×${guiH}`;
+ }
+
  $("display").style.cursor=moveMode?"grab":"default";
 }
 function applyCanvasView(){
@@ -447,58 +511,119 @@ function setZoom(next){
  const worldX=(cxp-guiPanX)/old,worldY=(cyp-guiPanY)/old;
  guiScale=next;guiPanX=cxp-worldX*guiScale;guiPanY=cyp-worldY*guiScale;applyCanvasView();
 }
-async function syncGuestResolution(w,h){
+async function syncGuestResolution(w,h,{restartI3=false}={}){
  if(!cx)return;
  clearTimeout(guestResolutionTimer);
  guestResolutionTimer=setTimeout(async()=>{
   try{
+   // setKmsCanvas changes CheerpX KMS. Xorg may still keep its previous RandR size,
+   // so explicitly ask the running X server to re-read/use the new framebuffer.
+   // Skip i3-msg restart on first-boot sync to avoid racing core apps / prepareReadableDesktop.
+   const restartPart=restartI3
+    ? 'if command -v i3-msg >/dev/null 2>&1; then i3-msg restart >/dev/null 2>&1 || true; fi'
+    : 'true';
    const cmd=`export DISPLAY=:0; if command -v xrandr >/dev/null 2>&1; then \
 OUT=$(xrandr --query 2>/dev/null | awk '/ connected/{print $1; exit}'); \
 [ -n "$OUT" ] && xrandr --output "$OUT" --auto >/dev/null 2>&1 || true; \
 xrandr --fb ${w}x${h} >/dev/null 2>&1 || true; \
-fi; if command -v i3-msg >/dev/null 2>&1; then i3-msg restart >/dev/null 2>&1 || true; fi`;
+xrandr -s ${w}x${h} >/dev/null 2>&1 || true; \
+fi; ${restartPart}`;
    await shell(cmd,false);
-   log(`[display] mobile guest sync requested: ${w}x${h}`);
+   log(`[display] guest sync requested: ${w}x${h} restartI3=${restartI3}`);
   }catch(e){
    log(`[display] xrandr sync skipped: ${e?.message||String(e)}`);
   }
  },350);
 }
+
+function ensureScreenWrapLayout(){
+ const wrap=$("screenWrap");
+ if(!wrap)return {w:0,h:0};
+ // Bot/desktop can collapse to ~260px; force a usable KMS viewport host.
+ const r=wrap.getBoundingClientRect();
+ if(r.height<400){
+  wrap.style.minHeight="420px";
+  wrap.style.height="min(68dvh, 520px)";
+ }
+ return wrap.getBoundingClientRect();
+}
 function sizeCanvas({refit=true,forceKms=false,syncGuest=false}={}){
  const canvas=$("display"),v=currentVirtualSize();
+ if(forceKms){
+  const sr=ensureScreenWrapLayout();
+  log(`[layout] ensureScreenWrap ${Math.round(sr.width)}x${Math.round(sr.height)} before KMS`);
+ }
  const changed=canvas.width!==v.w||canvas.height!==v.h||guiW!==v.w||guiH!==v.h;
  guiW=v.w;guiH=v.h;
+ // Do not rely on CSS sizing: KMS gets the real Linux virtual resolution.
  if(changed){canvas.width=guiW;canvas.height=guiH}
  if(cx && (changed||forceKms)){
   cx.setKmsCanvas(canvas,guiW,guiH);
-  log(`[display] mobile KMS set to ${guiW}x${guiH}`);
+  log(`[display] KMS set to ${guiW}x${guiH}`);
   if(syncGuest)syncGuestResolution(guiW,guiH);
  }
  if(refit)fitView();else applyCanvasView();
 }
-function setMoveMode(on){moveMode=!!on;panPointer=null;updateViewInfo()}
-let resizeTimer;window.addEventListener("resize",()=>{
- clearTimeout(resizeTimer);
- // Never change the guest resolution on a browser resize; only refit the view.
- resizeTimer=setTimeout(fitView,180);
-});
+function setGuiMode(mode){
+ // PC表示凍結中はPC要求を無視し、mobile状態を維持する。
+ if(mode==="pc"&&!ENABLE_PC_MODE){
+  guiMode="mobile";
+  localStorage.setItem("salpGuiMode","mobile");
+  updateViewInfo();
+  return;
+ }
 
+ if(mode!=="pc"&&mode!=="mobile")return;
+
+ if(!ENABLE_PC_MODE)mode="mobile";
+
+ const same=guiMode===mode;
+ guiMode=mode;
+ localStorage.setItem("salpGuiMode",mode);
+
+ // Before Linux starts we can change KMS immediately. Once Xorg is running,
+ // the reliable way to change the real desktop geometry is to reboot this
+ // CheerpX session and apply KMS before /sbin/init starts.
+ if(!cx&&!booting){
+  sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+  state(mode==="pc"?"PC表示を選択しました。Linuxは1366×768で起動します。":"スマホ表示を選択しました。端末向け解像度で起動します。");
+  return;
+ }
+
+ if(same&&cx){
+  // Still re-apply the view, but avoid an unnecessary reboot when already in this mode.
+  sizeCanvas({refit:true,forceKms:true,syncGuest:true});
+  state(mode==="pc"?"PC表示 1366×768 を再適用しました。":"スマホ表示を再適用しました。");
+  return;
+ }
+
+ sessionStorage.setItem("salpDisplayReboot","1");
+ sessionStorage.setItem("salpDisplayRebootMode",mode);
+ state(mode==="pc"?"PC表示へ切替中… Linux GUIを1366×768で再起動します。":"スマホ表示へ切替中… Linux GUIを再起動します。");
+ setTimeout(()=>location.reload(),180);
+}
+function setMoveMode(on){moveMode=!!on;panPointer=null;updateViewInfo()}
+let resizeTimer;window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>sizeCanvas({refit:true}),180)});
+
+function exitStatus(result){
+ // CheerpX.Linux.run resolves to { status:number }, not a bare exit code.
+ if(typeof result==="number")return result;
+ if(result&&typeof result.status==="number")return result.status;
+ return 0;
+}
 async function run(path,args=[],root=false,wait=false){
  if(!cx)throw new Error("Linux not ready");
  log("$ "+path+" "+args.join(" "));
  const p=cx.run(path,args,{env:root?rootEnv():appEnv(),cwd:root?"/root":"/home/user",uid:root?0:1000,gid:root?0:1000});
- if(wait)return await p;
- // cx.run() resolves only when the guest process exits.  Returning that promise
- // from an async function accidentally made callers wait for long-lived GUI apps
- // such as PCManFM/xterm.  Fire-and-forget is intentional for desktop apps.
+ if(wait)return exitStatus(await p);
  p.catch(e=>log("APP ERROR: "+(e?.message||String(e))));
- return 0;
+ return p;
 }
 async function shell(command,root=false){
  return await run("/bin/sh",["-lc",command],root,true);
 }
 async function exists(path){
- try{return (await shell("test -x "+path,false))===0}catch(_){return false}
+ try{return (await shell("test -x "+JSON.stringify(path),false))===0}catch(_){return false}
 }
 
 async function detectCoreApps(){
@@ -511,20 +636,103 @@ async function detectCoreApps(){
   log("Core GUI apps ready: terminal + file manager");
  }else{
   setReady("coreReady","error",`Core Apps Missing${!term?" / Terminal":""}${!files?" / Files":""}`);
-  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.14.`);
+  log(`CORE APPS MISSING: terminal=${term} files=${files}. Rebuild salp-browser.ext2 v1.10.12.`);
  }
  return {term,files};
 }
 async function launchTerminal(){
- if(await exists("/usr/local/bin/salp-terminal"))return run("/usr/local/bin/salp-terminal");
- if(await exists("/usr/bin/xterm"))return run("/usr/bin/xterm",["-fa","DejaVu Sans Mono","-fs","14","-title","salp Terminal","-e","/bin/ash"]);
- state("Terminalがありません。v1.10.14のsalp-browser.ext2を再ビルドしてください。");
+ // Never prefer bare salp-terminal: CheerpX may leave SHELL=xterm (basename) and stale
+ // IndexedDB overlay can shadow /usr/local/bin/salp-terminal without -e. Always force ash.
+ // Fire-and-forget: bg xterm then exit immediately (no sleep/pidof in awaited shell).
+ if(await exists("/usr/bin/xterm")){
+  log("[term] direct xterm -e /bin/ash (bg, no wait)");
+  const cmd=[
+"export DISPLAY=:0 HOME=/home/user SHELL=/bin/ash;",
+'/usr/bin/xterm -fa "DejaVu Sans Mono" -fs 14 -title "salp Terminal" -geometry 92x28 -e /bin/ash >/tmp/salp-xterm-js.log 2>&1 &',
+"echo TERM_LAUNCHED pid=$!;",
+"exit 0"
+  ].join(" ");
+  return await shell(cmd,false);
+ }
+ state("Terminalがありません。v1.10.12のsalp-browser.ext2を再ビルドしてください。");
 }
 async function launchFiles(){
- if(await exists("/usr/local/bin/salp-files"))return run("/usr/local/bin/salp-files");
- if(await exists("/usr/bin/pcmanfm"))return run("/usr/bin/pcmanfm",["--no-desktop","/home/user"]);
- if(await exists("/usr/bin/thunar"))return run("/usr/bin/thunar",["/home/user"]);
- state("Filesがありません。v1.10.14のsalp-browser.ext2を再ビルドしてください。");
+ // Force DISPLAY=:0 via sh -lc; --new-win for mapped window.
+ // Fire-and-forget: bg pcmanfm then exit immediately (no sleep/pidof in awaited shell).
+ if(await exists("/usr/bin/pcmanfm")){
+  log("[files] direct pcmanfm DISPLAY=:0 --new-win (bg, no wait)");
+  const cmd=[
+"export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash;",
+'mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true;',
+"( dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win /home/user || /usr/bin/pcmanfm --no-desktop --new-win /home/user ) >/tmp/salp-pcmanfm-js.log 2>&1 &",
+"echo FILES_LAUNCHED pid=$!;",
+"exit 0"
+  ].join(" ");
+  return await shell(cmd,false);
+ }
+ if(await exists("/usr/bin/thunar")){
+  const cmd=[
+"export DISPLAY=:0 HOME=/home/user XDG_RUNTIME_DIR=/tmp/runtime-user;",
+"/usr/bin/thunar /home/user >/tmp/salp-thunar-js.log 2>&1 &",
+"echo FILES_LAUNCHED pid=$!;",
+"exit 0"
+  ].join(" ");
+  return await shell(cmd,false);
+ }
+ state("Filesがありません。v1.10.12のsalp-browser.ext2を再ビルドしてください。");
+}
+
+async function diagnoseGuiPaint(){
+ if(!cx){log("[paint] Linux not ready (cx=null)");return}
+ log("[paint] === diagnoseGuiPaint start ===");
+ const cmd=[
+"echo '=== pidof ==='",
+"pidof Xorg i3 xterm pcmanfm 2>/dev/null || true",
+"echo '=== pidof i3 alone ==='",
+"pidof i3 2>/dev/null || echo 'i3: none'",
+"echo '=== /dev/dri /dev/fb0 ==='",
+"ls -la /dev/dri /dev/fb0 2>&1 || true",
+"echo '=== xrandr --query ==='",
+"if command -v xrandr >/dev/null 2>&1; then DISPLAY=:0 xrandr --query 2>&1; else echo 'xrandr: missing'; fi",
+"echo '=== i3 tree (names/classes) ==='",
+"DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei '\"name\":|\"class\":|\"instance\":' | head -n 80 || echo 'i3-msg tree: unavailable'",
+"echo '=== /tmp/salp-xorg.log (full) ==='",
+"cat /tmp/salp-xorg.log 2>/dev/null || echo MISSING",
+"echo '=== /tmp/salp-i3.log (full) ==='",
+"cat /tmp/salp-i3.log 2>/dev/null || echo MISSING",
+"echo '=== /tmp/salp-session.out (full) ==='",
+"cat /tmp/salp-session.out 2>/dev/null || echo MISSING",
+"echo '=== steps logs ==='",
+"echo '--- /tmp/salp-gui-steps.log ---'; cat /tmp/salp-gui-steps.log 2>/dev/null || echo MISSING",
+"echo '--- /tmp/runtime-user/gui-steps.log ---'; cat /tmp/runtime-user/gui-steps.log 2>/dev/null || echo MISSING",
+"echo '=== other log tails ==='",
+"for f in /tmp/salp-xterm.log /tmp/salp-pcmanfm.log; do echo \"--- $f ---\"; tail -n 30 \"$f\" 2>/dev/null || echo MISSING; done",
+"echo '[paint] diagnoseGuiPaint done'"
+ ].join("; ");
+ try{await shell(cmd,false)}catch(e){log("[paint] ERROR: "+(e?.message||String(e)))}
+ log("[paint] === diagnoseGuiPaint end ===");
+}
+
+async function ensureFilesVisible(){
+ // Best-effort only — must never block forever before Firefox path.
+ log("[flow] ensureFiles start");
+ try{
+  await new Promise(r=>setTimeout(r,400));
+  const focus=[
+"export DISPLAY=:0",
+"i3-msg 'workspace 1' >/dev/null 2>&1 || true",
+"i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true",
+"i3-msg '[instance=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true",
+"echo ENSURE_FILES_DONE; exit 0"
+  ].join("; ");
+  await Promise.race([
+   shell(focus,false),
+   new Promise(r=>setTimeout(()=>r(-2), 2500))
+  ]);
+  log("[flow] ensureFiles after");
+ }catch(e){
+  log("[flow] ensureFiles ERROR: "+(e?.message||String(e)));
+ }
 }
 async function openCoreAppsIfBrowserMissing(){
  const core=await detectCoreApps();
@@ -536,39 +744,452 @@ async function openCoreAppsIfBrowserMissing(){
 
 async function quietShell(command,root=false){
  if(!cx)throw new Error("Linux not ready");
- return await cx.run("/bin/sh",["-lc",command],{env:root?rootEnv():appEnv(),cwd:root?"/root":"/home/user",uid:root?0:1000,gid:root?0:1000});
+ return exitStatus(await cx.run("/bin/sh",["-lc",command],{env:root?rootEnv():appEnv(),cwd:root?"/root":"/home/user",uid:root?0:1000,gid:root?0:1000}));
 }
 async function waitForGuiDesktop(timeoutMs=20000){
  const started=Date.now();
- let sawX=false;
  while(Date.now()-started<timeoutMs){
+  // Prefer Setup Log evidence: gui-start holds wait $XORGPID so quietShell may never run.
+  if(xorgReadyFromLog || window.xorgReadyFromLog){
+   log(`[gui] Xorg ready from Setup Log after ${Date.now()-started}ms`);
+   return true;
+  }
+  if(guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0)){
+   log(`[gui] waitForGuiDesktop fail-fast: gui-start status=${guiStartStatus}`);
+   return false;
+  }
   try{
-   const xcode=await quietShell("test -S /tmp/.X11-unix/X0 || pidof Xorg >/dev/null 2>&1 || pidof X >/dev/null 2>&1",true);
-   if(xcode===0){
-    sawX=true;
-    const i3code=await quietShell("DISPLAY=:0 i3-msg -t get_version >/dev/null 2>&1",false);
-    if(i3code===0){log(`[gui] Xorg + i3 ready after ${Date.now()-started}ms`);return true}
-   }
+   // Best-effort socket probe; race a short timeout so CheerpX serialization cannot stall the loop.
+   const remaining=Math.max(400, timeoutMs-(Date.now()-started));
+   const shellBudget=Math.min(2000, remaining);
+   const code=await Promise.race([
+    quietShell("test -S /tmp/.X11-unix/X0",true),
+    new Promise(r=>setTimeout(()=>r(-2), shellBudget))
+   ]);
+   if(code===0){log(`[gui] X socket ready after ${Date.now()-started}ms`);return true}
   }catch(_){}
+  if(xorgReadyFromLog || window.xorgReadyFromLog){
+   log(`[gui] Xorg ready from Setup Log after ${Date.now()-started}ms`);
+   return true;
+  }
   await new Promise(r=>setTimeout(r,700));
  }
- log(`[gui] ${sawX?"Xorg appeared but i3 was not ready":"X display not ready"} after ${timeoutMs}ms`);
+ if(xorgReadyFromLog || window.xorgReadyFromLog){
+  log(`[gui] Xorg ready from Setup Log after ${timeoutMs}ms (post-loop)`);
+  return true;
+ }
+ log(`[gui] X socket not ready after ${timeoutMs}ms (guiStartStatus=${guiStartStatus}, logReady=${!!(xorgReadyFromLog||window.xorgReadyFromLog)})`);
  return false;
 }
 async function openCoreDesktopApps(){
  const core=await detectCoreApps();
  if(core.files){
+  log("[flow] Files before");
   try{await launchFiles();log("[gui] Files launch requested")}catch(e){log("FILES ERROR: "+(e?.message||String(e)))}
+  log("[flow] Files after");
  }
  if(core.term){
-  setTimeout(()=>launchTerminal().then(()=>log("[gui] Terminal launch requested")).catch(e=>log("TERMINAL ERROR: "+(e?.message||String(e)))),900);
+  log("[flow] Terminal before");
+  try{
+   await launchTerminal();
+   log("[gui] Terminal launch requested");
+  }catch(e){log("TERMINAL ERROR: "+(e?.message||String(e)))}
+  log("[flow] Terminal after");
+  // diagnose best-effort; never block Firefox path
+  if(!botChromeOff)diagnoseGuiPaint().catch(e=>log("[paint] after terminal ERROR: "+(e?.message||String(e))));
+ }
+ if(core.files){
+  try{await ensureFilesVisible()}catch(e){log("[files] ensure after openCore ERROR: "+(e?.message||String(e)))}
  }
  return core;
 }
 
+async function rewriteOverlayLaunchers(){
+ // Fix IndexedDB overlay shadows of /usr/local/bin without ext2 rebuild.
+ // Write instrumented salp-gui-start + salp-session BEFORE cx.run(gui-start).
+ // Parent keeps wait $XORGPID so CheerpX does not drop orphaned Xorg; JS does not await.
+ log("[term] rewriteOverlayLaunchers / rewriteGuiLaunchers start");
+ const rewrite=[
+"set -eu",
+"rm -f /tmp/salp-gui-steps.log",
+": > /tmp/salp-gui-steps.log",
+"chmod 666 /tmp/salp-gui-steps.log",
+"cat > /usr/local/bin/salp-gui-start << 'SALPGUIEOF'",
+"#!/bin/sh",
+"set -u",
+'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log 2>/dev/null || true; }',
+"export DISPLAY=:0",
+"export HOME=/root",
+"XORGPID=",
+"# Ensure steps log is world-writable (root creates; user session appends).",
+": > /tmp/salp-gui-steps.log",
+"chmod 666 /tmp/salp-gui-steps.log 2>/dev/null || true",
+'step "01 runtime dir"',
+"mkdir -p /tmp/.X11-unix /run/dbus /tmp/runtime-user /home/user",
+"chmod 1777 /tmp/.X11-unix 2>/dev/null || true",
+"chown 1000:1000 /tmp/runtime-user",
+"chmod 700 /tmp/runtime-user",
+"chown 1000:1000 /home/user",
+"",
+'grep -qs " /proc " /proc/mounts 2>/dev/null || mount -t proc proc /proc 2>/dev/null || true',
+'grep -qs " /sys " /proc/mounts 2>/dev/null || mount -t sysfs sysfs /sys 2>/dev/null || true',
+'grep -qs " /dev/pts " /proc/mounts 2>/dev/null || mount -t devpts devpts /dev/pts 2>/dev/null || true',
+"",
+'if command -v dbus-daemon >/dev/null 2>&1 && [ ! -S /run/dbus/system_bus_socket ]; then',
+"  dbus-uuidgen --ensure=/etc/machine-id >/dev/null 2>&1 || true",
+"  dbus-daemon --system --fork >/tmp/salp-dbus.log 2>&1 || true",
+"fi",
+"",
+'step "01b dri/fb0 probe"',
+"ls -la /dev/dri /dev/fb0 2>&1 | tee -a /tmp/salp-gui-steps.log || true",
+'if command -v udevadm >/dev/null 2>&1; then',
+"  udevadm settle 2>&1 | tee -a /tmp/salp-gui-steps.log || true",
+"  udevadm trigger 2>&1 | tee -a /tmp/salp-gui-steps.log || true",
+'  step "01c udevadm settle/trigger done"',
+"else",
+'  step "01c udevadm missing"',
+"fi",
+"",
+'step "02 Xorg start"',
+"if ! pidof Xorg >/dev/null 2>&1 && ! pidof X >/dev/null 2>&1; then",
+"  rm -f /tmp/.X0-lock /tmp/.X11-unix/X0",
+"  Xorg :0 -noreset -nolisten tcp -ac >/tmp/salp-xorg.log 2>&1 &",
+"  XORGPID=$!",
+"else",
+"  XORGPID=`pidof Xorg 2>/dev/null`",
+'  XORGPID=${XORGPID%% *}',
+'  if [ -z "$XORGPID" ]; then XORGPID=`pidof X 2>/dev/null`; XORGPID=${XORGPID%% *}; fi',
+"fi",
+"",
+'step "03 Xorg ready"',
+"n=0",
+'while [ ! -S /tmp/.X11-unix/X0 ] && [ "$n" -lt 80 ]; do',
+"  sleep 0.25",
+'  n=$((n+1))',
+"done",
+'if [ ! -S /tmp/.X11-unix/X0 ]; then',
+'  step "03 Xorg ready FAIL"',
+"  echo 'salp GUI: Xorg socket :0 did not appear' >&2",
+"  echo '=== /tmp/salp-xorg.log (full) ===' >&2",
+"  cat /tmp/salp-xorg.log 2>/dev/null || echo 'NO_XORG_LOG' >&2",
+"  exit 20",
+"fi",
+'step "03b displays: $(ls /tmp/.X11-unix 2>/dev/null); DISPLAY=$DISPLAY"',
+"",
+"if command -v xhost >/dev/null 2>&1; then",
+"  DISPLAY=:0 xhost +SI:localuser:user >/dev/null 2>&1 || DISPLAY=:0 xhost +local: >/dev/null 2>&1 || true",
+"fi",
+"",
+"# Background session WITHOUT redirecting stdout/stderr away from CheerpX console.",
+"# Steps 04-07 must reach setCustomConsole / Setup Log; step() still dual-writes files.",
+"if command -v su >/dev/null 2>&1; then",
+"  su -s /bin/sh user -c 'export DISPLAY=:0 HOME=/home/user USER=user LOGNAME=user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND=0 LIBGL_ALWAYS_SOFTWARE=1; exec /usr/local/bin/salp-session' &",
+"else",
+"  export HOME=/home/user USER=user LOGNAME=user XDG_RUNTIME_DIR=/tmp/runtime-user SHELL=/bin/ash GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND=0 LIBGL_ALWAYS_SOFTWARE=1",
+"  /usr/local/bin/salp-session &",
+"fi",
+"sleep 0.3",
+'step "08 GUI startup complete (waiting on Xorg)"',
+"# Keep this process alive so CheerpX does not drop orphaned Xorg (no nohup/exit 0).",
+'if [ -n "$XORGPID" ]; then',
+"  wait $XORGPID",
+"  exit $?",
+"fi",
+"while pidof Xorg >/dev/null 2>&1 || pidof X >/dev/null 2>&1; do",
+"  sleep 2",
+"done",
+"exit 0",
+"SALPGUIEOF",
+"chmod 0755 /usr/local/bin/salp-gui-start",
+"",
+"mkdir -p /usr/local/share/salp",
+"cat > /usr/local/share/salp/i3.config << 'SALPI3EOF'",
+"# salp fixed i3 config (no polybar/feh/alpine_bg)",
+"set $mod Mod1",
+"font pango:DejaVu Sans 12",
+"focus_follows_mouse no",
+"floating_modifier $mod",
+"bindsym $mod+Return exec --no-startup-id /usr/local/bin/salp-terminal",
+"bindsym $mod+f exec --no-startup-id /usr/local/bin/salp-files",
+"bindsym $mod+Shift+q kill",
+"bindsym $mod+1 workspace 1",
+"bindsym $mod+2 workspace 2",
+"bindsym $mod+3 workspace 3",
+"bindsym $mod+Shift+1 move container to workspace 1",
+"bindsym $mod+Shift+2 move container to workspace 2",
+"bindsym $mod+Shift+3 move container to workspace 3",
+"bindsym $mod+Shift+c reload",
+"bindsym $mod+Shift+r restart",
+"client.focused          #4c7899 #285577 #ffffff #2e9ef4 #285577",
+"client.focused_inactive #333333 #5f676a #ffffff #484e50 #5f676a",
+"client.unfocused        #333333 #222222 #888888 #292d2e #222222",
+"bar {",
+" position top",
+" font pango:DejaVu Sans 12",
+" colors {",
+"  background #204a3a",
+"  statusline #ffffff",
+"  focused_workspace #3d8f6a #3d8f6a #ffffff",
+"  inactive_workspace #204a3a #204a3a #cce8d8",
+" }",
+"}",
+"SALPI3EOF",
+"chmod 0644 /usr/local/share/salp/i3.config",
+"echo '=== /usr/local/share/salp/i3.config ==='",
+"cat /usr/local/share/salp/i3.config",
+"",
+"cat > /usr/local/bin/salp-session << 'SALPSESEOF'",
+"#!/bin/sh",
+"set -u",
+'# Dual-write steps: runtime dir (user-owned) + /tmp (best-effort). Never fail session.',
+'step(){ echo "[gui-step] $*"; echo "[gui-step] $*" >>"${XDG_RUNTIME_DIR:-/tmp/runtime-user}/gui-steps.log" 2>/dev/null || true; echo "[gui-step] $*" >>/tmp/salp-gui-steps.log 2>/dev/null || true; }',
+'export DISPLAY="${DISPLAY:-:0}"',
+'export HOME="${HOME:-/home/user}"',
+'export USER="${USER:-user}"',
+'export LOGNAME="${LOGNAME:-user}"',
+'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
+"export SHELL=/bin/ash",
+"export GDK_BACKEND=x11",
+"export MOZ_ENABLE_WAYLAND=0",
+"export LIBGL_ALWAYS_SOFTWARE=1",
+'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
+'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
+': > "$XDG_RUNTIME_DIR/gui-steps.log" 2>/dev/null || true',
+"",
+'step "04 t=$(date +%H:%M:%S) i3 config=/usr/local/share/salp/i3.config"',
+"rm -f /tmp/salp-i3.log",
+": > /tmp/salp-i3.log",
+"chmod 666 /tmp/salp-i3.log 2>/dev/null || true",
+'I3_START_T=$(date +%H:%M:%S); step "04 i3 start t=$I3_START_T"; i3 -c /usr/local/share/salp/i3.config -V >/tmp/salp-i3.log 2>&1 &',
+"I3PID=$!",
+"sleep 1",
+'I3_ALIVE=0',
+'kill -0 "$I3PID" 2>/dev/null && I3_ALIVE=1 || true',
+'I3_PIDOF=$(pidof i3 2>/dev/null || true)',
+'step "04a t=$(date +%H:%M:%S) I3PID=$I3PID alive=$I3_ALIVE pidof_i3=${I3_PIDOF:-none}"',
+'if ! i3-msg -t get_version >/dev/null 2>&1; then',
+'  step "05 i3 retry"',
+"  i3 -c /usr/local/share/salp/i3.config -V >>/tmp/salp-i3.log 2>&1 &",
+"  I3PID=$!",
+"  sleep 1",
+'  I3_ALIVE=0',
+'  kill -0 "$I3PID" 2>/dev/null && I3_ALIVE=1 || true',
+'  step "05a: i3 alive=$I3_ALIVE"',
+"fi",
+"",
+'step "05 i3 ready"',
+"for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do",
+"  i3-msg -t get_version >/dev/null 2>&1 && break",
+"  sleep 0.4",
+"done",
+"",
+'step "06 Files start"',
+"if command -v dbus-launch >/dev/null 2>&1; then",
+'  dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
+"else",
+'  /usr/bin/pcmanfm --no-desktop --new-win "$HOME" >/tmp/salp-pcmanfm.log 2>&1 &',
+"fi",
+"",
+'step "07 Terminal start"',
+"/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
+"",
+"sleep 3",
+'PIDS_I3=$(pidof i3 2>/dev/null || true); PIDS_XTERM=$(pidof xterm 2>/dev/null || true); PIDS_PCMANFM=$(pidof pcmanfm 2>/dev/null || true); step "07c3 pids i3=${PIDS_I3:-none} xterm=${PIDS_XTERM:-none} pcmanfm=${PIDS_PCMANFM:-none}"',
+"MAP_HITS=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -Eio 'xterm|pcmanfm' | head -n 8 | tr '\\n' ',' || true); step \"07d map hits=${MAP_HITS:-none}\"",
+'XTLOG=$(tail -n 4 /tmp/salp-xterm.log 2>/dev/null | tr "\\n" "|" | cut -c1-320 || true); step "07e xterm_log=${XTLOG:-empty}"',
+'PFLOG=$(tail -n 4 /tmp/salp-pcmanfm.log 2>/dev/null | tr "\\n" "|" | cut -c1-320 || true); step "07f pcmanfm_log=${PFLOG:-empty}"',
+'if [ -z "$PIDS_XTERM" ]; then',
+'  DISPLAY=:0 HOME=/home/user USER=user LOGNAME=user SHELL=/bin/ash /usr/bin/xterm -title "salp diag" -geometry 80x24 -e /bin/ash >/tmp/salp-xterm-fallback.log 2>&1 &',
+'  sleep 1',
+'  XP=$(pidof xterm 2>/dev/null || true)',
+'  XFLOG=$(tail -n 3 /tmp/salp-xterm-fallback.log 2>/dev/null | tr "\\n" "|" | cut -c1-240 || true)',
+'  step "07g fallback_xterm=${XP:-none} log=${XFLOG:-empty}"',
+'fi',
+'step "07b session apps launched (bg); exiting"',
+"exit 0",
+"SALPSESEOF",
+"chmod 0755 /usr/local/bin/salp-session",
+"",
+"cat > /usr/local/bin/salp-terminal << 'SALPEOF'",
+"#!/bin/sh",
+"set -u",
+'export DISPLAY="${DISPLAY:-:0}"',
+'export HOME="${HOME:-/home/user}"',
+'export USER="${USER:-user}"',
+'export LOGNAME="${LOGNAME:-user}"',
+"export SHELL=/bin/ash",
+"/usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -geometry 92x28 -e /bin/ash >/tmp/salp-xterm.log 2>&1 &",
+"exit 0",
+"SALPEOF",
+"chmod 0755 /usr/local/bin/salp-terminal",
+"",
+"cat > /usr/local/bin/salp-files << 'SALPFILESEOF'",
+"#!/bin/sh",
+"set -u",
+'export DISPLAY="${DISPLAY:-:0}"',
+'export HOME="${HOME:-/home/user}"',
+'export USER="${USER:-user}"',
+'export LOGNAME="${LOGNAME:-user}"',
+'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-user}"',
+"export GDK_BACKEND=x11",
+'mkdir -p "$XDG_RUNTIME_DIR" "$HOME"',
+'chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true',
+'( dbus-launch -- /usr/bin/pcmanfm --no-desktop --new-win "${1:-$HOME}" || /usr/bin/pcmanfm --no-desktop --new-win "${1:-$HOME}" ) >/tmp/salp-pcmanfm.log 2>&1 &',
+"exit 0",
+"SALPFILESEOF",
+"chmod 0755 /usr/local/bin/salp-files",
+"",
+"echo '=== rewritten salp-gui-start (head) ==='",
+"head -n 40 /usr/local/bin/salp-gui-start",
+"echo '=== rewritten salp-session ==='",
+"cat /usr/local/bin/salp-session",
+"echo '=== rewritten salp-terminal ==='",
+"cat /usr/local/bin/salp-terminal",
+"echo '=== rewritten salp-files ==='",
+"cat /usr/local/bin/salp-files",
+"echo REWRITE_LAUNCHERS_DONE"
+ ].join("\n");
+ try{
+  await shell(rewrite, true);
+  log("[term] rewriteOverlayLaunchers done (gui-start+session+terminal+files)");
+ }catch(e){
+  log("[term] rewriteOverlayLaunchers ERROR: "+(e?.message||String(e)));
+ }
+}
+
+async function prepareReadableDesktop(){
+ log("[desktop] prepareReadableDesktop start (best-effort, post-Firefox)");
+ try{
+  // Overlay launchers already rewritten at boot / before core apps — skip full rewrite here.
+  // a/b. Wallpaper deferred — pcmanfm --set-wallpaper can own the single instance
+  // and prevent a visible --no-desktop file window. alpine_bg.png not required.
+  log("[desktop] wallpaper deferred");
+
+  // c. Patch i3 config: disable polybar/feh, ensure simple i3bar block
+  // Built as array.join to avoid JS template $ interpolation with i3 $mod.
+  const patchI3=[
+"CFG=/home/user/.config/i3/config",
+"mkdir -p /home/user/.config/i3",
+"if [ ! -f \"$CFG\" ]; then",
+" cat > \"$CFG\" << 'I3EOF'",
+"# salp minimal i3 config",
+"set $mod Mod1",
+"font pango:DejaVu Sans 12",
+"bindsym $mod+Return exec /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'salp Terminal' -e /bin/ash",
+"bindsym $mod+Shift+q kill",
+"bindsym $mod+d exec pcmanfm --no-desktop /home/user",
+"bindsym $mod+1 workspace 1",
+"bindsym $mod+2 workspace 2",
+"bindsym $mod+3 workspace 3",
+"bindsym $mod+Shift+1 move container to workspace 1",
+"bindsym $mod+Shift+2 move container to workspace 2",
+"bindsym $mod+Shift+3 move container to workspace 3",
+"bindsym $mod+Shift+c reload",
+"bindsym $mod+Shift+r restart",
+"bar {",
+" position top",
+" font pango:DejaVu Sans 12",
+" colors {",
+"  background #204a3a",
+"  statusline #ffffff",
+"  focused_workspace #3d8f6a #3d8f6a #ffffff",
+"  inactive_workspace #204a3a #204a3a #cce8d8",
+" }",
+"}",
+"I3EOF",
+" echo I3_WROTE_MINIMAL",
+"else",
+" sed -i -E 's/^([[:space:]]*exec[[:space:]].*polybar)/# salp-disabled: \\1/' \"$CFG\" 2>/dev/null || true",
+" sed -i -E 's/^([[:space:]]*exec[[:space:]].*feh)/# salp-disabled: \\1/' \"$CFG\" 2>/dev/null || true",
+" if ! grep -qE '^[[:space:]]*bar[[:space:]]*\\{' \"$CFG\" 2>/dev/null; then",
+"  cat >> \"$CFG\" << 'I3BAR'",
+"# salp readable bar (no i3status / polybar)",
+"bar {",
+" position top",
+" font pango:DejaVu Sans 12",
+" colors {",
+"  background #204a3a",
+"  statusline #ffffff",
+"  focused_workspace #3d8f6a #3d8f6a #ffffff",
+"  inactive_workspace #204a3a #204a3a #cce8d8",
+" }",
+"}",
+"I3BAR",
+"  echo I3_BAR_APPENDED",
+" else",
+"  echo I3_BAR_EXISTS",
+" fi",
+"fi",
+"grep -nE 'polybar|feh|bar[[:space:]]*\\{|background #' \"$CFG\" 2>/dev/null | head -n 40",
+"echo I3_PATCH_DONE"
+  ].join("\n");
+  await shell(patchI3,false);
+  log("[desktop] i3 config patched");
+
+  // d. reload, then restart if bar not applied
+  await shell("DISPLAY=:0 i3-msg reload >/tmp/salp-i3-reload.log 2>&1; echo RELOAD_EC=$?; cat /tmp/salp-i3-reload.log 2>/dev/null | head -n 10",false);
+  log("[desktop] i3-msg reload");
+  await new Promise(r=>setTimeout(r,600));
+  await shell("HIT=$(DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | grep -ci i3bar || echo 0); echo BAR_HIT=$HIT; if [ \"$HIT\" = \"0\" ] || [ -z \"$HIT\" ]; then DISPLAY=:0 i3-msg restart >/tmp/salp-i3-restart.log 2>&1; echo RESTART_EC=$?; echo USED_RESTART=1; else echo USED_RESTART=0; fi",false);
+  log("[desktop] i3 bar check/reload done");
+
+  // e. Launch Files last (after i3 reload), then ensure visible + focused (best-effort)
+  try{await launchFiles();log("[desktop] launchFiles() for focus")}catch(e){log("[desktop] launchFiles ERROR: "+(e?.message||String(e)))}
+  try{await ensureFilesVisible()}catch(e){log("[desktop] ensureFiles ERROR: "+(e?.message||String(e)))}
+  // f. Terminal then Files frontmost (Files should win) — short race so never hangs forever
+  try{
+   await Promise.race([
+    shell("DISPLAY=:0 i3-msg '[class=\"(?i)xterm\"] focus' >/dev/null 2>&1 || true; DISPLAY=:0 i3-msg '[class=\"(?i)pcmanfm\"] focus' >/dev/null 2>&1 || true; echo FRONT_FILES_DONE",false),
+    new Promise(r=>setTimeout(()=>r(-2), 2500))
+   ]);
+  }catch(e){log("[desktop] focus ERROR: "+(e?.message||String(e)))}
+  log("[desktop] prepareReadableDesktop done (Files should be frontmost)");
+ }catch(e){
+  log("[desktop] prepareReadableDesktop ERROR: "+(e?.message||String(e)));
+ }
+}
+
+async function diagCapture(label, command, root=false){
+ log("[diag] --- ("+label+") ---");
+ // Capture guest stdout/stderr to a file, then echo tagged lines via console → Setup Log.
+ const wrapped='OUT=/tmp/salp-diag-'+label+'.txt; { '+command+'\n} >"$OUT" 2>&1; EC=$?; echo "[diag] ('+label+') exit=$EC"; sed "s/^/[diag] /" "$OUT" 2>/dev/null | head -n 160; echo "[diag] ('+label+') --- end ---"';
+ try{await shell(wrapped, root)}catch(e){log("[diag] ("+label+") ERROR: "+(e?.message||String(e)))}
+}
+
+async function runDisplayDiagnostics(){
+ if(!cx){log("[diag] Linux not ready (cx=null)");return}
+ log("[diag] === display diagnostics start ===");
+ const overlay=$("launchOverlay");
+ const overlayHidden=!overlay||overlay.classList.contains("hidden");
+ const canvas=$("display");
+ log("[diag] launchOverlay hidden="+overlayHidden);
+ log("[diag] canvas "+(canvas?canvas.width:"?")+"x"+(canvas?canvas.height:"?")+" guiScale="+guiScale+" guiPan="+guiPanX+","+guiPanY+" guiMode="+guiMode);
+ const treeFields="DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -E '\"name\"|\"window\":|\"window_type\"|\"class\"|\"focused\"|\"urgent\"|\"rect\"'";
+ // (1) processes
+ await diagCapture("1-procs", "pidof Xorg i3 i3bar xterm pcmanfm firefox-esr firefox 2>/dev/null; echo '---'; ps -o pid,user,comm,args -A 2>/dev/null | grep -E 'Xorg|i3|xterm|pcmanfm|firefox|salp-' | grep -v grep", true);
+ // (2) DISPLAY / Xauth as uid1000 and root
+ await diagCapture("2-env-user", "echo DISPLAY=$DISPLAY; echo XAUTHORITY=$XAUTHORITY; ls -la /home/user/.Xauthority /tmp/.X11-unix 2>&1; id", false);
+ await diagCapture("2-env-root", "echo DISPLAY=$DISPLAY; echo XAUTHORITY=$XAUTHORITY; ls -la /home/user/.Xauthority /tmp/.X11-unix 2>&1; id", true);
+ // (3) i3 tree / workspaces (no jq; busybox sed/grep)
+ await diagCapture("3-i3", "echo '=== workspaces ==='; DISPLAY=:0 i3-msg -t get_workspaces 2>&1 | head -c 2500; echo; echo '=== tree name/window fields ==='; "+treeFields+" | head -n 140; echo; echo '=== title hits ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'diag-ash|salp Terminal|Firefox|pcman|xterm|Navigator' | head -n 40", false);
+ // (4) xwininfo missing → xrandr + X11 socket
+ await diagCapture("4-xwininfo-xrandr", "if command -v xwininfo >/dev/null 2>&1; then echo 'xwininfo: present'; DISPLAY=:0 xwininfo -root -tree 2>&1 | head -n 80; else echo 'xwininfo: MISSING (not in image; using fallbacks)'; fi; echo '=== xrandr --query ==='; DISPLAY=:0 xrandr --query 2>&1; echo '=== /tmp/.X11-unix ==='; ls -la /tmp/.X11-unix 2>&1", false);
+ // (4b) launcher contents + SHELL under appEnv BEFORE relying on salp-terminal
+ await diagCapture("4b-launcher-shell", "echo '=== /usr/local/bin/salp-terminal ==='; cat /usr/local/bin/salp-terminal 2>&1; echo '=== printenv SHELL ==='; printenv SHELL; echo '=== which ash/sh/xterm ==='; command -v ash; command -v /bin/ash; ls -la /bin/ash /bin/sh /usr/bin/xterm 2>&1; echo '=== salp-session SHELL/xterm ==='; grep -nE 'SHELL|xterm' /usr/local/bin/salp-session 2>&1 | head -n 20", false);
+ // (5) spawn diag xterm with absolute SHELL=/bin/ash and -e /bin/ash
+ await diagCapture("5-xterm-test", "DISPLAY=:0 SHELL=/bin/ash /usr/bin/xterm -fa 'DejaVu Sans Mono' -fs 14 -title 'diag-ash' -geometry 80x24 -e /bin/ash & sleep 2; echo \"pidof xterm: $(pidof xterm 2>/dev/null)\"; echo '=== tree look for diag-ash ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'diag-ash|XTerm|xterm' | head -n 30", false);
+ // (6) spawn Files direct with DISPLAY=:0
+ await diagCapture("6-pcmanfm-test", "DISPLAY=:0 /usr/bin/pcmanfm --no-desktop /home/user & sleep 2; echo \"pidof pcmanfm: $(pidof pcmanfm 2>/dev/null)\"; echo '=== tree look for pcmanfm ==='; DISPLAY=:0 i3-msg -t get_tree 2>/dev/null | sed 's/,/\\n/g' | grep -Ei 'pcmanfm|PCManFM|File Manager|class' | head -n 40", false);
+ // firefox pid after auto path
+ await diagCapture("firefox-pid", "pidof firefox-esr firefox 2>/dev/null; ps -o pid,user,comm,args -A 2>/dev/null | grep -E 'firefox' | grep -v grep", true);
+ // known-missing wallpaper/bar probes (read-only; no apk)
+ await diagCapture("bar-wallpaper", "echo 'polybar:'; command -v polybar || echo MISSING; echo 'feh:'; command -v feh || echo MISSING; echo 'i3bar:'; command -v i3bar || echo MISSING; ls -la /web/assets/alpine_bg.png 2>&1; echo '--- i3 exec/bar lines ---'; grep -nE 'bar[[:space:]]*[{]|exec.*polybar|exec.*feh|i3bar' /home/user/.config/i3/config 2>&1 | head -n 20", false);
+ log("[diag] === display diagnostics end ===");
+}
+
 
 function updateAutoButton(){
- $("autoToggleBtn").textContent=autoLaunchEnabled?"Firefox Auto: ON":"Firefox Auto: OFF";
+ $("autoToggleBtn").textContent=autoLaunchEnabled?"Auto: ON":"Auto: OFF";
  $("autoToggleBtn").style.borderColor=autoLaunchEnabled?"#327347":"#673039";
 }
 updateAutoButton();
@@ -576,8 +1197,9 @@ function showLaunchOverlay(message){$("launchMessage").textContent=message;$("la
 function hideLaunchOverlay(){$("launchOverlay").classList.add("hidden")}
 async function autoDetectAndLaunch(){
  if(!autoLaunchEnabled||autoCancelled)return;
+ if(botChromeOff){log("[botChrome] skip detectBrowser");hideLaunchOverlay();return}
  showLaunchOverlay("Linux GUIの起動を待っています…");
- await new Promise(r=>setTimeout(r,900));
+ await new Promise(r=>setTimeout(r,4500));
  if(autoCancelled){hideLaunchOverlay();return}
  $("launchMessage").textContent="内蔵ブラウザーを探しています…";
  await detectBrowser();
@@ -611,7 +1233,7 @@ async function detectBrowser(){
    state("現在は公式Alpineです。Firefoxは入っていません。salp-browser.ext2を同じフォルダへ置くか、⚙ ImageでFirefox入りext2のURLを設定してください。");
    setReady("browserReady","error","Browser Image Needed");
   }else{
-   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.14 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
+   state("Firefox/NetSurfが見つかりません。Firefox入りv1.10.12 Imageの内容を確認するか、Network接続後に「Firefox導入」を実行してください。");
    setReady("browserReady","error","Browser Not Found");
   }
   status("Browser未検出","error");
@@ -620,28 +1242,17 @@ async function detectBrowser(){
  $("detectBtn").disabled=false;
 }
 
-let browserLaunchInFlight=false;
 async function launchBrowser(){
- if(browserLaunchInFlight)return;
- browserLaunchInFlight=true;
- try{
-  if(!detectedBrowser){await detectBrowser();if(!detectedBrowser)return}
-  const url=$("urlInput").value.trim()||"https://www.google.com/";
-  // Put the Linux browser on its own i3 workspace so it is large and visible.
-  try{await quietShell("DISPLAY=:0 i3-msg 'workspace 2:Browser' >/dev/null 2>&1 || true",false)}catch(_){}
-  let args=[url];
-  if(detectedBrowser.name==="Chromium")args=["--no-sandbox","--disable-gpu",url];
-  // Firefox itself is launched through /usr/local/bin/salp-browser when available.
-  // Direct Firefox fallback uses --new-window so a second tap reuses the profile.
-  if(/^Firefox/.test(detectedBrowser.name))args=["--new-window",url];
-  status(detectedBrowser.name+" 起動中…","busy");
-  state("Linux GUI内の "+detectedBrowser.name+" で "+url+" を開いています。");
-  await run(detectedBrowser.path,args,false,false);
-  markStep("stepLaunch","done");
-  setTimeout(()=>{status("Linux Browser起動済み","ok");state("FirefoxはLinux画面内の Browser ワークスペースで動作しています。")},1400);
- }finally{
-  setTimeout(()=>{browserLaunchInFlight=false},800);
- }
+ if(!detectedBrowser){await detectBrowser();if(!detectedBrowser)return}
+ const url=$("urlInput").value.trim()||"about:blank";
+ let args=[url];
+ if(detectedBrowser.name==="Chromium")args=["--no-sandbox","--disable-gpu",url];
+ if(/^Firefox/.test(detectedBrowser.name))args=["--new-instance","--no-remote",url];
+ status(detectedBrowser.name+" 起動中…","busy");
+ state(detectedBrowser.name+"で "+url+" を開いています。");
+ run(detectedBrowser.path,args,false,false);
+ markStep("stepLaunch","done");
+ setTimeout(()=>status("Browser起動済み","ok"),1200);
 }
 
 async function connectNetwork(){
@@ -706,19 +1317,31 @@ async function installBrowser(){
  }
 }
 
-const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1114",location.href).href;
+const LOCAL_BROWSER_IMAGE=new URL("./salp-browser.ext2?v=1132",location.href).href;
 async function resolveBrowserImage(){
  const saved=(localStorage.getItem("salpImageUrl")||"").trim();
  const forceOfficial=localStorage.getItem("salpForceOfficial")==="1";
  if(forceOfficial)return {url:"",name:"Official Alpine 3.17",source:"official"};
  const tries=[];
- if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.14",source:"saved"});
- else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.14",source:"local"});
+ if(saved)tries.push({url:saved,name:localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.12",source:"saved"});
+ else tries.push({url:LOCAL_BROWSER_IMAGE,name:"salp Firefox Image v1.10.12",source:"local"});
  for(const item of tries){
   try{
-   const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
-   if(probe.ok)return item;
-   log(`[image] ${item.source} image HEAD ${probe.status}: ${item.url}`);
+   let ok=false;
+   try{
+    const probe=await fetch(item.url,{method:"HEAD",mode:"cors",cache:"no-store"});
+    ok=probe.ok;
+    if(!ok)log(`[image] ${item.source} image HEAD ${probe.status}: ${item.url}`);
+   }catch(e){log(`[image] ${item.source} image HEAD failed: ${e?.message||String(e)}`)}
+   // iPhone Safari / some Pages hosts reject HEAD; fall back to a tiny Range GET.
+   if(!ok){
+    try{
+     const range=await fetch(item.url,{method:"GET",mode:"cors",cache:"no-store",headers:{Range:"bytes=0-1023"}});
+     ok=range.ok||range.status===206;
+     if(!ok)log(`[image] ${item.source} image Range ${range.status}: ${item.url}`);
+    }catch(e){log(`[image] ${item.source} image Range failed: ${e?.message||String(e)}`)}
+   }
+   if(ok)return item;
   }catch(e){log(`[image] ${item.source} image unavailable: ${e?.message||String(e)}`)}
  }
  return {url:"",name:"Official Alpine 3.17",source:saved?"saved-failed":"local-missing"};
@@ -729,7 +1352,7 @@ async function boot(){
  window.salpStage?.("5/7 Linux起動開始","boot() entered");
  autoCancelled=false;
  booting=true;$("bootBtn").disabled=true;$("bigBootBtn").disabled=true;$("bootScreen").classList.add("hidden");
- status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.14...");log("Loading verified Linux image...");log("Preparing persistent storage...");
+ status("Alpine接続中…","busy");setReady("imageReady","busy","Image Loading");setReady("linuxReady","busy","Linux Starting");log("Initializing salp Linux Desktop 1.10.12...");log("Loading verified Linux image...");log("Preparing persistent storage...");
  try{
   let cloud;
   const selectedImage=await resolveBrowserImage();
@@ -762,10 +1385,15 @@ async function boot(){
    $("sourceBadge").textContent="🐧 Official Alpine 3.17";setReady("imageReady","ok","Alpine / No Browser Image");
   }
   window.salpStage?.("5/7 永続ディスク準備中","IndexedDB");
-  const idb=await CheerpX.IDBDevice.create("salp-linux-v1114-browser-disk");
+  // v1132: fresh clean overlay namespace (drop old v1119 user i3/polybar state).
+  // ?clean=1 (or &clean=1) forces a one-shot empty IDB including Date.now().
+  const _qs=new URLSearchParams(location.search);
+  const _cleanBoot=_qs.get("clean")==="1";
+  const idbName=_cleanBoot?("salp-linux-v1132-clean-"+Date.now()):"salp-linux-v1132-clean";
+  const idb=await CheerpX.IDBDevice.create(idbName);
   const overlay=await CheerpX.OverlayDevice.create(cloud,idb);
   window.salpStage?.("5/7 永続ディスク","OK");
-  log("[2/4] Persistent overlay ready");
+  log("[2/4] Clean overlay (no prior persistent disk): "+idbName);
 
   window.salpStage?.("6/7 CheerpX Linux生成中","Linux.create()");
   const networkInterface={
@@ -815,7 +1443,8 @@ async function boot(){
   if(!procOk)throw new Error("CheerpX /proc mount is unavailable; Alpine GUI init cannot continue");
   if(!ptsOk)log("[mount] warning: /dev/pts is unavailable; terminal PTY support may be limited");
   // Critical: set the requested KMS resolution BEFORE Xorg/i3 starts.
-  window.salpStage?.("6/7 KMS解像度設定中",`mobile ${currentVirtualSize().w}x${currentVirtualSize().h}`);
+  window.salpStage?.("6/7 KMS解像度設定中",`${guiMode} ${currentVirtualSize().w}x${currentVirtualSize().h}`);
+  ensureScreenWrapLayout();
   sizeCanvas({refit:true,forceKms:true,syncGuest:false});
   const sr=$("screenWrap").getBoundingClientRect();
   log(`[layout] screenWrap ${Math.round(sr.width)}x${Math.round(sr.height)} / canvas ${guiW}x${guiH} / scale ${Math.round(guiScale*100)}%`);
@@ -824,47 +1453,114 @@ async function boot(){
   cx.setCustomConsole(buf=>{
    try{
     const t=new TextDecoder().decode(new Uint8Array(buf));
-    const clean=t.replace(/\\x1b\\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
-    if(clean)log(clean);
+    const clean=t.replace(/\x1b\[[0-9;?]*[A-Za-z]/g,"").trimEnd();
+    if(clean){
+     noteGuiStepFromLine(clean);
+     log(clean);
+    }
    }catch(_){}
   },80,24);
 
+  // Rewrite overlay GUI launchers BEFORE cx.run. JS does not await gui-start
+  // (parent stays alive via wait $XORGPID so Xorg is not orphaned/dropped).
+  await rewriteOverlayLaunchers();
+
   const dedicatedGui=(await exists("/usr/local/bin/salp-gui-start"));
+  guiStartStatus=null;
+  xorgReadyFromLog=false; window.xorgReadyFromLog=false;
+  guiStepSeen={s04:false,s05:false,s06:false,s07:false};
   if(dedicatedGui){
    window.salpStage?.("7/7 salp GUI起動中","Xorg → i3 → Files → Terminal");
    status("salp GUI起動中…","busy");state("専用GUIランチャーでLinuxデスクトップを起動しています…");log("[4/4] Starting /usr/local/bin/salp-gui-start");
    initPromise=cx.run("/usr/local/bin/salp-gui-start",[],{uid:0,gid:0});
-   initPromise.catch(e=>{log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+   initPromise.then(async(result)=>{
+    const st=exitStatus(result);
+    guiStartStatus=st;
+    log(`[gui] salp-gui-start exited status=${st}`);
+    try{await shell("echo '=== /tmp/salp-gui-steps.log ==='; cat /tmp/salp-gui-steps.log 2>/dev/null || echo NO_STEPS_LOG",true)}catch(_){}
+    if(st===20){
+     try{await shell("echo '=== /tmp/salp-xorg.log ==='; cat /tmp/salp-xorg.log 2>/dev/null || echo NO_XORG_LOG",true)}catch(_){}
+    }
+   }).catch(e=>{
+    guiStartStatus=-1;
+    log("GUI LAUNCHER ERROR: "+(e?.message||String(e)));status("GUI error","error");
+   });
   }else{
    window.salpStage?.("7/7 /sbin/init起動中","専用GUIランチャーなし / fallback");
    status("Xorg/i3起動中…","busy");state("互換モードでGUI Linuxを起動しています…");log("[4/4] salp-gui-start missing; fallback /sbin/init");
    initPromise=cx.run("/sbin/init",[],{uid:0,gid:0});
-   initPromise.catch(e=>{log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
+   initPromise.catch(e=>{guiStartStatus=-1;log("INIT ERROR: "+(e?.message||String(e)));status("GUI error","error")});
   }
 
   ["networkBtn","detectBtn","keyboardBtn"].forEach(id=>$(id).disabled=false);
   markStep("stepBoot","done");markStep("stepNet","active");
   setTimeout(async()=>{
    window.salpStage?.("7/7 Linux GUI","Xorg/i3を確認中");
-   const guiReady=await waitForGuiDesktop(35000);
-   if(!guiReady){
+   const guiReady=await waitForGuiDesktop(28000);
+   const logReady=!!(xorgReadyFromLog||window.xorgReadyFromLog);
+   const fatalGui=(guiStartStatus===20 || (typeof guiStartStatus==="number" && guiStartStatus!==0));
+   // Never show Xorg Not Ready from wait timeout alone when Setup Log already printed 03 Xorg ready.
+   if(fatalGui || (!guiReady && !logReady)){
     status("GUI startup error","error");setReady("linuxReady","error","Xorg Not Ready");
     state("Alpineは起動しましたがXorgが開始できませんでした。Setup Logの最後を確認してください。");
-    log("GUI STARTUP ERROR: Xorg display :0 was not detected. Check /tmp/salp-xorg.log and /tmp/salp-i3.log in Setup Log diagnostics.");
+    log("GUI STARTUP ERROR: Xorg display :0 was not detected (guiStartStatus="+guiStartStatus+", logReady="+logReady+"). Check /tmp/salp-xorg.log and /tmp/salp-i3.log.");
+    try{await shell("tail -n 80 /tmp/salp-xorg.log /tmp/salp-i3.log /tmp/salp-gui-steps.log /tmp/salp-session.out 2>/dev/null || true",true)}catch(_){}
     return;
    }
    window.salpStage?.("7/7 Linux GUI","Xorg ready / Core apps起動");
    status("GUI Linux Ready","ok");setReady("linuxReady","ok","Linux Ready");
-   state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready.");
-   sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+   state("GUI Linuxが起動しました。FilesとTerminalを開きます。");log("Desktop environment ready."+(logReady?" (log-ready)":""));
+   if(botChromeOff){log("[botChrome] skip session/i3 probe")}else if(logReady){
+    log("[diag] probing session/i3 (may be delayed if cheerpx serializes)");
+    try{
+     await shell([
+      "pidof salp-session i3 Xorg || true",
+      "echo '--- session.out ---'",
+      "cat /tmp/salp-session.out 2>/dev/null | tail -40 || true",
+      "echo '--- steps ---'",
+      "cat /tmp/salp-gui-steps.log /tmp/runtime-user/gui-steps.log 2>/dev/null || true",
+      "ls -la /tmp/.X11-unix 2>/dev/null || true",
+      "echo DISPLAY check via:",
+      "DISPLAY=:0 sh -c 'echo DISPLAY=$DISPLAY; ls /tmp/.X11-unix'"
+     ].join("; "),true);
+    }catch(e){log("[diag] session/i3 probe deferred/blocked: "+(e?.message||String(e)))}
+   }
+   // Rebind KMS after X is up only in normal Chrome mode; botChrome=0 avoids
+   // the post-Ready host canvas hammer while retaining layout sizing.
+   ensureScreenWrapLayout();
+   if(botChromeOff){
+    sizeCanvas({refit:true,forceKms:false,syncGuest:false});
+   }else{
+    sizeCanvas({refit:true,forceKms:true,syncGuest:true});
+    diagnoseGuiPaint().catch(e=>log("[paint] after forceKms ERROR: "+(e?.message||String(e))));
+   }
+   try{const paintEl=$("display"),paintRect=paintEl.getBoundingClientRect(),paintCs=getComputedStyle(paintEl);log(`[paint-lite] canvas connected=${paintEl.isConnected?1:0} attr=${paintEl.width}x${paintEl.height} css=${Math.round(paintRect.width)}x${Math.round(paintRect.height)} visibility=${paintCs.visibility} opacity=${paintCs.opacity}`)}catch(e){log("[paint-lite] ERROR: "+(e?.message||String(e)))}
    if(matchMedia("(max-width: 650px)").matches)setTimeout(()=>$('screenWrap').scrollIntoView({behavior:"smooth",block:"start"}),300);
-   syncGuestResolution(guiW,guiH);
    $("installBtn").disabled=false;
-   await detectCoreApps();
-   log("[gui] Core apps are launched by salp-session; avoiding duplicate windows.");
-   if(autoLaunchEnabled&&!autoCancelled)await autoDetectAndLaunch();
-   else await detectBrowser();
-  },2500);
+   // Brief settle for i3 IPC; skip second full rewrite before Firefox (already rewritten at boot).
+   await new Promise(r=>setTimeout(r,600));
+   if(!botChromeOff)await openCoreDesktopApps();
+   // Firefox path BEFORE prepareReadableDesktop (i3 reload/restart can stall under CheerpX).
+   if(autoLaunchEnabled&&!autoCancelled){
+    log("[flow] Firefox before");
+    try{await autoDetectAndLaunch()}catch(e){log("[flow] Firefox ERROR: "+(e?.message||String(e)))}
+    log("[flow] Firefox after");
+   }else{
+    log("[flow] Firefox skipped (Auto OFF)");
+    if(botChromeOff){log("[botChrome] skip detectBrowser")}else{
+    try{await detectBrowser()}catch(e){log("DETECT ERROR: "+(e?.message||String(e)))}
+    }
+   }
+   // Best-effort desktop polish after Firefox path started
+   if(!botChromeOff){
+    prepareReadableDesktop().catch(e=>log("[desktop] prepare after Firefox ERROR: "+(e?.message||String(e))));
+    // Display diagnostics after core apps + auto browser path settle (~3s).
+    setTimeout(()=>{
+     runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
+    },3000);
+   }
+   try{$("diagBtn").disabled=false}catch(_){}
+  },1800);
  }catch(e){
   window.salpFatal?.("Linux起動エラー",e);
   console.error(e);log("BOOT ERROR: "+(e?.message||String(e)));status("起動エラー","error");setReady("linuxReady","error","Linux Error");state("GUI Linuxを起動できませんでした。");
@@ -875,7 +1571,7 @@ async function boot(){
 
 function loadImageSettings(){
  const url=localStorage.getItem("salpImageUrl")||"";
- const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.14";
+ const name=localStorage.getItem("salpImageName")||"salp Firefox Image v1.10.12";
  $("imageUrlInput").value=url;
  $("imageNameInput").value=name;
  if(url){$("sourceBadge").textContent="🦊 "+name;setReady("imageReady","ok","Custom Firefox Image")}
@@ -889,13 +1585,33 @@ setTimeout(()=>{
  if(splash){splash.classList.add("fade");setTimeout(()=>splash.remove(),500)}
 },1100);
 
-$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1114");
+// A display-mode change while Linux is already running reloads the page.
+// Restore that intent here and boot automatically so the new KMS size is
+// applied before Xorg/i3 starts.
+if(sessionStorage.getItem("salpDisplayReboot")==="1") {
+ const requestedRebootMode=sessionStorage.getItem("salpDisplayRebootMode")||guiMode;
+ const rebootMode=ENABLE_PC_MODE&&requestedRebootMode==="pc"?"pc":"mobile";
+
+ sessionStorage.removeItem("salpDisplayReboot");
+ sessionStorage.removeItem("salpDisplayRebootMode");
+
+ guiMode=rebootMode;
+ localStorage.setItem("salpGuiMode",rebootMode);
+
+ updateViewInfo();
+ sizeCanvas({refit:true});
+
+ state(rebootMode==="pc"?"PC表示 1366×768 でLinuxを再起動します…":"スマホ表示でLinuxを再起動します…");
+ setTimeout(()=>boot(),650);
+}
+
+$("builderBtn").addEventListener("click",()=>location.href="./salp-builder.html?v=1132");
 $("settingsBtn").addEventListener("click",()=>{loadImageSettings();$("settingsBox").classList.remove("hidden")});
 $("closeSettingsBtn").addEventListener("click",()=>$("settingsBox").classList.add("hidden"));
 
 $("saveImageBtn").addEventListener("click",()=>{
  const url=$("imageUrlInput").value.trim();
- const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.14";
+ const name=$("imageNameInput").value.trim()||"salp Firefox Image v1.10.12";
  if(url){
   localStorage.setItem("salpImageUrl",url);
   localStorage.setItem("salpImageName",name);
@@ -974,17 +1690,22 @@ $("goBtn").addEventListener("click",launchBrowser);
 $("urlInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("goBtn").disabled)launchBrowser()});
 $("homeUrlBtn").addEventListener("click",()=>{$("urlInput").value="https://www.google.com/"});
 $("xtermBtn").addEventListener("click",launchTerminal);
+$("diagBtn").addEventListener("click",()=>{
+ runDisplayDiagnostics().catch(e=>log("[diag] ERROR: "+(e?.message||String(e))));
+});
 $("filesBtn").addEventListener("click",launchFiles);
 $("keyboardBtn").addEventListener("click",()=>{$("display").focus({preventScroll:true});$("display").click()});
 $("fullBtn").addEventListener("click",async()=>{
  try{
   if(!document.fullscreenElement)await $("screenWrap").requestFullscreen();
   else await document.exitFullscreen();
-  setTimeout(fitView,220);
+  setTimeout(sizeCanvas,220);
  }catch(_){}
 });
-$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1114");
+$("backBtn").addEventListener("click",()=>location.href="./salp-linux.html?v=1132");
 $("hideLogBtn").addEventListener("click",()=>$("panel").classList.toggle("hidden"));
+$("guiPcBtn").addEventListener("click",()=>setGuiMode("pc"));
+$("guiMobileBtn").addEventListener("click",()=>setGuiMode("mobile"));
 $("jumpScreenBtn").addEventListener("click",()=>$("screenWrap").scrollIntoView({behavior:"smooth",block:"start"}));
 $("moveModeBtn").addEventListener("click",()=>setMoveMode(!moveMode));
 $("zoomOutBtn").addEventListener("click",()=>setZoom(guiScale/1.2));
@@ -997,7 +1718,8 @@ wrap.addEventListener("pointerdown",e=>{
  if(!moveMode||e.target.closest?.(".viewControls"))return;
  e.preventDefault();e.stopPropagation();panPointer=e.pointerId;panStartX=e.clientX;panStartY=e.clientY;panOriginX=guiPanX;panOriginY=guiPanY;
  try{wrap.setPointerCapture(e.pointerId)}catch(_){}
- $("display").style.cursor="grabbing";},{capture:true});
+ $("display").style.cursor="grabbing";
+},{capture:true});
 wrap.addEventListener("pointermove",e=>{
  if(!moveMode||panPointer!==e.pointerId)return;
  e.preventDefault();e.stopPropagation();guiPanX=panOriginX+(e.clientX-panStartX);guiPanY=panOriginY+(e.clientY-panStartY);applyCanvasView();
