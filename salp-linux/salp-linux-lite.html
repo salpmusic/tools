@@ -35,7 +35,7 @@ document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>show(b.dataset.
 function command(s){if(!ready){alert("先にLinuxを起動してください");return false}show("terminal");for(const c of s+"\n")send(c.charCodeAt(0));return true}
 document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>command(b.dataset.cmd));
 $("focus").onclick=()=>term.focus();$("ctrlc").onclick=()=>send?.(3);
-$("boot").onclick=async()=>{if(busy||cx)return;busy=true;$("boot").disabled=true;try{
+$("boot").onclick=async()=>{if(ready){show("terminal");return}if(busy||cx)return;busy=true;$("boot").disabled=true;try{
 $("status").textContent="ディスク接続中";term.writeln("\r\n[1/4] Debianディスク接続...");
 const cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/debian_large_20230522_5044875331.ext2");
 term.writeln("[2/4] 一時ストレージ...");
@@ -52,7 +52,7 @@ const pyBox=$("pythonCode");try{const saved=localStorage.getItem("salp.linuxLite
 $("pastePy").onclick=async()=>{try{if(!navigator.clipboard?.readText)throw Error("not supported");pyBox.value=await navigator.clipboard.readText();pyBox.dispatchEvent(new Event("input"));$("pythonMsg").textContent="貼り付けました"}catch(e){pyBox.focus();$("pythonMsg").textContent="iPhoneの制限で直接貼り付けできません。コード欄を長押し→「ペースト」で貼り付けてください"}};
 $("copyPy").onclick=async()=>{try{await navigator.clipboard.writeText(pyBox.value);$("pythonMsg").textContent="コピーしました"}catch(e){pyBox.focus();pyBox.select();$("pythonMsg").textContent="コードを選択しました。コピーを選んでください"}};
 $("selectPy").onclick=()=>{pyBox.focus();$("pythonMsg").textContent="入力欄を長押しして「ペースト」を選んでください"};
-document.querySelectorAll(".startLinux").forEach(b=>b.onclick=()=>{show("terminal");$("boot").click()});
+document.querySelectorAll(".startLinux").forEach(b=>b.onclick=()=>{show("terminal");if(!ready)$("boot").click()});
 function safeName(s){return /^[a-zA-Z0-9_.-]{1,80}$/.test(s)&&s!=="."&&s!==".."}
 $("save").onclick=()=>{const name=$("filename").value.trim();if(!safeName(name)){alert("ファイル名は半角英数字と _ . - のみ");return}const data=new TextEncoder().encode($("code").value);let bin="";for(const b of data)bin+=String.fromCharCode(b);const b64=btoa(bin);if(command("printf '%s' '"+b64+"' | base64 -d > "+name+" && echo Saved:"+name))$("editStatus").textContent="保存コマンドを送信しました。Terminalの Saved 表示を確認してください"};
 $("runpy").onclick=()=>{const bytes=new TextEncoder().encode(pyBox.value);let bin="";for(const b of bytes)bin+=String.fromCharCode(b);const encoded=btoa(bin);$("pythonMsg").textContent="Terminalに実行コマンドを送ります";command("printf '%s' '"+encoded+"' | base64 -d > /tmp/salp_lite_run.py && python3 /tmp/salp_lite_run.py")};
