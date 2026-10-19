@@ -13,7 +13,7 @@ body.easy #status{font-size:16px}
 body.easy #term{height:calc(100dvh - 430px);min-height:260px}
 @media(max-width:380px){body.easy .menu button{font-size:18px}}
 </style></head><body>
-<header class="top"><b>🐧 salp Linux Lite v1.0</b><span id="status">未起動</span><button id="viewToggle" type="button" aria-pressed="false">👁 見やすいモード</button></header>
+<header class="top"><b>🐧 salp Linux Lite v1.0.7</b><span id="status">未起動</span><button id="viewToggle" type="button" aria-pressed="false">👁 見やすいモード</button></header>
 <nav class="menu"><button data-tab="terminal">💻<br>Terminal</button><button data-tab="files">📁<br>Files</button><button data-tab="python">🐍<br>Python</button><button data-tab="editor">📝<br>Editor</button><button data-tab="browser">🌐<br>Browser</button></nav>
 <section id="terminal" class="panel active"><div class="row"><button id="boot">▶ Linux起動</button><button id="focus">⌨ キーボード</button><button id="ctrlc">Ctrl+C</button></div><p><small>CheerpXによる実際のDebian Linux。初回はディスクの読み込みに時間がかかります。</small></p><div id="term"></div></section>
 <section id="files" class="panel"><div class="box"><b>📁 一時ファイル</b><p>Linuxのホームフォルダーを確認します。保存したファイルはTerminal・Python・Editorで共通です。</p><button data-cmd="pwd; ls -lah">📂 ファイル一覧をTerminalで表示</button><button data-cmd="mkdir -p ~/projects && ls -lah ~/projects">📁 projectsフォルダーを作る</button></div></section>
@@ -34,7 +34,7 @@ function show(id){document.querySelectorAll(".panel").forEach(p=>p.classList.tog
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>show(b.dataset.tab));
 let inputQueue=Promise.resolve();
 function command(s){if(!ready||!send){$("editStatus").textContent="Linuxが未起動です。Terminalで起動してください";$("pythonMsg").textContent="Linuxが未起動です。Terminalで起動してください";return false}
-show("terminal");const chars=s+"\\n";inputQueue=inputQueue.then(async()=>{for(let i=0;i<chars.length;i++){if(!ready||!send)break;send(chars.charCodeAt(i));if(i%24===23)await new Promise(r=>setTimeout(r,16))}});return true}
+show("terminal");const chars=s+String.fromCharCode(13);inputQueue=inputQueue.then(async()=>{for(let i=0;i<chars.length;i++){if(!ready||!send)break;send(chars.charCodeAt(i));if(i%24===23)await new Promise(r=>setTimeout(r,16))}});return true}
 document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>command(b.dataset.cmd));
 $("focus").onclick=()=>term.focus();$("ctrlc").onclick=()=>send?.(3);
 $("boot").onclick=async()=>{if(ready){show("terminal");return}if(busy||cx)return;busy=true;$("boot").disabled=true;try{
