@@ -32,7 +32,9 @@ const term=new Terminal({cursorBlink:true,convertEol:true,fontSize:14,theme:{bac
 const fit=new FitAddon();term.loadAddon(fit);term.open($("term"));fit.fit();term.writeln("salp Linux Lite — ▶ Linux起動 を押してください");term.onData(s=>{if(send)for(const c of s)send(c.charCodeAt(0))});
 function show(id){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));if(id==="terminal"){setTimeout(()=>fit.fit(),80)}}
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>show(b.dataset.tab));
-function command(s){if(!ready){alert("先にLinuxを起動してください");return false}show("terminal");for(const c of s+"\n")send(c.charCodeAt(0));return true}
+let inputQueue=Promise.resolve();
+function command(s){if(!ready||!send){$("editStatus").textContent="Linuxが未起動です。Terminalで起動してください";$("pythonMsg").textContent="Linuxが未起動です。Terminalで起動してください";return false}
+show("terminal");const chars=s+"\\n";inputQueue=inputQueue.then(async()=>{for(let i=0;i<chars.length;i++){if(!ready||!send)break;send(chars.charCodeAt(i));if(i%24===23)await new Promise(r=>setTimeout(r,16))}});return true}
 document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>command(b.dataset.cmd));
 $("focus").onclick=()=>term.focus();$("ctrlc").onclick=()=>send?.(3);
 $("boot").onclick=async()=>{if(ready){show("terminal");return}if(busy||cx)return;busy=true;$("boot").disabled=true;try{
