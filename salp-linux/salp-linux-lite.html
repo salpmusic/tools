@@ -113,6 +113,12 @@ $("runpy").onclick=()=>{const bytes=new TextEncoder().encode(pyBox.value);let bi
 $("download").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([$("code").value],{type:"text/plain;charset=utf-8"}));a.download=safeName($("filename").value)?$("filename").value:"hello.py";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $("openweb").onclick=()=>{let u=$("url").value.trim();if(!/^https?:\/\//i.test(u))u="https://"+u;try{const parsed=new URL(u);if(!["http:","https:"].includes(parsed.protocol))throw Error();window.open(parsed.href,"_blank","noopener,noreferrer")}catch(e){alert("URLを確認してください")}};
 window.addEventListener("resize",()=>{if($("terminal").classList.contains("active"))fit.fit()});
+// 外部からPythonコードを開く: #py=<base64url(UTF-8)> または ?py=<同じサイト内の .py パス>。&run=1 でLinux起動後に自動実行。
+(async()=>{try{const qs=new URLSearchParams(location.search),hs=new URLSearchParams(location.hash.slice(1));let code=null;const b64=hs.get("py"),path=qs.get("py");
+if(b64){const s=b64.replace(/-/g,"+").replace(/_/g,"/");const bin=atob(s+"=".repeat((4-s.length%4)%4));code=new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))}
+else if(path){const u=new URL(path,location.href);if(u.origin!==location.origin||!/\.py$/i.test(u.pathname))throw Error("同じサイト内の .py だけ開けます");const r=await fetch(u.href,{cache:"no-cache"});if(!r.ok)throw Error("HTTP "+r.status);code=await r.text()}
+if(code===null)return;pyBox.value=code;show("python");$("pythonMsg").textContent="レッスンのコードを読み込みました";
+if((qs.get("run")||hs.get("run"))==="1"){$("pythonMsg").textContent="Linux起動後に自動実行します…";const t0=Date.now();while(!(ready&&send)&&Date.now()-t0<600000)await new Promise(r=>setTimeout(r,500));if(ready&&send){await new Promise(r=>setTimeout(r,2000));$("runpy").click()}}}catch(e){$("pythonMsg").textContent="コード読込エラー: "+(e?.message||e)}})();
 // ページを開いたらLinuxを自動起動。失敗時は手動ボタンで再試行できます。
 $("status").textContent="自動起動準備中";
 $("boot").click();
