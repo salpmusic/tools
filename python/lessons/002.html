@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第2回 変数と計算 ～BASICのLET A=1と比べてみよう～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第2回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第2回：変数と計算 ～BASICのLET A=1と比べてみよう～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>変数は「値を入れる箱」のようなもの。名前を付けて数字や文字を入れておき、あとで取り出して計算したり表示したりできる</li><li>BASICの <code>LET A = 10</code> と Python の <code>a = 10</code> の違いを知る</li><li>足し算・掛け算・割り算などの計算をする</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>BASICでは次のように書いていましたね。</p>
+<pre><code class="lang-text">10 LET A = 10
+20 LET B = 20
+30 PRINT A + B</code></pre>
+<p>Pythonでは <code>LET</code> は不要で、もっとシンプルに書けます（<code>a = 10</code> / <code>b = 20</code> / <code>print(a + b)</code> で <code>30</code> と表示されます）。</p>
+<table><tr><th>BASIC</th><th>Python</th><th>違い</th></tr><tr><td><code>LET A = 10</code></td><td><code>a = 10</code></td><td>**<code>LET</code> がいらない**：Pythonは <code>変数名 = 値</code> で代入します。</td></tr><tr><td><code>A</code> と <code>a</code> は同じことが多い</td><td><code>a</code> と <code>A</code> は別の変数</td><td><strong>大文字と小文字を区別する</strong>：BASICでは区別しないことが多いので注意してください。</td></tr><tr><td><code>10 LET ...</code></td><td>行番号なし</td><td><strong>行番号がいらない</strong>：Pythonは上から順に実行されます。</td></tr></table>
+<p>よく使う演算子はBASICとほぼ同じです。</p>
+<table><tr><th>演算</th><th>記号</th><th>例（結果）</th></tr><tr><td>足し算</td><td><code>+</code></td><td><code>5 + 3</code> → 8</td></tr><tr><td>引き算</td><td><code>-</code></td><td><code>5 - 3</code> → 2</td></tr><tr><td>掛け算</td><td><code>*</code></td><td><code>5 * 3</code> → 15</td></tr><tr><td>割り算</td><td><code>/</code></td><td><code>5 / 2</code> → 2.5</td></tr><tr><td>割り算（整数）</td><td><code>//</code></td><td><code>5 // 2</code> → 2</td></tr><tr><td>余り</td><td><code>%</code></td><td><code>5 % 2</code> → 1</td></tr><tr><td>べき乗</td><td><code>**</code></td><td><code>2 ** 3</code> → 8</td></tr></table>
+<p><strong>コード（そのまま実行できる）</strong></p>
+<pre><code class="lang-python"># 第2回：変数と計算 の例
+# Python 3.7 対応
+
+print("=== 変数の基本 ===")
+a = 10
+b = 20
+print(a + b)
+
+print("\n=== 計算の例 ===")
+x = 7
+y = 3
+print(x + y)
+print(x * y)
+print(x ** 2)
+
+print("\n=== 結果を変数に入れる ===")
+total = a + b
+print(total)
+
+print("\n=== 練習問題1 ===")
+price = 1200
+tax = 1.1
+print(price * tax)
+
+print("\n=== 練習問題2 ===")
+num = 17
+print(num // 2)
+print(num % 2)
+
+print("\n=== 大文字小文字の違い（参考） ===")
+score = 80
+Score = 90
+print(score) # 80
+print(Score) # 90</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/002.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/002.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">=== 変数の基本 ===
+30
+
+=== 計算の例 ===
+10
+21
+49
+
+=== 結果を変数に入れる ===
+30
+
+=== 練習問題1 ===
+1320.0
+
+=== 練習問題2 ===
+8
+1
+
+=== 大文字小文字の違い（参考） ===
+80
+90</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><code>=</code> は「等しい」ではなく「右の値を左の変数に入れる」という意味です。</li><li>変数名は英字で始め、数字や <code>_</code> を使えます（例：<code>score</code>、<code>total_1</code>）。</li><li>計算した結果を別の変数に入れることもできます（例：<code>total = a + b</code> → <code>print(total)</code> で <code>30</code>）。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>問題1：変数 <code>price</code> に <code>1200</code>、変数 <code>tax</code> に <code>1.1</code> を代入し、税込み価格を計算して表示してください。</p>
+<p>問題2：変数 <code>num</code> に <code>17</code> を入れ、2で割った商（整数）と余りをそれぞれ表示してください。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 問題1（出力例：1320.0）
+price = 1200
+tax = 1.1
+print(price * tax)
+
+# 問題2（出力例：8 と 1）
+num = 17
+print(num // 2) # 商
+print(num % 2) # 余り</code></pre>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDllY_poYwx77yI5Ye65Yqb5L6L77yaMTMyMC4w77yJCnByaWNlID0gMTIwMAp0YXggPSAxLjEKcHJpbnQocHJpY2UgKiB0YXgpCgojIOWVj-mhjDLvvIjlh7rlipvkvovvvJo4IOOBqCAx77yJCm51bSA9IDE3CnByaW50KG51bSAvLyAyKSAjIOWVhgpwcmludChudW0gJSAyKSAjIOS9meOCigo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<p class="panel"><a href="../lessons/001.html">◀ 第1回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>
