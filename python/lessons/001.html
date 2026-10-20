@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第1回 はじめてのprintとコメント | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第1回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第1回：はじめてのprintとコメント</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li><code>print</code> で画面に文字を出す</li><li>コメントの書き方を知る</li><li>BASICの <code>PRINT</code> との違いを理解する</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<table><tr><th>BASIC</th><th>Python</th><th>違い</th></tr><tr><td><code>PRINT "Hello"</code></td><td><code>print("Hello")</code></td><td>カッコとダブルクォート（またはシングル）が必要。文末のセミコロンなどは不要</td></tr><tr><td><code>REM コメント</code> または <code>'</code></td><td><code># コメント</code></td><td><code>#</code> から行末までがコメントになる</td></tr><tr><td>大文字小文字を区別しないことが多い</td><td>区別する</td><td><code>Print</code> と <code>print</code> は別物。通常は小文字で書く</td></tr></table>
+<p><strong>コード（そのまま実行できる）</strong></p>
+<pre><code class="lang-python"># これはコメントです。実行されません。
+print("Hello, Python!")
+print("BASICのPRINTに相当します。")
+print("複数行も簡単に出せます。")</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/001.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">Hello, Python!
+BASICのPRINTに相当します。
+複数行も簡単に出せます。</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><code>print(...)</code> の中に文字列を入れると、そのまま画面に出る。</li><li>文字列は <code>"..."</code> または <code>'...'</code> で囲む。</li><li><code>#</code> で始まる行（または行の途中から）はコメント。自分用のメモに使う。</li><li>Pythonではインデント（字下げ）が後で重要になるが、今回はまだ不要。</li><li>BASICのように行番号は不要。上から順に実行される。</li></ul>
+<p><strong>ミニ課題</strong><br>「こんにちは、私の名前は〇〇です。」という文章を <code>print</code> で2行に分けて出してみましょう。<br>（〇〇の部分は自分の名前や好きな言葉でOK）</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python">print("こんにちは、")
+print("私の名前は塩田です。")</code></pre>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=cHJpbnQoIuOBk-OCk-OBq-OBoeOBr-OAgSIpCnByaW50KCLnp4Hjga7lkI3liY3jga_loannlLDjgafjgZnjgIIiKQo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<p class="panel"><a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>

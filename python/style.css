@@ -1,0 +1,19 @@
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;background:#0f1830;color:#eef3ff;line-height:1.75;font-size:17px}
+a{color:#8fd3ff}.wrap{max-width:860px;margin:0 auto;padding:18px 16px 60px}
+.crumb{font-size:14px;margin-bottom:10px}.crumb a{text-decoration:none}
+.hero{background:linear-gradient(135deg,#ffe36e,#7fd3ff);color:#142033;border-radius:22px;padding:22px 20px;margin:6px 0 18px}
+.hero h1{margin:0;font-size:clamp(24px,6vw,36px);line-height:1.3}.hero .catch{font-weight:800;font-size:clamp(16px,4.2vw,20px);margin:0 0 4px}
+.hero .note{font-size:12px;margin:6px 0 0}.hero .note a{color:#143a66}
+h2{font-size:22px;margin:28px 0 10px;border-left:6px solid #ffd84a;padding-left:10px}h3{font-size:18px;margin:20px 0 8px}
+.panel{background:#18244a;border-radius:16px;padding:14px 16px;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow-x:auto}th,td{border:1px solid #3a4b80;padding:6px 8px;text-align:left;vertical-align:top}th{background:#24346a}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0a1124;padding:1px 5px;border-radius:5px;font-size:.92em;word-break:break-word}
+pre{background:#0a1124;border:1px solid #2c3d70;border-radius:12px;padding:12px;overflow-x:auto;font-size:15px;line-height:1.55;margin:8px 0}pre code{background:none;padding:0;word-break:normal}
+.run{display:inline-flex;align-items:center;gap:8px;background:#ffd84a;color:#1d1a05;font-weight:800;text-decoration:none;border-radius:999px;padding:12px 20px;margin:4px 0 14px;font-size:17px;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.run.small{font-size:14px;padding:8px 14px;background:#9fe0ff;color:#0d2236}
+.list{list-style:none;padding:0;margin:0}.list li{display:flex;gap:10px;align-items:baseline;padding:10px 12px;border-bottom:1px solid #2a3a6a}
+.list .no{min-width:3.2em;font-weight:800;color:#ffd84a}.list li.planned{color:#7f8aa8}.list li.planned .no{color:#5d6886}
+.list .goal{display:block;font-size:14px;color:#b9c4e4}.list li.planned .goal{color:#6b7594}.badge{font-size:12px;background:#2f8f5b;color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px}
+.big{display:block;background:#24346a;border-radius:16px;padding:16px;text-decoration:none;color:#fff;font-weight:800;font-size:18px;margin:10px 0}.big small{display:block;font-weight:400;color:#b9c4e4;font-size:14px}
+.tip{font-size:14px;color:#b9c4e4}footer{margin-top:40px;font-size:13px;color:#8d98b8}

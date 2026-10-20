@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門コーナー | salp Tools</title>
+<meta name="description" content="今1番人気のプログラミング言語 Python入門。毎日少しずつ増える短いレッスンと、BASIC経験者向けの入門編マニュアル。コードはブラウザLinux(salp Linux Lite)でそのまま実行できます。">
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="wrap">
+<div class="crumb"><a href="../">salp Tools</a> › Python入門</div>
+<div class="hero">
+<p class="catch">今1番人気のプログラミング言語</p>
+<h1>🐍 Python入門</h1>
+<p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p>
+</div>
+<p>BASICを知っている人向けに、毎日5〜10分の短いレッスンを1本ずつ追加していきます。各レッスンのコードは「ブラウザLinuxで開いて実行」ボタンで、<a href="../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザの中で動くLinux・Python 3.7)にそのまま読み込まれて実行されます。</p>
+<a class="big" href="manual.html">📘 入門編マニュアル<small>BASICとの比較つき・全8章(変数・入出力・if/for/while・リスト・関数・math/random)</small></a>
+<a class="big" id="latest" href="lessons/001.html">🆕 最新レッスン<small id="latestTitle">第1回：はじめてのprintとコメント</small></a>
+<h2>レッスン一覧</h2>
+<ul class="list" id="lessonList">
+<li><span class="no">第1回</span><span><a href="lessons/001.html">はじめてのprintとコメント</a><span class="goal">画面に文字を出し、BASICのPRINTとの違いを知る</span></span></li>
+</ul>
+<p class="tip">グレーの回は予定です(公開されると自動でリンクになります)。</p>
+<footer>salp Tools · Python入門コーナー</footer>
+</div>
+<script>
+fetch("lessons.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{
+  const pub=new Map(d.lessons.map(x=>[x.no,x])),ul=document.getElementById("lessonList");ul.textContent="";
+  const all=new Map(d.plan.map(x=>[x.no,x]));d.lessons.forEach(x=>all.set(x.no,Object.assign({},all.get(x.no)||{},x)));
+  [...all.keys()].sort((a,b)=>a-b).forEach(no=>{const x=all.get(no),p=pub.get(no),li=document.createElement("li");
+    const n=document.createElement("span");n.className="no";n.textContent="第"+no+"回";li.append(n);
+    const s=document.createElement("span"),t=p?document.createElement("a"):document.createElement("span");t.textContent=x.title;if(p)t.href=p.html;else li.className="planned";s.append(t);
+    if(p&&p.date){const b=document.createElement("span");b.className="badge";b.textContent=p.date;s.append(b)}
+    const g=document.createElement("span");g.className="goal";g.textContent=x.goal||"";s.append(g);li.append(s);ul.append(li)});
+  const last=d.lessons[d.lessons.length-1];if(last){document.getElementById("latest").href=last.html;document.getElementById("latestTitle").textContent="第"+last.no+"回："+last.title}
+}).catch(()=>{});
+</script>
+</body></html>
