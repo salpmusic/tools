@@ -1,15 +1,27 @@
 #!/usr/bin/env python3
 """Python入門コーナーのHTML生成 (標準ライブラリのみ)。
-使い方: python3 python/src/build.py           -> lessons/*.html と manual.html を再生成
+使い方: python3 python/src/build.py           -> lessons/*.html, lessons/*.ipynb(Colab用) と manual.html を再生成
   入力: src/lessons/00N.md (最初の ```python ブロック = lessons/00N.py と同じ内容であること), src/manual.md
 """
 import base64, html, json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # .../python
 LITE_FROM = {"lessons": "../../salp-linux/salp-linux-lite.html", "": "../salp-linux/salp-linux-lite.html"}
+COLAB = "https://colab.research.google.com/github/salpmusic/tools/blob/main/python/"
 TIOBE = '<p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p>'
 
 def b64url(code):
     return base64.urlsafe_b64encode(code.encode("utf-8")).decode().rstrip("=")
+
+def notebook(title, code):
+    """nbformat 4: 見出しmarkdownセル + .pyを空行2つで区切ったコードセル"""
+    def src(t):
+        ls = t.split("\n"); return [x + "\n" for x in ls[:-1]] + ([ls[-1]] if ls[-1] else [])
+    cells = [{"cell_type": "markdown", "metadata": {}, "source": src("# " + title)}]
+    for c in [c.strip("\n") for c in re.split(r"\n\s*\n\s*\n", code) if c.strip()]:
+        cells.append({"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": src(c)})
+    meta = {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+            "language_info": {"name": "python"}}
+    return json.dumps({"cells": cells, "metadata": meta, "nbformat": 4, "nbformat_minor": 4}, ensure_ascii=False, indent=1) + "\n"
 
 def inline(s):
     parts = s.split("`"); out = []
@@ -21,8 +33,8 @@ def inline(s):
             out.append(p)
     return "".join(out)
 
-def md2html(md, lite, main_py=None):
-    """main_py: (path_from_lite, code) -> 最初のpythonブロックにそのファイルを開くボタン"""
+def md2html(md, lite, main_py=None, colab=None):
+    """main_py: (path_from_lite, code) -> 最初のpythonブロックにそのファイルを開くボタン / colab: Colab URL"""
     lines = md.split("\n"); out = []; i = 0; first = True; para = []
     def flush():
         if para: out.append("<p>" + "<br>".join(inline(x.rstrip()) for x in para) + "</p>"); para.clear()
@@ -37,6 +49,7 @@ def md2html(md, lite, main_py=None):
                 if first and main_py:
                     assert code == main_py[1], "lesson .md の最初のコードと .py が一致しません"
                     out.append('<a class="run" href="%s?py=%s&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>' % (lite, main_py[0]))
+                    if colab: out.append('<a class="run colab" href="%s" target="_blank" rel="noopener">📒 Colabで開く</a>' % colab)
                 else:
                     out.append('<a class="run small" href="%s#py=%s&amp;run=1">▶ このコードをブラウザLinuxで実行</a>' % (lite, b64url(code)))
                 first = False
@@ -80,7 +93,8 @@ def main():
         py = open(os.path.join(ROOT, L["py"]), encoding="utf-8").read()
         md = re.sub(r"^# .*\n", "", md, count=1)
         body = f'<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第{L["no"]}回：{html.escape(L["title"])}</h1>{TIOBE}</div>\n'
-        body += md2html(md, LITE_FROM["lessons"], ("../python/" + L["py"], py))
+        body += md2html(md, LITE_FROM["lessons"], ("../python/" + L["py"], py), COLAB + L["py"][:-3] + ".ipynb")
+        open(os.path.join(ROOT, L["py"][:-3] + ".ipynb"), "w", encoding="utf-8").write(notebook("Python入門 第%d回：%s" % (L["no"], L["title"]), py))
         prev = [x for x in data["lessons"] if x["no"] == L["no"] - 1]; nxt = [x for x in data["lessons"] if x["no"] == L["no"] + 1]
         nav = '<p class="panel">' + (f'<a href="../{prev[0]["html"]}">◀ 第{prev[0]["no"]}回</a> · ' if prev else "") + '<a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a>' + (f' · <a href="../{nxt[0]["html"]}">第{nxt[0]["no"]}回 ▶</a>' if nxt else "") + "</p>"
         body += "\n" + nav
