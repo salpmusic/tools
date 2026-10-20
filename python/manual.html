@@ -5,6 +5,10 @@
 <div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>入門編マニュアル(BASIC経験者向け)</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
 <p class="tip">各コード例の「▶ このコードをブラウザLinuxで実行」を押すと salp Linux Lite が開き、Linux起動後に自動で実行されます(初回は起動に1分ほどかかることがあります)。</p>
 <p>BASICを知っている人が、Pythonの基本を一通り理解するための短いマニュアルです。<br>各章に <strong>BASICとの比較表</strong> と <strong>短いコード例</strong> を入れています。</p>
+<h2>実行方法は2つ</h2>
+<ul><li><strong>① ブラウザLinux</strong>：ログイン不要。各コード例の「▶」ボタンですぐ動く。Pythonは <strong>3.7</strong>。</li><li><strong>② Google Colab</strong>：Googleアカウントで開くだけ。新しいPythonが使え、Googleドライブに保存されるので、続きをスマホからでも再開できる。</li></ul>
+<p><strong>Colabの使い方</strong></p>
+<ol><li>新規ノートブック</li><li>コードを書く</li><li>▶で実行</li></ol>
 <h2>第1章 はじめに：PythonとBASICの違い</h2>
 <p>PythonはBASICより「読みやすく」「構造をはっきり書ける」言語です。<br>行番号も <code>LET</code> も不要。代わりにインデントでブロックを表します。</p>
 <table><tr><th>項目</th><th>BASIC</th><th>Python</th></tr><tr><td>行番号</td><td>必要（またはGOTO）</td><td>不要</td></tr><tr><td>代入</td><td><code>LET a = 10</code> または <code>a = 10</code></td><td><code>a = 10</code></td></tr><tr><td>出力</td><td><code>PRINT</code></td><td><code>print()</code></td></tr><tr><td>入力</td><td><code>INPUT</code></td><td><code>input()</code></td></tr><tr><td>条件</td><td><code>IF ... THEN</code></td><td><code>if ... :</code></td></tr><tr><td>繰り返し</td><td><code>FOR ... NEXT</code></td><td><code>for ... :</code> / <code>while ... :</code></td></tr><tr><td>サブルーチン</td><td><code>GOSUB</code> / <code>RETURN</code></td><td>関数 <code>def</code></td></tr><tr><td>配列</td><td>次元配列など</td><td>リスト <code>[]</code></td></tr><tr><td>ブロック</td><td>行番号やEND IFなど</td><td>インデント（字下げ）</td></tr></table>
