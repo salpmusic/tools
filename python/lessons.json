@@ -2,7 +2,8 @@
  "note": "公開済みレッスンは lessons に1行ずつ追加。plan は予定(グレー表示)。",
  "lessons": [
   {"no":1,"date":"2026-10-20","title":"はじめてのprintとコメント","goal":"画面に文字を出し、BASICのPRINTとの違いを知る","html":"lessons/001.html","py":"lessons/001.py"},
-  {"no":2,"date":"2026-10-21","title":"変数と計算 ～BASICのLET A=1と比べてみよう～","goal":"値を名前で覚えて計算する（LETは不要）","html":"lessons/002.html","py":"lessons/002.py"}
+  {"no":2,"date":"2026-10-21","title":"変数と計算 ～BASICのLET A=1と比べてみよう～","goal":"値を名前で覚えて計算する（LETは不要）","html":"lessons/002.html","py":"lessons/002.py"},
+  {"no":3,"date":"2026-10-22","title":"文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string）","goal":"文字列をつなげる・長さを調べる・f-stringで埋め込む（$は不要）","html":"lessons/003.html","py":"lessons/003.py"}
  ],
  "plan": [
   {"no": 1, "title": "はじめてのprintとコメント", "goal": "画面に文字を出し、BASICのPRINTとの違いを知る"},

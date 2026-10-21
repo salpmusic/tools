@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第3回 文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string） | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第3回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第3回：文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string）</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>文字列は「文字が並んだもの」です。</li><li>BASICの <code>A$</code> と Python の文字列の違いを知る</li><li><code>+</code> でつなげる・<code>len()</code> で長さを調べる・f-string で埋め込む</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>BASICでは <code>A$</code> のように <strong>$</strong> をつけて区別していましたが、Pythonでは $ は不要です。普通の変数に文字列を入れます。</p>
+<pre><code class="lang-text"># BASIC: A$ = "こんにちは"
+message = "こんにちは"   # Pythonでは $ をつけない</code></pre>
+<p>つなげる（連結）：BASICでは <code>A$ + B$</code> でつなげました。Pythonも同じ <code>+</code> です。</p>
+<pre><code class="lang-text"># BASIC: PRINT A$ + "さん"
+name = "太郎"
+print(name + "さん")          # → 太郎さん
+print("こんにちは、" + name)  # → こんにちは、太郎</code></pre>
+<p>長さを調べる：BASICの <code>LEN(A$)</code> は、Pythonでは <code>len()</code> 関数です。</p>
+<pre><code class="lang-text"># BASIC: PRINT LEN(A$)
+text = "Python"
+print(len(text))   # → 6</code></pre>
+<p>f-string（便利な埋め込み）：Python 3.6以降で使える書き方です。文字列の中に <code>{変数}</code> を書くだけで、中身を埋め込めます。<br>BASICの <code>PRINT "長さは"; LEN(A$); "です"</code> のようなことを、より読みやすく書けます。</p>
+<pre><code class="lang-text">name = "花子"
+length = len(name)
+print(f"こんにちは、{name}さん")          # → こんにちは、花子さん
+print(f"{name} の長さは {length} 文字です")  # → 花子 の長さは 2 文字です</code></pre>
+<table><tr><th>やりたいこと</th><th>BASIC</th><th>Python</th></tr><tr><td>文字列を入れる</td><td><code>A$ = "abc"</code></td><td><code>a = "abc"</code></td></tr><tr><td>つなげる</td><td><code>A$ + B$</code></td><td><code>a + b</code></td></tr><tr><td>長さを調べる</td><td><code>LEN(A$)</code></td><td><code>len(a)</code></td></tr><tr><td>変数を埋め込んで表示</td><td><code>PRINT "名前は"; A$</code></td><td><code>print(f"名前は{a}")</code></td></tr></table>
+<p><strong>コード（そのまま実行できる）</strong></p>
+<pre><code class="lang-python"># 第3回：文字列のあつかい（BASICのA$との比較）
+# Python 3.7 で動く文法のみ
+
+print("=== 文字列の基本 ===")
+message = "こんにちは"          # BASICの A$ に相当（$ は不要）
+print(message)
+
+print("\n=== つなげる（+） ===")
+name = "太郎"
+print(name + "さん")
+print("こんにちは、" + name)
+
+print("\n=== 長さを調べる（len） ===")
+text = "Python"
+print(len(text))               # → 6
+
+print("\n=== f-string で埋め込み ===")
+name2 = "花子"
+print(f"こんにちは、{name2}さん")
+print(f"{name2} の長さは {len(name2)} 文字です")
+
+print("\n=== 練習問題1の答え ===")
+greeting = "おはよう"
+name = "花子"
+print(greeting + "、" + name + "さん")
+
+print("\n=== 練習問題2の答え ===")
+text = "Python入門"
+print(f"{text}の長さは{len(text)}文字です")
+
+print("\n=== おまけ：数字を文字列にする ===")
+age = 25
+print("年齢は" + str(age) + "歳です")     # str() で文字列に変換
+print(f"年齢は{age}歳です")               # f-stringなら自動で変換される</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/003.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/003.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">=== 文字列の基本 ===
+こんにちは
+
+=== つなげる（+） ===
+太郎さん
+こんにちは、太郎
+
+=== 長さを調べる（len） ===
+6
+
+=== f-string で埋め込み ===
+こんにちは、花子さん
+花子 の長さは 2 文字です
+
+=== 練習問題1の答え ===
+おはよう、花子さん
+
+=== 練習問題2の答え ===
+Python入門の長さは8文字です
+
+=== おまけ：数字を文字列にする ===
+年齢は25歳です
+年齢は25歳です</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li>変数名に $ はつけない（普通の名前でOK）</li><li>文字列と数字は別物。数字を文字列にしたいときは <code>str()</code> を使う</li><li>つなげるときは <code>+</code>、長さは <code>len()</code>、見やすく埋め込むなら f-string</li><li>この回では <code>input()</code> は使わず、あらかじめ値を入れて試しています</li><li>日本語の文字も <code>len()</code> では1文字を1と数えます（<code>"Python入門"</code> は8文字）。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>問題1：「おはよう」と「花子」を <code>+</code> でつなげて、「おはよう、花子さん」と表示してみましょう。</p>
+<p>問題2：文字列 <code>"Python入門"</code> の長さを調べて、f-stringを使って「Python入門の長さは8文字です」と表示してみましょう。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 問題1（出力例：おはよう、花子さん）
+greeting = "おはよう"
+name = "花子"
+print(greeting + "、" + name + "さん")
+
+# 問題2（出力例：Python入門の長さは8文字です）
+text = "Python入門"
+print(f"{text}の長さは{len(text)}文字です")</code></pre>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDllY_poYwx77yI5Ye65Yqb5L6L77ya44GK44Gv44KI44GG44CB6Iqx5a2Q44GV44KT77yJCmdyZWV0aW5nID0gIuOBiuOBr-OCiOOBhiIKbmFtZSA9ICLoirHlrZAiCnByaW50KGdyZWV0aW5nICsgIuOAgSIgKyBuYW1lICsgIuOBleOCkyIpCgojIOWVj-mhjDLvvIjlh7rlipvkvovvvJpQeXRob27lhaXploDjga7plbfjgZXjga845paH5a2X44Gn44GZ77yJCnRleHQgPSAiUHl0aG9u5YWl6ZaAIgpwcmludChmInt0ZXh0feOBrumVt-OBleOBr3tsZW4odGV4dCl95paH5a2X44Gn44GZIikK&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<p class="panel"><a href="../lessons/002.html">◀ 第2回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>
