@@ -3,7 +3,8 @@
  "lessons": [
   {"no":1,"date":"2026-10-20","title":"はじめてのprintとコメント","goal":"画面に文字を出し、BASICのPRINTとの違いを知る","html":"lessons/001.html","py":"lessons/001.py"},
   {"no":2,"date":"2026-10-21","title":"変数と計算 ～BASICのLET A=1と比べてみよう～","goal":"値を名前で覚えて計算する（LETは不要）","html":"lessons/002.html","py":"lessons/002.py"},
-  {"no":3,"date":"2026-10-22","title":"文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string）","goal":"文字列をつなげる・長さを調べる・f-stringで埋め込む（$は不要）","html":"lessons/003.html","py":"lessons/003.py"}
+  {"no":3,"date":"2026-10-22","title":"文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string）","goal":"文字列をつなげる・長さを調べる・f-stringで埋め込む（$は不要）","html":"lessons/003.html","py":"lessons/003.py"},
+  {"no":4,"date":"2026-10-23","title":"四則演算をマスターしよう！ 割り算・余り・べき乗と計算結果の表示","goal":"計算の種類を使い分けて、結果を見やすく表示する","html":"lessons/004.html","py":"lessons/004.py"}
  ],
  "plan": [
   {"no": 1, "title": "はじめてのprintとコメント", "goal": "画面に文字を出し、BASICのPRINTとの違いを知る"},
