@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第5回 比較とif文（BASICのIF〜THEN〜ELSEとの比較、== と = の違い、インデント、elif） | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第5回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第5回：比較とif文（BASICのIF〜THEN〜ELSEとの比較、== と = の違い、インデント、elif）</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<p>前回までで「計算」と「文字列」まで進みました。今回はプログラムの中で「条件によって処理を分ける」方法を学びます。</p>
+<p>BASICを知っている人にとっては「IF〜THEN〜ELSE」と同じようなことを、Pythonでは少し違う書き方で実現します。</p>
+<p>特に重要なのが「== と = の違い」と「インデント（字下げ）」です。ゆっくり見ていきましょう。</p>
+<p><strong>BASICとの比較</strong></p>
+<h3>BASICのIF〜THEN〜ELSEを思い出そう</h3>
+<p>BASICではだいたい次のような書き方でした。</p>
+<pre><code class="lang-text">IF age &gt;= 18 THEN
+  PRINT "成人です"
+ELSE
+  PRINT "未成年です"
+END IF</code></pre>
+<ul><li>IF の後に条件を書き、THEN で処理を始めます。</li></ul>
+<ul><li>複数行にわたる場合は END IF で閉じます。</li></ul>
+<ul><li>ELSE は「条件が偽のとき」の処理です。</li></ul>
+<p>Pythonでも同じことができるのですが、書き方が少し違います。</p>
+<h3>Pythonの比較演算子</h3>
+<p>条件を書くときに使う記号です。BASICとほぼ同じ意味です。</p>
+<table><tr><th>記号</th><th>意味</th><th>例</th></tr><tr><td>==</td><td>等しい</td><td>a == 10</td></tr><tr><td>!=</td><td>等しくない</td><td>a != 10</td></tr><tr><td>&lt;</td><td>より小さい</td><td>a &lt; 10</td></tr><tr><td>&gt;</td><td>より大きい</td><td>a &gt; 10</td></tr><tr><td>&lt;=</td><td>以下</td><td>a &lt;= 10</td></tr><tr><td>&gt;=</td><td>以上</td><td>a &gt;= 10</td></tr></table>
+<p><strong>注意：</strong> 等しいかどうか調べるときは <strong>必ず ==（イコール2つ）</strong> を使います。</p>
+<h3>== と = の大きな違い</h3>
+<p>ここが今回いちばん大事なポイントです。</p>
+<ul><li>= …… <strong>代入</strong>（値を入れる）</li></ul>
+<p>例：age = 20　→　age に 20 を入れる</p>
+<ul><li>== …… <strong>比較</strong>（等しいかどうかを調べる）</li></ul>
+<p>例：age == 20　→　age が 20 かどうかを調べる（結果は True か False）</p>
+<p>BASICでも = は代入と条件の両方で使われることがありましたが、Pythonでははっきり分かれています。</p>
+<p>条件の中で = を書いてしまうとエラーになります。</p>
+<h3>if文の書き方とインデント</h3>
+<p>Pythonのif文は次のように書きます。</p>
+<pre><code class="lang-text">if age &gt;= 18:
+    print("成人です")
+else:
+    print("未成年です")</code></pre>
+<p>ポイントは3つあります。</p>
+<ol><li>条件の最後に <strong>コロン :</strong> を付ける</li></ol>
+<ol><li>条件が真のときに実行する処理は、<strong>必ず字下げ（インデント）</strong> する（通常はスペース4つ）</li></ol>
+<ol><li>else も同じようにコロンを付け、その下の処理を字下げする</li></ol>
+<p>BASICの THEN や END IF に相当するものが「コロン + インデント」です。</p>
+<p>インデントがずれているとエラーになるので、気をつけましょう。</p>
+<h3>elif と else</h3>
+<p>条件が複数ある場合は elif（else if の略）を使います。</p>
+<pre><code class="lang-text">if score &gt;= 80:
+    print("よくできました")
+elif score &gt;= 60:
+    print("合格です")
+else:
+    print("もう少し頑張りましょう")</code></pre>
+<ul><li>if から始まって、上から順に条件を調べます。</li></ul>
+<ul><li>最初に真になったところの処理だけが実行されます。</li></ul>
+<ul><li>どの条件にも当てはまらなければ else が実行されます。</li></ul>
+<ul><li>elif はいくつでも書けます。</li></ul>
+<p>BASICの ELSEIF や、複数の IF を並べるのと同じ役割です。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第5回：比較とif文の例
+
+print("=== 比較演算子の例 ===")
+a = 10
+b = 20
+print("a == 10 :", a == 10)
+print("a != 10 :", a != 10)
+print("a &lt; b   :", a &lt; b)
+print("a &gt; b   :", a &gt; b)
+print("a &lt;= 10 :", a &lt;= 10)
+print("a &gt;= 20 :", a &gt;= 20)
+print()
+
+print("=== if文の基本 ===")
+age = 18
+if age &gt;= 18:
+    print("成人です")
+else:
+    print("未成年です")
+print()
+
+print("=== elif の例 ===")
+score = 75
+if score &gt;= 80:
+    print("よくできました")
+elif score &gt;= 60:
+    print("合格です")
+else:
+    print("もう少し頑張りましょう")
+print()
+
+print("=== 練習問題1の実行結果 ===")
+temp = 25
+if temp &gt;= 30:
+    print("暑いです")
+elif temp &gt;= 20:
+    print("ちょうどいいです")
+else:
+    print("寒いです")
+print()
+
+print("=== 練習問題2の実行結果 ===")
+name = "太郎"
+if name == "太郎":
+    print("こんにちは、太郎さん")
+else:
+    print("はじめまして")
+print()
+
+print("=== == と = の違い（エラーにならない例） ===")
+x = 5          # これは代入
+print("x の値:", x)
+if x == 5:     # これは比較
+    print("x は 5 です")</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/005.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/005.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">=== 比較演算子の例 ===
+a == 10 : True
+a != 10 : False
+a &lt; b   : True
+a &gt; b   : False
+a &lt;= 10 : True
+a &gt;= 20 : False
+
+=== if文の基本 ===
+成人です
+
+=== elif の例 ===
+合格です
+
+=== 練習問題1の実行結果 ===
+ちょうどいいです
+
+=== 練習問題2の実行結果 ===
+こんにちは、太郎さん
+
+=== == と = の違い（エラーにならない例） ===
+x の値: 5
+x は 5 です</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li>等しいかどうかを調べるときは <strong>==</strong> を使う（= は代入専用）</li></ul>
+<ul><li>if文の条件の後には必ず <strong>:</strong> を付ける</li></ul>
+<ul><li>実行する処理は <strong>インデント（字下げ）</strong> する</li></ul>
+<ul><li>複数の条件は elif でつなぐ</li></ul>
+<ul><li>else は「どれにも当てはまらなかったとき」の処理</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p><strong>問題1</strong></p>
+<p><strong>問題1</strong></p>
+<p>変数 temp に 25 が入っています。次の条件でメッセージを表示するプログラムを書いてください。</p>
+<ul><li>30以上なら「暑いです」</li></ul>
+<ul><li>20以上30未満なら「ちょうどいいです」</li></ul>
+<ul><li>それ以外なら「寒いです」</li></ul>
+<p><strong>問題2</strong></p>
+<p>変数 name に "太郎" が入っています。</p>
+<p>name が "太郎" と等しいかどうかを調べて、等しい場合は「こんにちは、太郎さん」、等しくない場合は「はじめまして」と表示してください。</p>
+<p>（== と = の違いに注意）</p>
+<p><strong>答え例</strong></p>
+<p><strong>問題1の答え</strong></p>
+<pre><code class="lang-text">temp = 25
+if temp &gt;= 30:
+    print("暑いです")
+elif temp &gt;= 20:
+    print("ちょうどいいです")
+else:
+    print("寒いです")</code></pre>
+<p><strong>問題2の答え</strong></p>
+<pre><code class="lang-text">name = "太郎"
+if name == "太郎":
+    print("こんにちは、太郎さん")
+else:
+    print("はじめまして")</code></pre>
+<p class="panel"><a href="../lessons/004.html">◀ 第4回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>
