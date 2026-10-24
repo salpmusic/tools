@@ -1,0 +1,251 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>プロテアの朝 VR 試作</title><script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><style>html,body{overflow:hidden}canvas.a-canvas{touch-action:none!important}body{margin:0;background:#151e25;font-family:system-ui}#help{position:fixed;top:10px;left:10px;right:10px;z-index:10;background:#14202bdc;color:white;padding:12px;border-radius:12px;font-size:14px;pointer-events:none}#help small{display:block;margin-top:4px}#dismiss{position:fixed;right:20px;top:20px;z-index:11;font-size:20px;background:#fff;border:0;border-radius:50%;width:36px;height:36px}#radio{position:fixed;bottom:85px;left:15px;z-index:20;padding:12px 17px;border-radius:30px;background:#fff;color:#263c32;border:2px solid #719a77;font-size:17px;font-weight:700}#status{position:fixed;bottom:145px;left:15px;right:15px;z-index:20;background:#162e2cc9;color:#fff;border-radius:9px;padding:8px;font-size:12px;pointer-events:none}#motion{position:fixed;bottom:86px;right:12px;z-index:25;padding:12px;border-radius:25px;border:2px solid #729a82;background:white;color:#26402f;font-weight:bold}#original{display:none;position:fixed;inset:0;width:100%;height:100%;border:0;z-index:30;background:#fff}#mode{position:fixed;top:12px;right:12px;z-index:40;background:#fff;color:#253c31;border:0;border-radius:25px;padding:12px;font-weight:bold}body.original #original{display:block}body.original #help,body.original #dismiss,body.original #radio,body.original #status,body.original #motion{display:none}</style></head><body><div id="help">🌸 プロテアの朝 — VR試作版 v1.4 高画質<small>Quest 3：右下のVRボタンを押す / スマホ：本体を傾けて見回す / 猫を見つめて選ぶと鳴きます。<br>元の猫タッチから背景と音楽を読み込みます。📻で再生。</small></div><button id="dismiss" onclick="document.getElementById('help').remove();this.remove()">×</button><button id="motion" type="button">📱 傾き操作をON</button><button id="radio" type="button">📻 音楽を準備中</button><div id="status">プロテアの部屋の画像と音楽を読み込み中…</div><iframe id="original" title="元のプロテアの朝の部屋" src="../salp-protea-morning-v1.0.html" loading="lazy" allow="autoplay"></iframe><button id="mode" type="button">🏡 元の部屋を見る</button><a-scene device-orientation-permission-ui="enabled:true" renderer="colorManagement:true" background="color:#b9dce8" vr-mode-ui="enabled:true" webxr="optionalFeatures: local-floor" cursor="rayOrigin:mouse" raycaster="objects:.touchable"><a-sky color="#c4e6ef"></a-sky><a-entity light="type:ambient;intensity:0.85"></a-entity><a-entity light="type:directional;intensity:1.1" position="-2 7 -4"></a-entity><a-plane rotation="-90 0 0" width="12" height="12" color="#bd9674"></a-plane><a-plane rotation="0 0 0" position="0 3 -6" width="12" height="6" color="#f5e9d9"></a-plane><a-plane rotation="0 90 0" position="-6 3 0" width="12" height="6" color="#e7dccd"></a-plane><a-plane rotation="0 -90 0" position="6 3 0" width="12" height="6" color="#e7dccd"></a-plane><a-plane rotation="90 0 0" position="0 6 0" width="12" height="12" color="#fff5e7"></a-plane><a-box position="0 .42 -3.4" width="2.6" height=".15" depth="1.4" color="#986a47"></a-box><a-box position="-.9 .2 -3.4" width=".12" height=".4" depth="1.1" color="#765138"></a-box><a-box position=".9 .2 -3.4" width=".12" height=".4" depth="1.1" color="#765138"></a-box><a-box position="-3 1.8 -5.88" width="3.4" height="2.8" depth=".1" color="#fffef2"></a-box><a-plane position="-3 1.8 -5.81" width="3.1" height="2.5" material="shader:flat;color:#a6d7de"></a-plane><a-box position="-3 1.8 -5.75" width=".1" height="2.5" depth=".09" color="#fef5e7"></a-box><a-box position="-3 1.8 -5.75" width="3.1" height=".1" depth=".09" color="#fef5e7"></a-box><a-box position="3 1 -5.65" width="2.3" height="1.7" depth=".5" color="#b88962"></a-box><a-box position="3 1.9 -5.65" width="2.6" height=".13" depth=".7" color="#946747"></a-box><a-cylinder position="1.5 .9 -3.6" radius=".25" height=".7" color="#b6d2c2"></a-cylinder><a-sphere position="1.5 1.4 -3.6" radius=".33" color="#d8869b"></a-sphere><a-entity id="garden"></a-entity><a-entity id="art-panels"></a-entity><a-entity id="cats"></a-entity><a-entity position="0 1.6 0" rotation="0 0 0"><a-camera id="viewer" look-controls="magicWindowTrackingEnabled:true; touchEnabled:false; mouseEnabled:true" wasd-controls="enabled:false"><a-cursor color="#ffffff" fuse="true" fuse-timeout="1200" raycaster="objects:.touchable"></a-cursor></a-camera></a-entity><a-entity laser-controls="hand:right" raycaster="objects:.touchable" line="color:#f7f4df"></a-entity><a-entity laser-controls="hand:left" raycaster="objects:.touchable" line="color:#f7f4df"></a-entity></a-scene><script>const garden=document.querySelector('#garden'),cats=document.querySelector('#cats');function el(tag,attrs,parent){let e=document.createElement('a-'+tag);for(let k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e}for(let i=0;i<0;i++){let a=i*2.39996,r=2.8+Math.sqrt(i/45)*10,x=Math.cos(a)*r,z=Math.sin(a)*r;el('cylinder',{position:`${x} .35 ${z}`,radius:'.045',height:'.7',color:'#527c4a'},garden);el('sphere',{position:`${x} .78 ${z}`,radius:'.24',scale:'1 1.25 1',color:i%3===0?'#e59ca0':i%3===1?'#eac6a0':'#f4d5d9'},garden);for(let j=0;j<5;j++){let t=j*Math.PI*2/5;el('sphere',{position:`${x+Math.cos(t)*.14} .8 ${z+Math.sin(t)*.14}`,radius:'.12',color:'#dc8196'},garden)}}let cat=el('entity',{position:'0 .56 -3.4'},cats);el('sphere',{position:'0 .35 0',scale:'.75 .55 .5',radius:'.5',color:'#fff2d8'},cat);el('sphere',{position:'0 .78 -.08',radius:'.31',color:'#f6e9d7'},cat);for(let s of [-1,1]){el('cone',{position:`${s*.19} 1.05 -.08`,'radius-bottom':'.14','radius-top':'0',height:'.26',color:s===1?'#ab704f':'#e8ad79'},cat);el('sphere',{position:`${s*.12} .83 -.34`,radius:'.04',color:'#272727'},cat)}el('sphere',{position:'0 .73 -.37',radius:'.035',color:'#d17c87'},cat);el('sphere',{position:'-.22 .92 -.23',radius:'.14',color:'#bd8458'},cat);el('sphere',{position:'.22 .43 -.25',radius:'.16',color:'#34373b'},cat);let hit=el('sphere',{position:'0 .7 -.06',radius:'.55',material:'opacity:0;transparent:true',class:'touchable'},cat);hit.addEventListener('click',()=>{let a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(650,a.currentTime);o.frequency.exponentialRampToValueAtTime(340,a.currentTime+.25);g.gain.setValueAtTime(.13,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.35);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.36)});
+
+
+(function(){
+const scene=document.querySelector('a-scene');
+const room=document.createElement('a-entity');room.id='cozy-room';scene.appendChild(room);
+function shape(t,p,s,col,extra={}){const a=document.createElement('a-'+t);a.setAttribute('position',p.join(' '));if(s)a.setAttribute('scale',s.join(' '));if(col)a.setAttribute('color',col);for(const [k,v] of Object.entries(extra))a.setAttribute(k,v);room.appendChild(a);return a;}
+const box=(p,s,c)=>shape('box',p,s,c);
+const ball=(p,s,c)=>shape('sphere',p,s,c);
+const cyl=(p,s,c)=>shape('cylinder',p,s,c);
+const plank=(p,s,c)=>box(p,s,c);
+// Walnut floorboards and soft rug
+for(let i=0;i<20;i++)plank([-5.7+i*.6,.018,-.2],[.585,.035,11.5],i%3===0?'#80553e':i%3===1?'#94684c':'#8a6047');
+shape('circle',[0,.046,-2.9],[2.6,1.8,1],'#c9a48c',{rotation:'-90 0 0'});
+shape('circle',[0,.049,-2.9],[2.1,1.38,1],'#d8b9a1',{rotation:'-90 0 0'});
+// Sofa with cushions facing visitor
+plank([0,.58,-4.25],[3.5,.7,1.35],'#876953');
+plank([0,1.18,-4.8],[3.6,1.15,.4],'#957260');
+plank([-1.68,.9,-4.15],[.35,.9,1.5],'#805e50');
+plank([1.68,.9,-4.15],[.35,.9,1.5],'#805e50');
+for(const x of [-.95,0,.95])plank([x,.96,-4.17],[.91,.3,1.12],x===0?'#b58e7a':'#c3a28b');
+for(const [x,y,z,col] of [[-1.13,1.27,-4.4,'#d7b8a1'],[1.15,1.26,-4.4,'#d0a59b']])box([x,y,z],[.6,.55,.22],col);
+// Old radio on side cabinet
+plank([3,.7,-4.2],[1.4,1.3,.8],'#79513d');
+plank([3,1.4,-4.2],[1.55,.12,.95],'#9a6a4a');
+plank([3,1.76,-4.2],[.94,.58,.42],'#533b2d');
+plank([3,1.79,-3.97],[.65,.32,.035],'#c6a77b');
+for(const x of [2.68,3.32])cyl([x,1.55,-3.96],[.055,.035,.055],'#d4ba83').setAttribute('rotation','90 0 0');
+// Lamp warm glow
+cyl([-4.6,.88,-4.4],[.18,1.7,.18],'#806249');
+shape('cone',[-4.6,1.88,-4.4],[.65,.55,.65],'#f1c999',{rotation:'180 0 0'});
+const light=document.createElement('a-entity');light.setAttribute('light','type:point;color:#ffbd79;intensity:.85;distance:7;decay:2');light.setAttribute('position','-4.6 1.7 -4.3');room.appendChild(light);
+// Window scenery and crossbars, rainy muted sky
+plank([-3.1,2.25,-5.73],[3.25,2.9,.08],'#a0bac0');
+for(let i=0;i<14;i++){const x=-4.5+(i*1.17)%2.9;const y=1.1+(i*1.51)%2.5;plank([x,y,-5.65],[.015,.23,.012],'#d7e5e6');}
+for(let i=0;i<10;i++){const x=-4.45+(i*1.47)%2.75;const y=1.1+(i*.91)%2.5;ball([x,y,-5.6],[.045,.085,.015],'#e7d4b7');}
+plank([-3.1,2.25,-5.53],[.095,2.95,.11],'#e9d7bd');
+plank([-3.1,2.25,-5.53],[3.3,.095,.11],'#e9d7bd');
+plank([-3.1,.79,-5.48],[3.65,.13,.32],'#9a6b4b');
+// autumn foliage outside window
+for(let i=0;i<25;i++){let x=-4.65+(i*1.57)%3.1,y=1.0+(i*.77)%2.6;ball([x,y,-5.56],[.12,.08,.045],['#c67a4b','#ad6242','#e3a06c','#a85743'][i%4]);}
+// Protea blooms in a ceramic vase on low table
+plank([1.75,.52,-2.45],[1.25,.11,.8],'#a67a55');
+for(const x of [1.28,2.22])plank([x,.25,-2.45],[.09,.5,.65],'#7b533b');
+cyl([1.75,.84,-2.45],[.26,.52,.26],'#b6a69c');
+for(let i=0;i<7;i++){let a=i*2.4;const x=1.75+Math.cos(a)*.35,z=-2.45+Math.sin(a)*.27,h=1.25+(i%3)*.2;
+cyl([x,h-.05,z],[.027,.65,.027],'#557552');
+ball([x,h+.26,z],[.22,.24,.22],i%2?'#d78c9c':'#dba8ad');
+for(let j=0;j<8;j++){const t=j*Math.PI/4;const petal=shape('cone',[x+Math.cos(t)*.16,h+.31,z+Math.sin(t)*.16],[.13,.34,.13],j%2?'#b96b85':'#e9b3b5');petal.setAttribute('rotation',(Math.sin(t)*30)+' 0 '+(Math.cos(t)*-30));}
+}
+// books on floor by sofa
+for(let i=0;i<5;i++)plank([-2.5,.1+i*.085,-3.9],[.65,.075,.42],['#876b55','#bc8a68','#766b65','#a88077','#d0a889'][i]);
+// Cat details: eyes, tail, patches; cat already exists, add texture-like features
+const cat=document.querySelector('#cats a-entity');
+if(cat){const tail=document.createElement('a-torus');tail.setAttribute('position','.36 .4 .25');tail.setAttribute('rotation','0 90 35');tail.setAttribute('radius','.22');tail.setAttribute('radius-tubular','.055');tail.setAttribute('color','#6d5545');cat.appendChild(tail);}
+
+// Detail pass: depth, soft textiles, wood grain, botanical leaves, lamp shade and radio dials.
+for(let i=0;i<19;i++){
+ const x=-5.5+i*.61;
+ plank([x,.054,-.2],[.018,.007,11.5],'#5e4034');
+}
+for(let i=0;i<10;i++){
+ const x=-1.65+i*.36;
+ const stripe=plank([x,1.115,-4.16],[.018,.018,1.1],i%2?'#e2c8ad':'#947265');
+}
+for(let i=0;i<7;i++){
+ const z=-4.8+i*.18;
+ plank([0,1.185,z],[3.25,.012,.014],i%2?'#b68d7b':'#dbc0a5');
+}
+// Knitted blanket draped over sofa arm, with a fringe.
+plank([-1.48,1.08,-3.9],[.6,.065,.85],'#b77c67');
+for(let i=0;i<9;i++)plank([-1.72+i*.06,.72,-3.46],[.018,.2,.02],'#e1b69c');
+// Protea leaves: long, glossy green ellipsoids.
+for(let i=0;i<12;i++){
+ const a=i*2.399,rad=.28+(i%3)*.09;
+ const x=1.75+Math.cos(a)*rad,z=-2.45+Math.sin(a)*rad;
+ const leaf=ball([x,1.19+(i%4)*.1,z],[.085,.21,.045],i%2?'#486b4e':'#66846a');
+ leaf.setAttribute('rotation',((i%2)?28:-28)+' '+(i*41)+' 0');
+}
+// Ceramic tea cup and saucer on the side table.
+cyl([1.28,.615,-2.2],[.16,.025,.16],'#e8ddce');
+cyl([1.28,.685,-2.2],[.105,.13,.105],'#f2e6d6');
+const handle=shape('torus',[1.4,.69,-2.2],[.065,.065,.065],'#f2e6d6',{rotation:'0 90 0','radius-tubular':'.023'});
+// Radio tuning indicator, knobs and grille.
+for(let i=0;i<11;i++)plank([2.73+i*.048,1.83,-3.946],[.013,.21,.014],'#8b6749');
+for(const x of [2.69,3.32]){
+ const knob=cyl([x,1.57,-3.916],[.085,.025,.085],'#c8ad7c');knob.setAttribute('rotation','90 0 0');
+}
+// Bookshelves on left wall.
+for(let j=0;j<3;j++){
+ const y=1.25+j*.88;
+ plank([-5.65,y,-2.7],[.38,.075,2.5],'#80583e');
+ for(let i=0;i<13;i++){
+  const z=-3.75+i*.17;
+  const h=.35+((i*7)%6)*.065;
+  plank([-5.47,y+h/2+.04,z],[.23,h,.11],['#8c5147','#a27e63','#5b756b','#c7a27b','#75616b'][i%5]);
+ }
+}
+// Lamp shade ribs, soft golden shade and glowing bulb.
+for(let i=0;i<9;i++){
+ const a=i*Math.PI*2/9;
+ const x=-4.6+Math.cos(a)*.35,z=-4.4+Math.sin(a)*.35;
+ const rib=cyl([x,1.85,z],[.014,.4,.014],'#c18d64');
+}
+ball([-4.6,1.76,-4.4],[.16,.16,.16],'#ffdf9a');
+// Additional fall leaves outside the window, in layers.
+for(let i=0;i<36;i++){
+ const x=-4.57+((i*1.37)%2.9),y=1.08+((i*.61)%2.4);
+ const leaf=ball([x,y,-5.52],[.07,.12,.022],['#d68551','#c75e40','#e8b26c','#a54d3b'][i%4]);
+ leaf.setAttribute('rotation','0 0 '+(i*47%160));
+}
+// Add visible whiskers, paws, eyes and tricolor patches to the existing 3D cat.
+if(cat){
+ for(const s of [-1,1]){
+  const paw=document.createElement('a-sphere');paw.setAttribute('position',(s*.21)+' .13 -.34');paw.setAttribute('scale','.16 .1 .18');paw.setAttribute('color','#f4e9d6');cat.appendChild(paw);
+  for(let i=0;i<3;i++){
+   const w=document.createElement('a-cylinder');
+   w.setAttribute('position',(s*.42)+' '+(.69+i*.035)+' -.38');
+   w.setAttribute('rotation',(i-1)*15+' 0 '+(s*70));
+   w.setAttribute('radius','.003');w.setAttribute('height','.33');w.setAttribute('color','#eee3d4');cat.appendChild(w);
+  }
+  const eye=document.createElement('a-sphere');eye.setAttribute('position',(s*.12)+' .83 -.351');eye.setAttribute('scale','.038 .047 .023');eye.setAttribute('color','#82a16e');cat.appendChild(eye);
+  const pupil=document.createElement('a-sphere');pupil.setAttribute('position',(s*.12)+' .83 -.375');pupil.setAttribute('scale','.012 .036 .008');pupil.setAttribute('color','#1d2c22');cat.appendChild(pupil);
+ }
+ const patch=document.createElement('a-sphere');patch.setAttribute('position','-.2 .43 -.18');patch.setAttribute('scale','.23 .18 .14');patch.setAttribute('color','#ba7049');cat.appendChild(patch);
+}
+
+// Original picture becomes framed artwork on the right wall, not floating ahead
+})();
+
+(function(){
+const source='../salp-protea-morning-v1.0.html';document.getElementById('mode').addEventListener('click',function(){const original=document.body.classList.toggle('original');this.textContent=original?'🥽 VR空間に戻る':'🏡 元の部屋を見る';});
+const status=document.getElementById('status'),button=document.getElementById('radio');
+let audio=null;
+button.disabled=true;
+button.addEventListener('click',async()=>{
+ if(!audio)return;
+ try{
+  if(audio.paused){await audio.play();button.textContent='📻 停止';}
+  else{audio.pause();button.textContent='📻 再生';}
+ }catch(e){status.textContent='音楽の再生にはブラウザの許可が必要です。もう一度タップしてね。';}
+});
+fetch(source).then(r=>{if(!r.ok)throw Error('元の部屋が見つかりません ('+r.status+')');return r.text()}).then(html=>{
+ const imageMatches=[...html.matchAll(/data:image\/(?:png|jpeg|jpg|webp);base64,[A-Za-z0-9+/=]+/g)].map(m=>m[0]);
+ const audioMatches=[...html.matchAll(/data:audio\/(?:mpeg|mp3|wav|ogg|mp4|x-m4a);base64,[A-Za-z0-9+/=]+/g)].map(m=>m[0]);
+ const image=imageMatches.sort((a,b)=>b.length-a.length)[0];
+ const song=audioMatches.sort((a,b)=>b.length-a.length)[0];
+ if(image){
+  const holder=document.getElementById('art-panels');
+  const im=new Image();
+  im.onload=()=>{
+   let ratio=im.width/im.height;
+   const h=2.9,w=Math.max(1.7,Math.min(3.5,h*ratio));
+   for(const [x,y,z,rot,scale] of [[5.87,2.9,-2.2,-90,1]]){
+    const p=document.createElement('a-plane');
+    p.setAttribute('position',x+' '+y+' '+z);
+    p.setAttribute('rotation','0 '+rot+' 0');
+    p.setAttribute('width',w*scale);p.setAttribute('height',h*scale);
+    p.setAttribute('material',{shader:'flat',side:'double',transparent:true,src:image});
+    holder.appendChild(p);
+   }
+  };
+  im.src=image;
+ }
+ if(song){audio=new Audio(song);audio.loop=true;audio.preload='none';button.disabled=false;button.textContent='📻 再生';}
+ else{button.textContent='📻 音源未検出';}
+ status.textContent=(image?'元の部屋の絵を壁に配置しました。':'画像を検出できませんでした。')+' '+(song?'音楽は📻を押して再生。':'音楽は未検出です。');
+ setTimeout(()=>{if(image&&song)status.style.display='none'},7000);
+}).catch(err=>{status.textContent='元の部屋を読み込めませんでした: '+err.message;button.textContent='📻 読込失敗';});
+})();
+
+(function(){
+const scene=document.querySelector('a-scene'),T=AFRAME.THREE;
+function make(kind){const canvas=document.createElement('canvas');canvas.width=canvas.height=1024;const g=canvas.getContext('2d');let seed=12345+kind.length;function rand(){seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;}g.fillStyle={wood:'#c7a283',fabric:'#d9b7a5',wall:'#f2ebdf'}[kind];g.fillRect(0,0,1024,1024);
+if(kind==='wood'){for(let i=0;i<900;i++){let y=rand()*1024;g.strokeStyle=rand()>.5?'#ac8265':'#e0c3a4';g.globalAlpha=.2+rand()*.2;g.lineWidth=.5+rand()*2;g.beginPath();g.moveTo(0,y);g.bezierCurveTo(90,y+rand()*8-4,170,y+rand()*8-4,1024,y);g.stroke();}}
+if(kind==='fabric'){for(let i=0;i<1024;i+=3){g.globalAlpha=.14;g.strokeStyle='#6c443d';g.beginPath();g.moveTo(0,i);g.lineTo(1024,i);g.moveTo(i,0);g.lineTo(i,1024);g.stroke();}for(let i=0;i<420;i++){g.fillStyle='#ac7a72';g.globalAlpha=.17;g.beginPath();g.arc(rand()*1024,rand()*1024,2+rand()*6,0,Math.PI*2);g.fill();}}
+if(kind==='wall'){for(let i=0;i<11000;i++){g.globalAlpha=.05;g.fillStyle=rand()>.5?'#856a55':'#ffffff';g.fillRect(rand()*1024,rand()*1024,2,2);}}
+g.globalAlpha=1;const t=new T.CanvasTexture(canvas);t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;return t;}
+const maps={wood:make('wood'),fabric:make('fabric'),wall:make('wall')};
+const wood=new Set(['#986a47','#765138','#79513d','#9a6a4a','#946747','#80583e','#80553e','#94684c','#8a6047','#a67a55','#7b533b','#876b55','#9a6b4b']);
+const fabric=new Set(['#876953','#957260','#805e50','#c3a28b','#b58e7a','#d7b8a1','#d0a59b','#b77c67','#e1b69c']);
+const wall=new Set(['#f5e9d9','#e7dccd','#fff5e7']);const done=new WeakSet();
+function paint(){scene.querySelectorAll('a-box,a-plane').forEach(e=>{if(done.has(e))return;const color=(e.getAttribute('color')||'').toLowerCase();const k=wood.has(color)?'wood':fabric.has(color)?'fabric':wall.has(color)?'wall':null;if(!k)return;const mesh=e.getObject3D('mesh');if(!mesh||!mesh.material)return;done.add(e);const mat=mesh.material.clone();mat.map=maps[k];mat.color.set(color);mat.roughness=k==='wood'?.63:k==='fabric'?.97:.91;mat.metalness=0;mat.needsUpdate=true;mesh.material=mat;});}
+scene.addEventListener('loaded',()=>{paint();setTimeout(paint,800);setTimeout(paint,2000);});
+})();
+
+
+(function(){
+const scene=document.querySelector('a-scene');
+scene.setAttribute('renderer','antialias:true;colorManagement:true;physicallyCorrectLights:true');
+const old=scene.querySelector('[light*="type:directional"]');if(old)old.setAttribute('light','type:directional;color:#fff1d9;intensity:1.25;castShadow:true;shadowMapWidth:2048;shadowMapHeight:2048');
+const ambient=scene.querySelector('[light*="type:ambient"]');if(ambient)ambient.setAttribute('light','type:ambient;color:#e9e6f0;intensity:.62');
+scene.addEventListener('loaded',()=>{
+const renderer=scene.renderer;if(renderer){renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=AFRAME.THREE.PCFSoftShadowMap;}
+scene.querySelectorAll('a-box,a-plane,a-sphere,a-cylinder').forEach(e=>{
+const mesh=e.getObject3D('mesh');if(!mesh)return;
+mesh.receiveShadow=true;if(e.tagName!=='A-PLANE')mesh.castShadow=true;
+});
+});
+})();
+
+// Dedicated iOS orientation camera controller. A-Frame's magic-window
+// controls can be inactive in embedded iOS browsers, so apply quaternion directly.
+(function(){
+ const button=document.getElementById('motion'),scene=document.querySelector('a-scene');
+ const cam=document.getElementById('viewer');
+ const THREE=AFRAME.THREE, zee=new THREE.Vector3(0,0,1);
+ const euler=new THREE.Euler(), q0=new THREE.Quaternion(), q1=new THREE.Quaternion(-Math.sqrt(.5),0,0,Math.sqrt(.5));
+ let latest=null,enabled=false,drag=null,yaw=0,pitch=0,zero=null;
+ const rad=Math.PI/180;
+ function renderOrientation(){
+  if(!enabled||!latest||scene.is('vr-mode'))return;
+  const {alpha,beta,gamma}=latest;
+  const orient=(screen.orientation&&Number.isFinite(screen.orientation.angle)?screen.orientation.angle:(typeof window.orientation==='number'?window.orientation:0))*rad;
+  euler.set(beta*rad,alpha*rad,-gamma*rad,'YXZ');
+  q0.setFromEuler(euler).multiply(q1).multiply(new THREE.Quaternion().setFromAxisAngle(zee,-orient));
+  if(!zero){zero=q0.clone().invert();}
+  cam.object3D.quaternion.copy(zero).multiply(q0);
+ }
+ window.addEventListener('deviceorientation',e=>{
+  if(e.alpha==null||e.beta==null||e.gamma==null)return;
+  latest={alpha:e.alpha,beta:e.beta,gamma:e.gamma};
+  if(enabled){button.textContent='📱 傾き操作 ON';renderOrientation();}
+ },{passive:true});
+ function begin(){enabled=true;zero=null;cam.setAttribute('look-controls','enabled:false');button.textContent='📱 本体を傾けてね';}
+ button.addEventListener('click',async()=>{
+  try{
+   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+    if(await DeviceOrientationEvent.requestPermission()!=='granted'){button.textContent='センサー許可が必要です';return;}
+   }
+   begin();
+  }catch(err){button.textContent='Safariで開いてね';}
+ });
+ scene.addEventListener('loaded',()=>{
+  // Touch drag fallback remains available when motion data is unavailable.
+  const canvas=scene.canvas;if(!canvas)return;
+  canvas.addEventListener('touchstart',e=>{if(scene.is('vr-mode')||e.touches.length!==1)return;drag=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});
+  canvas.addEventListener('touchmove',e=>{
+   if(scene.is('vr-mode')||!drag||e.touches.length!==1)return;
+   e.preventDefault();
+   const t=e.touches[0];yaw-=(t.clientX-drag[0])*.22;pitch=Math.max(-80,Math.min(80,pitch-(t.clientY-drag[1])*.22));drag=[t.clientX,t.clientY];
+   if(!enabled||!latest){cam.setAttribute('look-controls','enabled:false');cam.object3D.rotation.set(pitch*rad,yaw*rad,0,'YXZ');}
+  },{passive:false});
+  canvas.addEventListener('touchend',()=>drag=null);
+  canvas.addEventListener('touchcancel',()=>drag=null);
+ });
+ scene.addEventListener('enter-vr',()=>{enabled=false;zero=null;cam.setAttribute('look-controls','enabled:true');button.style.display='none';});
+ scene.addEventListener('exit-vr',()=>{button.style.display='block';cam.setAttribute('look-controls','enabled:false');});
+ function tick(){renderOrientation();requestAnimationFrame(tick);}requestAnimationFrame(tick);
+})();
+</script></body></html>
