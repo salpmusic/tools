@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#ffe9d6">
-<meta name="description" content="4匹の猫が「ニャー」と鳴く順番を覚えて押す、かわいい記憶ゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応しています。">
+<meta name="description" content="4匹または9匹の猫が「ニャー」と鳴く順番を覚えて押す、かわいい記憶ゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応しています。">
 <title>猫の順番記憶 | salp Tools</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -107,6 +107,21 @@ body.hc .main.stop{background:#fff;color:#000}
   body.large .app{--bs:min(calc(100dvh - 28px),calc(100vw - 380px),600px)}
   #board{align-self:start}
 }
+#board.n9{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:calc(var(--bs)/45);padding:calc(var(--bs)/45)}
+#board.n9 .cat{border-radius:14px;padding:3%}
+.cat:nth-child(5){--bg:#efe3ff;--glow:#a77bff}
+.cat:nth-child(6){--bg:#dff6f8;--glow:#4fc8d6}
+.cat:nth-child(7){--bg:#ffe6e6;--glow:#ff6f7d}
+.cat:nth-child(8){--bg:#fff4cc;--glow:#f0c419}
+.cat:nth-child(9){--bg:#e8ecf2;--glow:#8fa3c0}
+.cat .kn{position:absolute;left:6%;top:5%;font-size:calc(var(--bs)/26);font-weight:800;line-height:1;color:#8a5d46;opacity:.75;pointer-events:none}
+#board.n9 .cat .kn{font-size:calc(var(--bs)/32)}
+body.hc .cat .kn{color:#fff;opacity:1}
+body.hc .cat.lit .kn{color:#000}
+#board:focus{outline:none}
+.cat.sel{outline:5px dashed #3d7be8;outline-offset:-9px}
+#board:not(.kb) .cat.sel{outline:none}
+body.hc .cat.sel{outline-color:#00ffff}
 @media (prefers-reduced-motion:reduce){.cat,.cat.bad,.cat.meow svg,.cat.meow .art{transition:none;animation:none}}
 </style>
 </head>
@@ -139,6 +154,7 @@ body.hc .main.stop{background:#fff;color:#000}
     <section class="box">
       <h2>あそびかた</h2>
       <div class="row">
+        <button type="button" class="tog" id="tN" aria-pressed="false">🐱 4</button>
         <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード</button>
       </div>
     </section>
@@ -153,7 +169,7 @@ body.hc .main.stop{background:#fff;color:#000}
         <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
       </div>
     </section>
-    <p class="note">最初は2匹、成功するたびに1匹ずつ増えます。ハートは3つ。ミスすると同じ順番をもう一度見せます。キーボードは 1〜4 でも押せます。</p>
+    <p class="note">最初は2匹(9匹モードは3匹)、成功するたびに1匹ずつ増えます。ハートは3つ。ミスすると同じ順番をもう一度見せます。キーボードは 1〜4(9匹モードは 1〜9、左上から横に順番)でも押せます。矢印キーで選んで Enter でも押せます。</p>
   </div>
 </div>
 
@@ -167,7 +183,16 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var best=lsGet(LS_BEST)||{};
 var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
 function modeKey(){return set.slow?'slow':'normal'}
-function bestOf(k){return best[k]||{score:0,round:0}}
+var LS_N='salpCatMemory_cats_v1',NC=lsGet(LS_N)===9?9:4,COLS=NC===9?3:2;
+function bkey(k){return NC===9?k+'_9':k}
+function bestOf(k){return best[bkey(k)]||{score:0,round:0}}
+var L9={ja:{n4:'🐱 4匹',n9:'🐱 9匹',tip:'猫の数(4匹/9匹)',b4:'4匹の猫',b9:'9匹の猫',m9:' · 9匹',m4:' · 4匹'},
+ en:{n4:'🐱 4 cats',n9:'🐱 9 cats',tip:'Number of cats (4 / 9)',b4:'Four cats',b9:'Nine cats',m9:' · 9',m4:' · 4'},
+ vi:{n4:'🐱 4 mèo',n9:'🐱 9 mèo',tip:'Số mèo (4 / 9)',b4:'4 con mèo',b9:'9 con mèo',m9:' · 9',m4:' · 4'},
+ tl:{n4:'🐱 4 pusa',n9:'🐱 9 pusa',tip:'Bilang ng pusa (4 / 9)',b4:'Apat na pusa',b9:'Siyam na pusa',m9:' · 9',m4:' · 4'}};
+function l9(k){var l=(document.documentElement.lang||'ja').slice(0,2);return (L9[l]||L9.ja)[k]}
+function updN(){var b=$('tN');if(!b)return;b.textContent=l9(NC===9?'n9':'n4');b.setAttribute('aria-pressed',String(NC===9));b.title=l9('tip');b.setAttribute('aria-label',l9('tip')+': '+NC);
+  var busy=G.phase!=='idle'||$('start').classList.contains('stop');b.disabled=busy;board.classList.toggle('n9',NC===9);board.setAttribute('aria-label',l9(NC===9?'b9':'b4'));$('stMode').textContent+=l9(NC===9?'m9':'m4')}
 
 /* モード別の速さ: step=1匹ごとの間隔(ms) dec=ラウンドごとの短縮 min=下限 */
 var SPEED={normal:{start:760,dec:20,min:460},slow:{start:1250,dec:15,min:900}};
@@ -208,17 +233,17 @@ function svgCat(c){
 var useImg=false;
 function catHTML(i){
   if(useImg)return '<img class="art artClosed" alt="" src="'+ART_DIR+'cat'+(i+1)+'.png" draggable="false"><img class="art artOpen" alt="" src="'+ART_DIR+'cat'+(i+1)+'_open.png" draggable="false">';
-  return svgCat(CATS[i]);
+  return svgCat(CATS[i%4]);
 }
 var board=$('board'), pads=[];
 function build(){
   board.innerHTML='';pads=[];
-  for(var i=0;i<4;i++){
+  for(var i=0;i<NC;i++){
     var b=document.createElement('button');
     b.type='button';b.className='cat';b.setAttribute('aria-label','猫'+(i+1));
-    b.innerHTML=catHTML(i);
+    b.innerHTML=catHTML(i)+'<span class="kn" aria-hidden="true">'+(i+1)+'</span>';
     (function(idx){
-      b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();press(idx)});
+      b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();board.classList.remove('kb');sel=idx;markSel();press(idx)});
       b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')e.preventDefault()});
       b.addEventListener('contextmenu',function(e){e.preventDefault()});
     })(i);
@@ -229,9 +254,9 @@ function build(){
 /* PNGが4匹ぶんそろっていれば画像に切替(無ければSVGのまま) */
 (function(){
   var n=0,ok=0;
-  for(var i=1;i<=4;i++){(function(i){
+  for(var i=1;i<=9;i++){(function(i){
     var im=new Image();
-    im.onload=function(){ok++;if(++n===4&&ok===4&&G.phase==='idle'){useImg=true;build()}};
+    im.onload=function(){ok++;if(++n===9&&ok===9&&G.phase==='idle'){useImg=true;build()}};
     im.onerror=function(){n++};
     im.src=ART_DIR+'cat'+i+'.png';
   })(i)}
@@ -244,8 +269,17 @@ board.addEventListener('touchend',function(e){var n=Date.now();if(n-lastTE<400)e
 document.addEventListener('dblclick',function(e){e.preventDefault()});
 document.addEventListener('keydown',function(e){
   if(e.target&&(e.target.tagName==='INPUT'))return;
-  if(e.key>='1'&&e.key<='4'){unlockAudio();press(+e.key-1)}
+  if(e.key.length===1&&e.key>='1'&&e.key<=String(NC)){unlockAudio();sel=+e.key-1;board.classList.add('kb');markSel();press(sel);return}
+  var k=e.key,t=e.target,onBoard=(t===board||t===document.body||!t||(t.classList&&t.classList.contains('cat')));
+  if(/^Arrow/.test(k)){
+    e.preventDefault();board.classList.add('kb');
+    var x=sel%COLS,y=Math.floor(sel/COLS),M=COLS-1;if(k==='ArrowLeft')x=Math.max(0,x-1);if(k==='ArrowRight')x=Math.min(M,x+1);if(k==='ArrowUp')y=Math.max(0,y-1);if(k==='ArrowDown')y=Math.min(M,y+1);
+    sel=y*COLS+x;markSel();if(document.activeElement!==board)board.focus();return;
+  }
+  if((k==='Enter'||k===' ')&&onBoard&&G.phase==='input'){e.preventDefault();unlockAudio();press(sel)}
 });
+var sel=0;board.tabIndex=0;
+function markSel(){pads.forEach(function(p,i){p.classList.toggle('sel',i===sel)})}
 
 /* ---------- 効果音(Web Audio) ---------- */
 var ctx=null, master=null;
@@ -326,7 +360,7 @@ var SalpAudio=(function(){
 })();
 SalpAudio.init({onCreate:function(c,m){ctx=c;master=m;applyVol()}});
 var unlockAudio=SalpAudio.unlock;
-var BASE=[480,560,660,780]; /* 猫ごとの基本の高さ(Hz) */
+var BASE=[480,560,660,780,520,610,720,840,920]; /* 猫ごとの基本の高さ(Hz) */
 function applyVol(){if(master){master.gain.value=set.sound?Math.pow(set.vol/100,1.4):0}}
 function ready(){
   if(!ctx||!set.sound)return false;
@@ -378,7 +412,7 @@ function render(){
   $('sc').textContent=G.score;$('lives').textContent=hearts();
   $('stRound').textContent=G.round>0?G.round:'-';
   $('stMode').textContent=(G.phase==='idle'?modeKey():G.mode)==='slow'?'ゆっくり':'ふつう';
-  var b=bestOf(G.phase==='idle'?modeKey():G.mode);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;
+  var b=bestOf(G.phase==='idle'?modeKey():G.mode);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;updN();
 }
 function enable(on){pads.forEach(function(p){p.disabled=!on})}
 function flash(i,ms){
@@ -403,8 +437,8 @@ function stopGame(){
 }
 function nextRound(){
   G.round++;G.missed=false;
-  if(G.seq.length===0){for(var i=0;i<START_LEN;i++)G.seq.push(Math.floor(Math.random()*4))}
-  else G.seq.push(Math.floor(Math.random()*4));
+  if(G.seq.length===0){for(var i=0;i<(NC===9?3:START_LEN);i++)G.seq.push(Math.floor(Math.random()*NC))}
+  else G.seq.push(Math.floor(Math.random()*NC));
   render();showSeq();
 }
 function showSeq(){
@@ -437,7 +471,7 @@ function saveBest(){
   var k=G.mode,b=bestOf(k),nb={score:b.score,round:b.round},up=false,cleared=G.round-1;
   if(G.score>nb.score){nb.score=G.score;up=true}
   if(cleared>nb.round){nb.round=cleared;up=true}
-  if(up){best[k]=nb;lsSet(LS_BEST,best);G.newBest=true}
+  if(up){best[bkey(k)]=nb;lsSet(LS_BEST,best);G.newBest=true}
 }
 function miss(i){
   G.phase='between';enable(false);G.missed=true;G.lives--;
@@ -469,6 +503,7 @@ function applySet(){
   $('vol').value=set.vol;applyVol();
 }
 function save(){lsSet(LS_SET,set)}
+$('tN').onclick=function(){if(G.phase!=='idle'||$('start').classList.contains('stop'))return;NC=NC===9?4:9;COLS=NC===9?3:2;lsSet(LS_N,NC);if(typeof sel!=='undefined'&&sel>=NC)sel=0;G.last=null;$('result').hidden=true;build();render();if(typeof markSel==='function')markSel()};
 $('tSlow').onclick=function(){set.slow=!set.slow;save();applySet();render()};
 $('tHc').onclick=function(){set.hc=!set.hc;save();applySet()};
 $('tLg').onclick=function(){set.large=!set.large;save();applySet()};
@@ -477,7 +512,7 @@ $('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
 $('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(1,0.3)};
 $('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
 
-build();applySet();render();
+build();applySet();render();markSel();
 })();
 </script>
 <!-- SalpBGM v1 begin -->
