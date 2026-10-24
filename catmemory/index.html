@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<link rel="icon" href="data:,">
 <meta name="theme-color" content="#ffe9d6">
-<meta name="description" content="4匹または9匹の猫が「ニャー」と鳴く順番を覚えて押す、かわいい記憶ゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応しています。">
-<title>猫の順番記憶 | salp Tools</title>
+<meta name="description" content="4匹の猫が「ニャー」と鳴く順番を覚えて押す、かわいい記憶ゲーム。ゆっくりモード、見やすいモード、ベスト記録保存に対応しています。">
+<title>猫の順番記憶 Cat Memory | salp Tools</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -97,7 +98,7 @@ body.hc .tog[aria-pressed=true]{background:#ffff00;color:#000}
 body.hc .main{background:#ffff00;color:#000;box-shadow:none}
 body.hc .main.stop{background:#fff;color:#000}
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:700px){
   .app{
     --bs:min(calc(100dvh - 28px),calc(100vw - 340px),560px);
     max-width:1000px;align-items:start;justify-items:stretch;
@@ -107,6 +108,14 @@ body.hc .main.stop{background:#fff;color:#000}
   body.large .app{--bs:min(calc(100dvh - 28px),calc(100vw - 380px),600px)}
   #board{align-self:start}
 }
+.hbtn{display:flex;gap:6px;margin-left:auto}
+.tog.sm{padding:4px 10px;font-size:.85rem}
+#board:focus{outline:none}
+#board:focus-visible{outline:4px solid #3d7be8;outline-offset:3px}
+.cat.sel{outline:5px dashed #3d7be8;outline-offset:-9px}
+#board:not(.kb) .cat.sel{outline:none}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid #3d7be8;outline-offset:2px}
+body.hc .cat.sel,body.hc #board:focus-visible,body.hc button:focus-visible{outline-color:#00ffff}
 #board.n9{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:calc(var(--bs)/45);padding:calc(var(--bs)/45)}
 #board.n9 .cat{border-radius:14px;padding:3%}
 .cat:nth-child(5){--bg:#efe3ff;--glow:#a77bff}
@@ -118,58 +127,55 @@ body.hc .main.stop{background:#fff;color:#000}
 #board.n9 .cat .kn{font-size:calc(var(--bs)/32)}
 body.hc .cat .kn{color:#fff;opacity:1}
 body.hc .cat.lit .kn{color:#000}
-#board:focus{outline:none}
-.cat.sel{outline:5px dashed #3d7be8;outline-offset:-9px}
-#board:not(.kb) .cat.sel{outline:none}
-body.hc .cat.sel{outline-color:#00ffff}
 @media (prefers-reduced-motion:reduce){.cat,.cat.bad,.cat.meow svg,.cat.meow .art{transition:none;animation:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <h1>🐾 猫の順番記憶</h1>
-    <a class="home" href="../">← ホーム</a>
+    <h1 data-i18n="title">🐾 猫の順番記憶</h1>
+    <span class="hbtn"><button type="button" class="tog sm" id="tLang" lang="en">English</button><button type="button" class="tog sm" id="tVoice" aria-pressed="true" hidden>🗣️</button></span>
+    <a class="home" href="../" data-i18n="home">← ホーム</a>
   </header>
 
-  <section class="info" aria-label="得点">
+  <section class="info" data-i18n-aria="info" aria-label="得点">
     <div class="top">
-      <div class="pcard"><div class="name">スコア</div><div class="val" id="sc">0</div></div>
-      <div class="pcard"><div class="name">のこり</div><div class="val" id="lives">❤❤❤</div></div>
+      <div class="pcard"><div class="name" data-i18n="score">スコア</div><div class="val" id="sc">0</div></div>
+      <div class="pcard"><div class="name" data-i18n="lives">のこり</div><div class="val" id="lives">❤❤❤</div></div>
     </div>
     <div class="stats">
-      <span>ラウンド <b id="stRound">-</b></span>
-      <span>モード <b id="stMode">ふつう</b></span>
-      <span>ベスト <b id="stBest">0</b>点 / <b id="stBestR">0</b>R</span>
+      <span><span data-i18n="round">ラウンド</span> <b id="stRound">-</b></span>
+      <span><span data-i18n="mode">モード</span> <b id="stMode">ふつう</b></span>
+      <span><span data-i18n="best">ベスト</span> <b id="stBest">0</b><span data-i18n="pt">点</span> / <b id="stBestR">0</b>R</span>
     </div>
-    <div id="msg" role="status" aria-live="polite">「はじめる」を押してね。猫が鳴いた順番を覚えて、同じ順番にタップしよう。</div>
+    <div id="msg" role="status" aria-live="polite" data-i18n="intro"></div>
     <div id="bonus" aria-live="polite"></div>
   </section>
 
-  <div id="board" role="group" aria-label="4匹の猫"></div>
+  <div id="board" role="group" data-i18n-aria="board" aria-label="4匹の猫"></div>
 
   <div class="ctrl">
     <section id="result" hidden aria-live="polite"></section>
-    <button type="button" class="main" id="start">はじめる</button>
+    <button type="button" class="main" id="start" data-i18n="start">はじめる</button>
     <section class="box">
-      <h2>あそびかた</h2>
+      <h2 data-i18n="howto">あそびかた</h2>
       <div class="row">
         <button type="button" class="tog" id="tN" aria-pressed="false">🐱 4</button>
-        <button type="button" class="tog" id="tSlow" aria-pressed="false">🐢 ゆっくりモード</button>
+        <button type="button" class="tog" id="tSlow" aria-pressed="false" data-i18n="slow">🐢 ゆっくりモード</button>
       </div>
     </section>
     <section class="box">
-      <h2>音・見やすさ</h2>
+      <h2 data-i18n="snd">音・見やすさ</h2>
       <div class="row">
         <button type="button" class="tog" id="tSound" aria-pressed="true">🔊 音 ON</button>
-        <label class="vol">音量 <input type="range" id="vol" min="0" max="100" value="60" aria-label="音量"></label>
+        <label class="vol"><span data-i18n="vol">音量</span> <input type="range" id="vol" min="0" max="100" value="60" data-i18n-aria="vol" aria-label="音量"></label>
       </div>
       <div class="row" style="margin-top:8px">
-        <button type="button" class="tog" id="tHc" aria-pressed="false">◐ ハイコントラスト</button>
-        <button type="button" class="tog" id="tLg" aria-pressed="false">🔍 大きな表示</button>
+        <button type="button" class="tog" id="tHc" aria-pressed="false" data-i18n="hc">◐ ハイコントラスト</button>
+        <button type="button" class="tog" id="tLg" aria-pressed="false" data-i18n="lg">🔍 大きな表示</button>
       </div>
     </section>
-    <p class="note">最初は2匹(9匹モードは3匹)、成功するたびに1匹ずつ増えます。ハートは3つ。ミスすると同じ順番をもう一度見せます。キーボードは 1〜4(9匹モードは 1〜9、左上から横に順番)でも押せます。矢印キーで選んで Enter でも押せます。</p>
+    <p class="note" data-i18n="note"></p>
   </div>
 </div>
 
@@ -181,6 +187,37 @@ var LS_BEST='salpCatMemory_best_v1', LS_SET='salpCatMemory_settings_v1';
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var best=lsGet(LS_BEST)||{};
+/* ---------- 日英UI ---------- */
+var LS_LANG='salpCatMemory_lang_v1',LS_VOICE='salpCatMemory_voice_v1';
+var LANG=(function(){var s=lsGet(LS_LANG);if(s==='ja'||s==='en')return s;return /^ja/i.test(navigator.language||'')?'ja':'en'})();
+var I={ja:{title:'🐾 猫の順番記憶',home:'← ホーム',info:'得点',board:'猫',score:'スコア',lives:'のこり',round:'ラウンド',mode:'モード',best:'ベスト',pt:'点',
+ intro:'「はじめる」(Enter)を押してね。猫が鳴いた順番を覚えて、同じ順番にタップしよう。',start:'はじめる',stop:'やめる',again:'もう一度あそぶ',howto:'あそびかた',slow:'🐢 ゆっくりモード',snd:'音・見やすさ',vol:'音量',hc:'◐ ハイコントラスト',lg:'🔍 大きな表示',
+ note:'最初は2匹(9匹モードは3匹)、成功するたびに1匹ずつ増えます。ハートは3つ。ミスすると同じ順番をもう一度見せます。キーボード: 1〜4(9匹モードは1〜9、左上から横に順番。猫の左上の数字)で猫を直接選択、矢印キーで選択を移動してEnter/Spaceで決定、Enter/Spaceでスタート、Escでやめる。マウス・タッチでも遊べます。',
+ cat:'猫',normal:'ふつう',slowS:'ゆっくり',soundOn:'🔊 音 ON',soundOff:'🔈 音 OFF',voice:'英語の読み上げ',
+ go:'スタート!猫の鳴く順番をよく聞いてね',stopped:'やめました。「はじめる」でもう一度あそべます。',showR:function(r,n){return 'ラウンド'+r+':猫の順番を覚えてね('+n+'匹)'},turn:function(a,n){return 'あなたの番!('+a+'/'+n+')'},
+ clearB:'クリアボーナス +',nomiss:' / ノーミス +',clr:function(r){return 'ラウンド'+r+' クリア!すごい!'},over0:'ざんねん…ハートがなくなりました',missM:function(l){return 'ミス!のこりハート'+l+'こ。もう一度見てね'},
+ resT:function(m){return 'ゲームおわり('+m+')'},resS:function(s,c){return '得点 <b>'+s+'</b> 点 / クリア <b>'+c+'</b> ラウンド'},newBest:'🎉 ベスト記録を更新!',bestL:function(s,r){return 'ベスト: '+s+'点 / '+r+'ラウンド'},bye:'おつかれさま!また遊んでね'},
+en:{title:'🐾 Cat Memory',home:'← Home',info:'Score',board:'Cats',score:'Score',lives:'Lives',round:'Round',mode:'Mode',best:'Best',pt:' pts',
+ intro:'Press "Start" (Enter). Remember the order the cats meow, then tap them in the same order.',start:'Start',stop:'Stop',again:'Play again',howto:'How to play',slow:'🐢 Slow mode',snd:'Sound & display',vol:'Volume',hc:'◐ High contrast',lg:'🔍 Large text',
+ note:'Starts with 2 meows (3 in 9-cat mode); one more is added each time you succeed. You have 3 hearts. After a miss, the same order is shown again. Keyboard: 1–4 (1–9 in 9-cat mode, left to right from the top-left; see the number on each cat) picks a cat directly, arrow keys move the selection and Enter/Space confirms, Enter/Space starts, Esc stops. Mouse and touch work too.',
+ cat:'Cat ',normal:'Normal',slowS:'Slow',soundOn:'🔊 Sound ON',soundOff:'🔈 Sound OFF',voice:'English voice',
+ go:'Start! Listen to the order the cats meow.',stopped:'Stopped. Press "Start" to play again.',showR:function(r,n){return 'Round '+r+': remember the order ('+n+' meows)'},turn:function(a,n){return 'Your turn! ('+a+'/'+n+')'},
+ clearB:'Clear bonus +',nomiss:' / No-miss +',clr:function(r){return 'Round '+r+' cleared! Great!'},over0:'Oh no… no hearts left',missM:function(l){return 'Miss! '+l+' heart'+(l>1?'s':'')+' left. Watch again.'},
+ resT:function(m){return 'Game over ('+m+')'},resS:function(s,c){return 'Score <b>'+s+'</b> / Rounds cleared <b>'+c+'</b>'},newBest:'🎉 New best record!',bestL:function(s,r){return 'Best: '+s+' pts / '+r+' rounds'},bye:'Well done! Play again anytime.'}};
+function T(k){return I[LANG][k]}
+/* ---------- 英語の読み上げ ---------- */
+var VOICE_OK=!!(window.speechSynthesis&&window.SpeechSynthesisUtterance);
+var voiceOn=lsGet(LS_VOICE)!==false;
+function speak(t){
+  if(!VOICE_OK||!voiceOn)return;
+  try{
+    var s=window.speechSynthesis,u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=1.05;
+    var be=window.SalpBGM&&SalpBGM.el,v0=null;
+    u.onstart=function(){try{if(be&&v0===null){v0=be.volume;be.volume=v0*0.5}}catch(e){}};
+    u.onend=u.onerror=function(){try{if(be&&v0!==null){be.volume=v0;v0=null}}catch(e){}};
+    s.cancel();s.speak(u);
+  }catch(e){}
+}
 var set=Object.assign({sound:true,vol:60,hc:false,large:false,slow:false},lsGet(LS_SET)||{});
 function modeKey(){return set.slow?'slow':'normal'}
 var LS_N='salpCatMemory_cats_v1',NC=lsGet(LS_N)===9?9:4,COLS=NC===9?3:2;
@@ -240,7 +277,7 @@ function build(){
   board.innerHTML='';pads=[];
   for(var i=0;i<NC;i++){
     var b=document.createElement('button');
-    b.type='button';b.className='cat';b.setAttribute('aria-label','猫'+(i+1));
+    b.type='button';b.className='cat';b.setAttribute('aria-label',T('cat')+(i+1));
     b.innerHTML=catHTML(i)+'<span class="kn" aria-hidden="true">'+(i+1)+'</span>';
     (function(idx){
       b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();board.classList.remove('kb');sel=idx;markSel();press(idx)});
@@ -272,11 +309,17 @@ document.addEventListener('keydown',function(e){
   if(e.key.length===1&&e.key>='1'&&e.key<=String(NC)){unlockAudio();sel=+e.key-1;board.classList.add('kb');markSel();press(sel);return}
   var k=e.key,t=e.target,onBoard=(t===board||t===document.body||!t||(t.classList&&t.classList.contains('cat')));
   if(/^Arrow/.test(k)){
+    if(t&&t.tagName==='INPUT')return;
     e.preventDefault();board.classList.add('kb');
     var x=sel%COLS,y=Math.floor(sel/COLS),M=COLS-1;if(k==='ArrowLeft')x=Math.max(0,x-1);if(k==='ArrowRight')x=Math.min(M,x+1);if(k==='ArrowUp')y=Math.max(0,y-1);if(k==='ArrowDown')y=Math.min(M,y+1);
     sel=y*COLS+x;markSel();if(document.activeElement!==board)board.focus();return;
   }
-  if((k==='Enter'||k===' ')&&onBoard&&G.phase==='input'){e.preventDefault();unlockAudio();press(sel)}
+  if((k==='Enter'||k===' ')&&onBoard){
+    e.preventDefault();unlockAudio();board.classList.add('kb');
+    if(G.phase==='input')press(sel);else if(G.phase==='idle')startGame();
+    return;
+  }
+  if(k==='Escape'){if(G.phase!=='idle')stopGame();$('start').focus()}
 });
 var sel=0;board.tabIndex=0;
 function markSel(){pads.forEach(function(p,i){p.classList.toggle('sel',i===sel)})}
@@ -411,7 +454,7 @@ function hearts(){var s='';for(var i=0;i<LIVES;i++)s+=i<G.lives?'❤':'♡';retu
 function render(){
   $('sc').textContent=G.score;$('lives').textContent=hearts();
   $('stRound').textContent=G.round>0?G.round:'-';
-  $('stMode').textContent=(G.phase==='idle'?modeKey():G.mode)==='slow'?'ゆっくり':'ふつう';
+  $('stMode').textContent=(G.phase==='idle'?modeKey():G.mode)==='slow'?T('slowS'):T('normal');
   var b=bestOf(G.phase==='idle'?modeKey():G.mode);$('stBest').textContent=b.score;$('stBestR').textContent=b.round;updN();
 }
 function enable(on){pads.forEach(function(p){p.disabled=!on})}
@@ -423,17 +466,17 @@ function clearMarks(){pads.forEach(function(p){p.classList.remove('lit','meow','
 
 function startGame(){
   unlockAudio();G.run++;clearTimeout(G.timer);clearMarks();
-  G.mode=modeKey();G.seq=[];G.round=0;G.score=0;G.lives=LIVES;G.newBest=false;
+  G.mode=modeKey();G.seq=[];G.round=0;G.score=0;G.lives=LIVES;G.newBest=false;G.phase='between';
   $('result').hidden=true;
-  var st=$('start');st.textContent='やめる';st.classList.add('stop');
+  var st=$('start');st.textContent=T('stop');st.classList.add('stop');
   $('tSlow').disabled=true;
-  sfx.start();say('スタート!猫の鳴く順番をよく聞いてね');render();board.focus();markSel();
+  sfx.start();say(T('go'));speak('Ready');render();board.focus();markSel();
   after(1100,nextRound);
 }
 function stopGame(){
   G.run++;clearTimeout(G.timer);G.phase='idle';G.round=0;clearMarks();enable(false);bonusSay('');
-  var st=$('start');st.textContent='はじめる';st.classList.remove('stop');$('tSlow').disabled=false;
-  say('やめました。「はじめる」でもう一度あそべます。');render();
+  var st=$('start');st.textContent=T('start');st.classList.remove('stop');$('tSlow').disabled=false;
+  say(T('stopped'));render();
 }
 function nextRound(){
   G.round++;G.missed=false;
@@ -443,11 +486,11 @@ function nextRound(){
 }
 function showSeq(){
   G.phase='show';G.idx=0;enable(false);
-  say('ラウンド'+G.round+':猫の順番を覚えてね('+G.seq.length+'匹)');
+  say(T('showR')(G.round,G.seq.length));
   after(700,function(){playSeq(0)});
 }
 function playSeq(i){
-  if(i>=G.seq.length){G.phase='input';enable(true);say('あなたの番!(0/'+G.seq.length+')');return}
+  if(i>=G.seq.length){G.phase='input';enable(true);say(T('turn')(0,G.seq.length));speak(G.round===1&&!G.missed?'Go':'Your turn');return}
   var s=stepMs(G.round);flash(G.seq[i],Math.round(s*0.65));after(s,function(){playSeq(i+1)});
 }
 function press(i){
@@ -457,13 +500,13 @@ function press(i){
   var mul=G.mode==='slow'?0.7:1;
   G.score+=Math.round(10*G.round*mul);G.idx++;render();
   if(G.idx>=G.seq.length)roundClear();
-  else say('あなたの番!('+G.idx+'/'+G.seq.length+')');
+  else say(T('turn')(G.idx,G.seq.length));
 }
 function roundClear(){
   G.phase='between';enable(false);
-  var mul=G.mode==='slow'?0.7:1,bonus=Math.round(50*G.round*mul),txt='クリアボーナス +'+bonus;
-  if(!G.missed){var nb=Math.round(20*G.round*mul);bonus+=nb;txt+=' / ノーミス +'+nb}
-  G.score+=bonus;render();say('ラウンド'+G.round+' クリア!すごい!');bonusSay(txt);
+  var mul=G.mode==='slow'?0.7:1,bonus=Math.round(50*G.round*mul),txt=T('clearB')+bonus;
+  if(!G.missed){var nb=Math.round(20*G.round*mul);bonus+=nb;txt+=T('nomiss')+nb}
+  G.score+=bonus;render();say(T('clr')(G.round));speak(G.missed?'Correct!':'Great!');bonusSay(txt);
   setTimeout(sfx.clear,200);
   after(1500,function(){bonusSay('');nextRound()});
 }
@@ -476,17 +519,16 @@ function saveBest(){
 function miss(i){
   G.phase='between';enable(false);G.missed=true;G.lives--;
   pads[i].classList.add('bad');sfx.miss();bonusSay('');render();
-  if(G.lives<=0){say('ざんねん…ハートがなくなりました');after(1500,gameOver);return}
-  say('ミス!のこりハート'+G.lives+'こ。もう一度見てね');
+  if(G.lives<=0){say(T('over0'));after(1500,gameOver);return}
+  say(T('missM')(G.lives));speak('Try again');
   after(1500,function(){clearMarks();showSeq()});
 }
 function gameOver(){
   clearMarks();saveBest();G.phase='idle';enable(false);
   var cleared=Math.max(0,G.round-1),b=bestOf(G.mode);
-  $('result').innerHTML='<h2>ゲームおわり('+(G.mode==='slow'?'ゆっくり':'ふつう')+')</h2><p>得点 <b>'+G.score+'</b> 点 / クリア <b>'+cleared+'</b> ラウンド</p>'+
-    (G.newBest?'<p>🎉 ベスト記録を更新!</p>':'<p>ベスト: '+b.score+'点 / '+b.round+'ラウンド</p>');
-  $('result').hidden=false;sfx.over();say('おつかれさま!また遊んでね');
-  var st=$('start');st.textContent='もう一度あそぶ';st.classList.remove('stop');$('tSlow').disabled=false;
+  G.last={s:G.score,c:cleared,m:G.mode,nb:G.newBest};resultHTML();
+  $('result').hidden=false;sfx.over();say(T('bye'));speak('Game over. Your score is '+G.score);
+  var st=$('start');st.textContent=T('again');st.classList.remove('stop');$('tSlow').disabled=false;
   G.round=0;render();
 }
 
@@ -499,7 +541,7 @@ function applySet(){
   document.body.classList.toggle('hc',set.hc);document.body.classList.toggle('large',set.large);
   $('tHc').setAttribute('aria-pressed',String(set.hc));$('tLg').setAttribute('aria-pressed',String(set.large));
   $('tSlow').setAttribute('aria-pressed',String(set.slow));
-  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?'🔊 音 ON':'🔈 音 OFF';
+  $('tSound').setAttribute('aria-pressed',String(set.sound));$('tSound').textContent=set.sound?T('soundOn'):T('soundOff');
   $('vol').value=set.vol;applyVol();
 }
 function save(){lsSet(LS_SET,set)}
@@ -512,7 +554,24 @@ $('vol').oninput=function(){set.vol=+this.value;save();applyVol()};
 $('vol').onchange=function(){unlockAudio();if(set.sound&&ctx)meow(1,0.3)};
 $('start').onclick=function(){if(G.phase==='idle')startGame();else stopGame()};
 
-build();applySet();render();markSel();
+function resultHTML(){var L=G.last;if(!L)return;var b=bestOf(L.m);
+  $('result').innerHTML='<h2>'+T('resT')(L.m==='slow'?T('slowS'):T('normal'))+'</h2><p>'+T('resS')(L.s,L.c)+'</p>'+(L.nb?'<p>'+T('newBest')+'</p>':'<p>'+T('bestL')(b.score,b.round)+'</p>');}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  [].forEach.call(document.querySelectorAll('[data-i18n]'),function(el){var k=el.getAttribute('data-i18n');if(k==='start'){var st=$('start');el.textContent=G.phase!=='idle'?T('stop'):(G.last?T('again'):T('start'));return}el.textContent=T(k)});
+  [].forEach.call(document.querySelectorAll('[data-i18n-aria]'),function(el){el.setAttribute('aria-label',T(el.getAttribute('data-i18n-aria')))});
+  if(G.phase==='idle'&&!G.last)say(T('intro'));
+  pads.forEach(function(p,i){p.setAttribute('aria-label',T('cat')+(i+1))});
+  var lb=$('tLang');lb.textContent=LANG==='ja'?'English':'日本語';lb.lang=LANG==='ja'?'en':'ja';lb.setAttribute('aria-label',LANG==='ja'?'Switch to English':'日本語に切り替え');
+  var vb=$('tVoice');vb.setAttribute('aria-label',T('voice')+(voiceOn?' ON':' OFF'));vb.title=vb.getAttribute('aria-label');vb.textContent=voiceOn?'🗣️':'🗣️✕';
+  document.title=(LANG==='ja'?'猫の順番記憶 Cat Memory':'Cat Memory 猫の順番記憶')+' | salp Tools';
+  resultHTML();applySet();render();
+}
+$('tLang').onclick=function(){LANG=LANG==='ja'?'en':'ja';lsSet(LS_LANG,LANG);applyLang()};
+if(VOICE_OK)$('tVoice').hidden=false;
+$('tVoice').onclick=function(){voiceOn=!voiceOn;lsSet(LS_VOICE,voiceOn);this.setAttribute('aria-pressed',String(voiceOn));applyLang();if(!voiceOn){try{speechSynthesis.cancel()}catch(e){}}else speak('Voice on')};
+$('tVoice').setAttribute('aria-pressed',String(voiceOn));
+build();applySet();render();applyLang();markSel();
 })();
 </script>
 <!-- SalpBGM v1 begin -->
