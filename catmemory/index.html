@@ -427,7 +427,7 @@ function startGame(){
   $('result').hidden=true;
   var st=$('start');st.textContent='やめる';st.classList.add('stop');
   $('tSlow').disabled=true;
-  sfx.start();say('スタート!猫の鳴く順番をよく聞いてね');render();
+  sfx.start();say('スタート!猫の鳴く順番をよく聞いてね');render();board.focus();markSel();
   after(1100,nextRound);
 }
 function stopGame(){
