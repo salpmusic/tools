@@ -24,7 +24,7 @@ button{cursor:pointer}
 .app{
   --bs:min(calc(100vw - 24px),calc(100dvh - 330px),560px);
   max-width:640px;margin:0 auto;display:grid;gap:10px;justify-items:center;
-  grid-template-areas:"head" "info" "board" "ctrl";
+  grid-template-areas:"head" "info" "bar" "board" "ctrl";
 }
 body.large .app{--bs:min(calc(100vw - 20px),calc(100dvh - 400px),600px)}
 .app>*{width:100%}
@@ -103,7 +103,7 @@ body.hc .main.stop{background:#fff;color:#000}
     --bs:min(calc(100dvh - 28px),calc(100vw - 340px),560px);
     max-width:1000px;align-items:start;justify-items:stretch;
     grid-template-columns:var(--bs) 1fr;column-gap:14px;
-    grid-template-areas:"board head" "board info" "board ctrl";grid-template-rows:auto auto 1fr;
+    grid-template-areas:"board head" "board info" "board bar" "board ctrl";grid-template-rows:auto auto auto 1fr;
   }
   body.large .app{--bs:min(calc(100dvh - 28px),calc(100vw - 380px),600px)}
   #board{align-self:start}
@@ -127,6 +127,30 @@ body.hc .cat.sel,body.hc #board:focus-visible,body.hc button:focus-visible{outli
 #board.n9 .cat .kn{font-size:calc(var(--bs)/32)}
 body.hc .cat .kn{color:#fff;opacity:1}
 body.hc .cat.lit .kn{color:#000}
+/* compact fit (scroll stays available inside .app even if the iframe disables page scroll) */
+html,body{height:100%;overflow:hidden}
+body{min-height:0}
+.app{position:relative;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;align-content:start;gap:8px}
+.bar{grid-area:bar;display:flex;gap:6px;align-items:stretch}
+.bar .main{flex:1 0 auto;width:auto;padding:8px 14px;font-size:1.05rem;white-space:nowrap}
+.bar .tog{padding:4px 10px;font-size:.85rem;flex:0 1 auto;line-height:1.15}
+header{flex-wrap:wrap;row-gap:4px}
+h1{font-size:1.1rem}
+.pcard{padding:2px 8px;border-width:2px}
+.pcard .val{font-size:1.25rem}
+.pcard .name{font-size:.72rem}
+#msg{min-height:2.6em;padding:4px 8px;font-size:.9rem;line-height:1.3}
+#bonus{min-height:1.2em;font-size:.82rem}
+#tN{white-space:nowrap}
+.info{gap:4px}
+@media (max-height:700px),(max-width:420px){
+  .top{display:flex;gap:6px}.pcard{flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
+  .pcard .val{font-size:1.1rem}
+}
+@media (orientation:landscape) and (max-height:700px){
+  .app{column-gap:10px}
+  .info .stats{font-size:.78rem}
+}
 @media (prefers-reduced-motion:reduce){.cat,.cat.bad,.cat.meow svg,.cat.meow .art{transition:none;animation:none}}
 </style>
 </head>
@@ -152,18 +176,16 @@ body.hc .cat.lit .kn{color:#000}
     <div id="bonus" aria-live="polite"></div>
   </section>
 
+  <div class="bar">
+    <button type="button" class="main" id="start" data-i18n="start">はじめる</button>
+    <button type="button" class="tog" id="tN" aria-pressed="false">🐱 4</button>
+    <button type="button" class="tog" id="tSlow" aria-pressed="false" data-i18n="slow">🐢 ゆっくりモード</button>
+  </div>
+
   <div id="board" role="group" data-i18n-aria="board" aria-label="4匹の猫"></div>
 
   <div class="ctrl">
     <section id="result" hidden aria-live="polite"></section>
-    <button type="button" class="main" id="start" data-i18n="start">はじめる</button>
-    <section class="box">
-      <h2 data-i18n="howto">あそびかた</h2>
-      <div class="row">
-        <button type="button" class="tog" id="tN" aria-pressed="false">🐱 4</button>
-        <button type="button" class="tog" id="tSlow" aria-pressed="false" data-i18n="slow">🐢 ゆっくりモード</button>
-      </div>
-    </section>
     <section class="box">
       <h2 data-i18n="snd">音・見やすさ</h2>
       <div class="row">
@@ -572,6 +594,21 @@ if(VOICE_OK)$('tVoice').hidden=false;
 $('tVoice').onclick=function(){voiceOn=!voiceOn;lsSet(LS_VOICE,voiceOn);this.setAttribute('aria-pressed',String(voiceOn));applyLang();if(!voiceOn){try{speechSynthesis.cancel()}catch(e){}}else speak('Voice on')};
 $('tVoice').setAttribute('aria-pressed',String(voiceOn));
 build();applySet();render();applyLang();markSel();
+(function(){
+  var app=document.querySelector('.app'),mq=window.matchMedia('(orientation:landscape) and (max-height:700px)');
+  function fit(){
+    var H=app.clientHeight,W=app.clientWidth,bs;
+    if(mq.matches){bs=Math.min(H-4,W-Math.max(250,W*0.42),600)}
+    else{var top=board.offsetTop;bs=Math.min(W-4,H-top-6,560)}
+    app.style.setProperty('--bs',Math.max(150,Math.floor(bs))+'px');
+  }
+  window.SalpFit=fit;
+  window.addEventListener('resize',fit);window.addEventListener('orientationchange',function(){setTimeout(fit,200)});
+  if(window.visualViewport)visualViewport.addEventListener('resize',fit);
+  ['tLang','tLg','tN'].forEach(function(id){$(id).addEventListener('click',function(){setTimeout(fit,0)})});
+  new MutationObserver(function(){fit()}).observe($('msg'),{childList:true,characterData:true,subtree:true});
+  fit();setTimeout(fit,300);
+})();
 })();
 </script>
 <!-- SalpBGM v1 begin -->
