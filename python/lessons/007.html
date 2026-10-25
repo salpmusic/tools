@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第7回 while文の基本 ～BASICのWHILE〜WENDと比べてみよう～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第7回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第7回：while文の基本 ～BASICのWHILE〜WENDと比べてみよう～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>while を使って、条件が成り立つあいだ処理をくり返せるようになる。</li><li>for と while の使い分けを理解する。</li><li>無限ループを防ぐために、変数を変化させる大切さを知る。</li></ul>
+<p><strong>BASICとの比較</strong><br>第6回では、for を使って決まった回数だけくり返す方法を学びました。</p>
+<p>今回は、条件が成り立っているあいだ、何度も処理をくり返す while 文です。</p>
+<p>BASICの WHILE〜WEND とよく似ています。</p>
+<table><tr><th>BASIC</th><th>Python</th></tr><tr><td>WHILE A &lt; 5</td><td>while a &lt; 5:</td></tr><tr><td>PRINT A</td><td>print(a)</td></tr><tr><td>A = A + 1</td><td>a = a + 1</td></tr><tr><td>WEND</td><td>インデントを戻して終了</td></tr></table>
+<p>BASICでは WEND でくり返しの終わりを示します。</p>
+<p>Pythonでは WEND は使いません。インデント（字下げ）によって、くり返す範囲を決めます。</p>
+<p>また、for は回数が決まっている処理に向き、while は条件によって終了を決めたい処理に向いています。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第7回 while文の基本
+# BASICのWHILE〜WENDと比べよう
+print("while文の練習")
+
+# 1から5まで数える
+count = 1
+while count &lt;= 5:
+    print("カウント:", count)
+    count = count + 1
+print("カウント終了！")
+
+# 10から2ずつ減らす
+number = 10
+while number &gt; 0:
+    print("残り:", number)
+    number = number - 2
+print("すべて終了しました")</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/007.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/007.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">while文の練習
+カウント: 1
+カウント: 2
+カウント: 3
+カウント: 4
+カウント: 5
+カウント終了！
+残り: 10
+残り: 8
+残り: 6
+残り: 4
+残り: 2
+すべて終了しました</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li>① while は「〜のあいだ」</li></ul>
+<p>  while count &lt;= 5: は、「count が5以下のあいだ、くり返す」という意味です。条件が True（真）のあいだ実行され、False（偽）になると終了します。</p>
+<ul><li>② 最後にコロン : を付ける</li></ul>
+<p>  if や for と同じように、while の行末には : が必要です。くり返す処理は、半角スペース4つで字下げします。</p>
+<ul><li>③ 変数を変化させる</li></ul>
+<p>  count = count + 1 は、count を1増やす命令です。BASICと同じ考え方です。Pythonでは count += 1 と短く書くこともできます。</p>
+<ul><li>④ 無限ループに注意！</li></ul>
+<p>  count を増やし忘れると、count &lt;= 5 がずっと成り立ち、処理が終わらなくなります。while を書いたら、条件がいつか False になるか確認しましょう。</p>
+<ul><li>⑤ for と while の違い</li></ul>
+<p>  1から10まで数えるなど、回数が決まっているなら for が便利です。一方、条件が変わるまで続けたいときは while が便利です。なお、条件が最初から False なら、くり返しは一度も実行されません。</p>
+<p><strong>ミニ課題</strong><br>while を使って、3から1までカウントダウンしてみましょう。</p>
+<p>最初に count = 3 として、1ずつ減らします。</p>
+<p>画面に次のように表示できれば成功です。</p>
+<pre><code class="lang-text">3
+2
+1
+スタート！</code></pre>
+<p>ヒント：条件には count &gt;= 1 を使います。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 答え
+count = 3
+while count &gt;= 1:
+    print(count)
+    count = count - 1
+print("スタート！")</code></pre>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDnrZTjgYgKY291bnQgPSAzCndoaWxlIGNvdW50ID49IDE6CiAgICBwcmludChjb3VudCkKICAgIGNvdW50ID0gY291bnQgLSAxCnByaW50KCLjgrnjgr_jg7zjg4jvvIEiKQo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<p class="panel"><a href="../lessons/006.html">◀ 第6回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>
