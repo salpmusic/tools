@@ -8266,6 +8266,395 @@ const SCENES = {
         }
       }
     ]
+  },
+
+  fluffyflowers: {
+    id: "fluffyflowers",
+    icon: "🌺",
+    zoom: true,
+    title: {
+      ja: "🌺 ふわふわ花の庭",
+      en: "🌺 Fluffy Flower Garden",
+      es: "🌺 Jardín de flores fluffy",
+      fr: "🌺 Jardin de fleurs fluffy",
+      de: "🌺 Fluffy Blumengarten",
+      zh: "🌺 软绵绵花庭",
+      ko: "🌺 폭신폭신 꽃 정원"
+    },
+
+    background: "fluffyflowers.webp",
+    subtitle: "単語学習 ふわふわ花の庭編(拡大表示つき)",
+    documentTitle: "SALP WORDS | 単語学習 ふわふわ花の庭編",
+    alt: "秋の光の秘密の花の庭のイラスト。ガラス温室と石畳の小道",
+    ariaLabel: "ふわふわ花の庭の単語学習",
+    help: "花をタッチすると名前を読み上げ、大きく拡大して解説も見られます。「🔊 解説を読む」で解説を読み上げます。もう一度タッチ(またはEsc)で戻ります。スコップなど花以外の物も同様です。",
+    promptJa: "庭の花や道具を選んでください",
+
+    items: [
+      {
+        id: "lupine",
+        emoji: "🪻",
+        x: 3,
+        y: 14,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "ルピナス", reading: "るぴなす" },
+          en: { word: "Lupine", reading: "LOO-pin" },
+          es: { word: "Lupino", reading: "loo-PEE-no" },
+          fr: { word: "Lupin", reading: "loo-PAN" },
+          de: { word: "Lupine", reading: "loo-PEE-nuh" },
+          zh: { word: "羽扇豆", reading: "yǔ shàn dòu" },
+          ko: { word: "루핀", reading: "rupin" }
+        },
+        desc: {
+          ja: "ルピナスは、蝶のような小さな花が下から上へ並んで咲く植物です。紫、ピンク、白、黄色などの花があり、主に春から初夏に楽しめます。多くの園芸品種のもとになった植物は南北アメリカなどに分布しています。日本では、花言葉として「想像力」や「いつも幸せ」がよく紹介されます。",
+          en: "Lupines have tall flower spikes covered with small blossoms that look like butterflies. Their flowers can be purple, pink, white, yellow, or other soft colors. Many garden varieties bloom from spring to early summer. Wild lupines grow in several regions of the world, including North and South America. In Japan, their traditional flower meanings are often described as imagination and lasting happiness.",
+          es: "Los lupinos tienen espigas altas cubiertas de pequeñas flores que parecen mariposas. Sus flores pueden ser moradas, rosadas, blancas o amarillas. Muchas variedades de jardín florecen desde la primavera hasta principios del verano. Existen especies silvestres en distintas regiones del mundo, incluidas América del Norte y América del Sur. En Japón, se asocian con la imaginación y la felicidad duradera en el lenguaje de las flores.",
+          fr: "Les lupins portent de longues grappes de petites fleurs qui ressemblent à des papillons. Leurs couleurs vont du violet au rose, en passant par le blanc et le jaune. De nombreuses variétés de jardin fleurissent du printemps au début de l'été. Des espèces sauvages poussent dans plusieurs régions du monde, notamment en Amérique du Nord et du Sud. Au Japon, le langage des fleurs les associe souvent à l'imagination et au bonheur durable.",
+          de: "Lupinen tragen hohe Blütenstände mit vielen kleinen Blüten, die an Schmetterlinge erinnern. Sie blühen in Violett, Rosa, Weiß, Gelb und weiteren Farben. Viele Gartensorten zeigen ihre Blüten vom Frühling bis zum Frühsommer. Wilde Lupinen kommen in verschiedenen Teilen der Welt vor, besonders auch in Nord- und Südamerika. In Japan stehen sie in der Blumensprache häufig für Fantasie und dauerhaftes Glück.",
+          zh: "羽扇豆的花朵像小蝴蝶一样，沿着高高的花序从下向上排列。花色有紫色、粉色、白色和黄色等，许多园艺品种在春季到初夏开放。野生种分布在世界多个地区，包括北美洲和南美洲。它的花序十分醒目，适合种在花坛中。在日本的花语中，羽扇豆常代表想象力和长久的幸福。",
+          ko: "루핀은 나비를 닮은 작은 꽃들이 긴 꽃대에 아래부터 위로 모여 피는 식물입니다. 보라색, 분홍색, 흰색, 노란색 등 여러 색이 있으며 많은 원예 품종이 봄부터 초여름까지 꽃을 피웁니다. 야생종은 북아메리카와 남아메리카를 비롯한 여러 지역에 분포합니다. 일본의 꽃말에서는 상상력과 오래 지속되는 행복을 뜻하는 꽃으로 자주 소개됩니다."
+        }
+      },
+
+      {
+        id: "protea",
+        emoji: "🌺",
+        x: 35,
+        y: 14,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "プロテア", reading: "ぷろてあ" },
+          en: { word: "Protea", reading: "PROH-tee-uh" },
+          es: { word: "Protea", reading: "pro-TEH-ah" },
+          fr: { word: "Protée", reading: "pro-TAY" },
+          de: { word: "Protea", reading: "pro-TEH-ah" },
+          zh: { word: "帝王花", reading: "dì wáng huā" },
+          ko: { word: "프로테아", reading: "peurotea" }
+        },
+        desc: {
+          ja: "プロテアは、王冠のような大きな花の姿が印象的な植物です。ピンクや赤、白などの色があり、中心の小さな花を色づいた葉のような部分が囲んでいます。南アフリカを中心に分布し、種類によって咲く季節が異なります。日本では「自由自在」や「華やかな期待」という花言葉が紹介されています。",
+          en: "Proteas are famous for their large, dramatic flower heads that often resemble royal crowns. Pink, red, and white forms are especially striking. What looks like one enormous flower is actually a group of small flowers surrounded by colorful bracts. Proteas are native mainly to southern Africa, and their flowering seasons vary by species. In Japanese flower symbolism, they are associated with freedom, versatility, and splendid expectations.",
+          es: "Las proteas destacan por sus grandes cabezuelas florales, que muchas veces recuerdan a una corona. Pueden mostrar tonos rosados, rojos y blancos. Lo que parece una sola flor enorme es un conjunto de flores pequeñas rodeadas de brácteas vistosas. Son originarias principalmente del sur de África y su época de floración depende de la especie. En el lenguaje floral japonés, se relacionan con la libertad, la versatilidad y las grandes expectativas.",
+          fr: "Les protées sont remarquables par leurs grandes inflorescences qui évoquent parfois une couronne royale. Elles présentent notamment des teintes roses, rouges ou blanches. Ce qui ressemble à une seule fleur est en réalité un ensemble de petites fleurs entourées de bractées colorées. Elles sont principalement originaires d'Afrique australe et fleurissent à des périodes différentes selon les espèces. Au Japon, elles symbolisent souvent la liberté et de belles attentes.",
+          de: "Proteas fallen durch ihre großen, auffälligen Blütenköpfe auf, die manchmal wie Königskronen aussehen. Besonders bekannt sind rosa, rote und weiße Formen. Der vermeintlich einzelne Blütenkopf besteht aus vielen kleinen Blüten, die von farbigen Hochblättern umgeben sind. Proteas stammen hauptsächlich aus dem südlichen Afrika. Ihre Blütezeit hängt von der Art ab. In Japan verbindet man sie in der Blumensprache mit Freiheit und großen Erwartungen.",
+          zh: "帝王花拥有巨大而醒目的花序，外形常让人联想到王冠。它有粉色、红色和白色等不同颜色。看似一朵大花的部分，其实由许多小花和周围鲜艳的苞片组成。帝王花主要原产于非洲南部，不同种类的开花季节有所不同。在日本的花语中，它常象征自由、灵活变化和美好的期待。",
+          ko: "프로테아는 왕관을 닮은 크고 화려한 꽃머리가 인상적인 식물입니다. 분홍색과 붉은색, 흰색 등 여러 색이 있습니다. 커다란 꽃 한 송이처럼 보이지만 실제로는 작은 꽃들이 모여 있고 그 둘레를 색이 있는 포엽이 감싸고 있습니다. 주로 아프리카 남부가 원산지이며 종류에 따라 피는 계절이 다릅니다. 일본의 꽃말에서는 자유와 다채로운 가능성, 화려한 기대를 상징합니다."
+        }
+      },
+
+      {
+        id: "gloriosa",
+        emoji: "🌺",
+        x: 67,
+        y: 14,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "グロリオサ", reading: "ぐろりおさ" },
+          en: { word: "Gloriosa lily", reading: "glor-ee-OH-suh LIL-ee" },
+          es: { word: "Gloriosa", reading: "glo-ree-OH-sah" },
+          fr: { word: "Gloriosa", reading: "glo-ree-OH-za" },
+          de: { word: "Ruhmeskrone", reading: "ROOM-es-KROH-nuh" },
+          zh: { word: "嘉兰", reading: "jiā lán" },
+          ko: { word: "글로리오사", reading: "geulloriosa" }
+        },
+        desc: {
+          ja: "グロリオサは、花びらが上に反り返り、炎が燃えているように見える花です。赤と黄色の鮮やかな花がよく知られ、主に夏から秋に咲きます。アフリカや熱帯アジアなどに分布し、名前には輝かしいという意味があります。日本では「栄光」や「勇敢」という花言葉で知られています。植物全体に毒があるため、食べてはいけません。",
+          en: "The gloriosa lily has striking petals that curl backward and upward, making each flower look like a dancing flame. Bright red and yellow flowers are especially familiar. It usually blooms in summer and can continue into autumn. The plant is native to parts of Africa and tropical Asia, and its name refers to glory. In Japan, its flower meanings include glory and courage. All parts of this plant are poisonous and must never be eaten.",
+          es: "La gloriosa tiene pétalos que se curvan hacia arriba y hacia atrás, como pequeñas llamas en movimiento. Son especialmente conocidas sus flores rojas y amarillas. Suele florecer en verano y puede continuar hasta el otoño. Es originaria de regiones de África y Asia tropical. Su nombre está relacionado con la gloria. En Japón, sus significados florales incluyen la gloria y el valor. Todas las partes de esta planta son venenosas y no deben comerse.",
+          fr: "Le gloriosa possède des pétales recourbés vers le haut qui ressemblent à des flammes dansantes. Ses fleurs rouges et jaunes sont particulièrement spectaculaires. Il fleurit surtout en été et parfois jusqu'en automne. Cette plante est originaire de certaines régions d'Afrique et d'Asie tropicale. Son nom évoque la gloire. Au Japon, elle symbolise notamment la gloire et le courage. Toutes ses parties sont toxiques et ne doivent jamais être consommées.",
+          de: "Die Ruhmeskrone hat auffällige Blütenblätter, die sich nach oben zurückbiegen und wie tanzende Flammen aussehen. Besonders bekannt sind ihre leuchtend roten und gelben Blüten. Sie blüht vor allem im Sommer und teilweise bis in den Herbst. Die Pflanze stammt aus Regionen Afrikas und des tropischen Asiens. Ihr Name erinnert an Ruhm und Glanz. In Japan steht sie für Ruhm und Mut. Alle Pflanzenteile sind giftig und dürfen nicht gegessen werden.",
+          zh: "嘉兰的花瓣向上反卷，看起来像正在跳动的火焰。红色和黄色的花朵十分鲜艳，主要在夏季到秋季开放。它原产于非洲和热带亚洲的部分地区，名字带有光荣和辉煌的含义。在日本的花语中，嘉兰代表荣耀和勇气。整株植物都有毒，尤其不能误食地下块茎，观赏和照料时应当小心。",
+          ko: "글로리오사는 꽃잎이 위로 뒤집히듯 휘어져 타오르는 불꽃처럼 보이는 꽃입니다. 선명한 빨간색과 노란색 꽃이 특히 유명하며 주로 여름부터 가을까지 피어납니다. 아프리카와 열대 아시아의 일부 지역이 원산지이고 이름에는 영광이라는 뜻이 담겨 있습니다. 일본의 꽃말에서는 영광과 용기를 상징합니다. 식물 전체에 독성이 있으므로 절대로 먹어서는 안 됩니다."
+        }
+      },
+
+      {
+        id: "anemone",
+        emoji: "🌸",
+        x: 3,
+        y: 29,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "アネモネ", reading: "あねもね" },
+          en: { word: "Anemone", reading: "uh-NEM-uh-nee" },
+          es: { word: "Anémona", reading: "ah-NEH-mo-nah" },
+          fr: { word: "Anémone", reading: "ah-nay-MON" },
+          de: { word: "Anemone", reading: "ah-neh-MOH-nuh" },
+          zh: { word: "银莲花", reading: "yín lián huā" },
+          ko: { word: "아네모네", reading: "anemone" }
+        },
+        desc: {
+          ja: "アネモネは、赤、青紫、白、ピンクなどの花を咲かせる春の植物です。大きな花びらのように見える部分は、実は色づいたがくです。地中海沿岸などに分布する種類が園芸で親しまれ、名前はギリシャ語の風に由来します。日本では、花言葉として「はかない恋」や「恋の苦しみ」がよく紹介されています。",
+          en: "Anemones are cheerful spring flowers that come in red, purple, blue, white, and pink. Their broad, colorful parts look like petals but are actually sepals. Garden anemones often come from species native to the Mediterranean region. The name anemone comes from an ancient Greek word meaning wind, which is why they are sometimes called windflowers. In Japanese flower symbolism, they are associated with fleeting love and the sorrow of love.",
+          es: "Las anémonas alegran la primavera con flores rojas, violetas, azules, blancas y rosadas. Las partes grandes y coloridas que parecen pétalos son en realidad sépalos. Muchas anémonas cultivadas proceden de especies de la región mediterránea. Su nombre viene de una palabra griega antigua que significa viento. Por eso también se conocen como flores del viento. En el lenguaje floral japonés, representan el amor pasajero y el sufrimiento amoroso.",
+          fr: "Les anémones apportent au printemps des fleurs rouges, violettes, bleues, blanches ou roses. Les grandes parties colorées qui ressemblent à des pétales sont en réalité des sépales. De nombreuses anémones de jardin proviennent d'espèces du bassin méditerranéen. Leur nom vient d'un ancien mot grec qui signifie vent. On les appelle donc parfois fleurs du vent. Dans le langage japonais des fleurs, elles évoquent l'amour éphémère et les peines de cœur.",
+          de: "Anemonen bringen im Frühling rote, violette, blaue, weiße und rosa Blüten hervor. Die großen farbigen Teile sehen wie Blütenblätter aus, sind aber eigentlich Kelchblätter. Viele Gartenanemonen stammen von Arten aus dem Mittelmeerraum ab. Ihr Name geht auf ein altgriechisches Wort für Wind zurück. Deshalb heißen sie auch Windröschen. In der japanischen Blumensprache stehen sie häufig für vergängliche Liebe und Liebeskummer.",
+          zh: "银莲花在春天开放，花色有红色、紫色、蓝色、白色和粉色。看起来像花瓣的大片彩色部分，其实是花萼。常见园艺品种的祖先有些来自地中海沿岸地区。它的名字源于古希腊语中的风，因此也被称为风之花。在日本的花语中，银莲花常代表短暂的爱情和恋爱的苦恼。",
+          ko: "아네모네는 봄에 빨간색과 보라색, 파란색, 흰색, 분홍색 꽃을 피우는 식물입니다. 커다란 꽃잎처럼 보이는 부분은 실제로 꽃받침입니다. 정원에서 기르는 여러 품종은 지중해 주변 지역에 자라는 종류에서 유래했습니다. 이름은 바람을 뜻하는 고대 그리스어에서 왔으며 바람꽃이라고도 불립니다. 일본의 꽃말에서는 덧없는 사랑과 사랑의 아픔을 나타냅니다."
+        }
+      },
+
+      {
+        id: "calibrachoa",
+        emoji: "🌸",
+        x: 35,
+        y: 29,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "カリブラコア", reading: "かりぶらこあ" },
+          en: { word: "Calibrachoa", reading: "kal-ih-bruh-KOH-uh" },
+          es: { word: "Calibrachoa", reading: "kah-lee-brah-KOH-ah" },
+          fr: { word: "Calibrachoa", reading: "ka-lee-bra-KO-a" },
+          de: { word: "Zauberglöckchen", reading: "TSOW-ber-GLOEKH-khen" },
+          zh: { word: "小花矮牵牛", reading: "xiǎo huā ǎi qiān niú" },
+          ko: { word: "칼리브라코아", reading: "kallibe urakoa" }
+        },
+        desc: {
+          ja: "カリブラコアは、小さなラッパのような花を次々に咲かせる植物です。ピンク、紫、黄色、オレンジなど花色が豊富で、春から秋まで長く楽しめます。南アメリカに分布する植物をもとに園芸品種が作られました。日本では「自然な心」や「穏やかな心」という花言葉が紹介されることがあります。鉢からこぼれるように咲く姿も魅力です。",
+          en: "Calibrachoa produces many small, trumpet-shaped flowers in pink, purple, yellow, orange, and other cheerful colors. It often blooms continuously from spring into autumn when growing conditions are suitable. Modern garden varieties were developed from plants native to South America. Its trailing stems make it especially attractive in hanging baskets and containers. In Japanese flower symbolism, it is sometimes associated with a natural and peaceful heart.",
+          es: "La calibrachoa produce numerosas flores pequeñas con forma de trompeta. Sus colores incluyen rosa, morado, amarillo, naranja y muchos otros tonos alegres. En buenas condiciones puede florecer continuamente desde la primavera hasta el otoño. Las variedades de jardín se desarrollaron a partir de plantas originarias de América del Sur. Sus tallos colgantes quedan muy bonitos en macetas suspendidas. En Japón, a veces se asocia con un corazón natural y tranquilo.",
+          fr: "Le calibrachoa produit une multitude de petites fleurs en forme de trompette. Elles peuvent être roses, violettes, jaunes, orange ou d'autres couleurs lumineuses. Dans de bonnes conditions, la floraison dure du printemps jusqu'à l'automne. Les variétés horticoles proviennent de plantes originaires d'Amérique du Sud. Ses tiges retombantes sont particulièrement jolies dans les suspensions et les jardinières. Au Japon, il est parfois associé à un cœur naturel et paisible.",
+          de: "Das Zauberglöckchen bildet viele kleine, trompetenförmige Blüten in Rosa, Violett, Gelb, Orange und weiteren Farben. Bei guten Bedingungen blüht es vom Frühling bis in den Herbst hinein. Die heutigen Gartensorten wurden aus Pflanzen entwickelt, die ursprünglich aus Südamerika stammen. Seine überhängenden Triebe eignen sich besonders gut für Blumenampeln und Balkonkästen. In Japan verbindet man es manchmal mit einem natürlichen und friedlichen Herzen.",
+          zh: "小花矮牵牛会不断开出许多小喇叭形的花朵，颜色包括粉色、紫色、黄色和橙色等。在适宜的环境中，它从春季到秋季都能持续开花。现代园艺品种来自南美洲的野生植物。枝条自然下垂，特别适合种在吊盆和花箱中。在日本的花语介绍中，它有时象征自然纯真的心和温和宁静的心情。",
+          ko: "칼리브라코아는 작은 나팔처럼 생긴 꽃을 끊임없이 피우는 식물입니다. 분홍색과 보라색, 노란색, 주황색 등 꽃 색깔이 매우 다양합니다. 환경이 알맞으면 봄부터 가을까지 오랫동안 꽃을 볼 수 있습니다. 남아메리카에 자생하는 식물을 바탕으로 여러 원예 품종이 만들어졌습니다. 줄기가 아래로 늘어져 걸이 화분에 잘 어울립니다. 일본의 꽃말에서는 자연스러운 마음과 평온한 마음을 뜻하기도 합니다."
+        }
+      },
+
+      {
+        id: "columbine",
+        emoji: "🌸",
+        x: 67,
+        y: 29,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "オダマキ", reading: "おだまき" },
+          en: { word: "Columbine", reading: "KOL-um-bine" },
+          es: { word: "Aguileña", reading: "ah-ghee-LEH-nyah" },
+          fr: { word: "Ancolie", reading: "ahn-ko-LEE" },
+          de: { word: "Akelei", reading: "ah-keh-LYE" },
+          zh: { word: "耧斗菜", reading: "lóu dǒu cài" },
+          ko: { word: "매발톱꽃", reading: "maebaltopkkot" }
+        },
+        desc: {
+          ja: "オダマキは、花の後ろに細長い突起が伸びる、少し不思議な形の花です。青紫、ピンク、白、黄色などの色があり、主に春から初夏に咲きます。日本にも野生の仲間があり、名前は昔の糸巻き道具に形が似ていることに由来します。日本では「勝利」や「愚か」という花言葉が紹介されています。種類によって花の姿が大きく違います。",
+          en: "Columbines have unusual flowers with long, narrow spurs extending behind their petals. They appear in purple, blue, pink, white, yellow, and other colors, usually blooming from spring to early summer. Wild species grow in many parts of the Northern Hemisphere, including Japan. The Japanese name refers to an old tool used for winding thread. In Japanese flower symbolism, columbines are associated with victory and, in another traditional interpretation, foolishness.",
+          es: "Las aguileñas tienen flores muy particulares, con largos espolones que sobresalen por detrás de los pétalos. Pueden ser violetas, azules, rosadas, blancas o amarillas y suelen florecer entre la primavera y principios del verano. Existen especies silvestres en muchas regiones del hemisferio norte, incluido Japón. Su nombre japonés recuerda a una antigua herramienta para enrollar hilo. En el lenguaje floral japonés, pueden representar la victoria o, según otra interpretación tradicional, la necedad.",
+          fr: "Les ancolies possèdent des fleurs originales munies de longs éperons qui s'étendent derrière les pétales. Elles fleurissent généralement du printemps au début de l'été, en violet, bleu, rose, blanc ou jaune. Des espèces sauvages poussent dans de nombreuses régions de l'hémisphère Nord, y compris au Japon. Leur nom japonais évoque un ancien outil servant à enrouler du fil. Dans le langage japonais des fleurs, elles peuvent symboliser la victoire ou parfois la sottise.",
+          de: "Akeleien besitzen ungewöhnliche Blüten mit langen, schmalen Spornen hinter den Blütenblättern. Sie blühen meist vom Frühling bis zum Frühsommer in Violett, Blau, Rosa, Weiß oder Gelb. Wilde Arten wachsen in vielen Regionen der Nordhalbkugel, auch in Japan. Der japanische Name erinnert an ein altes Gerät zum Aufwickeln von Garn. In der japanischen Blumensprache können Akeleien für Sieg, aber auch für Torheit stehen.",
+          zh: "耧斗菜的花形十分特别，花瓣后方伸出细长的距，看起来像精巧的小装饰。花色有蓝紫色、粉色、白色和黄色等，主要在春季到初夏开放。北半球许多地区都有野生种，日本也有。它的日语名称来自一种古老的绕线工具，因为花形与工具相似。在日本的花语中，耧斗菜有胜利和愚笨等不同含义。",
+          ko: "매발톱꽃은 꽃잎 뒤쪽으로 길고 가느다란 돌기가 뻗어 있는 독특한 모양의 꽃입니다. 보라색과 파란색, 분홍색, 흰색, 노란색 등 다양한 색으로 봄부터 초여름까지 피어납니다. 북반구 여러 지역에 야생종이 있으며 일본에도 자생하는 종류가 있습니다. 일본 이름은 옛날에 실을 감던 도구의 모양에서 유래했습니다. 일본의 꽃말에서는 승리 또는 어리석음이라는 뜻으로 소개됩니다."
+        }
+      },
+
+      {
+        id: "marigold",
+        emoji: "🌼",
+        x: 3,
+        y: 44,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "マリーゴールド", reading: "まりーごーるど" },
+          en: { word: "Marigold", reading: "MAIR-ih-gohld" },
+          es: { word: "Clavel de moro", reading: "klah-VEL deh MOH-roh" },
+          fr: { word: "Œillet d'Inde", reading: "uh-YAY DAN-d" },
+          de: { word: "Studentenblume", reading: "shtoo-DEN-ten-BLOO-muh" },
+          zh: { word: "万寿菊", reading: "wàn shòu jú" },
+          ko: { word: "메리골드", reading: "merigoldeu" }
+        },
+        desc: {
+          ja: "マリーゴールドは、黄色やオレンジ色の丸く明るい花を咲かせます。花びらが幾重にも重なる種類が多く、初夏から秋まで長く楽しめます。主にメキシコや中央アメリカに由来する植物で、花壇や鉢植えによく使われます。日本では「健康」や「変わらぬ愛」という花言葉が紹介される一方、「嫉妬」という意味もあります。",
+          en: "Marigolds brighten gardens with round, cheerful flowers in shades of yellow, gold, and orange. Many varieties have densely layered petals. They commonly bloom from early summer through autumn and are popular in flower beds and containers. Garden marigolds of the genus Tagetes are native mainly to Mexico and Central America. In Japanese flower symbolism, they can represent health and lasting love, but they are also sometimes associated with jealousy.",
+          es: "Los claveles de moro iluminan los jardines con flores redondas de color amarillo, dorado y naranja. Muchas variedades tienen numerosos pétalos superpuestos. Suelen florecer desde principios del verano hasta el otoño y se cultivan en macetas y parterres. Las especies ornamentales del género Tagetes proceden principalmente de México y América Central. En el lenguaje floral japonés, pueden representar la salud y el amor duradero, aunque también se relacionan con los celos.",
+          fr: "Les œillets d'Inde illuminent les jardins avec leurs fleurs rondes, jaunes, dorées ou orange. De nombreuses variétés possèdent plusieurs couches de pétales. Ils fleurissent généralement du début de l'été jusqu'à l'automne et sont très appréciés dans les massifs et les jardinières. Les espèces horticoles du genre Tagetes viennent principalement du Mexique et d'Amérique centrale. Au Japon, elles symbolisent parfois la santé et l'amour constant, mais aussi la jalousie.",
+          de: "Studentenblumen bringen mit ihren runden, gelben, goldenen oder orangefarbenen Blüten viel Farbe in den Garten. Viele Sorten besitzen dicht übereinanderliegende Blütenblätter. Sie blühen häufig vom Frühsommer bis zum Herbst und eignen sich für Beete und Töpfe. Die Gartenarten der Gattung Tagetes stammen hauptsächlich aus Mexiko und Mittelamerika. In der japanischen Blumensprache stehen sie unter anderem für Gesundheit und beständige Liebe, manchmal aber auch für Eifersucht.",
+          zh: "万寿菊开着明亮的黄色、金色或橙色花朵，许多品种的花瓣层层叠叠，形成圆润饱满的花形。它通常从初夏一直开到秋季，适合花坛和花盆。常见园艺种主要原产于墨西哥和中美洲。在日本的花语中，万寿菊既可以代表健康和不变的爱，也有嫉妒的含义。",
+          ko: "메리골드는 노란색과 주황색의 밝고 둥근 꽃을 피우는 식물입니다. 꽃잎이 여러 겹으로 겹쳐 풍성하게 보이는 품종이 많습니다. 보통 초여름부터 가을까지 오랫동안 피어나며 화단이나 화분에서 쉽게 볼 수 있습니다. 대표적인 원예종은 주로 멕시코와 중앙아메리카가 원산지입니다. 일본의 꽃말에서는 건강과 변함없는 사랑을 뜻하지만 질투라는 의미도 있습니다."
+        }
+      },
+
+      {
+        id: "melampodium",
+        emoji: "🌼",
+        x: 35,
+        y: 44,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "メランポジウム", reading: "めらんぽじうむ" },
+          en: { word: "Melampodium", reading: "mel-am-POH-dee-um" },
+          es: { word: "Melampodio", reading: "meh-lam-POH-dyoh" },
+          fr: { word: "Mélampode", reading: "may-lam-POD" },
+          de: { word: "Melampodium", reading: "meh-lam-POH-dee-oom" },
+          zh: { word: "黄帝菊", reading: "huáng dì jú" },
+          ko: { word: "멜람포디움", reading: "mellampodium" }
+        },
+        desc: {
+          ja: "メランポジウムは、小さな黄色い花を株いっぱいに咲かせる植物です。中心も黄色く、明るい太陽のような花が初夏から秋まで次々に開きます。主にメキシコや中央アメリカなどの暖かい地域に由来します。日本では「元気」や「あなたはかわいい」という花言葉で紹介されます。こんもりと茂るので、花壇の縁取りにも向いています。",
+          en: "Melampodium is a cheerful garden plant covered with small, bright yellow flowers. Both the petals and the centers are yellow, making each blossom look like a tiny sun. It flowers repeatedly from early summer into autumn in warm growing conditions. Common garden forms come from species native to Mexico and other parts of Central America. In Japanese flower symbolism, it is associated with energy and the affectionate message that someone is cute. Its bushy growth suits flower borders.",
+          es: "El melampodio es una planta alegre que se cubre de pequeñas flores amarillas. Tanto los pétalos como el centro son amarillos, de modo que cada flor parece un pequeño sol. En condiciones cálidas florece repetidamente desde principios del verano hasta el otoño. Las formas ornamentales comunes proceden de especies originarias de México y otras zonas de América Central. En el lenguaje floral japonés, representa la energía y el cariñoso mensaje de que alguien es adorable. Su crecimiento compacto es ideal para borduras.",
+          fr: "Le mélampode est une plante de jardin joyeuse qui se couvre de petites fleurs jaune vif. Leurs pétales et leur centre sont jaunes, ce qui leur donne l'apparence de petits soleils. Il fleurit régulièrement du début de l'été jusqu'à l'automne lorsque les conditions sont favorables. Les formes cultivées proviennent d'espèces originaires du Mexique et d'autres régions d'Amérique centrale. Au Japon, il évoque l'énergie et le charme adorable d'une personne. Son port touffu convient aux bordures fleuries.",
+          de: "Melampodium ist eine fröhlich wirkende Gartenpflanze mit vielen kleinen, leuchtend gelben Blüten. Sowohl die Blütenblätter als auch die Mitte sind gelb, sodass jede Blüte wie eine kleine Sonne aussieht. Bei warmem Wetter blüht die Pflanze vom Frühsommer bis zum Herbst immer wieder. Häufige Gartenformen stammen von Arten aus Mexiko und anderen Teilen Mittelamerikas ab. In Japan steht sie in der Blumensprache für Energie und Liebenswürdigkeit. Ihr buschiger Wuchs eignet sich gut für Beetränder.",
+          zh: "黄帝菊会开出许多小巧明亮的黄色花朵，花瓣和花心都是黄色，看起来像一轮轮小太阳。在温暖的环境中，它从初夏到秋季不断开花。常见园艺品种的祖先主要来自墨西哥和中美洲其他地区。植株生长茂密，适合种在花坛边缘。在日本的花语中，它常代表活力，也带有你很可爱的亲切含义。",
+          ko: "멜람포디움은 작고 밝은 노란색 꽃이 포기 가득 피어나는 식물입니다. 꽃잎과 가운데 부분이 모두 노란색이어서 작은 태양처럼 보입니다. 따뜻한 환경에서는 초여름부터 가을까지 계속 꽃을 피웁니다. 대표적인 원예 품종의 바탕이 된 식물은 주로 멕시코와 중앙아메리카 지역에서 왔습니다. 둥글고 풍성하게 자라 화단 가장자리에 잘 어울립니다. 일본의 꽃말에서는 활기와 귀여움을 상징합니다."
+        }
+      },
+
+      {
+        id: "snapdragon",
+        emoji: "🌸",
+        x: 67,
+        y: 44,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "キンギョソウ", reading: "きんぎょそう" },
+          en: { word: "Snapdragon", reading: "SNAP-drag-un" },
+          es: { word: "Boca de dragón", reading: "BOH-kah deh drah-GON" },
+          fr: { word: "Muflier", reading: "moo-FLEE-ay" },
+          de: { word: "Löwenmäulchen", reading: "LOE-ven-MOYL-khen" },
+          zh: { word: "金鱼草", reading: "jīn yú cǎo" },
+          ko: { word: "금어초", reading: "geumeocho" }
+        },
+        desc: {
+          ja: "キンギョソウは、金魚が口を開けたような形の花を穂状に咲かせます。赤、ピンク、黄色、白などの色があり、春から初夏を中心に楽しめます。地中海沿岸地域などに由来し、英語ではドラゴンの口を思わせる名前で呼ばれます。日本では「おしゃべり」や「でしゃばり」という花言葉が知られています。花を横から見ると、口のような形がよく分かります。",
+          en: "Snapdragons grow colorful flowers in upright spikes. Each blossom resembles a small mouth, and its shape reminds Japanese gardeners of a goldfish opening its mouth. Flowers may be red, pink, yellow, white, or mixed colors. They bloom mainly in spring and early summer, although the season varies with climate. The familiar garden species originated around the Mediterranean region. In Japanese flower symbolism, snapdragons are associated with talkativeness and being overly forward.",
+          es: "Las bocas de dragón producen espigas verticales llenas de flores de colores. Cada flor tiene una forma que recuerda a una pequeña boca. En Japón, su nombre hace referencia a un pez dorado abriendo la boca. Pueden ser rojas, rosadas, amarillas, blancas o de varios colores. Florecen principalmente en primavera y a principios del verano, según el clima. La especie ornamental común procede de la región mediterránea. En el lenguaje floral japonés, representan la charlatanería y la intromisión.",
+          fr: "Les mufliers portent des épis dressés de fleurs colorées. Chaque fleur ressemble à une petite bouche. Au Japon, leur nom évoque un poisson rouge qui ouvre la bouche. Ils existent en rouge, rose, jaune, blanc et dans des mélanges de couleurs. Leur floraison se situe surtout au printemps et au début de l'été, selon le climat. L'espèce horticole courante vient du bassin méditerranéen. Dans le langage japonais des fleurs, ils symbolisent le bavardage et une attitude trop envahissante.",
+          de: "Löwenmäulchen tragen aufrechte Blütenstände mit vielen bunten Einzelblüten. Jede Blüte erinnert an einen kleinen geöffneten Mund. Der japanische Name vergleicht ihre Form mit dem Maul eines Goldfisches. Es gibt rote, rosa, gelbe, weiße und mehrfarbige Sorten. Je nach Klima blühen sie vor allem im Frühling und Frühsommer. Die bekannte Gartenart stammt aus dem Mittelmeerraum. In Japan stehen sie in der Blumensprache für Gesprächigkeit und aufdringliches Verhalten.",
+          zh: "金鱼草的花朵沿着直立的花序排列，形状像张开嘴巴的小金鱼。花色有红色、粉色、黄色和白色等，也有双色品种。它主要在春季到初夏开放，具体花期因气候而异。常见园艺种原产于地中海沿岸地区，英文名称则让人联想到龙的嘴巴。在日本的花语中，金鱼草常代表健谈，也有爱出风头的含义。",
+          ko: "금어초는 작은 입처럼 생긴 꽃들이 긴 꽃대에 모여 피는 식물입니다. 일본 이름은 입을 벌린 금붕어의 모습을 닮았다는 데서 왔습니다. 빨간색과 분홍색, 노란색, 흰색 등 여러 색이 있으며 주로 봄부터 초여름까지 꽃을 볼 수 있습니다. 대표적인 원예종은 지중해 주변 지역이 원산지입니다. 영어 이름은 용의 입을 뜻합니다. 일본의 꽃말에서는 수다스러움과 지나치게 나서는 태도를 나타냅니다."
+        }
+      },
+
+      {
+        id: "begonia",
+        emoji: "🌸",
+        x: 3,
+        y: 59,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "シュウカイドウ", reading: "しゅうかいどう" },
+          en: { word: "Hardy begonia", reading: "HAR-dee bih-GOH-nee-uh" },
+          es: { word: "Begonia grandis", reading: "beh-GOH-nyah GRAN-dis" },
+          fr: { word: "Bégonia vivace", reading: "bay-go-NYA vee-VASS" },
+          de: { word: "Winterharte Begonie", reading: "VIN-ter-har-tuh beh-GOH-nee-uh" },
+          zh: { word: "秋海棠", reading: "qiū hǎi táng" },
+          ko: { word: "추해당", reading: "chuhaedang" }
+        },
+        desc: {
+          ja: "シュウカイドウは、淡いピンク色の花を下向きに咲かせる、やさしい姿の植物です。葉は左右で形が少し違い、夏の終わりから秋に花を楽しめます。中国など東アジアに由来し、日本でも古くから庭に植えられてきました。日本では「片思い」や「恋の悩み」という花言葉が知られています。日陰の庭でも育ちやすいのが特徴です。",
+          en: "The hardy begonia has delicate, pale pink flowers that hang gracefully from slender stems. Its leaves are noticeably asymmetrical, with one side shaped differently from the other. It blooms from late summer into autumn and grows well in partly shaded gardens. Begonia grandis is native to parts of East Asia, including China, and has been cultivated in Japan for a long time. In Japanese flower symbolism, it is associated with unrequited love and worries of the heart.",
+          es: "La Begonia grandis produce delicadas flores rosadas que cuelgan de tallos finos. Sus hojas son asimétricas, ya que un lado tiene una forma ligeramente distinta del otro. Florece desde finales del verano hasta el otoño y crece bien en jardines con sombra parcial. Es originaria de regiones de Asia oriental, incluida China, y se cultiva en Japón desde hace mucho tiempo. En el lenguaje floral japonés, representa el amor no correspondido y las preocupaciones amorosas.",
+          fr: "Le bégonia vivace porte de délicates fleurs rose pâle qui pendent gracieusement au bout de tiges fines. Ses feuilles sont asymétriques, avec un côté légèrement différent de l'autre. Il fleurit de la fin de l'été jusqu'à l'automne et apprécie les jardins partiellement ombragés. Begonia grandis est originaire de certaines régions d'Asie orientale, dont la Chine, et se cultive depuis longtemps au Japon. Dans le langage japonais des fleurs, il évoque l'amour non partagé et les soucis amoureux.",
+          de: "Die winterharte Begonie trägt zarte, hellrosa Blüten, die an dünnen Stielen nach unten hängen. Ihre Blätter sind asymmetrisch und auf einer Seite etwas anders geformt als auf der anderen. Sie blüht vom Spätsommer bis in den Herbst und gedeiht gut im Halbschatten. Begonia grandis stammt aus Teilen Ostasiens, darunter China, und wird in Japan seit langer Zeit kultiviert. In der japanischen Blumensprache steht sie für unerwiderte Liebe und Liebessorgen.",
+          zh: "秋海棠开着淡粉色的小花，花朵从细长的茎上轻轻垂下，显得十分柔美。它的叶片左右不对称，是容易辨认的特点。花期通常从夏末持续到秋季，适合生长在半阴的庭院中。秋海棠原产于中国等东亚地区，在日本也有悠久的栽培历史。在日本的花语中，它常象征单相思和恋爱的烦恼。",
+          ko: "추해당은 가느다란 줄기에서 연한 분홍색 꽃이 아래로 늘어져 피는 식물입니다. 잎의 양쪽 모양이 서로 다른 비대칭 형태가 특징입니다. 늦여름부터 가을까지 꽃을 피우며 반그늘이 있는 정원에서도 잘 자랍니다. 중국을 비롯한 동아시아 지역이 원산지이고 일본에서도 오래전부터 재배되었습니다. 일본의 꽃말에서는 짝사랑과 사랑의 고민을 상징합니다."
+        }
+      },
+
+      {
+        id: "trowel",
+        emoji: "🪴",
+        x: 35,
+        y: 59,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "スコップ", reading: "すこっぷ" },
+          en: { word: "Garden trowel", reading: "GAR-den TROW-ul" },
+          es: { word: "Paleta de jardín", reading: "pah-LEH-tah deh har-DEEN" },
+          fr: { word: "Transplantoir", reading: "trahn-splahn-TWAR" },
+          de: { word: "Pflanzkelle", reading: "PFLANTS-kel-uh" },
+          zh: { word: "园艺铲", reading: "yuán yì chǎn" },
+          ko: { word: "모종삽", reading: "mojongsap" }
+        },
+        desc: {
+          ja: "園芸用のスコップは、小さな植物を植えたり、土を掘ったりするための道具です。金属製の先が細いものや丸いものがあり、木や樹脂の持ち手が付いています。花の苗を植え替えるときや、鉢に土を入れるときに便利です。",
+          en: "A garden trowel is a small hand tool used for digging soil, planting seedlings, and moving small plants. It usually has a metal blade with a pointed or rounded tip and a handle made from wood or plastic. Gardeners use it to make planting holes, fill flowerpots, and transplant young flowers.",
+          es: "La paleta de jardín es una herramienta pequeña que sirve para cavar la tierra, plantar semillas y trasladar plantas jóvenes. Normalmente tiene una hoja metálica con punta redondeada o afilada y un mango de madera o plástico. Es muy útil para abrir hoyos, llenar macetas con tierra y trasplantar flores.",
+          fr: "Le transplantoir est un petit outil de jardinage utilisé pour creuser la terre, planter de jeunes pousses et déplacer de petites plantes. Il possède généralement une lame métallique arrondie ou pointue et un manche en bois ou en plastique. Il permet de préparer des trous de plantation, de remplir les pots de terre et de repiquer les fleurs.",
+          de: "Eine Pflanzkelle ist ein kleines Handwerkzeug zum Graben, Pflanzen und Umpflanzen. Sie hat meist ein Metallblatt mit einer runden oder spitzen Form und einen Griff aus Holz oder Kunststoff. Im Garten hilft sie dabei, Pflanzlöcher auszuheben, Blumentöpfe mit Erde zu füllen und junge Blumen umzusetzen.",
+          zh: "园艺铲是一种小型手工工具，用来挖土、种植幼苗和移栽花草。它通常有金属铲头和木质或塑料手柄，铲头可以是尖形或圆形。在花园里，可以用它挖种植坑、给花盆装土，也可以轻轻移出需要换盆的小植物。",
+          ko: "모종삽은 흙을 파거나 어린 식물을 심고 옮길 때 사용하는 작은 원예 도구입니다. 보통 끝이 뾰족하거나 둥근 금속 삽날과 나무 또는 플라스틱 손잡이로 만들어집니다. 화분에 흙을 담거나 꽃모종을 옮겨 심을 때 편리하게 사용할 수 있습니다."
+        }
+      },
+
+      {
+        id: "gardenGloves",
+        emoji: "🧤",
+        x: 67,
+        y: 59,
+        w: 30,
+        h: 13,
+        z: 40,
+        words: {
+          ja: { word: "園芸用手袋", reading: "えんげいようてぶくろ" },
+          en: { word: "Gardening gloves", reading: "GAR-den-ing GLUVZ" },
+          es: { word: "Guantes de jardinería", reading: "GWAN-tes deh har-dee-neh-REE-ah" },
+          fr: { word: "Gants de jardinage", reading: "GAHN duh zhar-dee-NAZH" },
+          de: { word: "Gartenhandschuhe", reading: "GAR-ten-HANT-shoo-uh" },
+          zh: { word: "园艺手套", reading: "yuán yì shǒu tào" },
+          ko: { word: "원예용 장갑", reading: "won-yeyong janggap" }
+        },
+        desc: {
+          ja: "園芸用手袋は、土やとげ、植物の硬い部分から手を守るために使います。布、ゴム、革などの素材があり、作業に合わせて選びます。花の植え替えや草取りをするときに着けると、手が汚れにくくなり、小さなけがも防ぎやすくなります。",
+          en: "Gardening gloves protect your hands from dirt, thorns, rough stems, and minor scratches while working outside. They are made from materials such as fabric, rubber, or leather, depending on the task. Wearing suitable gloves makes planting flowers, pulling weeds, and handling garden materials more comfortable and safer.",
+          es: "Los guantes de jardinería protegen las manos de la tierra, las espinas, los tallos ásperos y los pequeños arañazos. Pueden estar hechos de tela, goma o cuero, según el trabajo que se vaya a realizar. Usarlos al plantar flores, quitar malas hierbas o mover materiales del jardín ayuda a mantener las manos limpias y reduce el riesgo de pequeñas heridas.",
+          fr: "Les gants de jardinage protègent les mains de la terre, des épines, des tiges rugueuses et des petites égratignures. Ils peuvent être fabriqués en tissu, en caoutchouc ou en cuir selon les travaux à effectuer. Ils sont utiles pour planter des fleurs, arracher les mauvaises herbes et manipuler des matériaux tout en gardant les mains plus propres.",
+          de: "Gartenhandschuhe schützen die Hände bei der Gartenarbeit vor Erde, Dornen, rauen Stängeln und kleinen Kratzern. Je nach Aufgabe bestehen sie aus Stoff, Gummi oder Leder. Beim Einpflanzen von Blumen, beim Unkrautjäten und beim Umgang mit Gartenmaterialien helfen sie, die Hände sauberer zu halten und kleinere Verletzungen zu vermeiden.",
+          zh: "园艺手套可以在种花和整理花园时保护双手，减少泥土、尖刺和粗糙枝条带来的伤害。手套通常由布料、橡胶或皮革制成，可以根据不同工作选择合适的款式。移栽花苗、拔除杂草和搬动园艺材料时戴上手套，能让双手保持清洁，也能减少轻微擦伤。",
+          ko: "원예용 장갑은 정원에서 일할 때 흙과 가시, 거친 줄기 등으로부터 손을 보호하는 도구입니다. 천이나 고무, 가죽 등 여러 재료로 만들며 작업에 맞는 종류를 선택할 수 있습니다. 꽃을 옮겨 심거나 잡초를 뽑을 때 착용하면 손을 깨끗하게 유지하고 작은 상처를 줄이는 데 도움이 됩니다."
+        }
+      },
+
+      {
+        id: "birdhouse",
+        emoji: "🐦",
+        x: 3,
+        y: 74,
+        w: 30,
+        h: 14,
+        z: 40,
+        words: {
+          ja: { word: "巣箱", reading: "すばこ" },
+          en: { word: "Birdhouse", reading: "BURD-house" },
+          es: { word: "Caja nido", reading: "KAH-hah NEE-doh" },
+          fr: { word: "Nichoir", reading: "nee-SHWAR" },
+          de: { word: "Nistkasten", reading: "NIST-kas-ten" },
+          zh: { word: "鸟巢箱", reading: "niǎo cháo xiāng" },
+          ko: { word: "새집", reading: "saejip" }
+        },
+        desc: {
+          ja: "巣箱は、野鳥が卵を産み、ひなを育てるために設置する小さな家のような箱です。木製のものが多く、鳥が出入りする丸い穴が付いています。庭の木や安全な場所に取り付け、鳥の種類に合った大きさを選ぶことが大切です。",
+          en: "A birdhouse is a small shelter placed outdoors to give suitable wild birds a place to nest, lay eggs, and raise their chicks. Most nesting boxes are made of wood and have an entrance hole. Gardeners attach them to trees or other safe supports, choosing the right size and position for the bird species they hope to help.",
+          es: "Una caja nido es un pequeño refugio que se coloca al aire libre para que ciertas aves silvestres puedan hacer su nido, poner huevos y criar a sus polluelos. Muchas están hechas de madera y tienen un agujero de entrada. En el jardín se instalan en árboles u otros soportes seguros, eligiendo el tamaño y la ubicación adecuados para cada especie.",
+          fr: "Un nichoir est un petit abri installé à l'extérieur pour permettre à certains oiseaux sauvages de faire leur nid, de pondre leurs œufs et d'élever leurs petits. Il est souvent fabriqué en bois et possède un trou d'entrée. Dans le jardin, on le fixe à un arbre ou à un support sûr, en choisissant une taille et un emplacement adaptés aux espèces concernées.",
+          de: "Ein Nistkasten ist ein kleiner geschützter Platz, an dem geeignete Wildvögel ihre Eier legen und ihre Jungen aufziehen können. Viele Nistkästen bestehen aus Holz und besitzen ein rundes Einflugloch. Im Garten befestigt man sie an Bäumen oder anderen sicheren Stellen. Größe, Öffnung und Standort sollten zu den Vogelarten passen, die den Kasten nutzen sollen.",
+          zh: "鸟巢箱是一种安装在户外的小型人工鸟巢，可以为适合使用巢箱的野鸟提供产卵和养育幼鸟的地方。它通常由木板制成，前面有一个供鸟儿进出的圆孔。在花园里，可以把巢箱固定在树上或其他安全的位置。入口大小、箱体尺寸和安装高度都应适合当地鸟类。",
+          ko: "새집은 야생 새들이 알을 낳고 새끼를 기를 수 있도록 정원이나 숲에 설치하는 작은 둥지 상자입니다. 보통 나무로 만들며 새가 드나들 수 있는 둥근 구멍이 있습니다. 정원의 나무나 안전한 지지대에 설치할 수 있고, 이용할 새의 종류에 맞는 크기와 입구 모양, 설치 위치를 선택하는 것이 중요합니다."
+        }
+      }
+    ]
   }
 };
 
