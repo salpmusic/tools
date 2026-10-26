@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第8回 リストの基本 ～BASICの配列 DIM と比べてみよう～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第8回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第8回：リストの基本 ～BASICの配列 DIM と比べてみよう～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>リストを使って、複数の値をひとまとめにする。</li><li>リストから番号（インデックス）を使って値を取り出す。</li><li><code>len()</code> で個数を調べ、<code>for</code> 文で順番に取り出す。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>BASICでは、複数のデータをまとめるときに「配列」を使いました。</p>
+<p>例えば、3つの点数を保存するときは、次のように書けます。</p>
+<pre><code class="lang-text">10 DIM A(3)
+20 A(1)=80
+30 A(2)=90
+40 A(3)=70
+50 PRINT A(1)</code></pre>
+<p>Pythonでは「リスト」を使います。</p>
+<pre><code class="lang-text">scores = [80, 90, 70]
+print(scores[0])</code></pre>
+<p>どちらも最初の点数「80」を表示します。</p>
+<p>大きな違いは、<strong>Pythonのリストは0番から始まる</strong>ことです。</p>
+<table><tr><th>内容</th><th>BASICの配列</th><th>Pythonのリスト</th></tr><tr><td>準備</td><td><code>DIM A(3)</code></td><td><code>a = [80, 90, 70]</code></td></tr><tr><td>最初の値</td><td><code>A(1)</code></td><td><code>a[0]</code></td></tr><tr><td>2番目の値</td><td><code>A(2)</code></td><td><code>a[1]</code></td></tr><tr><td>3番目の値</td><td><code>A(3)</code></td><td><code>a[2]</code></td></tr><tr><td>値の取り出し</td><td>丸カッコ <code>( )</code></td><td>角カッコ <code>[ ]</code></td></tr><tr><td>個数を調べる</td><td>処理系による</td><td><code>len(a)</code></td></tr></table>
+<p>※ BASICは種類や <code>OPTION BASE</code> の設定によって0始まりの場合もあります。また、<code>DIM A(3)</code> が確保する要素数も処理系によって異なります。</p>
+<p>Pythonでは、3個のデータなら番号は <code>0、1、2</code> です。<code>3</code> 番を取り出そうとするとエラーになります。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第8回：リストの基本
+# 3つの点数をリストにまとめる
+scores = [80, 90, 70]
+
+# リスト全体を表示
+print("点数一覧:", scores)
+
+# 番号を指定して取り出す
+print("1番目:", scores[0])
+print("2番目:", scores[1])
+print("3番目:", scores[2])
+
+# len() で個数を調べる
+print("点数の個数:", len(scores))
+
+# for文で順番に取り出す
+print("点数を順番に表示")
+for score in scores:
+    print(score)
+
+# 合計と平均を計算する
+total = 0
+for score in scores:
+    total = total + score
+print("合計:", total)
+print("平均:", total / len(scores))</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/008.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/008.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">点数一覧: [80, 90, 70]
+1番目: 80
+2番目: 90
+3番目: 70
+点数の個数: 3
+点数を順番に表示
+80
+90
+70
+合計: 240
+平均: 80.0</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li>**リストは <code>[ ]</code> で作る。** <code>scores = [80, 90, 70]</code> のように、値をカンマで区切って並べます。数値だけでなく文字列も入れられます。</li><li><strong>番号は0から始まる。</strong> <code>scores[0]</code> が最初、<code>scores[1]</code> が2番目です。3個のリストなら最後は <code>scores[2]</code> です。</li><li>**<code>len()</code> は個数を返す。** <code>len(scores)</code> の結果は <code>3</code> です。リストが長くなっても個数を自動で調べられます。</li><li>**<code>for</code> 文で値を順番に取り出せる。** <code>for score in scores:</code> と書けば、80、90、70が順番に <code>score</code> に入ります。第6回の <code>for</code> 文の応用です。</li><li><strong>リストは後から変更できる。</strong> 値を書き換えたり、<code>append()</code> で追加したりできます。追加や削除の詳しい方法は次回学びます。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>好きな果物を3つ、リスト <code>fruits</code> に入れてみましょう。</p>
+<p>次の3つを表示してください。</p>
+<ul><li>リスト全体</li><li>2番目の果物</li><li><code>for</code> 文を使って、果物を1つずつ表示</li></ul>
+<p>※ <code>input()</code> は使いません。果物の名前は自由に変えて構いません。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 答え
+fruits = ["りんご", "みかん", "バナナ"]
+
+# リスト全体
+print("果物一覧:", fruits)
+
+# 2番目の果物
+print("2番目:", fruits[1])
+
+# 順番に表示
+print("果物を順番に表示")
+for fruit in fruits:
+    print(fruit)</code></pre>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDnrZTjgYgKZnJ1aXRzID0gWyLjgorjgpPjgZQiLCAi44G_44GL44KTIiwgIuODkOODiuODiiJdCgojIOODquOCueODiOWFqOS9kwpwcmludCgi5p6c54mp5LiA6KanOiIsIGZydWl0cykKCiMgMueVquebruOBruaenOeJqQpwcmludCgiMueVquebrjoiLCBmcnVpdHNbMV0pCgojIOmghueVquOBq-ihqOekugpwcmludCgi5p6c54mp44KS6aCG55Wq44Gr6KGo56S6IikKZm9yIGZydWl0IGluIGZydWl0czoKICAgIHByaW50KGZydWl0KQo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">果物一覧: ['りんご', 'みかん', 'バナナ']
+2番目: みかん
+果物を順番に表示
+りんご
+みかん
+バナナ</code></pre>
+<p class="panel"><a href="../lessons/007.html">◀ 第7回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>

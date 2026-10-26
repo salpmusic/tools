@@ -1,44 +1,221 @@
 {
- "note": "公開済みレッスンは lessons に1行ずつ追加。plan は予定(グレー表示)。",
- "lessons": [
-  {"no":1,"date":"2026-10-20","title":"はじめてのprintとコメント","goal":"画面に文字を出し、BASICのPRINTとの違いを知る","html":"lessons/001.html","py":"lessons/001.py"},
-  {"no":2,"date":"2026-10-21","title":"変数と計算 ～BASICのLET A=1と比べてみよう～","goal":"値を名前で覚えて計算する（LETは不要）","html":"lessons/002.html","py":"lessons/002.py"},
-  {"no":3,"date":"2026-10-22","title":"文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string）","goal":"文字列をつなげる・長さを調べる・f-stringで埋め込む（$は不要）","html":"lessons/003.html","py":"lessons/003.py"},
-  {"no":4,"date":"2026-10-23","title":"四則演算をマスターしよう！ 割り算・余り・べき乗と計算結果の表示","goal":"計算の種類を使い分けて、結果を見やすく表示する","html":"lessons/004.html","py":"lessons/004.py"},
-  {"no":5,"date":"2026-10-24","title":"比較とif文（BASICのIF〜THEN〜ELSEとの比較、== と = の違い、インデント、elif）","goal":"比較演算子とif・elif・elseで条件によって処理を分ける","html":"lessons/005.html","py":"lessons/005.py"},
-    {"no":6,"date":"2026-10-25","title":"for文とrange ～BASICのFOR...NEXTと比べてみよう～","goal":"for文とrangeで決まった回数くり返す（BASICのFOR...NEXTとの比較）","html":"lessons/006.html","py":"lessons/006.py"},
-    {"no":7,"date":"2026-10-26","title":"while文の基本 ～BASICのWHILE〜WENDと比べてみよう～","goal":"whileで条件が続くあいだくり返す（BASICのWHILE〜WENDとの比較）","html":"lessons/007.html","py":"lessons/007.py"}
- ],
- "plan": [
-  {"no": 1, "title": "はじめてのprintとコメント", "goal": "画面に文字を出し、BASICのPRINTとの違いを知る"},
-  {"no": 2, "title": "変数と代入", "goal": "値を名前で覚える（LETは不要）"},
-  {"no": 3, "title": "整数と文字列", "goal": "数字と文字の扱いの違いを体感する"},
-  {"no": 4, "title": "四則演算", "goal": "計算式を書いて結果を出す"},
-  {"no": 5, "title": "inputで入力を受け取る", "goal": "ユーザーから文字列を受け取る"},
-  {"no": 6, "title": "if文の基本", "goal": "条件が真のときだけ処理する"},
-  {"no": 7, "title": "if-else", "goal": "「そうでなければ」の分岐を書く"},
-  {"no": 8, "title": "比較と論理演算子", "goal": "==, >, and, or を使う"},
-  {"no": 9, "title": "for文の基本", "goal": "決まった回数繰り返す"},
-  {"no": 10, "title": "range関数", "goal": "1から10までなどの範囲を作る"},
-  {"no": 11, "title": "while文", "goal": "条件が続く限り繰り返す"},
-  {"no": 12, "title": "リストの基本", "goal": "複数の値をまとめて扱う"},
-  {"no": 13, "title": "リストの追加と削除", "goal": "append, remove, pop を使う"},
-  {"no": 14, "title": "リストのインデックスとスライス", "goal": "番号で取り出したり一部分を取る"},
-  {"no": 15, "title": "文字列の基本操作", "goal": "連結、長さ、部分文字列"},
-  {"no": 16, "title": "関数の定義", "goal": "処理を名前でまとめる（GOSUBに近い）"},
-  {"no": 17, "title": "関数の引数と戻り値", "goal": "値を渡して結果をもらう"},
-  {"no": 18, "title": "便利な組み込み関数", "goal": "len, int, str, type など"},
-  {"no": 19, "title": "mathモジュール", "goal": "平方根や円周率を使う"},
-  {"no": 20, "title": "randomモジュール", "goal": "乱数でサイコロを振る"},
-  {"no": 21, "title": "ネストしたループ", "goal": "ループの中にループを入れる"},
-  {"no": 22, "title": "for文でリストを回す", "goal": "リストの中身を順に処理する"},
-  {"no": 23, "title": "辞書の基本", "goal": "キーと値のペアでデータを持つ"},
-  {"no": 24, "title": "よくあるエラーの読み方", "goal": "SyntaxError や NameError を理解する"},
-  {"no": 25, "title": "デバッグのコツ", "goal": "printを使って途中の値を確認する"},
-  {"no": 26, "title": "簡単なファイル読み書き", "goal": "テキストファイルを開いて書く"},
-  {"no": 27, "title": "importの基本", "goal": "標準ライブラリを使う"},
-  {"no": 28, "title": "総合演習1：簡単な計算機", "goal": "これまで学んだことを組み合わせる"},
-  {"no": 29, "title": "総合演習2：簡単な数当てゲーム", "goal": "ランダムとループとifを使う"},
-  {"no": 30, "title": "ここまで来たら次のステップ", "goal": "学習の振り返りと次にやること"}
- ]
+  "note": "公開済みレッスンは lessons に1行ずつ追加。plan は予定(グレー表示)。",
+  "lessons": [
+    {
+      "no": 1,
+      "date": "2026-10-20",
+      "title": "はじめてのprintとコメント",
+      "goal": "画面に文字を出し、BASICのPRINTとの違いを知る",
+      "html": "lessons/001.html",
+      "py": "lessons/001.py"
+    },
+    {
+      "no": 2,
+      "date": "2026-10-21",
+      "title": "変数と計算 ～BASICのLET A=1と比べてみよう～",
+      "goal": "値を名前で覚えて計算する（LETは不要）",
+      "html": "lessons/002.html",
+      "py": "lessons/002.py"
+    },
+    {
+      "no": 3,
+      "date": "2026-10-22",
+      "title": "文字列のあつかい（BASICのA$との比較・つなげる・長さ・f-string）",
+      "goal": "文字列をつなげる・長さを調べる・f-stringで埋め込む（$は不要）",
+      "html": "lessons/003.html",
+      "py": "lessons/003.py"
+    },
+    {
+      "no": 4,
+      "date": "2026-10-23",
+      "title": "四則演算をマスターしよう！ 割り算・余り・べき乗と計算結果の表示",
+      "goal": "計算の種類を使い分けて、結果を見やすく表示する",
+      "html": "lessons/004.html",
+      "py": "lessons/004.py"
+    },
+    {
+      "no": 5,
+      "date": "2026-10-24",
+      "title": "比較とif文（BASICのIF〜THEN〜ELSEとの比較、== と = の違い、インデント、elif）",
+      "goal": "比較演算子とif・elif・elseで条件によって処理を分ける",
+      "html": "lessons/005.html",
+      "py": "lessons/005.py"
+    },
+    {
+      "no": 6,
+      "date": "2026-10-25",
+      "title": "for文とrange ～BASICのFOR...NEXTと比べてみよう～",
+      "goal": "for文とrangeで決まった回数くり返す（BASICのFOR...NEXTとの比較）",
+      "html": "lessons/006.html",
+      "py": "lessons/006.py"
+    },
+    {
+      "no": 7,
+      "date": "2026-10-26",
+      "title": "while文の基本 ～BASICのWHILE〜WENDと比べてみよう～",
+      "goal": "whileで条件が続くあいだくり返す（BASICのWHILE〜WENDとの比較）",
+      "html": "lessons/007.html",
+      "py": "lessons/007.py"
+    },
+    {
+      "no": 8,
+      "date": "2026-10-27",
+      "title": "リストの基本 ～BASICの配列 DIM と比べてみよう～",
+      "goal": "リストで複数の値をまとめて取り出す（BASICの配列との比較）",
+      "html": "lessons/008.html",
+      "py": "lessons/008.py"
+    }
+  ],
+  "plan": [
+    {
+      "no": 1,
+      "title": "はじめてのprintとコメント",
+      "goal": "画面に文字を出し、BASICのPRINTとの違いを知る"
+    },
+    {
+      "no": 2,
+      "title": "変数と代入",
+      "goal": "値を名前で覚える（LETは不要）"
+    },
+    {
+      "no": 3,
+      "title": "整数と文字列",
+      "goal": "数字と文字の扱いの違いを体感する"
+    },
+    {
+      "no": 4,
+      "title": "四則演算",
+      "goal": "計算式を書いて結果を出す"
+    },
+    {
+      "no": 5,
+      "title": "inputで入力を受け取る",
+      "goal": "ユーザーから文字列を受け取る"
+    },
+    {
+      "no": 6,
+      "title": "if文の基本",
+      "goal": "条件が真のときだけ処理する"
+    },
+    {
+      "no": 7,
+      "title": "if-else",
+      "goal": "「そうでなければ」の分岐を書く"
+    },
+    {
+      "no": 8,
+      "title": "比較と論理演算子",
+      "goal": "==, >, and, or を使う"
+    },
+    {
+      "no": 9,
+      "title": "for文の基本",
+      "goal": "決まった回数繰り返す"
+    },
+    {
+      "no": 10,
+      "title": "range関数",
+      "goal": "1から10までなどの範囲を作る"
+    },
+    {
+      "no": 11,
+      "title": "while文",
+      "goal": "条件が続く限り繰り返す"
+    },
+    {
+      "no": 12,
+      "title": "リストの基本",
+      "goal": "複数の値をまとめて扱う"
+    },
+    {
+      "no": 13,
+      "title": "リストの追加と削除",
+      "goal": "append, remove, pop を使う"
+    },
+    {
+      "no": 14,
+      "title": "リストのインデックスとスライス",
+      "goal": "番号で取り出したり一部分を取る"
+    },
+    {
+      "no": 15,
+      "title": "文字列の基本操作",
+      "goal": "連結、長さ、部分文字列"
+    },
+    {
+      "no": 16,
+      "title": "関数の定義",
+      "goal": "処理を名前でまとめる（GOSUBに近い）"
+    },
+    {
+      "no": 17,
+      "title": "関数の引数と戻り値",
+      "goal": "値を渡して結果をもらう"
+    },
+    {
+      "no": 18,
+      "title": "便利な組み込み関数",
+      "goal": "len, int, str, type など"
+    },
+    {
+      "no": 19,
+      "title": "mathモジュール",
+      "goal": "平方根や円周率を使う"
+    },
+    {
+      "no": 20,
+      "title": "randomモジュール",
+      "goal": "乱数でサイコロを振る"
+    },
+    {
+      "no": 21,
+      "title": "ネストしたループ",
+      "goal": "ループの中にループを入れる"
+    },
+    {
+      "no": 22,
+      "title": "for文でリストを回す",
+      "goal": "リストの中身を順に処理する"
+    },
+    {
+      "no": 23,
+      "title": "辞書の基本",
+      "goal": "キーと値のペアでデータを持つ"
+    },
+    {
+      "no": 24,
+      "title": "よくあるエラーの読み方",
+      "goal": "SyntaxError や NameError を理解する"
+    },
+    {
+      "no": 25,
+      "title": "デバッグのコツ",
+      "goal": "printを使って途中の値を確認する"
+    },
+    {
+      "no": 26,
+      "title": "簡単なファイル読み書き",
+      "goal": "テキストファイルを開いて書く"
+    },
+    {
+      "no": 27,
+      "title": "importの基本",
+      "goal": "標準ライブラリを使う"
+    },
+    {
+      "no": 28,
+      "title": "総合演習1：簡単な計算機",
+      "goal": "これまで学んだことを組み合わせる"
+    },
+    {
+      "no": 29,
+      "title": "総合演習2：簡単な数当てゲーム",
+      "goal": "ランダムとループとifを使う"
+    },
+    {
+      "no": 30,
+      "title": "ここまで来たら次のステップ",
+      "goal": "学習の振り返りと次にやること"
+    }
+  ]
 }
