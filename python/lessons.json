@@ -64,6 +64,14 @@
       "goal": "リストで複数の値をまとめて取り出す（BASICの配列との比較）",
       "html": "lessons/008.html",
       "py": "lessons/008.py"
+    },
+    {
+      "no": 9,
+      "date": "2026-10-28",
+      "title": "リストの追加と削除 ～BASICの配列との違い～",
+      "goal": "append・remove・popでリストを増減する（BASICの配列との違い）",
+      "html": "lessons/009.html",
+      "py": "lessons/009.py"
     }
   ],
   "plan": [

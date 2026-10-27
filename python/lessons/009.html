@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第9回 リストの追加と削除 ～BASICの配列との違い～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第9回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第9回：リストの追加と削除 ～BASICの配列との違い～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>append() を使って、リストの末尾に新しい値を追加できる。</li><li>remove() と pop() を使って、リストから値を削除できる。</li><li>BASICの配列とPythonのリストの違いを理解する。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>BASICでは、配列を使うときに <code>DIM A(10)</code> のように大きさを決めることが一般的でした。</p>
+<p>Pythonのリストは、最初に大きさを決める必要がありません。あとから値を追加したり、不要な値を削除したりできます。</p>
+<table><tr><th>操作</th><th>BASIC</th><th>Python</th></tr><tr><td>配列を用意</td><td><code>DIM A(10)</code></td><td><code>a = [10, 20, 30]</code></td></tr><tr><td>値を書き換える</td><td><code>A(1) = 100</code></td><td><code>a[0] = 100</code></td></tr><tr><td>末尾に追加</td><td>配列の範囲内で管理するなど</td><td><code>a.append(40)</code></td></tr><tr><td>値を削除</td><td>要素をずらすなどの処理が必要</td><td><code>a.remove(20)</code></td></tr><tr><td>番号で取り出して削除</td><td>自分で処理を作る</td><td><code>a.pop(0)</code></td></tr></table>
+<p>※BASICの配列は方言によって番号の始まり方やサイズ変更の方法が異なります。Pythonのリストは必ず0番から始まります。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第9回 リストの追加と削除
+scores = [60, 70, 80]
+print("最初:", scores)
+
+# appendで末尾に追加
+scores.append(90)
+print("追加後:", scores)
+
+# 値を書き換える
+scores[0] = 100
+print("書き換え後:", scores)
+
+# removeで値を指定して削除
+scores.remove(70)
+print("70を削除:", scores)
+
+# popで番号を指定して取り出す
+taken = scores.pop(1)
+print("取り出した値:", taken)
+print("pop後:", scores)
+
+# pop()は末尾を取り出す
+last = scores.pop()
+print("末尾の値:", last)
+print("最後:", scores)</code></pre>
+<a class="run" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/009.py&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/009.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">最初: [60, 70, 80]
+追加後: [60, 70, 80, 90]
+書き換え後: [100, 70, 80, 90]
+70を削除: [100, 80, 90]
+取り出した値: 80
+pop後: [100, 90]
+末尾の値: 90
+最後: [100]</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><code>append(値)</code> は追加：リストのいちばん後ろに値を追加します。追加するとリストの長さも増えます。</li><li><code>remove(値)</code> は値で削除：指定した値を探して削除します。同じ値が複数ある場合は、最初に見つかった1つだけを削除します。値が見つからないとエラーになります。</li><li><code>pop(番号)</code> は取り出して削除：指定した番号の値を取り出し、同時にリストから削除します。番号を省略した <code>pop()</code> は末尾を取り出します。空のリストからは取り出せません。</li><li>値の書き換えは <code>リスト[番号] = 値</code>：例えば <code>scores[0] = 100</code> で最初の値を100に変更できます。番号は0から始まります。</li><li>Pythonのリストは大きさを変えられる：BASICの固定長配列と違い、追加や削除で要素数が変わります。途中に追加する <code>insert()</code> もありますが、今回は覚えなくても大丈夫です。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>好きな果物を管理するリストを作ってみましょう。</p>
+<p>最初のリストは <code>["apple", "banana", "orange"]</code> です。</p>
+<ol><li><code>append()</code> で <code>"grape"</code> を追加する。</li><li><code>remove()</code> で <code>"banana"</code> を削除する。</li><li><code>pop()</code> で最後の果物を取り出し、変数 <code>fruit</code> に入れる。</li><li>取り出した果物と、残ったリストを <code>print()</code> で表示する。</li></ol>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 答え
+fruits = ["apple", "banana", "orange"]
+fruits.append("grape")
+fruits.remove("banana")
+fruit = fruits.pop()
+print("取り出した果物:", fruit)
+print("残った果物:", fruits)</code></pre>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDnrZTjgYgKZnJ1aXRzID0gWyJhcHBsZSIsICJiYW5hbmEiLCAib3JhbmdlIl0KZnJ1aXRzLmFwcGVuZCgiZ3JhcGUiKQpmcnVpdHMucmVtb3ZlKCJiYW5hbmEiKQpmcnVpdCA9IGZydWl0cy5wb3AoKQpwcmludCgi5Y-W44KK5Ye644GX44Gf5p6c54mpOiIsIGZydWl0KQpwcmludCgi5q6L44Gj44Gf5p6c54mpOiIsIGZydWl0cykK&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<p>実行すると、次のように表示されます。</p>
+<pre><code class="lang-text">取り出した果物: grape
+残った果物: ['apple', 'orange']</code></pre>
+<p class="panel"><a href="../lessons/008.html">◀ 第8回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+</div></body></html>
