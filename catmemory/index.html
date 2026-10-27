@@ -65,6 +65,8 @@ h1{font-size:1.25rem;letter-spacing:.04em}
 .cat.meow .mo{display:inline}
 .cat.meow .mc,.cat.meow .artClosed{display:none}
 .cat.meow .artOpen{display:block}
+.cat.meow video.artClosed{display:block}
+.cat video.art{width:100%;height:100%;object-fit:contain;pointer-events:none}
 .cat.meow svg,.cat.meow .art{animation:bob .25s ease-in-out}
 @keyframes bob{50%{transform:translateY(-4%) scale(1.04)}}
 @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -291,6 +293,7 @@ function svgCat(c){
 }
 var useImg=false;
 function catHTML(i){
+  if(useImg&&i<6){var n=i+1;return '<video class="art artClosed" muted loop playsinline'+((window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)?'':' autoplay')+' preload="metadata" poster="'+ART_DIR+'cat'+n+'.png"><source src="'+ART_DIR+'cat'+n+'.webm" type="video/webm"><source src="'+ART_DIR+'cat'+n+'.mp4" type="video/mp4"></video>';}
   if(useImg)return '<img class="art artClosed" alt="" src="'+ART_DIR+'cat'+(i+1)+'.png" draggable="false"><img class="art artOpen" alt="" src="'+ART_DIR+'cat'+(i+1)+'_open.png" draggable="false">';
   return svgCat(CATS[i%4]);
 }
@@ -486,8 +489,11 @@ function flash(i,ms){
 }
 function clearMarks(){pads.forEach(function(p){p.classList.remove('lit','meow','bad')})}
 
+var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function playVids(){document.querySelectorAll('video.artClosed').forEach(function(v){v.muted=true;if(RM){v.pause();v.removeAttribute('autoplay')}else{var q=v.play();if(q&&q.catch)q.catch(function(){})}})}
+document.addEventListener('pointerdown',playVids,{once:true});
 function startGame(){
-  unlockAudio();G.run++;clearTimeout(G.timer);clearMarks();
+  unlockAudio();playVids();G.run++;clearTimeout(G.timer);clearMarks();
   G.mode=modeKey();G.seq=[];G.round=0;G.score=0;G.lives=LIVES;G.newBest=false;G.phase='between';
   $('result').hidden=true;
   var st=$('start');st.textContent=T('stop');st.classList.add('stop');
