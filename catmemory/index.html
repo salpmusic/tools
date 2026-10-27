@@ -292,8 +292,12 @@ function svgCat(c){
     '</svg>';
 }
 var useImg=false;
+var RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function pngHTML(i){return '<img class="art artClosed" alt="" src="'+ART_DIR+'cat'+(i+1)+'.png" draggable="false"><img class="art artOpen" alt="" src="'+ART_DIR+'cat'+(i+1)+'_open.png" draggable="false">'}
+function vidFallback(v){if(!v||!v.parentNode)return;var b=v.parentNode,i=pads.indexOf(b);if(i<0)i=+b.getAttribute('data-i');v.insertAdjacentHTML('beforebegin',pngHTML(i));v.remove()}
+function hookVids(){document.querySelectorAll('#board video.artClosed').forEach(function(v){v.defaultMuted=true;v.muted=true;v.onerror=function(){vidFallback(v)};var ss=v.querySelectorAll('source');if(ss.length)ss[ss.length-1].addEventListener('error',function(){vidFallback(v)});if(v.error)vidFallback(v)})}
 function catHTML(i){
-  if(useImg&&i<6){var n=i+1;return '<video class="art artClosed" muted loop playsinline'+((window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)?'':' autoplay')+' preload="metadata" poster="'+ART_DIR+'cat'+n+'.png"><source src="'+ART_DIR+'cat'+n+'.webm" type="video/webm"><source src="'+ART_DIR+'cat'+n+'.mp4" type="video/mp4"></video>';}
+  if(i<6&&!RM){var n=i+1;return '<video class="art artClosed" muted autoplay loop playsinline preload="metadata" poster="'+ART_DIR+'cat'+n+'.png"><source src="'+ART_DIR+'cat'+n+'.webm" type="video/webm"><source src="'+ART_DIR+'cat'+n+'.mp4" type="video/mp4"></video>';}
   if(useImg)return '<img class="art artClosed" alt="" src="'+ART_DIR+'cat'+(i+1)+'.png" draggable="false"><img class="art artOpen" alt="" src="'+ART_DIR+'cat'+(i+1)+'_open.png" draggable="false">';
   return svgCat(CATS[i%4]);
 }
@@ -302,7 +306,7 @@ function build(){
   board.innerHTML='';pads=[];
   for(var i=0;i<NC;i++){
     var b=document.createElement('button');
-    b.type='button';b.className='cat';b.setAttribute('aria-label',T('cat')+(i+1));
+    b.type='button';b.className='cat';b.setAttribute('data-i',i);b.setAttribute('aria-label',T('cat')+(i+1));
     b.innerHTML=catHTML(i)+'<span class="kn" aria-hidden="true">'+(i+1)+'</span>';
     (function(idx){
       b.addEventListener('pointerdown',function(e){e.preventDefault();unlockAudio();board.classList.remove('kb');sel=idx;markSel();press(idx)});
@@ -312,6 +316,7 @@ function build(){
     b.disabled=true;
     board.appendChild(b);pads.push(b);
   }
+  hookVids();playVids();
 }
 /* PNGが4匹ぶんそろっていれば画像に切替(無ければSVGのまま) */
 (function(){
@@ -489,8 +494,7 @@ function flash(i,ms){
 }
 function clearMarks(){pads.forEach(function(p){p.classList.remove('lit','meow','bad')})}
 
-var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-function playVids(){document.querySelectorAll('video.artClosed').forEach(function(v){v.muted=true;if(RM){v.pause();v.removeAttribute('autoplay')}else{var q=v.play();if(q&&q.catch)q.catch(function(){})}})}
+function playVids(){document.querySelectorAll('video.artClosed').forEach(function(v){v.defaultMuted=true;v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){})})}
 document.addEventListener('pointerdown',playVids,{once:true});
 function startGame(){
   unlockAudio();playVids();G.run++;clearTimeout(G.timer);clearMarks();
