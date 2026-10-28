@@ -72,6 +72,14 @@
       "goal": "append・remove・popでリストを増減する（BASICの配列との違い）",
       "html": "lessons/009.html",
       "py": "lessons/009.py"
+    },
+    {
+      "no": 10,
+      "date": "2026-10-29",
+      "title": "リストのインデックスとスライス ～BASICの配列と比べてみよう～",
+      "goal": "負の番号とスライスでリストの一部分を取り出す（BASICの配列との比較）",
+      "html": "lessons/010.html",
+      "py": "lessons/010.py"
     }
   ],
   "plan": [
