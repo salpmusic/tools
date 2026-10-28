@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1776 640" role="img" aria-label="副都心線 相互直通（模式図）">
+<title>副都心線 相互直通（模式図）</title>
+<desc>salp Tools Original Railway Diagram / Unofficial / AI-assisted. 非公式・AI制作のオリジナル路線図</desc>
+<rect width="100%" height="100%" fill="#f7fafc"/>
+<g id="layer_lines">
+<path data-line="tobu_tojo" d="M -86,280 L -32,280 L 22,280 L 76,280 L 130,280 L 184,280 L 238,280 L 292,280 L 346,280 L 400,280" fill="none" stroke="#0057A8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="tobu_tojo_ike" d="M 400,280 L 392,232 L 384,184 L 376,136 L 368,88" fill="none" stroke="#0057A8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="metro_f" d="M 400,280 L 454,280 L 508,280 L 562,280 L 616,280 L 670,280 L 724,280 L 778,280 L 832,280 L 886,280 L 940,280 L 994,280 L 1048,280 L 1102,280 L 1156,280 L 1210,280" fill="none" stroke="#9A5B2F" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="seibu_y" d="M 670,280 L 670,210 L 670,140" fill="none" stroke="#1E90FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="seibu_i" d="M 670,140 L 724,140 L 778,140 L 832,140 L 886,140 L 940,140" fill="none" stroke="#0072BC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="tokyu_ty" d="M 1210,280 L 1264,280 L 1318,280 L 1372,280 L 1426,280 L 1480,280 L 1534,280" fill="none" stroke="#DA044A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="mm" d="M 1534,280 L 1588,280 L 1642,280" fill="none" stroke="#0077C8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="tokyu_sh" d="M 1426,280 L 1426,350 L 1426,420" fill="none" stroke="#6B3FA0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="sotetsu_sh" d="M 1426,420 L 1480,420 L 1534,420" fill="none" stroke="#0072BC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="sotetsu_main_w" d="M 1534,420 L 1588,420 L 1642,420 L 1696,420" fill="none" stroke="#0072BC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="sotetsu_iz" d="M 1588,420 L 1588,490 L 1588,560" fill="none" stroke="#0072BC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path data-line="sotetsu_main_e" d="M 1534,420 L 1480,420 L 1426,420" fill="none" stroke="#0072BC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="1534" y1="280" x2="1426" y2="420" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+<text x="1480.0" y="344.0" text-anchor="middle" font-size="11" fill="#64748b">乗換</text>
+</g><g id="layer_stations">
+<circle data-station="shinrin_koen" cx="-86" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shinrin_koen" cx="-86" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="higashimatsuyama" cx="-32" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="sakado" cx="22" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kawagoeshi" cx="76" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kawagoe" cx="130" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="fujimino" cx="184" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shiki" cx="238" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="asakadai" cx="292" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="asaka" cx="346" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="wakoshi" cx="400" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="wakoshi" cx="400" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="narimasu" cx="392" cy="232" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="tobu_nerima" cx="384" cy="184" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="oyama" cx="376" cy="136" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="ikebukuro_tj" cx="368" cy="88" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="ikebukuro_tj" cx="368" cy="88" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="chikatetsu_narimasu" cx="454" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="chikatetsu_akatsuka" cx="508" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="heidai" cx="562" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hikawadai" cx="616" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kotake_mukaihara" cx="670" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kotake_mukaihara" cx="670" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="senkawa" cx="724" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kanamecho" cx="778" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="ikebukuro_f" cx="832" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="ikebukuro_f" cx="832" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="zoshigaya" cx="886" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="nishi_waseda" cx="940" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="higashi_shinjuku" cx="994" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shinjuku_sanchome" cx="1048" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shinjuku_sanchome" cx="1048" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kita_sando" cx="1102" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="meiji_jingumae" cx="1156" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="meiji_jingumae" cx="1156" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shibuya_f" cx="1210" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shibuya_f" cx="1210" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shin_sakuradai" cx="670" cy="210" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="nerima" cx="670" cy="140" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="nerima" cx="670" cy="140" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shakujii_koen" cx="724" cy="140" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hibarigaoka" cx="778" cy="140" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="tokorozawa" cx="832" cy="140" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kotesashi" cx="886" cy="140" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hanno" cx="940" cy="140" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hanno" cx="940" cy="140" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="naka_meguro" cx="1264" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="jiyugaoka" cx="1318" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="musashi_kosugi" cx="1372" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hiyoshi" cx="1426" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hiyoshi" cx="1426" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="kikuna" cx="1480" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="yokohama_ty" cx="1534" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="yokohama_ty" cx="1534" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="minatomirai" cx="1588" cy="280" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="motomachi_chukagai" cx="1642" cy="280" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="motomachi_chukagai" cx="1642" cy="280" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shin_tsunashima" cx="1426" cy="350" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shin_yokohama" cx="1426" cy="420" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shin_yokohama" cx="1426" cy="420" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hazawa" cx="1480" cy="420" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="nishiya" cx="1534" cy="420" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="nishiya" cx="1534" cy="420" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="futamatagawa" cx="1588" cy="420" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="futamatagawa" cx="1588" cy="420" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="yamato" cx="1642" cy="420" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="ebina" cx="1696" cy="420" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="ebina" cx="1696" cy="420" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="izumino" cx="1588" cy="490" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shonandai" cx="1588" cy="560" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="shonandai" cx="1588" cy="560" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="hoshikawa" cx="1480" cy="420" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="yokohama_so" cx="1426" cy="420" r="10" fill="none" stroke="#0f172a" stroke-width="2"/>
+<circle data-station="yokohama_so" cx="1426" cy="420" r="7" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+</g><g id="layer_labels">
+<text data-station-label="shinrin_koen" x="-86" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">森林公園</text>
+<text data-station-label="higashimatsuyama" x="-32" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">東松山</text>
+<text data-station-label="sakado" x="22" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">坂戸</text>
+<text data-station-label="kawagoeshi" x="76" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">川越市</text>
+<text data-station-label="kawagoe" x="130" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">川越</text>
+<text data-station-label="fujimino" x="184" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">ふじみ野</text>
+<text data-station-label="shiki" x="238" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">志木</text>
+<text data-station-label="asakadai" x="292" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">朝霞台</text>
+<text data-station-label="asaka" x="346" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">朝霞</text>
+<text data-station-label="wakoshi" x="400" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">和光市</text>
+<text data-station-label="narimasu" x="392" y="250" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">成増</text>
+<text data-station-label="tobu_nerima" x="384" y="202" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">東武練馬</text>
+<text data-station-label="oyama" x="376" y="124" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">大山</text>
+<text data-station-label="ikebukuro_tj" x="368" y="106" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">池袋</text>
+<text data-station-label="chikatetsu_narimasu" x="454" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">地下鉄成増</text>
+<text data-station-label="chikatetsu_akatsuka" x="508" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">地下鉄赤塚</text>
+<text data-station-label="heidai" x="562" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">平和台</text>
+<text data-station-label="hikawadai" x="616" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">氷川台</text>
+<text data-station-label="kotake_mukaihara" x="670" y="268" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">小竹向原</text>
+<text data-station-label="senkawa" x="724" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">千川</text>
+<text data-station-label="kanamecho" x="778" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">要町</text>
+<text data-station-label="ikebukuro_f" x="832" y="268" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">池袋</text>
+<text data-station-label="zoshigaya" x="886" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">雑司が谷</text>
+<text data-station-label="nishi_waseda" x="940" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">西早稲田</text>
+<text data-station-label="higashi_shinjuku" x="994" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">東新宿</text>
+<text data-station-label="shinjuku_sanchome" x="1048" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">新宿三丁目</text>
+<text data-station-label="kita_sando" x="1102" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">北参道</text>
+<text data-station-label="meiji_jingumae" x="1156" y="268" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">明治神宮前〈原宿〉</text>
+<text data-station-label="shibuya_f" x="1210" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">渋谷</text>
+<text data-station-label="shin_sakuradai" x="670" y="228" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">新桜台</text>
+<text data-station-label="nerima" x="670" y="158" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">練馬</text>
+<text data-station-label="shakujii_koen" x="724" y="158" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">石神井公園</text>
+<text data-station-label="hibarigaoka" x="778" y="158" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">ひばりヶ丘</text>
+<text data-station-label="tokorozawa" x="832" y="158" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">所沢</text>
+<text data-station-label="kotesashi" x="886" y="158" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">小手指</text>
+<text data-station-label="hanno" x="940" y="158" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">飯能</text>
+<text data-station-label="naka_meguro" x="1264" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">中目黒</text>
+<text data-station-label="jiyugaoka" x="1318" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">自由が丘</text>
+<text data-station-label="musashi_kosugi" x="1372" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">武蔵小杉</text>
+<text data-station-label="hiyoshi" x="1426" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">日吉</text>
+<text data-station-label="kikuna" x="1480" y="268" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">菊名</text>
+<text data-station-label="yokohama_ty" x="1534" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">横浜</text>
+<text data-station-label="minatomirai" x="1588" y="298" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">みなとみらい</text>
+<text data-station-label="motomachi_chukagai" x="1642" y="298" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">元町・中華街</text>
+<text data-station-label="shin_tsunashima" x="1426" y="368" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">新綱島</text>
+<text data-station-label="shin_yokohama" x="1426" y="438" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">新横浜</text>
+<text data-station-label="hazawa" x="1480" y="438" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">羽沢横浜国大</text>
+<text data-station-label="nishiya" x="1534" y="438" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">西谷</text>
+<text data-station-label="futamatagawa" x="1588" y="438" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">二俣川</text>
+<text data-station-label="yamato" x="1642" y="408" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">大和</text>
+<text data-station-label="ebina" x="1696" y="408" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">海老名</text>
+<text data-station-label="izumino" x="1588" y="478" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">いずみ野</text>
+<text data-station-label="shonandai" x="1588" y="548" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">湘南台</text>
+<text data-station-label="hoshikawa" x="1480" y="438" text-anchor="middle" font-size="10" font-weight="500" font-family="system-ui,sans-serif" fill="#0f172a">星川</text>
+<text data-station-label="yokohama_so" x="1426" y="408" text-anchor="middle" font-size="12" font-weight="700" font-family="system-ui,sans-serif" fill="#0f172a">横浜</text>
+</g>
+<text x="16" y="624" font-size="11" fill="#64748b" font-family="system-ui,sans-serif">非公式・AI制作のオリジナル路線図 / Unofficial</text>
+</svg>

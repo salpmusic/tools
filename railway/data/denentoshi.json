@@ -1,0 +1,574 @@
+{
+  "id": "denentoshi",
+  "title": "田園都市線 直通",
+  "subtitle": "東急・東京メトロ・東武",
+  "checkedDate": "2026-10-29",
+  "disclaimer": "非公式・AI制作のオリジナル路線図です。駅順と接続関係をわかりやすく表すため、実際の位置・距離・線路形状を簡略化しています。すべての列車が表示された区間を直通するわけではありません。最新の運行情報は各社公式サイトをご確認ください。",
+  "lines": [
+    {
+      "id": "tokyu_dt",
+      "name": "東急田園都市線",
+      "color": "#00A040",
+      "officialColorName": "緑系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "shibuya_dt",
+          "name": "渋谷",
+          "major": true
+        },
+        {
+          "id": "ijiri_ohashi",
+          "name": "池尻大橋",
+          "major": false
+        },
+        {
+          "id": "sangenjaya",
+          "name": "三軒茶屋",
+          "major": false
+        },
+        {
+          "id": "komazawa_daigaku",
+          "name": "駒沢大学",
+          "major": false
+        },
+        {
+          "id": "sakura_shinmachi",
+          "name": "桜新町",
+          "major": false
+        },
+        {
+          "id": "yoga",
+          "name": "用賀",
+          "major": false
+        },
+        {
+          "id": "futako_tamagawa",
+          "name": "二子玉川",
+          "major": true
+        },
+        {
+          "id": "futako_shinchi",
+          "name": "二子新地",
+          "major": false
+        },
+        {
+          "id": "takatsu",
+          "name": "高津",
+          "major": false
+        },
+        {
+          "id": "mizonokuchi",
+          "name": "溝の口",
+          "major": true
+        },
+        {
+          "id": "kajigaya",
+          "name": "梶が谷",
+          "major": false
+        },
+        {
+          "id": "miyazakidai",
+          "name": "宮崎台",
+          "major": false
+        },
+        {
+          "id": "miyamaedaira",
+          "name": "宮前平",
+          "major": false
+        },
+        {
+          "id": "saginuma",
+          "name": "鷺沼",
+          "major": false
+        },
+        {
+          "id": "tama_plaza",
+          "name": "たまプラーザ",
+          "major": false
+        },
+        {
+          "id": "azamino",
+          "name": "あざみ野",
+          "major": false
+        },
+        {
+          "id": "eda",
+          "name": "江田",
+          "major": false
+        },
+        {
+          "id": "ichigao",
+          "name": "市が尾",
+          "major": false
+        },
+        {
+          "id": "fujigaoka",
+          "name": "藤が丘",
+          "major": false
+        },
+        {
+          "id": "aobadai",
+          "name": "青葉台",
+          "major": false
+        },
+        {
+          "id": "tana",
+          "name": "田奈",
+          "major": false
+        },
+        {
+          "id": "nagatsuta",
+          "name": "長津田",
+          "major": true
+        },
+        {
+          "id": "tsukushino",
+          "name": "つくし野",
+          "major": false
+        },
+        {
+          "id": "suzukakedai",
+          "name": "すずかけ台",
+          "major": false
+        },
+        {
+          "id": "minami_machida",
+          "name": "南町田グランベリーパーク",
+          "major": false
+        },
+        {
+          "id": "tsukimino",
+          "name": "つきみ野",
+          "major": false
+        },
+        {
+          "id": "chuo_rinkan",
+          "name": "中央林間",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "metro_z",
+      "name": "東京メトロ半蔵門線",
+      "color": "#8F76D6",
+      "officialColorName": "パープル系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "shibuya_dt",
+          "name": "渋谷",
+          "major": true
+        },
+        {
+          "id": "omotesando",
+          "name": "表参道",
+          "major": false
+        },
+        {
+          "id": "aoyama_itchome",
+          "name": "青山一丁目",
+          "major": false
+        },
+        {
+          "id": "nagatacho",
+          "name": "永田町",
+          "major": true
+        },
+        {
+          "id": "hanzomon",
+          "name": "半蔵門",
+          "major": false
+        },
+        {
+          "id": "kudanshita",
+          "name": "九段下",
+          "major": false
+        },
+        {
+          "id": "jinbocho",
+          "name": "神保町",
+          "major": false
+        },
+        {
+          "id": "otemachi",
+          "name": "大手町",
+          "major": true
+        },
+        {
+          "id": "mitsukoshimae",
+          "name": "三越前",
+          "major": false
+        },
+        {
+          "id": "suitengumae",
+          "name": "水天宮前",
+          "major": false
+        },
+        {
+          "id": "kiyosumi_shirakawa",
+          "name": "清澄白河",
+          "major": false
+        },
+        {
+          "id": "sumiyoshi",
+          "name": "住吉",
+          "major": false
+        },
+        {
+          "id": "kinshicho",
+          "name": "錦糸町",
+          "major": false
+        },
+        {
+          "id": "oshiage",
+          "name": "押上〈スカイツリー前〉",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tobu_ts_main",
+      "name": "東武スカイツリーライン（押上〜東武動物公園）",
+      "color": "#0068B7",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "oshiage",
+          "name": "押上〈スカイツリー前〉",
+          "major": true
+        },
+        {
+          "id": "hikifune",
+          "name": "曳舟",
+          "major": true
+        },
+        {
+          "id": "higashi_mukojima",
+          "name": "東向島"
+        },
+        {
+          "id": "kanegafuchi",
+          "name": "鐘ケ淵"
+        },
+        {
+          "id": "horikiri",
+          "name": "堀切"
+        },
+        {
+          "id": "ushida",
+          "name": "牛田"
+        },
+        {
+          "id": "kita_senju",
+          "name": "北千住",
+          "major": true
+        },
+        {
+          "id": "kosuge",
+          "name": "小菅"
+        },
+        {
+          "id": "gotanno",
+          "name": "五反野"
+        },
+        {
+          "id": "umejima",
+          "name": "梅島"
+        },
+        {
+          "id": "nishiarai",
+          "name": "西新井"
+        },
+        {
+          "id": "takenotsuka",
+          "name": "竹ノ塚"
+        },
+        {
+          "id": "yatsuka",
+          "name": "谷塚"
+        },
+        {
+          "id": "soka",
+          "name": "草加"
+        },
+        {
+          "id": "dokkyo",
+          "name": "獨協大学前〈草加松原〉"
+        },
+        {
+          "id": "shinden",
+          "name": "新田"
+        },
+        {
+          "id": "gamo",
+          "name": "蒲生"
+        },
+        {
+          "id": "shin_koshigaya",
+          "name": "新越谷"
+        },
+        {
+          "id": "koshigaya",
+          "name": "越谷"
+        },
+        {
+          "id": "kita_koshigaya",
+          "name": "北越谷"
+        },
+        {
+          "id": "obukuro",
+          "name": "大袋"
+        },
+        {
+          "id": "sengendai",
+          "name": "せんげん台"
+        },
+        {
+          "id": "takesato",
+          "name": "武里"
+        },
+        {
+          "id": "ichinowari",
+          "name": "一ノ割"
+        },
+        {
+          "id": "kasukabe",
+          "name": "春日部"
+        },
+        {
+          "id": "kita_kasukabe",
+          "name": "北春日部"
+        },
+        {
+          "id": "himemiya",
+          "name": "姫宮"
+        },
+        {
+          "id": "tobu_dobutsu",
+          "name": "東武動物公園",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tobu_ts_asa",
+      "name": "東武スカイツリーライン（浅草枝）",
+      "color": "#0068B7",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "asakusa",
+          "name": "浅草",
+          "major": true
+        },
+        {
+          "id": "tokyo_skytree",
+          "name": "とうきょうスカイツリー"
+        },
+        {
+          "id": "hikifune",
+          "name": "曳舟",
+          "major": true
+        }
+      ],
+      "notes": "浅草〜曳舟。押上枝と一本にしない"
+    },
+    {
+      "id": "tobu_isesaki",
+      "name": "東武伊勢崎線（東武動物公園〜久喜）",
+      "color": "#E60012",
+      "officialColorName": "赤系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "tobu_dobutsu",
+          "name": "東武動物公園",
+          "major": true
+        },
+        {
+          "id": "wado",
+          "name": "和戸"
+        },
+        {
+          "id": "kuki",
+          "name": "久喜",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tobu_nikko",
+      "name": "東武日光線（東武動物公園〜南栗橋）",
+      "color": "#F39800",
+      "officialColorName": "オレンジ系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "tobu_dobutsu",
+          "name": "東武動物公園",
+          "major": true
+        },
+        {
+          "id": "sugito_takanodai",
+          "name": "杉戸高野台"
+        },
+        {
+          "id": "satte",
+          "name": "幸手"
+        },
+        {
+          "id": "minami_kurihashi",
+          "name": "南栗橋",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tokyu_om",
+      "name": "東急大井町線（関連）",
+      "color": "#F18C43",
+      "officialColorName": "オレンジ系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "oimachi",
+          "name": "大井町"
+        },
+        {
+          "id": "shimo_shinmei",
+          "name": "下神明"
+        },
+        {
+          "id": "togoshi_koen",
+          "name": "戸越公園"
+        },
+        {
+          "id": "nakanobu",
+          "name": "中延"
+        },
+        {
+          "id": "ebara_machi",
+          "name": "荏原町"
+        },
+        {
+          "id": "hatanodai",
+          "name": "旗の台"
+        },
+        {
+          "id": "kita_senzoku",
+          "name": "北千束"
+        },
+        {
+          "id": "ookayama",
+          "name": "大岡山"
+        },
+        {
+          "id": "midorigaoka",
+          "name": "緑が丘"
+        },
+        {
+          "id": "jiyugaoka_om",
+          "name": "自由が丘"
+        },
+        {
+          "id": "kuhonbutsu",
+          "name": "九品仏"
+        },
+        {
+          "id": "oyamadai",
+          "name": "尾山台"
+        },
+        {
+          "id": "todoroki",
+          "name": "等々力"
+        },
+        {
+          "id": "kaminoge",
+          "name": "上野毛"
+        },
+        {
+          "id": "futako_tamagawa",
+          "name": "二子玉川",
+          "major": true
+        },
+        {
+          "id": "mizonokuchi",
+          "name": "溝の口",
+          "major": true
+        }
+      ],
+      "notes": "一部列車が田園都市線中央林間方面へ直通。半蔵門系統とは別"
+    }
+  ],
+  "throughServices": [
+    {
+      "id": "A",
+      "name": "中央林間〜久喜",
+      "path": [
+        "tokyu_dt",
+        "metro_z",
+        "tobu_ts_main",
+        "tobu_isesaki"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "中央林間〜南栗橋",
+      "path": [
+        "tokyu_dt",
+        "metro_z",
+        "tobu_ts_main",
+        "tobu_nikko"
+      ]
+    }
+  ],
+  "transfersOnly": [
+    {
+      "a": "shibuya_dt",
+      "b": "shibuya_fukutoshin_note",
+      "label": "副都心線・東横線は乗換（直通なし）"
+    }
+  ],
+  "officialLinks": [
+    {
+      "company": "東急電鉄",
+      "title": "田園都市線",
+      "url": "https://www.tokyu.co.jp/railway/dt/"
+    },
+    {
+      "company": "東急電鉄",
+      "title": "大井町線",
+      "url": "https://www.tokyu.co.jp/railway/om/"
+    },
+    {
+      "company": "東京メトロ",
+      "title": "半蔵門線 駅一覧",
+      "url": "https://www.tokyometro.jp/station/line_hanzomon/index.html"
+    },
+    {
+      "company": "東武鉄道",
+      "title": "スカイツリーライン・伊勢崎線",
+      "url": "https://www.tobu.co.jp/railway/guide/line/isesaki_line.html"
+    },
+    {
+      "company": "東武鉄道",
+      "title": "日光線",
+      "url": "https://www.tobu.co.jp/railway/guide/line/nikko_line.html"
+    },
+    {
+      "company": "東武鉄道",
+      "title": "路線概要",
+      "url": "https://www.tobu.co.jp/corporation/rail/route/"
+    }
+  ],
+  "stationCount": 88
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="田園都市線 直通 — salp Tools 非公式オリジナル路線図"/>
+<title>田園都市線 直通 | 鉄道路線図 | salp Tools</title>
+<link rel="stylesheet" href="css/railway.css"/>
+</head>
+<body>
+<main class="wrap">
+  <nav class="topnav">
+    <a href="index.html">← 鉄道路線図一覧へ</a>
+    <a href="../">salp Tools ホーム</a>
+  </nav>
+  <h1>🚃 田園都市線 直通</h1>
+  <p class="lead">東急・東京メトロ・東武 · 収録駅（ユニーク）88 · 資料確認日 2026-10-29</p>
+  <div class="toolbar" role="toolbar" aria-label="路線図操作">
+    <button type="button" id="zoomIn" aria-label="拡大">＋</button>
+    <button type="button" id="zoomOut" aria-label="縮小">－</button>
+    <button type="button" id="fitView">全体表示</button>
+    <button type="button" id="resetView">位置リセット</button>
+    <label class="sr-only" for="lineSelect" style="position:absolute;left:-9999px">路線選択</label>
+    <select id="lineSelect" aria-label="路線をハイライト">
+      <option value="">路線選択</option>
+      <option value="tokyu_dt">東急田園都市線</option>
+<option value="metro_z">東京メトロ半蔵門線</option>
+<option value="tobu_ts_main">東武スカイツリーライン（押上〜東武動物公園）</option>
+<option value="tobu_ts_asa">東武スカイツリーライン（浅草枝）</option>
+<option value="tobu_isesaki">東武伊勢崎線（東武動物公園〜久喜）</option>
+<option value="tobu_nikko">東武日光線（東武動物公園〜南栗橋）</option>
+<option value="tokyu_om">東急大井町線（関連）</option>
+    </select>
+    <button type="button" id="clearHighlight">ハイライト解除</button>
+  </div>
+  <div class="viewer-wrap"><div class="viewer" data-src="svg/denentoshi.svg" aria-label="路線図ビューア"></div></div>
+  <section class="legend">
+    <p><strong>凡例</strong> — 実線＝相互直通（会社境界で色が変わります）／灰色点線＝乗換のみ／二重丸＝主要乗換・分岐</p>
+    <ul><li><span style="display:inline-block;width:18px;height:6px;background:#00A040;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東急田園都市線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#8F76D6;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東京メトロ半蔵門線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0068B7;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東武スカイツリーライン（押上〜東武動物公園） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0068B7;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東武スカイツリーライン（浅草枝） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#E60012;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東武伊勢崎線（東武動物公園〜久喜） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#F39800;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東武日光線（東武動物公園〜南栗橋） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#F18C43;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東急大井町線（関連） <small style="color:var(--muted)">（表示色・temporary）</small></li></ul>
+  </section>
+  <section class="note"><p>非公式・AI制作のオリジナル路線図です。駅順と接続関係をわかりやすく表すため、実際の位置・距離・線路形状を簡略化しています。すべての列車が表示された区間を直通するわけではありません。最新の運行情報は各社公式サイトをご確認ください。</p></section>
+  <section class="links">
+    <p><strong>公式情報・参考リンク</strong>（資料確認日：2026-10-29）</p>
+    <ul><li><strong>東急電鉄</strong> — <a href="https://www.tokyu.co.jp/railway/dt/" target="_blank" rel="noopener noreferrer">田園都市線</a></li>
+<li><strong>東急電鉄</strong> — <a href="https://www.tokyu.co.jp/railway/om/" target="_blank" rel="noopener noreferrer">大井町線</a></li>
+<li><strong>東京メトロ</strong> — <a href="https://www.tokyometro.jp/station/line_hanzomon/index.html" target="_blank" rel="noopener noreferrer">半蔵門線 駅一覧</a></li>
+<li><strong>東武鉄道</strong> — <a href="https://www.tobu.co.jp/railway/guide/line/isesaki_line.html" target="_blank" rel="noopener noreferrer">スカイツリーライン・伊勢崎線</a></li>
+<li><strong>東武鉄道</strong> — <a href="https://www.tobu.co.jp/railway/guide/line/nikko_line.html" target="_blank" rel="noopener noreferrer">日光線</a></li>
+<li><strong>東武鉄道</strong> — <a href="https://www.tobu.co.jp/corporation/rail/route/" target="_blank" rel="noopener noreferrer">路線概要</a></li></ul>
+  </section>
+  <nav class="topnav"><a href="index.html">← 一覧に戻る</a></nav>
+</main>
+<script src="js/railway.js"></script>
+</body>
+</html>

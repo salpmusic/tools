@@ -1,0 +1,776 @@
+{
+  "id": "fukutoshin",
+  "title": "副都心線 相互直通",
+  "subtitle": "東京メトロ・東武・西武・東急・相鉄",
+  "checkedDate": "2026-10-29",
+  "disclaimer": "非公式・AI制作のオリジナル路線図です。駅順と接続関係をわかりやすく表すため、実際の位置・距離・線路形状を簡略化しています。すべての列車が表示された区間を直通するわけではありません。最新の運行情報は各社公式サイトをご確認ください。",
+  "lines": [
+    {
+      "id": "metro_f",
+      "name": "東京メトロ副都心線",
+      "color": "#9A5B2F",
+      "officialColorName": "ブラウン系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "wakoshi",
+          "name": "和光市",
+          "major": true
+        },
+        {
+          "id": "chikatetsu_narimasu",
+          "name": "地下鉄成増",
+          "major": false
+        },
+        {
+          "id": "chikatetsu_akatsuka",
+          "name": "地下鉄赤塚",
+          "major": false
+        },
+        {
+          "id": "heidai",
+          "name": "平和台",
+          "major": false
+        },
+        {
+          "id": "hikawadai",
+          "name": "氷川台",
+          "major": false
+        },
+        {
+          "id": "kotake_mukaihara",
+          "name": "小竹向原",
+          "major": true
+        },
+        {
+          "id": "senkawa",
+          "name": "千川",
+          "major": false
+        },
+        {
+          "id": "kanamecho",
+          "name": "要町",
+          "major": false
+        },
+        {
+          "id": "ikebukuro_f",
+          "name": "池袋",
+          "major": true
+        },
+        {
+          "id": "zoshigaya",
+          "name": "雑司が谷",
+          "major": false
+        },
+        {
+          "id": "nishi_waseda",
+          "name": "西早稲田",
+          "major": false
+        },
+        {
+          "id": "higashi_shinjuku",
+          "name": "東新宿",
+          "major": false
+        },
+        {
+          "id": "shinjuku_sanchome",
+          "name": "新宿三丁目",
+          "major": true
+        },
+        {
+          "id": "kita_sando",
+          "name": "北参道",
+          "major": false
+        },
+        {
+          "id": "meiji_jingumae",
+          "name": "明治神宮前〈原宿〉",
+          "major": true
+        },
+        {
+          "id": "shibuya_f",
+          "name": "渋谷",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tobu_tojo",
+      "name": "東武東上線（直通側）",
+      "color": "#0057A8",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "wakoshi",
+          "name": "和光市",
+          "major": true
+        },
+        {
+          "id": "asaka",
+          "name": "朝霞"
+        },
+        {
+          "id": "asakadai",
+          "name": "朝霞台"
+        },
+        {
+          "id": "shiki",
+          "name": "志木"
+        },
+        {
+          "id": "yanasegawa",
+          "name": "柳瀬川"
+        },
+        {
+          "id": "mizuhodai",
+          "name": "みずほ台"
+        },
+        {
+          "id": "tsuruse",
+          "name": "鶴瀬"
+        },
+        {
+          "id": "fujimino",
+          "name": "ふじみ野"
+        },
+        {
+          "id": "kami_fukuoka",
+          "name": "上福岡"
+        },
+        {
+          "id": "shin_kashi",
+          "name": "新河岸"
+        },
+        {
+          "id": "kawagoe",
+          "name": "川越"
+        },
+        {
+          "id": "kawagoeshi",
+          "name": "川越市"
+        },
+        {
+          "id": "kasumigaseki",
+          "name": "霞ケ関"
+        },
+        {
+          "id": "tsurugashima",
+          "name": "鶴ケ島"
+        },
+        {
+          "id": "wakaba",
+          "name": "若葉"
+        },
+        {
+          "id": "sakado",
+          "name": "坂戸"
+        },
+        {
+          "id": "kita_sakado",
+          "name": "北坂戸"
+        },
+        {
+          "id": "takasaka",
+          "name": "高坂"
+        },
+        {
+          "id": "higashimatsuyama",
+          "name": "東松山"
+        },
+        {
+          "id": "shinrin_koen",
+          "name": "森林公園",
+          "major": true
+        }
+      ],
+      "notes": "和光市以西の直通側。東武池袋〜和光市は副都心直通経路ではない。"
+    },
+    {
+      "id": "tobu_tojo_ike",
+      "name": "東武東上線（池袋側）",
+      "color": "#0057A8",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "ikebukuro_tj",
+          "name": "池袋"
+        },
+        {
+          "id": "kita_ikebukuro",
+          "name": "北池袋"
+        },
+        {
+          "id": "shimo_itabashi",
+          "name": "下板橋"
+        },
+        {
+          "id": "oyama",
+          "name": "大山"
+        },
+        {
+          "id": "naka_itabashi",
+          "name": "中板橋"
+        },
+        {
+          "id": "tokiwadai",
+          "name": "ときわ台"
+        },
+        {
+          "id": "kami_itabashi",
+          "name": "上板橋"
+        },
+        {
+          "id": "tobu_nerima",
+          "name": "東武練馬"
+        },
+        {
+          "id": "shimo_akatsuka",
+          "name": "下赤塚"
+        },
+        {
+          "id": "narimasu",
+          "name": "成増"
+        },
+        {
+          "id": "wakoshi",
+          "name": "和光市",
+          "major": true
+        }
+      ],
+      "notes": "接続・分岐側（直通経路ではない）"
+    },
+    {
+      "id": "seibu_y",
+      "name": "西武有楽町線",
+      "color": "#1E90FF",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "kotake_mukaihara",
+          "name": "小竹向原",
+          "major": true
+        },
+        {
+          "id": "shin_sakuradai",
+          "name": "新桜台"
+        },
+        {
+          "id": "nerima",
+          "name": "練馬",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "seibu_i",
+      "name": "西武池袋線（直通側）",
+      "color": "#0072BC",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "nerima",
+          "name": "練馬",
+          "major": true
+        },
+        {
+          "id": "nakamurabashi",
+          "name": "中村橋"
+        },
+        {
+          "id": "fujimidai",
+          "name": "富士見台"
+        },
+        {
+          "id": "nerima_takanodai",
+          "name": "練馬高野台"
+        },
+        {
+          "id": "shakujii_koen",
+          "name": "石神井公園"
+        },
+        {
+          "id": "oizumi_gakuen",
+          "name": "大泉学園"
+        },
+        {
+          "id": "hoya",
+          "name": "保谷"
+        },
+        {
+          "id": "hibarigaoka",
+          "name": "ひばりヶ丘"
+        },
+        {
+          "id": "higashi_kurume",
+          "name": "東久留米"
+        },
+        {
+          "id": "kiyose",
+          "name": "清瀬"
+        },
+        {
+          "id": "akitsu",
+          "name": "秋津"
+        },
+        {
+          "id": "tokorozawa",
+          "name": "所沢"
+        },
+        {
+          "id": "nishi_tokorozawa",
+          "name": "西所沢"
+        },
+        {
+          "id": "kotesashi",
+          "name": "小手指"
+        },
+        {
+          "id": "sayamagaoka",
+          "name": "狭山ヶ丘"
+        },
+        {
+          "id": "musashi_fujisawa",
+          "name": "武蔵藤沢"
+        },
+        {
+          "id": "inariyama_koen",
+          "name": "稲荷山公園"
+        },
+        {
+          "id": "irumashi",
+          "name": "入間市"
+        },
+        {
+          "id": "bushi",
+          "name": "仏子"
+        },
+        {
+          "id": "motokaji",
+          "name": "元加治"
+        },
+        {
+          "id": "hanno",
+          "name": "飯能",
+          "major": true
+        }
+      ],
+      "notes": "練馬以西。池袋〜練馬は直通系統の経路ではない。"
+    },
+    {
+      "id": "tokyu_ty",
+      "name": "東急東横線",
+      "color": "#DA044A",
+      "officialColorName": "赤系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "shibuya_f",
+          "name": "渋谷",
+          "major": true
+        },
+        {
+          "id": "daikanyama",
+          "name": "代官山"
+        },
+        {
+          "id": "naka_meguro",
+          "name": "中目黒"
+        },
+        {
+          "id": "yutenji",
+          "name": "祐天寺"
+        },
+        {
+          "id": "gakugei_daigaku",
+          "name": "学芸大学"
+        },
+        {
+          "id": "toritsu_daigaku",
+          "name": "都立大学"
+        },
+        {
+          "id": "jiyugaoka",
+          "name": "自由が丘"
+        },
+        {
+          "id": "denenchofu",
+          "name": "田園調布"
+        },
+        {
+          "id": "tamagawa",
+          "name": "多摩川"
+        },
+        {
+          "id": "shin_maruko",
+          "name": "新丸子"
+        },
+        {
+          "id": "musashi_kosugi",
+          "name": "武蔵小杉"
+        },
+        {
+          "id": "motosumiyoshi",
+          "name": "元住吉"
+        },
+        {
+          "id": "hiyoshi",
+          "name": "日吉",
+          "major": true
+        },
+        {
+          "id": "tsunashima",
+          "name": "綱島"
+        },
+        {
+          "id": "okurayama",
+          "name": "大倉山"
+        },
+        {
+          "id": "kikuna",
+          "name": "菊名"
+        },
+        {
+          "id": "myorenji",
+          "name": "妙蓮寺"
+        },
+        {
+          "id": "hakuraku",
+          "name": "白楽"
+        },
+        {
+          "id": "higashi_hakuraku",
+          "name": "東白楽"
+        },
+        {
+          "id": "tammachi",
+          "name": "反町"
+        },
+        {
+          "id": "yokohama_ty",
+          "name": "横浜",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "mm",
+      "name": "みなとみらい線",
+      "color": "#0077C8",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "yokohama_ty",
+          "name": "横浜",
+          "major": true
+        },
+        {
+          "id": "shin_takashima",
+          "name": "新高島"
+        },
+        {
+          "id": "minatomirai",
+          "name": "みなとみらい"
+        },
+        {
+          "id": "bashamichi",
+          "name": "馬車道"
+        },
+        {
+          "id": "nihon_odori",
+          "name": "日本大通り"
+        },
+        {
+          "id": "motomachi_chukagai",
+          "name": "元町・中華街",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tokyu_sh",
+      "name": "東急新横浜線",
+      "color": "#6B3FA0",
+      "officialColorName": "紫系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "hiyoshi",
+          "name": "日吉",
+          "major": true
+        },
+        {
+          "id": "shin_tsunashima",
+          "name": "新綱島"
+        },
+        {
+          "id": "shin_yokohama",
+          "name": "新横浜",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "sotetsu_sh",
+      "name": "相鉄新横浜線",
+      "color": "#0072BC",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "shin_yokohama",
+          "name": "新横浜",
+          "major": true
+        },
+        {
+          "id": "hazawa",
+          "name": "羽沢横浜国大"
+        },
+        {
+          "id": "nishiya",
+          "name": "西谷",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "sotetsu_main_w",
+      "name": "相鉄本線（西谷〜海老名）",
+      "color": "#0072BC",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "nishiya",
+          "name": "西谷",
+          "major": true
+        },
+        {
+          "id": "tsurugamine",
+          "name": "鶴ケ峰"
+        },
+        {
+          "id": "futamatagawa",
+          "name": "二俣川",
+          "major": true
+        },
+        {
+          "id": "kibogaoka",
+          "name": "希望ケ丘"
+        },
+        {
+          "id": "mitsukyo",
+          "name": "三ツ境"
+        },
+        {
+          "id": "seya",
+          "name": "瀬谷"
+        },
+        {
+          "id": "yamato",
+          "name": "大和"
+        },
+        {
+          "id": "sagami_otsuka",
+          "name": "相模大塚"
+        },
+        {
+          "id": "sagamino",
+          "name": "さがみ野"
+        },
+        {
+          "id": "kashiwadai",
+          "name": "かしわ台"
+        },
+        {
+          "id": "ebina",
+          "name": "海老名",
+          "major": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "id": "sotetsu_main_e",
+      "name": "相鉄本線（横浜〜西谷）",
+      "color": "#0072BC",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "yokohama_so",
+          "name": "横浜"
+        },
+        {
+          "id": "hiranumabashi",
+          "name": "平沼橋"
+        },
+        {
+          "id": "nishi_yokohama",
+          "name": "西横浜"
+        },
+        {
+          "id": "tennocho",
+          "name": "天王町"
+        },
+        {
+          "id": "hoshikawa",
+          "name": "星川"
+        },
+        {
+          "id": "wadacho",
+          "name": "和田町"
+        },
+        {
+          "id": "kami_hoshikawa",
+          "name": "上星川"
+        },
+        {
+          "id": "nishiya",
+          "name": "西谷",
+          "major": true
+        }
+      ],
+      "notes": "横浜駅で東横線とは乗換のみ"
+    },
+    {
+      "id": "sotetsu_iz",
+      "name": "相鉄いずみ野線",
+      "color": "#0072BC",
+      "officialColorName": "青系",
+      "colorStatus": "temporary",
+      "stations": [
+        {
+          "id": "futamatagawa",
+          "name": "二俣川",
+          "major": true
+        },
+        {
+          "id": "minami_makigahara",
+          "name": "南万騎が原"
+        },
+        {
+          "id": "ryokuen_toshi",
+          "name": "緑園都市"
+        },
+        {
+          "id": "yayoidai",
+          "name": "弥生台"
+        },
+        {
+          "id": "izumino",
+          "name": "いずみ野"
+        },
+        {
+          "id": "izumi_chuo",
+          "name": "いずみ中央"
+        },
+        {
+          "id": "yumegaoka",
+          "name": "ゆめが丘"
+        },
+        {
+          "id": "shonandai",
+          "name": "湘南台",
+          "major": true
+        }
+      ],
+      "notes": ""
+    }
+  ],
+  "throughServices": [
+    {
+      "id": "A",
+      "name": "東武東上〜副都心〜東横〜みなとみらい",
+      "path": [
+        "tobu_tojo",
+        "metro_f",
+        "tokyu_ty",
+        "mm"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "西武池袋〜有楽町〜副都心〜東横〜みなとみらい",
+      "path": [
+        "seibu_i",
+        "seibu_y",
+        "metro_f",
+        "tokyu_ty",
+        "mm"
+      ]
+    },
+    {
+      "id": "C",
+      "name": "副都心〜東横〜新横浜〜相鉄いずみ野",
+      "path": [
+        "metro_f",
+        "tokyu_ty",
+        "tokyu_sh",
+        "sotetsu_sh",
+        "sotetsu_main_w",
+        "sotetsu_iz"
+      ]
+    }
+  ],
+  "transfersOnly": [
+    {
+      "a": "yokohama_ty",
+      "b": "yokohama_so",
+      "label": "乗換（直通なし）"
+    }
+  ],
+  "officialLinks": [
+    {
+      "company": "東京メトロ",
+      "title": "副都心線 駅一覧",
+      "url": "https://www.tokyometro.jp/station/line_fukutoshin/index.html"
+    },
+    {
+      "company": "東武鉄道",
+      "title": "東上線 駅一覧",
+      "url": "https://www.tobu.co.jp/railway/guide/line/tojo_line.html"
+    },
+    {
+      "company": "西武鉄道",
+      "title": "駅一覧・路線図",
+      "url": "https://www.seiburailway.jp/railway/station/"
+    },
+    {
+      "company": "東急電鉄",
+      "title": "東横線",
+      "url": "https://www.tokyu.co.jp/railway/ty/"
+    },
+    {
+      "company": "東急電鉄",
+      "title": "新横浜線",
+      "url": "https://www.tokyu.co.jp/railway/sh/"
+    },
+    {
+      "company": "東急電鉄",
+      "title": "相互直通ネットワーク",
+      "url": "https://www.tokyu.co.jp/railway/company/business/midplan/network/"
+    },
+    {
+      "company": "横浜高速鉄道",
+      "title": "路線図・直通案内",
+      "url": "https://www.mm21railway.co.jp/info/route_map.html"
+    },
+    {
+      "company": "相模鉄道",
+      "title": "全線駅一覧",
+      "url": "https://www.sotetsu.co.jp/train/stations/"
+    }
+  ],
+  "stationCount": 120
+}

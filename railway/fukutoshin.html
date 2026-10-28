@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="副都心線 相互直通 — salp Tools 非公式オリジナル路線図"/>
+<title>副都心線 相互直通 | 鉄道路線図 | salp Tools</title>
+<link rel="stylesheet" href="css/railway.css"/>
+</head>
+<body>
+<main class="wrap">
+  <nav class="topnav">
+    <a href="index.html">← 鉄道路線図一覧へ</a>
+    <a href="../">salp Tools ホーム</a>
+  </nav>
+  <h1>🚃 副都心線 相互直通</h1>
+  <p class="lead">東京メトロ・東武・西武・東急・相鉄 · 収録駅（ユニーク）120 · 資料確認日 2026-10-29</p>
+  <div class="toolbar" role="toolbar" aria-label="路線図操作">
+    <button type="button" id="zoomIn" aria-label="拡大">＋</button>
+    <button type="button" id="zoomOut" aria-label="縮小">－</button>
+    <button type="button" id="fitView">全体表示</button>
+    <button type="button" id="resetView">位置リセット</button>
+    <label class="sr-only" for="lineSelect" style="position:absolute;left:-9999px">路線選択</label>
+    <select id="lineSelect" aria-label="路線をハイライト">
+      <option value="">路線選択</option>
+      <option value="metro_f">東京メトロ副都心線</option>
+<option value="tobu_tojo">東武東上線（直通側）</option>
+<option value="tobu_tojo_ike">東武東上線（池袋側）</option>
+<option value="seibu_y">西武有楽町線</option>
+<option value="seibu_i">西武池袋線（直通側）</option>
+<option value="tokyu_ty">東急東横線</option>
+<option value="mm">みなとみらい線</option>
+<option value="tokyu_sh">東急新横浜線</option>
+<option value="sotetsu_sh">相鉄新横浜線</option>
+<option value="sotetsu_main_w">相鉄本線（西谷〜海老名）</option>
+<option value="sotetsu_main_e">相鉄本線（横浜〜西谷）</option>
+<option value="sotetsu_iz">相鉄いずみ野線</option>
+    </select>
+    <button type="button" id="clearHighlight">ハイライト解除</button>
+  </div>
+  <div class="viewer-wrap"><div class="viewer" data-src="svg/fukutoshin.svg" aria-label="路線図ビューア"></div></div>
+  <section class="legend">
+    <p><strong>凡例</strong> — 実線＝相互直通（会社境界で色が変わります）／灰色点線＝乗換のみ／二重丸＝主要乗換・分岐</p>
+    <ul><li><span style="display:inline-block;width:18px;height:6px;background:#9A5B2F;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東京メトロ副都心線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0057A8;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東武東上線（直通側） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0057A8;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東武東上線（池袋側） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#1E90FF;border-radius:3px;vertical-align:middle;margin-right:6px"></span>西武有楽町線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0072BC;border-radius:3px;vertical-align:middle;margin-right:6px"></span>西武池袋線（直通側） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#DA044A;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東急東横線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0077C8;border-radius:3px;vertical-align:middle;margin-right:6px"></span>みなとみらい線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#6B3FA0;border-radius:3px;vertical-align:middle;margin-right:6px"></span>東急新横浜線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0072BC;border-radius:3px;vertical-align:middle;margin-right:6px"></span>相鉄新横浜線 <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0072BC;border-radius:3px;vertical-align:middle;margin-right:6px"></span>相鉄本線（西谷〜海老名） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0072BC;border-radius:3px;vertical-align:middle;margin-right:6px"></span>相鉄本線（横浜〜西谷） <small style="color:var(--muted)">（表示色・temporary）</small></li>
+<li><span style="display:inline-block;width:18px;height:6px;background:#0072BC;border-radius:3px;vertical-align:middle;margin-right:6px"></span>相鉄いずみ野線 <small style="color:var(--muted)">（表示色・temporary）</small></li></ul>
+  </section>
+  <section class="note"><p>非公式・AI制作のオリジナル路線図です。駅順と接続関係をわかりやすく表すため、実際の位置・距離・線路形状を簡略化しています。すべての列車が表示された区間を直通するわけではありません。最新の運行情報は各社公式サイトをご確認ください。</p></section>
+  <section class="links">
+    <p><strong>公式情報・参考リンク</strong>（資料確認日：2026-10-29）</p>
+    <ul><li><strong>東京メトロ</strong> — <a href="https://www.tokyometro.jp/station/line_fukutoshin/index.html" target="_blank" rel="noopener noreferrer">副都心線 駅一覧</a></li>
+<li><strong>東武鉄道</strong> — <a href="https://www.tobu.co.jp/railway/guide/line/tojo_line.html" target="_blank" rel="noopener noreferrer">東上線 駅一覧</a></li>
+<li><strong>西武鉄道</strong> — <a href="https://www.seiburailway.jp/railway/station/" target="_blank" rel="noopener noreferrer">駅一覧・路線図</a></li>
+<li><strong>東急電鉄</strong> — <a href="https://www.tokyu.co.jp/railway/ty/" target="_blank" rel="noopener noreferrer">東横線</a></li>
+<li><strong>東急電鉄</strong> — <a href="https://www.tokyu.co.jp/railway/sh/" target="_blank" rel="noopener noreferrer">新横浜線</a></li>
+<li><strong>東急電鉄</strong> — <a href="https://www.tokyu.co.jp/railway/company/business/midplan/network/" target="_blank" rel="noopener noreferrer">相互直通ネットワーク</a></li>
+<li><strong>横浜高速鉄道</strong> — <a href="https://www.mm21railway.co.jp/info/route_map.html" target="_blank" rel="noopener noreferrer">路線図・直通案内</a></li>
+<li><strong>相模鉄道</strong> — <a href="https://www.sotetsu.co.jp/train/stations/" target="_blank" rel="noopener noreferrer">全線駅一覧</a></li></ul>
+  </section>
+  <nav class="topnav"><a href="index.html">← 一覧に戻る</a></nav>
+</main>
+<script src="js/railway.js"></script>
+</body>
+</html>
