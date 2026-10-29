@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第11回 for文でリストを回す ～BASICの配列のFORループと比べてみよう～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第11回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第11回：for文でリストを回す ～BASICの配列のFORループと比べてみよう～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li><code>for</code> 文でリストの中身を、先頭から順に取り出して使えるようになる。</li><li>値だけ欲しいときと、番号も欲しいときの書き方を使い分けられるようになる。</li><li>BASICの配列を <code>FOR</code> で回す書き方との違いを理解する。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>BASICでは、配列の中身を順に見るとき、番号を増やしながら取り出します。</p>
+<p>BASICの例：</p>
+<pre><code class="lang-text">DIM A(3)
+A(1)=80
+A(2)=90
+A(3)=70
+FOR I=1 TO 3
+  PRINT A(I)
+NEXT I</code></pre>
+<p>Pythonでも同じことができますが、<strong>値だけ欲しいとき</strong>は番号を書かなくても回せます。</p>
+<pre><code class="lang-text">scores = [80, 90, 70]
+for score in scores:
+    print(score)</code></pre>
+<p>番号も一緒に使いたいときは、第6回の <code>range()</code> と第10回のインデックスを組み合わせます。</p>
+<table><tr><th>やりたいこと</th><th>BASIC</th><th>Python</th></tr><tr><td>値を順に表示</td><td><code>FOR I=1 TO N: PRINT A(I)</code></td><td><code>for x in a:</code></td></tr><tr><td>番号付きで表示</td><td>上と同じ（<code>I</code> を使う）</td><td><code>for i in range(len(a)):</code></td></tr><tr><td>個数</td><td>処理系による</td><td><code>len(a)</code></td></tr><tr><td>値の取り出し</td><td><code>A(I)</code></td><td><code>a[i]</code></td></tr></table>
+<p>第8回で見た <code>for score in scores:</code> を、今回はもう少し丁寧に使い分けます。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第11回：for文でリストを回す
+
+# 1. 値だけ順に取り出す
+fruits = ["りんご", "みかん", "バナナ"]
+print("1. 果物を順番に")
+for fruit in fruits:
+    print(fruit)
+
+
+# 2. 合計を求める（値だけあればよい例）
+scores = [80, 90, 70]
+print("2. 点数の合計")
+total = 0
+for score in scores:
+    total = total + score
+print("合計 =", total)
+
+
+# 3. 番号も欲しいとき（BASICの添字ループに近い）
+names = ["太郎", "花子", "次郎"]
+print("3. 番号付きで表示")
+for i in range(len(names)):
+    print(i, "番目:", names[i])
+
+
+# 4. 表示用に番号を1からにする
+print("4. 1から数える表示")
+for i in range(len(names)):
+    print(i + 1, "人目:", names[i])</code></pre>
+<a class="run" href="../run.html?py=lessons/011.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/011.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/011.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. 果物を順番に
+りんご
+みかん
+バナナ
+2. 点数の合計
+合計 = 240
+3. 番号付きで表示
+0 番目: 太郎
+1 番目: 花子
+2 番目: 次郎
+4. 1から数える表示
+1 人目: 太郎
+2 人目: 花子
+3 人目: 次郎</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><strong>値だけ欲しいとき</strong>は <code>for fruit in fruits:</code> が一番わかりやすいです。リストの中身が、順に <code>fruit</code> に入ります。</li><li><strong>番号も欲しいとき</strong>は <code>for i in range(len(names)):</code> を使い、<code>names[i]</code> で値を取り出します。BASICの <code>FOR I=1 TO N</code> に近い書き方です。</li><li>**<code>len(names)</code>** は個数です。3個なら <code>range(3)</code> なので、<code>i</code> は 0、1、2 になります。</li><li><strong>人が読む番号</strong>を1からにしたいときは、表示のときだけ <code>i + 1</code> にします。リストのインデックス自体は、これまでどおり 0 からです。</li><li>第8回の復習です。リストの追加・削除（第9回）やスライス（第10回）で作ったリストも、同じように <code>for</code> で回せます。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>次のリストがあります。</p>
+<pre><code class="lang-text">colors = ["赤", "青", "緑"]</code></pre>
+<p><code>for</code> と <code>range(len(...))</code> を使って、次のように表示してください。</p>
+<pre><code class="lang-text">1: 赤
+2: 青
+3: 緑</code></pre>
+<p>ヒント：インデックスは 0 から始まります。表示する番号だけ <code>i + 1</code> にしましょう。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 答え
+colors = ["赤", "青", "緑"]
+
+for i in range(len(colors)):
+    print(f"{i + 1}: {colors[i]}")</code></pre>
+<a class="run" href="../run.html#py=IyDnrZTjgYgKY29sb3JzID0gWyLotaQiLCAi6Z2SIiwgIue3kSJdCgpmb3IgaSBpbiByYW5nZShsZW4oY29sb3JzKSk6CiAgICBwcmludChmIntpICsgMX06IHtjb2xvcnNbaV19IikK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDnrZTjgYgKY29sb3JzID0gWyLotaQiLCAi6Z2SIiwgIue3kSJdCgpmb3IgaSBpbiByYW5nZShsZW4oY29sb3JzKSk6CiAgICBwcmludChmIntpICsgMX06IHtjb2xvcnNbaV19IikK">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">1: 赤
+2: 青
+3: 緑</code></pre>
+<p><code>range(len(colors))</code> で 0、1、2 を作り、<code>colors[i]</code> で色を取り出しています。表示の番号だけ <code>i + 1</code> にしているので、1から数えられます。</p>
+<p class="panel"><a href="../lessons/010.html">◀ 第10回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>

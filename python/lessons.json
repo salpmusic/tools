@@ -80,6 +80,14 @@
       "goal": "負の番号とスライスでリストの一部分を取り出す（BASICの配列との比較）",
       "html": "lessons/010.html",
       "py": "lessons/010.py"
+    },
+    {
+      "no": 11,
+      "date": "2026-10-30",
+      "title": "for文でリストを回す ～BASICの配列のFORループと比べてみよう～",
+      "goal": "forでリストを回し、値だけ／番号付きを使い分ける（BASICの配列FORとの比較）",
+      "html": "lessons/011.html",
+      "py": "lessons/011.py"
     }
   ],
   "plan": [
