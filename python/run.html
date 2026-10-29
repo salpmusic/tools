@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- 軽量版 v1.0 2026-10-29: Pyodideは実行ボタン後のみWorkerで読込。CheerpX/WASMの即時読込なし -->
 <title>Python実行（軽量版）| salp Tools</title>
 <style>
 body{margin:0;font-family:system-ui,sans-serif;background:#0b1410;color:#e6fff0}
@@ -13,38 +14,43 @@ a{color:#9fe}small{color:#9bb}
 </style></head><body><main>
 <p><a href="../">← ホーム</a> ・ <a href="./">Python入門</a></p>
 <h1>🐍 Python実行（軽量版）</h1>
-<p><small>スマホ向けの軽いPython実行ページです（Pyodide）。最初の「▶ 実行」でだけPythonを読み込みます（約10MB・初回は少し時間がかかります）。<br>本物のLinuxで動かしたい場合は <a href="../salp-linux/salp-linux-lite.html?v=1003" id="linuxLink">salp Linux Lite（PC推奨・重い）</a>。</small></p>
+<p><small>スマホ向けの軽いPython実行ページです（Pyodide）。最初の「▶ 実行」でだけPythonを読み込みます（約10MB・初回は少し時間がかかります）。<br>本物のLinuxで動かしたい場合は <a href="../salp-linux/salp-linux-lite.html?v=1029" id="linuxLink">salp Linux Lite（PC向け・重い）</a>。</small></p>
 <textarea id="code" spellcheck="false" autocapitalize="off" autocorrect="off">print("こんにちは、Python!")
 for i in range(3):
     print(i, "回目")</textarea>
 <div><button id="run">▶ 実行</button><button id="clear" type="button">クリア</button> <small id="st">未読み込み</small></div>
 <pre id="out"></pre>
+<p id="help" hidden><small>⚠ この端末ではPythonを読み込めませんでした（メモリ不足など）。<a href="https://colab.research.google.com/" target="_blank" rel="noopener">Google Colab</a> で実行するか、<a href="./">Python入門</a> に戻ってください。</small></p>
 </main>
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)};
 var w=null,ready=false,busy=false,timer=null;
 var q=new URLSearchParams(location.search).get("code");if(q)$("code").value=q;
+var pyp=new URLSearchParams(location.search).get("py");if(pyp){try{var u=new URL(pyp,location.href);if(u.origin===location.origin&&/\.py$/i.test(u.pathname))fetch(u.href,{cache:"no-cache"}).then(function(r){if(!r.ok)throw Error("HTTP "+r.status);return r.text()}).then(function(t){$("code").value=t;$("st").textContent="レッスンのコードを読み込みました"}).catch(function(e){$("st").textContent="コード読込エラー: "+e.message});q=q||pyp}catch(e){}}
 try{var s=localStorage.getItem("salp.pyrun.code");if(!q&&s)$("code").value=s}catch(e){}
 function out(t){$("out").textContent+=t}
 var src="var PY='https://cdn.jsdelivr.net/pyodide/v0.27.3/full/';importScripts(PY+'pyodide.js');var p=null;"+
 "async function init(){p=await loadPyodide({indexURL:PY,stdout:function(s){postMessage({o:s+'\\n'})},stderr:function(s){postMessage({o:s+'\\n'})}});postMessage({ready:1})}"+
 "var ip=init().catch(function(e){postMessage({err:String(e)})});"+
 "onmessage=async function(e){await ip;try{await p.runPythonAsync(e.data)}catch(x){postMessage({o:String(x)+'\\n'})}postMessage({done:1})};";
+function fail(m){$("st").textContent=m;$("help").hidden=false;if(w){try{w.terminate()}catch(e){}}w=null;ready=false;busy=false;$("run").disabled=false}
 function start(){
+  if(!window.Worker){fail("このブラウザーはWorker非対応です");return false}
   $("st").textContent="Python読み込み中…";
   w=new Worker(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));
   w.onmessage=function(e){var d=e.data;
     if(d.o)out(d.o);
     if(d.ready){ready=true;$("st").textContent="● Python準備OK"}
-    if(d.err){$("st").textContent="読み込み失敗: "+d.err;w.terminate();w=null;busy=false;$("run").disabled=false}
+    if(d.err)fail("読み込み失敗: "+d.err)
     if(d.done){busy=false;clearTimeout(timer);$("run").disabled=false;$("st").textContent="● 実行完了"}
   };
-  w.onerror=function(e){$("st").textContent="エラー: "+(e.message||e);busy=false;$("run").disabled=false};
+  w.onerror=function(e){fail("エラー: "+(e.message||e))};
+  return true;
 }
 $("run").onclick=function(){
   if(busy)return;var c=$("code").value;try{localStorage.setItem("salp.pyrun.code",c)}catch(e){}
-  if(!w)start();busy=true;$("run").disabled=true;$("out").textContent="";if(ready)$("st").textContent="実行中…";
+  if(!w&&!start())return;busy=true;$("run").disabled=true;$("out").textContent="";if(ready)$("st").textContent="実行中…";
   timer=setTimeout(function(){if(busy&&ready){w.terminate();w=null;ready=false;busy=false;$("run").disabled=false;$("st").textContent="20秒で停止しました（無限ループ?）"}},20000);
   w.postMessage(c);
 };
