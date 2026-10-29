@@ -714,7 +714,7 @@ body:has(#salpFinderResults:not([hidden])) .wordHeroWrap,body:has(#salpFinderRes
 </header><section class="quickStart">
 <div class="quickStartHead"><h2 data-i18n="quickTitle">何を開きますか？</h2><p data-i18n="quickLead">目的に合う大きなボタンを押してください。</p></div>
 <div class="quickGrid">
-<a class="quickButton quickLinux" href="./salp-linux/salp-linux-lite.html?v=1003" aria-label="Python実行・salp Linux Liteを開く"><span class="quickIcon">🐍</span><strong>Python実行</strong><small>Run Python 3</small><span>Linuxコマンド・ファイル・エディターも使える</span></a>
+<a class="quickButton quickLinux" href="./salp-linux/salp-linux-lite.html?v=1003" data-ios-href="./python/run.html" aria-label="Python実行を開く（iPhone/iPadは軽量版）"><span class="quickIcon">🐍</span><strong>Python実行</strong><small>Run Python 3</small><span>Linuxコマンド・ファイル・エディターも使える</span></a>
 <a class="quickButton quickBasic" href="./python/"><span class="quickIcon">🐍📘</span><strong data-i18n="quickPy0">Python入門</strong><small data-i18n="quickPy1">Learn Python Daily</small><span data-i18n="quickPy2">今1番人気のプログラミング言語・毎日レッスン</span></a>
 <a class="quickButton quickBasic" href="./salp-game-creator-v1.1.html"><span class="quickIcon">🎮🧩</span><strong>ゲームを作る</strong><small>salp Game Creator</small><span>無料のビジュアルプログラミング・スマホ対応</span></a>
 <a class="quickButton quickBasic" href="./salp-game-creator-tutorial.html"><span class="quickIcon">🐈📘</span><strong>ゲーム作り入門</strong><small>Game Creator Tutorial</small><span>三毛猫と学ぶ全10レッスン・進捗保存つき</span></a>
@@ -2846,5 +2846,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 </script>
 <script defer src="./swipe.js?v=4"></script>
 <a href="./protea-vr/hq-real-v1.6.html?v=16" aria-label="プロテアの朝 VRモード" style="position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;gap:8px;padding:13px 17px;border-radius:999px;background:#153b36;color:white;text-decoration:none;font:bold 16px system-ui;box-shadow:0 4px 18px #0006;border:2px solid #bce4d3">🥽 VRモード</a>
+<script>(function(){if(/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1))document.querySelectorAll("a[data-ios-href]").forEach(function(a){a.href=a.getAttribute("data-ios-href")})})();</script>
 </body>
 </html>

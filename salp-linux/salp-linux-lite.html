@@ -44,7 +44,7 @@ body.easy .touchPad button small{font-size:12px}
 <section id="editor" class="panel"><div class="box"><div class="linuxState" data-linux-state>⚠ Linux未起動 — 下の「Linuxを起動」を押してください</div><label>ファイル名 <input id="filename" value="hello.py"></label><div class="row" style="margin:12px 0"><button id="clearEditor" style="background:#85512e;font-weight:700">🧹 コードをクリア</button></div><p><textarea id="code" spellcheck="false">print("Hello from salp Linux Lite!")</textarea></p><button class="startLinux" type="button">▶ Linuxを起動</button><button id="save">💾 Linuxに保存</button><button id="download">⬇ スマホに保存</button><p id="editStatus"></p></div></section>
 <section id="browser" class="panel"><div class="box"><b>🌐 スマホのブラウザーを使用</b><p>Linux内のFirefoxは使いません。URLをスマホのブラウザーで開きます。</p><input id="url" placeholder="https://example.com" value="https://salpmusic.github.io/tools/"><button id="openweb">↗ Webサイトを開く</button></div></section>
 <script type="module">
-import * as CheerpX from "https://cxrtnc.leaningtech.com/1.2.8/cx.esm.js";
+let CheerpX=null;const IS_IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 import {Terminal} from "https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/+esm";
 import {FitAddon} from "https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/+esm";
 const $=id=>document.getElementById(id);let cx,send,ready=false,busy=false;
@@ -83,6 +83,7 @@ show("terminal");const chars=s+String.fromCharCode(13);inputQueue=inputQueue.the
 document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>command(b.dataset.cmd));
 $("focus").onclick=()=>term.focus();$("ctrlc").onclick=()=>send?.(3);
 $("boot").onclick=async()=>{if(ready){show("terminal");return}if(busy||cx)return;busy=true;$("boot").disabled=true;updateLinuxState();try{
+if(!CheerpX){$("status").textContent="Linuxエンジン読込中";CheerpX=await import("https://cxrtnc.leaningtech.com/1.2.8/cx.esm.js")}
 $("status").textContent="ディスク接続中";term.writeln("\r\n[1/4] Debianディスク接続...");
 const cloud=await CheerpX.CloudDevice.create("wss://disks.webvm.io/debian_large_20230522_5044875331.ext2");
 term.writeln("[2/4] 一時ストレージ...");
@@ -120,6 +121,5 @@ else if(path){const u=new URL(path,location.href);if(u.origin!==location.origin|
 if(code===null)return;pyBox.value=code;show("python");$("pythonMsg").textContent="レッスンのコードを読み込みました";
 if((qs.get("run")||hs.get("run"))==="1"){$("pythonMsg").textContent="Linux起動後に自動実行します…";const t0=Date.now();while(!(ready&&send)&&Date.now()-t0<600000)await new Promise(r=>setTimeout(r,500));if(ready&&send){await new Promise(r=>setTimeout(r,2000));$("runpy").click()}}}catch(e){$("pythonMsg").textContent="コード読込エラー: "+(e?.message||e)}})();
 // ページを開いたらLinuxを自動起動。失敗時は手動ボタンで再試行できます。
-$("status").textContent="自動起動準備中";
-$("boot").click();
+if(IS_IOS){$("status").textContent="iPhone/iPadでは自動起動しません（重いため）。「▶ Linuxを起動」を押すか、軽量版Pythonへ";term.writeln("iPhone/iPad: 軽量版Python → ../python/run.html")}else{$("status").textContent="自動起動準備中";$("boot").click();}
 </script></body></html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python実行（軽量版）| salp Tools</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#0b1410;color:#e6fff0}
+main{max-width:820px;margin:auto;padding:14px}
+h1{font-size:1.25rem;margin:.3em 0}
+textarea{width:100%;box-sizing:border-box;height:38vh;font:15px/1.4 ui-monospace,Menlo,monospace;background:#020806;color:#c8ffd5;border:1px solid #2c5;border-radius:8px;padding:8px}
+pre{white-space:pre-wrap;word-break:break-word;background:#020806;border:1px solid #355;border-radius:8px;padding:8px;min-height:6em;font:14px/1.4 ui-monospace,Menlo,monospace}
+button{font-size:1rem;padding:.6em 1em;border-radius:8px;border:0;background:#2c7;color:#012;font-weight:700;margin:.3em .3em .3em 0}
+button:disabled{opacity:.5}
+a{color:#9fe}small{color:#9bb}
+</style></head><body><main>
+<p><a href="../">← ホーム</a> ・ <a href="./">Python入門</a></p>
+<h1>🐍 Python実行（軽量版）</h1>
+<p><small>スマホ向けの軽いPython実行ページです（Pyodide）。最初の「▶ 実行」でだけPythonを読み込みます（約10MB・初回は少し時間がかかります）。<br>本物のLinuxで動かしたい場合は <a href="../salp-linux/salp-linux-lite.html?v=1003" id="linuxLink">salp Linux Lite（PC推奨・重い）</a>。</small></p>
+<textarea id="code" spellcheck="false" autocapitalize="off" autocorrect="off">print("こんにちは、Python!")
+for i in range(3):
+    print(i, "回目")</textarea>
+<div><button id="run">▶ 実行</button><button id="clear" type="button">クリア</button> <small id="st">未読み込み</small></div>
+<pre id="out"></pre>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var w=null,ready=false,busy=false,timer=null;
+var q=new URLSearchParams(location.search).get("code");if(q)$("code").value=q;
+try{var s=localStorage.getItem("salp.pyrun.code");if(!q&&s)$("code").value=s}catch(e){}
+function out(t){$("out").textContent+=t}
+var src="var PY='https://cdn.jsdelivr.net/pyodide/v0.27.3/full/';importScripts(PY+'pyodide.js');var p=null;"+
+"async function init(){p=await loadPyodide({indexURL:PY,stdout:function(s){postMessage({o:s+'\\n'})},stderr:function(s){postMessage({o:s+'\\n'})}});postMessage({ready:1})}"+
+"var ip=init().catch(function(e){postMessage({err:String(e)})});"+
+"onmessage=async function(e){await ip;try{await p.runPythonAsync(e.data)}catch(x){postMessage({o:String(x)+'\\n'})}postMessage({done:1})};";
+function start(){
+  $("st").textContent="Python読み込み中…";
+  w=new Worker(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));
+  w.onmessage=function(e){var d=e.data;
+    if(d.o)out(d.o);
+    if(d.ready){ready=true;$("st").textContent="● Python準備OK"}
+    if(d.err){$("st").textContent="読み込み失敗: "+d.err;w.terminate();w=null;busy=false;$("run").disabled=false}
+    if(d.done){busy=false;clearTimeout(timer);$("run").disabled=false;$("st").textContent="● 実行完了"}
+  };
+  w.onerror=function(e){$("st").textContent="エラー: "+(e.message||e);busy=false;$("run").disabled=false};
+}
+$("run").onclick=function(){
+  if(busy)return;var c=$("code").value;try{localStorage.setItem("salp.pyrun.code",c)}catch(e){}
+  if(!w)start();busy=true;$("run").disabled=true;$("out").textContent="";if(ready)$("st").textContent="実行中…";
+  timer=setTimeout(function(){if(busy&&ready){w.terminate();w=null;ready=false;busy=false;$("run").disabled=false;$("st").textContent="20秒で停止しました（無限ループ?）"}},20000);
+  w.postMessage(c);
+};
+$("clear").onclick=function(){$("out").textContent=""};
+})();
+</script></body></html>
