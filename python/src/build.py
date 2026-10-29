@@ -5,6 +5,7 @@
 """
 import base64, html, json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # .../python
+RUN_FROM = {"lessons": "../run.html", "": "./run.html"}
 LITE_FROM = {"lessons": "../../salp-linux/salp-linux-lite.html", "": "../salp-linux/salp-linux-lite.html"}
 COLAB = "https://colab.research.google.com/github/salpmusic/tools/blob/main/python/"
 TIOBE = '<p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p>'
@@ -33,8 +34,8 @@ def inline(s):
             out.append(p)
     return "".join(out)
 
-def md2html(md, lite, main_py=None, colab=None):
-    """main_py: (path_from_lite, code) -> 最初のpythonブロックにそのファイルを開くボタン / colab: Colab URL"""
+def md2html(md, lite, main_py=None, colab=None, run="./run.html"):
+    """main_py: (path_from_run, path_from_lite, code) -> 最初のpythonブロックにそのファイルを開くボタン / colab: Colab URL"""
     lines = md.split("\n"); out = []; i = 0; first = True; para = []
     def flush():
         if para: out.append("<p>" + "<br>".join(inline(x.rstrip()) for x in para) + "</p>"); para.clear()
@@ -47,11 +48,14 @@ def md2html(md, lite, main_py=None, colab=None):
             out.append('<pre><code class="lang-%s">%s</code></pre>' % (lang or "text", html.escape(code.rstrip("\n"), quote=False)))
             if lang == "python":
                 if first and main_py:
-                    assert code == main_py[1], "lesson .md の最初のコードと .py が一致しません"
-                    out.append('<a class="run" href="%s?py=%s&amp;run=1">🐍 ブラウザLinuxで開いて実行</a>' % (lite, main_py[0]))
+                    assert code == main_py[2], "lesson .md の最初のコードと .py が一致しません"
+                    out.append('<a class="run" href="%s?py=%s">🐍 ブラウザで実行（軽量版）</a>' % (run, main_py[0]))
                     if colab: out.append('<a class="run colab" href="%s" target="_blank" rel="noopener">📒 Colabで開く</a>' % colab)
+                    out.append('<a class="run small" href="%s?py=%s">🐧 PC向け Linux Lite</a>' % (lite, main_py[1]))
                 else:
-                    out.append('<a class="run small" href="%s#py=%s&amp;run=1">▶ このコードをブラウザLinuxで実行</a>' % (lite, b64url(code)))
+                    b = b64url(code)
+                    out.append('<a class="run" href="%s#py=%s">▶ このコードを実行（軽量版）</a>' % (run, b))
+                    out.append('<a class="run small" href="%s#py=%s">🐧 PC向け Linux Lite</a>' % (lite, b))
                 first = False
             i = j + 1; continue
         if l.startswith("|"):
@@ -81,7 +85,7 @@ def page(title, crumb, body, css):
 <title>{html.escape(title)} | salp Tools</title><link rel="stylesheet" href="{css}"></head>
 <body><div class="wrap"><div class="crumb">{crumb}</div>
 {body}
-<footer>salp Tools · Python入門コーナー · コードは <a href="{'../' if css.startswith('../') else ''}../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+<footer>salp Tools · Python入門コーナー · コードは <a href="{'../' if css.startswith('../') else './'}run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="{'../' if css.startswith('../') else ''}../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
 </div></body></html>
 '''
 
@@ -93,7 +97,7 @@ def main():
         py = open(os.path.join(ROOT, L["py"]), encoding="utf-8").read()
         md = re.sub(r"^# .*\n", "", md, count=1)
         body = f'<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第{L["no"]}回：{html.escape(L["title"])}</h1>{TIOBE}</div>\n'
-        body += md2html(md, LITE_FROM["lessons"], ("../python/" + L["py"], py), COLAB + L["py"][:-3] + ".ipynb")
+        body += md2html(md, LITE_FROM["lessons"], (L["py"], "../python/" + L["py"], py), COLAB + L["py"][:-3] + ".ipynb", RUN_FROM["lessons"])
         open(os.path.join(ROOT, L["py"][:-3] + ".ipynb"), "w", encoding="utf-8").write(notebook("Python入門 第%d回：%s" % (L["no"], L["title"]), py))
         prev = [x for x in data["lessons"] if x["no"] == L["no"] - 1]; nxt = [x for x in data["lessons"] if x["no"] == L["no"] + 1]
         nav = '<p class="panel">' + (f'<a href="../{prev[0]["html"]}">◀ 第{prev[0]["no"]}回</a> · ' if prev else "") + '<a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a>' + (f' · <a href="../{nxt[0]["html"]}">第{nxt[0]["no"]}回 ▶</a>' if nxt else "") + "</p>"
@@ -103,8 +107,8 @@ def main():
     md = open(os.path.join(ROOT, "src", "manual.md"), encoding="utf-8").read()
     md = re.sub(r"^# .*\n", "", md, count=1)
     body = '<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>入門編マニュアル(BASIC経験者向け)</h1>' + TIOBE + '</div>\n'
-    body += '<p class="tip">各コード例の「▶ このコードをブラウザLinuxで実行」を押すと salp Linux Lite が開き、Linux起動後に自動で実行されます(初回は起動に1分ほどかかることがあります)。</p>\n'
-    body += md2html(md, LITE_FROM[""]) + '\n<p class="panel"><a href="./">レッスン一覧へ</a></p>'
+    body += '<p class="tip">各コード例の「▶ このコードを実行（軽量版）」を押すと軽量版のPython実行ページにコードが読み込まれます。「▶ 実行」を押すと動きます(初回はPythonの読み込みに少し時間がかかります・スマホOK)。PCでは「🐧 PC向け Linux Lite」で本物のLinux上でも試せます。</p>\n'
+    body += md2html(md, LITE_FROM[""], run=RUN_FROM[""]) + '\n<p class="panel"><a href="./">レッスン一覧へ</a></p>'
     open(os.path.join(ROOT, "manual.html"), "w", encoding="utf-8").write(page("Python入門編マニュアル", '<a href="../">salp Tools</a> › <a href="./">Python入門</a> › マニュアル', body, "style.css"))
     print("built", len(data["lessons"]), "lessons + manual")
 

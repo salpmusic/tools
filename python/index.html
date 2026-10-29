@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Python入門コーナー | salp Tools</title>
-<meta name="description" content="今1番人気のプログラミング言語 Python入門。毎日少しずつ増える短いレッスンと、BASIC経験者向けの入門編マニュアル。コードはブラウザLinux(salp Linux Lite)でそのまま実行できます。">
+<meta name="description" content="今1番人気のプログラミング言語 Python入門。毎日少しずつ増える短いレッスンと、BASIC経験者向けの入門編マニュアル。コードはスマホでも動く軽量版Python実行ページ・Google Colab・PC向けのsalp Linux Liteで実行できます。">
 <link rel="stylesheet" href="style.css"></head>
 <body><div class="wrap">
 <div class="crumb"><a href="../">salp Tools</a> › Python入門</div>
@@ -10,13 +10,15 @@
 <h1>🐍 Python入門</h1>
 <p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p>
 </div>
-<p>BASICを知っている人向けに、毎日5〜10分の短いレッスンを1本ずつ追加していきます。各レッスンのコードは「ブラウザLinuxで開いて実行」ボタンで、<a href="../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザの中で動くLinux・Python 3.7)にそのまま読み込まれて実行されます。</p>
+<p>BASICを知っている人向けに、毎日5〜10分の短いレッスンを1本ずつ追加していきます。各レッスンのコードは「🐍 ブラウザで実行（軽量版）」ボタンで <a href="run.html">軽量版 Python実行ページ</a> に読み込まれ、▶ 実行 を押すだけで動きます(スマホOK・ログイン不要)。</p>
+<a class="big" href="run.html">🐍 Python実行（軽量版）<small>スマホOK・ログイン不要。自由にコードを書いて試せます</small></a>
 <a class="big" href="manual.html">📘 入門編マニュアル<small>BASICとの比較つき・全8章(変数・入出力・if/for/while・リスト・関数・math/random)</small></a>
 <a class="big" id="latest" href="lessons/001.html">🆕 最新レッスン<small id="latestTitle">第1回：はじめてのprintとコメント</small></a>
-<h2>実行方法は2つ</h2>
-<div class="panel"><p><strong>① ブラウザLinux</strong>(ログイン不要)<br>各レッスンの「🐍 ブラウザLinuxで開いて実行」ボタンで、<a href="../salp-linux/salp-linux-lite.html">salp Linux Lite</a> がすぐに動きます。中のPythonは <strong>3.7</strong> です。</p>
+<h2>実行方法は3つ</h2>
+<div class="panel"><p><strong>① 軽量版 Python実行</strong>(スマホOK・ログイン不要)<br>各レッスンの「🐍 ブラウザで実行（軽量版）」ボタンで <a href="run.html">run.html</a> にコードが入ります。▶ 実行 を押すと初回だけPython(Pyodide)を読み込んで動きます。</p>
 <p><strong>② Google Colab</strong>(Googleアカウントで開くだけ)<br>新しいPythonが使え、ノートブックはGoogleドライブに保存されるので、続きをスマホからでも再開できます。各レッスンの「Colabで開く」ボタンから開けます。</p>
-<p>自分で書くときの手順:</p><ol><li><a href="https://colab.research.google.com/" target="_blank" rel="noopener">Colab</a> で「新規ノートブック」</li><li>コードを書く</li><li>▶ で実行</li></ol></div>
+<p><strong>③ salp Linux Lite</strong>(PC向け・重い・任意)<br>「🐧 PC向け Linux Lite」ボタンで、ブラウザの中で動く本物のLinux <a href="../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(Python 3.7)でも実行できます。</p>
+<p>Colabで自分で書くときの手順:</p><ol><li><a href="https://colab.research.google.com/" target="_blank" rel="noopener">Colab</a> で「新規ノートブック」</li><li>コードを書く</li><li>▶ で実行</li></ol></div>
 <h2>レッスン一覧</h2>
 <ul class="list" id="lessonList">
 <li><span class="no">第1回</span><span><a href="lessons/001.html">はじめてのprintとコメント</a><span class="goal">画面に文字を出し、BASICのPRINTとの違いを知る</span></span></li>

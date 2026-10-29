@@ -3,7 +3,7 @@
 <title>Python入門編マニュアル | salp Tools</title><link rel="stylesheet" href="style.css"></head>
 <body><div class="wrap"><div class="crumb"><a href="../">salp Tools</a> › <a href="./">Python入門</a> › マニュアル</div>
 <div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>入門編マニュアル(BASIC経験者向け)</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
-<p class="tip">各コード例の「▶ このコードをブラウザLinuxで実行」を押すと salp Linux Lite が開き、Linux起動後に自動で実行されます(初回は起動に1分ほどかかることがあります)。</p>
+<p class="tip">各コード例の「▶ このコードを実行（軽量版）」を押すと軽量版のPython実行ページにコードが読み込まれます。「▶ 実行」を押すと動きます(初回はPythonの読み込みに少し時間がかかります・スマホOK)。PCでは「🐧 PC向け Linux Lite」で本物のLinux上でも試せます。</p>
 <p>BASICを知っている人が、Pythonの基本を一通り理解するための短いマニュアルです。<br>各章に <strong>BASICとの比較表</strong> と <strong>短いコード例</strong> を入れています。</p>
 <h2>実行方法は2つ</h2>
 <ul><li><strong>① ブラウザLinux</strong>：ログイン不要。各コード例の「▶」ボタンですぐ動く。Pythonは <strong>3.7</strong>。</li><li><strong>② Google Colab</strong>：Googleアカウントで開くだけ。新しいPythonが使え、Googleドライブに保存されるので、続きをスマホからでも再開できる。</li></ul>
@@ -14,7 +14,8 @@
 <table><tr><th>項目</th><th>BASIC</th><th>Python</th></tr><tr><td>行番号</td><td>必要（またはGOTO）</td><td>不要</td></tr><tr><td>代入</td><td><code>LET a = 10</code> または <code>a = 10</code></td><td><code>a = 10</code></td></tr><tr><td>出力</td><td><code>PRINT</code></td><td><code>print()</code></td></tr><tr><td>入力</td><td><code>INPUT</code></td><td><code>input()</code></td></tr><tr><td>条件</td><td><code>IF ... THEN</code></td><td><code>if ... :</code></td></tr><tr><td>繰り返し</td><td><code>FOR ... NEXT</code></td><td><code>for ... :</code> / <code>while ... :</code></td></tr><tr><td>サブルーチン</td><td><code>GOSUB</code> / <code>RETURN</code></td><td>関数 <code>def</code></td></tr><tr><td>配列</td><td>次元配列など</td><td>リスト <code>[]</code></td></tr><tr><td>ブロック</td><td>行番号やEND IFなど</td><td>インデント（字下げ）</td></tr></table>
 <p><strong>短い例（Hello World）</strong></p>
 <pre><code class="lang-python">print("Hello from Python!")</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=cHJpbnQoIkhlbGxvIGZyb20gUHl0aG9uISIpCg&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=cHJpbnQoIkhlbGxvIGZyb20gUHl0aG9uISIpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=cHJpbnQoIkhlbGxvIGZyb20gUHl0aG9uISIpCg">🐧 PC向け Linux Lite</a>
 <h2>第2章 変数とデータ型</h2>
 <p>変数は「名前をつけた箱」です。BASICと違い、<code>LET</code> は不要です。</p>
 <table><tr><th>BASIC</th><th>Python</th></tr><tr><td><code>LET a = 5</code></td><td><code>a = 5</code></td></tr><tr><td><code>LET name$ = "Taro"</code></td><td><code>name = "Taro"</code></td></tr><tr><td>型を宣言する必要は少ない</td><td>型を宣言しない（動的型付け）</td></tr></table>
@@ -26,14 +27,16 @@ is_ok = True      # 真偽値（True/False）
 
 print(age)
 print(name)</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=YWdlID0gMjAgICAgICAgICAgIyDmlbTmlbAKcHJpY2UgPSAxLjUgICAgICAgIyDlsI_mlbAKbmFtZSA9ICLloannlLAiICAgICAjIOaWh-Wtl-WIlwppc19vayA9IFRydWUgICAgICAjIOecn-WBveWApO-8iFRydWUvRmFsc2XvvIkKCnByaW50KGFnZSkKcHJpbnQobmFtZSkK&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=YWdlID0gMjAgICAgICAgICAgIyDmlbTmlbAKcHJpY2UgPSAxLjUgICAgICAgIyDlsI_mlbAKbmFtZSA9ICLloannlLAiICAgICAjIOaWh-Wtl-WIlwppc19vayA9IFRydWUgICAgICAjIOecn-WBveWApO-8iFRydWUvRmFsc2XvvIkKCnByaW50KGFnZSkKcHJpbnQobmFtZSkK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=YWdlID0gMjAgICAgICAgICAgIyDmlbTmlbAKcHJpY2UgPSAxLjUgICAgICAgIyDlsI_mlbAKbmFtZSA9ICLloannlLAiICAgICAjIOaWh-Wtl-WIlwppc19vayA9IFRydWUgICAgICAjIOecn-WBveWApO-8iFRydWUvRmFsc2XvvIkKCnByaW50KGFnZSkKcHJpbnQobmFtZSkK">🐧 PC向け Linux Lite</a>
 <p><strong>ポイント</strong>: 変数名は小文字＋アンダースコアが一般的（例: <code>user_name</code>）。</p>
 <h2>第3章 入出力（print と input）</h2>
 <table><tr><th>BASIC</th><th>Python</th></tr><tr><td><code>PRINT "名前は"; name$</code></td><td><code>print("名前は", name)</code> または f文字列</td></tr><tr><td><code>INPUT "名前を入力"; n$</code></td><td><code>n = input("名前を入力: ")</code></td></tr></table>
 <p><strong>コード例</strong></p>
 <pre><code class="lang-python">name = input("名前を入力してください: ")
 print("こんにちは、", name, "さん！")</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=bmFtZSA9IGlucHV0KCLlkI3liY3jgpLlhaXlipvjgZfjgabjgY_jgaDjgZXjgYQ6ICIpCnByaW50KCLjgZPjgpPjgavjgaHjga_jgIEiLCBuYW1lLCAi44GV44KT77yBIikK&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=bmFtZSA9IGlucHV0KCLlkI3liY3jgpLlhaXlipvjgZfjgabjgY_jgaDjgZXjgYQ6ICIpCnByaW50KCLjgZPjgpPjgavjgaHjga_jgIEiLCBuYW1lLCAi44GV44KT77yBIikK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=bmFtZSA9IGlucHV0KCLlkI3liY3jgpLlhaXlipvjgZfjgabjgY_jgaDjgZXjgYQ6ICIpCnByaW50KCLjgZPjgpPjgavjgaHjga_jgIEiLCBuYW1lLCAi44GV44KT77yBIikK">🐧 PC向け Linux Lite</a>
 <p><strong>注意</strong>: <code>input()</code> は常に文字列を返す。数字として使いたいときは <code>int()</code> や <code>float()</code> で変換する。</p>
 <h2>第4章 制御構文（if / for / while）</h2>
 <h3>if文</h3>
@@ -44,19 +47,22 @@ if score &gt;= 60:
     print("合格")
 else:
     print("不合格")</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=c2NvcmUgPSA3NQppZiBzY29yZSA-PSA2MDoKICAgIHByaW50KCLlkIjmoLwiKQplbHNlOgogICAgcHJpbnQoIuS4jeWQiOagvCIpCg&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=c2NvcmUgPSA3NQppZiBzY29yZSA-PSA2MDoKICAgIHByaW50KCLlkIjmoLwiKQplbHNlOgogICAgcHJpbnQoIuS4jeWQiOagvCIpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=c2NvcmUgPSA3NQppZiBzY29yZSA-PSA2MDoKICAgIHByaW50KCLlkIjmoLwiKQplbHNlOgogICAgcHJpbnQoIuS4jeWQiOagvCIpCg">🐧 PC向け Linux Lite</a>
 <h3>for文</h3>
 <table><tr><th>BASIC</th><th>Python</th></tr><tr><td><code>FOR i = 1 TO 5</code><br><code>PRINT i</code><br><code>NEXT i</code></td><td><code>for i in range(1, 6):</code><br><code>    print(i)</code></td></tr></table>
 <p><strong>コード例</strong></p>
 <pre><code class="lang-python">for i in range(1, 6):
     print(i)</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=Zm9yIGkgaW4gcmFuZ2UoMSwgNik6CiAgICBwcmludChpKQo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=Zm9yIGkgaW4gcmFuZ2UoMSwgNik6CiAgICBwcmludChpKQo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=Zm9yIGkgaW4gcmFuZ2UoMSwgNik6CiAgICBwcmludChpKQo">🐧 PC向け Linux Lite</a>
 <h3>while文</h3>
 <pre><code class="lang-python">count = 0
 while count &lt; 3:
     print(count)
     count += 1</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=Y291bnQgPSAwCndoaWxlIGNvdW50IDwgMzoKICAgIHByaW50KGNvdW50KQogICAgY291bnQgKz0gMQo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=Y291bnQgPSAwCndoaWxlIGNvdW50IDwgMzoKICAgIHByaW50KGNvdW50KQogICAgY291bnQgKz0gMQo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=Y291bnQgPSAwCndoaWxlIGNvdW50IDwgMzoKICAgIHByaW50KGNvdW50KQogICAgY291bnQgKz0gMQo">🐧 PC向け Linux Lite</a>
 <h2>第5章 リスト</h2>
 <p>リストは「複数の値を順番に入れる箱」です。BASICの配列に近いですが、より柔軟です。</p>
 <p><strong>コード例</strong></p>
@@ -64,7 +70,8 @@ while count &lt; 3:
 print(fruits[0])          # 最初の要素（0番目）
 fruits.append("ぶどう")   # 追加
 print(fruits)</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=ZnJ1aXRzID0gWyLjgorjgpPjgZQiLCAi44G_44GL44KTIiwgIuODkOODiuODiiJdCnByaW50KGZydWl0c1swXSkgICAgICAgICAgIyDmnIDliJ3jga7opoHntKDvvIgw55Wq55uu77yJCmZydWl0cy5hcHBlbmQoIuOBtuOBqeOBhiIpICAgIyDov73liqAKcHJpbnQoZnJ1aXRzKQo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=ZnJ1aXRzID0gWyLjgorjgpPjgZQiLCAi44G_44GL44KTIiwgIuODkOODiuODiiJdCnByaW50KGZydWl0c1swXSkgICAgICAgICAgIyDmnIDliJ3jga7opoHntKDvvIgw55Wq55uu77yJCmZydWl0cy5hcHBlbmQoIuOBtuOBqeOBhiIpICAgIyDov73liqAKcHJpbnQoZnJ1aXRzKQo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=ZnJ1aXRzID0gWyLjgorjgpPjgZQiLCAi44G_44GL44KTIiwgIuODkOODiuODiiJdCnByaW50KGZydWl0c1swXSkgICAgICAgICAgIyDmnIDliJ3jga7opoHntKDvvIgw55Wq55uu77yJCmZydWl0cy5hcHBlbmQoIuOBtuOBqeOBhiIpICAgIyDov73liqAKcHJpbnQoZnJ1aXRzKQo">🐧 PC向け Linux Lite</a>
 <table><tr><th>操作</th><th>Python</th></tr><tr><td>作成</td><td><code>a = [1, 2, 3]</code></td></tr><tr><td>長さ</td><td><code>len(a)</code></td></tr><tr><td>追加</td><td><code>a.append(4)</code></td></tr><tr><td>削除</td><td><code>a.remove(2)</code> または <code>del a[0]</code></td></tr></table>
 <h2>第6章 関数</h2>
 <p>BASICの <code>GOSUB</code> に近いですが、Pythonの関数は「引数と戻り値」を持てます。</p>
@@ -75,7 +82,8 @@ print(fruits)</code></pre>
 
 result = add(3, 5)
 print(result)  # 8</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=ZGVmIGFkZChhLCBiKToKICAgIHJldHVybiBhICsgYgoKcmVzdWx0ID0gYWRkKDMsIDUpCnByaW50KHJlc3VsdCkgICMgOAo&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=ZGVmIGFkZChhLCBiKToKICAgIHJldHVybiBhICsgYgoKcmVzdWx0ID0gYWRkKDMsIDUpCnByaW50KHJlc3VsdCkgICMgOAo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=ZGVmIGFkZChhLCBiKToKICAgIHJldHVybiBhICsgYgoKcmVzdWx0ID0gYWRkKDMsIDUpCnByaW50KHJlc3VsdCkgICMgOAo">🐧 PC向け Linux Lite</a>
 <h2>第7章 モジュール（math と random）</h2>
 <p>標準ライブラリを <code>import</code> して使います。</p>
 <p><strong>コード例</strong></p>
@@ -84,10 +92,11 @@ import random
 
 print(math.sqrt(16))      # 4.0
 print(random.randint(1, 6))  # 1〜6の乱数</code></pre>
-<a class="run small" href="../salp-linux/salp-linux-lite.html#py=aW1wb3J0IG1hdGgKaW1wb3J0IHJhbmRvbQoKcHJpbnQobWF0aC5zcXJ0KDE2KSkgICAgICAjIDQuMApwcmludChyYW5kb20ucmFuZGludCgxLCA2KSkgICMgMeOAnDbjga7kubHmlbAK&amp;run=1">▶ このコードをブラウザLinuxで実行</a>
+<a class="run" href="./run.html#py=aW1wb3J0IG1hdGgKaW1wb3J0IHJhbmRvbQoKcHJpbnQobWF0aC5zcXJ0KDE2KSkgICAgICAjIDQuMApwcmludChyYW5kb20ucmFuZGludCgxLCA2KSkgICMgMeOAnDbjga7kubHmlbAK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../salp-linux/salp-linux-lite.html#py=aW1wb3J0IG1hdGgKaW1wb3J0IHJhbmRvbQoKcHJpbnQobWF0aC5zcXJ0KDE2KSkgICAgICAjIDQuMApwcmludChyYW5kb20ucmFuZGludCgxLCA2KSkgICMgMeOAnDbjga7kubHmlbAK">🐧 PC向け Linux Lite</a>
 <h2>第8章 次のステップ</h2>
 <p>ここまでで基本は一通り終わりです。<br>次に挑戦すると良いこと：</p>
 <ul><li>小さなプログラムを自分で書いてみる（計算機、簡単なゲームなど）</li><li>エラーメッセージを読み慣れる</li><li>公式ドキュメントや簡単なチュートリアルを読む</li></ul>
 <p class="panel"><a href="./">レッスン一覧へ</a></p>
-<footer>salp Tools · Python入門コーナー · コードは <a href="../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7)で動作確認しています。</footer>
+<footer>salp Tools · Python入門コーナー · コードは <a href="./run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
 </div></body></html>

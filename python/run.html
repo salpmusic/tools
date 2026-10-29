@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- 軽量版 v1.0 2026-10-29: Pyodideは実行ボタン後のみWorkerで読込。CheerpX/WASMの即時読込なし -->
+<!-- 軽量版 v1.1 2026-10-30 (v=1030): #py= base64url対応・レッスン連携。 Pyodideは実行ボタン後のみWorkerで読込。CheerpX/WASMの即時読込なし -->
 <title>Python実行（軽量版）| salp Tools</title>
 <style>
 body{margin:0;font-family:system-ui,sans-serif;background:#0b1410;color:#e6fff0}
@@ -14,7 +14,7 @@ a{color:#9fe}small{color:#9bb}
 </style></head><body><main>
 <p><a href="../">← ホーム</a> ・ <a href="./">Python入門</a></p>
 <h1>🐍 Python実行（軽量版）</h1>
-<p><small>スマホ向けの軽いPython実行ページです（Pyodide）。最初の「▶ 実行」でだけPythonを読み込みます（約10MB・初回は少し時間がかかります）。<br>本物のLinuxで動かしたい場合は <a href="../salp-linux/salp-linux-lite.html?v=1029" id="linuxLink">salp Linux Lite（PC向け・重い）</a>。</small></p>
+<p><small>スマホ向けの軽いPython実行ページです（Pyodide）。最初の「▶ 実行」でだけPythonを読み込みます（約10MB・初回は少し時間がかかります）。<br>本物のLinuxで動かしたい場合は <a href="../salp-linux/salp-linux-lite.html?v=1030" id="linuxLink">salp Linux Lite（PC向け・重い）</a>。</small></p>
 <textarea id="code" spellcheck="false" autocapitalize="off" autocorrect="off">print("こんにちは、Python!")
 for i in range(3):
     print(i, "回目")</textarea>
@@ -26,8 +26,14 @@ for i in range(3):
 (function(){
 var $=function(i){return document.getElementById(i)};
 var w=null,ready=false,busy=false,timer=null;
-var q=new URLSearchParams(location.search).get("code");if(q)$("code").value=q;
-var pyp=new URLSearchParams(location.search).get("py");if(pyp){try{var u=new URL(pyp,location.href);if(u.origin===location.origin&&/\.py$/i.test(u.pathname))fetch(u.href,{cache:"no-cache"}).then(function(r){if(!r.ok)throw Error("HTTP "+r.status);return r.text()}).then(function(t){$("code").value=t;$("st").textContent="レッスンのコードを読み込みました"}).catch(function(e){$("st").textContent="コード読込エラー: "+e.message});q=q||pyp}catch(e){}}
+var SP=new URLSearchParams(location.search),q=SP.get("code");if(q)$("code").value=q;
+var LITE="../salp-linux/salp-linux-lite.html?v=1030",LOADED="レッスンのコードを読み込みました。▶ 実行を押してください";
+var hm=/(?:^#|&)py=([^&]*)/.exec(location.hash);
+if(hm){try{var b=hm[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";var bin=atob(b),by=new Uint8Array(bin.length);for(var k=0;k<bin.length;k++)by[k]=bin.charCodeAt(k);
+$("code").value=new TextDecoder().decode(by);q=q||"hash";$("st").textContent=LOADED;$("linuxLink").href=LITE+"#py="+hm[1]}catch(e){$("st").textContent="コード読込エラー: "+e.message}}
+var pyp=SP.get("py");if(pyp&&!hm){try{var u=new URL(pyp,location.href);if(u.origin===location.origin&&/\.py$/i.test(u.pathname)){
+var lp=u.pathname.match(/\/python\/(.+\.py)$/i);if(lp)$("linuxLink").href=LITE+"&py="+encodeURIComponent("../python/"+lp[1]);
+fetch(u.href,{cache:"no-cache"}).then(function(r){if(!r.ok)throw Error("HTTP "+r.status);return r.text()}).then(function(t){$("code").value=t;$("st").textContent=LOADED}).catch(function(e){$("st").textContent="コード読込エラー: "+e.message});q=q||pyp}}catch(e){}}
 try{var s=localStorage.getItem("salp.pyrun.code");if(!q&&s)$("code").value=s}catch(e){}
 function out(t){$("out").textContent+=t}
 var src="var PY='https://cdn.jsdelivr.net/pyodide/v0.27.3/full/';importScripts(PY+'pyodide.js');var p=null;"+
