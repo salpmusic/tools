@@ -88,6 +88,14 @@
       "goal": "forでリストを回し、値だけ／番号付きを使い分ける（BASICの配列FORとの比較）",
       "html": "lessons/011.html",
       "py": "lessons/011.py"
+    },
+    {
+      "no": 12,
+      "date": "2026-10-31",
+      "title": "辞書の基本 ～BASICにない「キーと値」の考え方を知ろう～",
+      "goal": "辞書（キーと値）を作り、取り出し・追加・更新ができる（BASICの配列との違い）",
+      "html": "lessons/012.html",
+      "py": "lessons/012.py"
     }
   ],
   "plan": [
