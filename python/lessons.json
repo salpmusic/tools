@@ -96,6 +96,14 @@
       "goal": "辞書（キーと値）を作り、取り出し・追加・更新ができる（BASICの配列との違い）",
       "html": "lessons/012.html",
       "py": "lessons/012.py"
+    },
+    {
+      "no": 13,
+      "date": "2026-11-01",
+      "title": "関数の定義 ～BASICのGOSUB/RETURNと比べてみよう～",
+      "goal": "defで関数を作り、引数なし／簡単な引数／returnを知る（BASICのGOSUBとの比較）",
+      "html": "lessons/013.html",
+      "py": "lessons/013.py"
     }
   ],
   "plan": [
