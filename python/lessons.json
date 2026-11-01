@@ -104,6 +104,14 @@
       "goal": "defで関数を作り、引数なし／簡単な引数／returnを知る（BASICのGOSUBとの比較）",
       "html": "lessons/013.html",
       "py": "lessons/013.py"
+    },
+    {
+      "no": 14,
+      "date": "2026-11-02",
+      "title": "関数の引数と戻り値 ～値を渡して結果をもらう～",
+      "goal": "複数の引数を渡し、returnで受け取った値を計算や表示に再利用する（BASICの共有変数＋GOSUBとの比較）",
+      "html": "lessons/014.html",
+      "py": "lessons/014.py"
     }
   ],
   "plan": [

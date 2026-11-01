@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第14回 関数の引数と戻り値 ～値を渡して結果をもらう～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第14回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第14回：関数の引数と戻り値 ～値を渡して結果をもらう～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>引数を2つ以上渡す関数を書けるようになる。</li><li><code>return</code> で返ってきた値を、変数に入れて計算や表示に使えるようになる。</li><li><code>return</code> は「関数をそこで終えて、値を呼び出し元へ返す」ことを理解する。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>BASICでは、サブルーチンに値を渡すとき、先に変数へ入れてから <code>GOSUB</code> することが多いです。結果も、決まった変数に入れて戻ってきます。</p>
+<p>BASICの例：</p>
+<pre><code class="lang-text">10 A = 70 : B = 90
+20 GOSUB 100
+30 PRINT "平均 ="; M
+40 END
+100 M = (A + B) / 2
+110 RETURN</code></pre>
+<p>この書き方だと、「<code>A</code> と <code>B</code> に入れておく」「結果は <code>M</code> に入る」という約束を覚えておく必要があります。</p>
+<p>Pythonでは、値を<strong>引数</strong>としてかっこの中で渡し、結果は **<code>return</code>** で受け取ります。共有の変数名に頼らなくてよいのが大きな違いです。</p>
+<table><tr><th>やりたいこと</th><th>BASIC</th><th>Python</th></tr><tr><td>値を渡す</td><td>変数に入れてから <code>GOSUB</code></td><td><code>average(70, 90)</code></td></tr><tr><td>結果をもらう</td><td>決まった変数（<code>M</code> など）</td><td><code>avg = average(70, 90)</code></td></tr><tr><td>結果をさらに使う</td><td>変数を読み直す</td><td><code>price_with_tax(500) * 2</code> のようにそのまま使える</td></tr></table>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第14回：関数の引数と戻り値
+
+# 1. 引数を2つ渡す
+def introduce(name, age):
+    print(name + "さんは " + str(age) + " 歳です")
+
+
+print("1. 引数を2つ")
+introduce("太郎", 12)
+introduce("花子", 15)
+
+
+# 2. return で計算結果をもらう
+def average(a, b):
+    return (a + b) / 2
+
+
+print("2. 戻り値で計算")
+avg = average(70, 90)
+print("70 と 90 の平均 =", avg)
+
+
+# 3. 戻り値をさらに使う
+def price_with_tax(price):
+    return int(price * 1.1)
+
+
+def make_label(item, price):
+    return item + "：" + str(price) + "円"
+
+
+print("3. 戻り値をつなげる")
+pay = price_with_tax(500)
+print(make_label("ノート", pay))
+print("2冊なら", pay * 2, "円")</code></pre>
+<a class="run" href="../run.html?py=lessons/014.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/014.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/014.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. 引数を2つ
+太郎さんは 12 歳です
+花子さんは 15 歳です
+2. 戻り値で計算
+70 と 90 の平均 = 80.0
+3. 戻り値をつなげる
+ノート：550円
+2冊なら 1100 円</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><strong>引数はカンマで区切って</strong>複数渡せます。<code>introduce("太郎", 12)</code> なら、<code>name</code> に <code>"太郎"</code>、<code>age</code> に <code>12</code> が順番に入ります。</li><li>数値を文字列と <code>+</code> でつなぐときは、**<code>str()</code>** で文字列に変えます。<code>str(age)</code> がその例です。</li><li>**<code>return</code>** を通ると、関数はそこで終わり、値が呼び出した場所へ返ります。BASICの <code>RETURN</code> と違い、「値を持って帰る」のがポイントです。</li><li>返ってきた値は、<strong>変数に入れても、そのまま別の関数や計算に使っても</strong>大丈夫です。<code>make_label("ノート", pay)</code> や <code>pay * 2</code> のように組み合わせられます。</li><li><code>/</code> で割ると、結果は <code>80.0</code> のように小数になります。整数にしたいときは <code>int()</code> を使います。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>数を受け取って、その2乗（同じ数をかけたもの）を返す関数 <code>square</code> を作り、<code>square(4)</code> と <code>square(7)</code> の結果を表示してください。</p>
+<p>ヒント：<code>return n * n</code> と書けば、かけ算の結果が返ります。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 答え
+def square(n):
+    return n * n
+
+print(square(4))
+print(square(7))</code></pre>
+<a class="run" href="../run.html#py=IyDnrZTjgYgKZGVmIHNxdWFyZShuKToKICAgIHJldHVybiBuICogbgoKcHJpbnQoc3F1YXJlKDQpKQpwcmludChzcXVhcmUoNykpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDnrZTjgYgKZGVmIHNxdWFyZShuKToKICAgIHJldHVybiBuICogbgoKcHJpbnQoc3F1YXJlKDQpKQpwcmludChzcXVhcmUoNykpCg">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">16
+49</code></pre>
+<p><code>square(4)</code> を呼ぶと <code>n</code> に <code>4</code> が入り、<code>4 * 4</code> の <code>16</code> が返ってきます。返ってきた値をそのまま <code>print</code> に渡しています。</p>
+<p class="panel"><a href="../lessons/013.html">◀ 第13回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
