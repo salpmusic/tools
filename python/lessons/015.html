@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第15回 デフォルト引数とキーワード引数 ～省略できる引数と名前付きで渡す～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第15回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第15回：デフォルト引数とキーワード引数 ～省略できる引数と名前付きで渡す～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>デフォルト引数を使って、引数を省略できる関数を作る。</li><li>キーワード引数を使って、引数の名前を指定して値を渡す。</li><li>2つの仕組みを組み合わせて、使いやすい関数を作る。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>第14回では、関数に値を渡す「引数」と、計算結果を返す「戻り値」を学びました。今回は、その引数をもっと便利に使う方法を学びます。</p>
+<p>例えば、挨拶を作る関数を考えてみましょう。BASICでは、名前と語尾の両方を毎回渡すことが多いです。</p>
+<p>BASICのイメージ：</p>
+<pre><code class="lang-text">10 NAME$ = "Mika" : ENDING$ = "!"
+20 GOSUB 100
+30 PRINT MSG$
+40 END
+100 MSG$ = "Hello, " + NAME$ + ENDING$
+110 RETURN</code></pre>
+<p>語尾をいつも <code>"!"</code> にするなら、毎回書くのは少し手間です。Pythonでは、よく使う値を<strong>デフォルト引数</strong>として最初から決めておけます。</p>
+<pre><code class="lang-text">def greet(name, ending="!"):
+    return f"Hello, {name}{ending}"</code></pre>
+<p>これなら、語尾を省略しても <code>"!"</code> が使われます。さらに、引数の<strong>名前を指定して渡す</strong>（キーワード引数）こともできます。</p>
+<table><tr><th>やりたいこと</th><th>BASIC（よくある書き方）</th><th>Python</th></tr><tr><td>値を渡す</td><td>変数に入れてから <code>GOSUB</code></td><td><code>greet("Mika", "!")</code></td></tr><tr><td>よく使う値を省略</td><td>種類によって異なる</td><td><code>ending="!"</code> のデフォルト引数</td></tr><tr><td>名前を指定して渡す</td><td>種類によって異なる</td><td><code>greet(name="Mika")</code></td></tr><tr><td>結果をもらう</td><td>決まった変数</td><td><code>return ...</code></td></tr></table>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第15回：デフォルト引数とキーワード引数
+
+# 1. デフォルト引数
+# ending を省略すると "!" が使われる
+def greet(name, ending="!"):
+    return f"Hello, {name}{ending}"
+
+
+print("1. デフォルト引数")
+print(greet("Mika"))
+print(greet("Ken", "."))
+print(greet("Yuki", "!!"))
+
+
+# 2. キーワード引数
+# 引数の名前を指定して値を渡す
+def introduce(name, city):
+    return f"{name} lives in {city}."
+
+
+print()
+print("2. キーワード引数")
+# 普通は定義した順番で渡す
+print(introduce("Mika", "Tokyo"))
+# 名前を指定すれば順番を入れ替えられる
+print(introduce(city="Osaka", name="Ken"))
+
+
+# 3. デフォルト引数とキーワード引数
+# tax_rate の初期値は 0.10（10%）
+def total_price(price, tax_rate=0.10):
+    total = price * (1 + tax_rate)
+    return round(total)
+
+
+print()
+print("3. 税込み価格")
+print("1000円 → " + str(total_price(1000)) + "円")
+print("1000円 → " + str(total_price(1000, 0.08)) + "円")
+print("2000円 → " + str(total_price(2000, tax_rate=0.08)) + "円")
+
+
+# 4. 位置引数とキーワード引数の組み合わせ
+print()
+print("4. 引数の組み合わせ")
+print(greet("Hana", ending="♪"))
+print(greet("Taro"))</code></pre>
+<a class="run" href="../run.html?py=lessons/015.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/015.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/015.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. デフォルト引数
+Hello, Mika!
+Hello, Ken.
+Hello, Yuki!!
+
+2. キーワード引数
+Mika lives in Tokyo.
+Ken lives in Osaka.
+
+3. 税込み価格
+1000円 → 1100円
+1000円 → 1080円
+2000円 → 2160円
+
+4. 引数の組み合わせ
+Hello, Hana♪
+Hello, Taro!</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><strong>デフォルト引数</strong>は、引数に初期値を設定する仕組みです。<code>ending</code> を省略すると、自動的に <code>"!"</code> が使われます。</li><li>デフォルト値は、別の値で上書きできます。例：<code>greet("Ken", ".")</code> → <code>Hello, Ken.</code></li><li><strong>キーワード引数</strong>は、引数の名前を指定して値を渡す書き方です。例：<code>introduce(name="Mika", city="Tokyo")</code></li><li>キーワード引数を使えば、順番を入れ替えられます。例：<code>introduce(city="Osaka", name="Ken")</code></li><li>位置引数とキーワード引数を組み合わせることもできます。例：<code>greet("Hana", ending="♪")</code>。位置引数は、キーワード引数より前に書きます。</li><li>デフォルト値のない引数は、デフォルト値のある引数より前に定義します。<code>def greet(ending="!", name):</code> はエラーになります。</li><li>税率など、よく使う数値をデフォルト値にすると便利です。<code>total_price(1000)</code> だけで税込み10%になります。</li><li><code>round()</code> は数値を丸める関数です。今回の金額計算は学習用の例です。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>数と割引率を受け取り、割引後の価格を整数で返す関数 <code>discount_price</code> を作ってください。<code>discount</code> のデフォルト値は <code>0.10</code>（10%引き）にします。<code>discount_price(1000)</code> と <code>discount_price(1000, 0.20)</code> と、キーワード引数で <code>discount_price(discount=0.20, price=2000)</code> を表示してください。</p>
+<p>ヒント：割引後は <code>price * (1 - discount)</code> です。<code>round()</code> で整数にしてから返しましょう。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 答え
+def discount_price(price, discount=0.10):
+    return round(price * (1 - discount))
+
+
+print(discount_price(1000))
+print(discount_price(1000, 0.20))
+print(discount_price(discount=0.20, price=2000))</code></pre>
+<a class="run" href="../run.html#py=IyDnrZTjgYgKZGVmIGRpc2NvdW50X3ByaWNlKHByaWNlLCBkaXNjb3VudD0wLjEwKToKICAgIHJldHVybiByb3VuZChwcmljZSAqICgxIC0gZGlzY291bnQpKQoKCnByaW50KGRpc2NvdW50X3ByaWNlKDEwMDApKQpwcmludChkaXNjb3VudF9wcmljZSgxMDAwLCAwLjIwKSkKcHJpbnQoZGlzY291bnRfcHJpY2UoZGlzY291bnQ9MC4yMCwgcHJpY2U9MjAwMCkpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDnrZTjgYgKZGVmIGRpc2NvdW50X3ByaWNlKHByaWNlLCBkaXNjb3VudD0wLjEwKToKICAgIHJldHVybiByb3VuZChwcmljZSAqICgxIC0gZGlzY291bnQpKQoKCnByaW50KGRpc2NvdW50X3ByaWNlKDEwMDApKQpwcmludChkaXNjb3VudF9wcmljZSgxMDAwLCAwLjIwKSkKcHJpbnQoZGlzY291bnRfcHJpY2UoZGlzY291bnQ9MC4yMCwgcHJpY2U9MjAwMCkpCg">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">900
+800
+1600</code></pre>
+<p><code>discount</code> を省略すると 10%引きになります。キーワード引数なら、順番を入れ替えても何を渡しているかが分かりやすいです。</p>
+<p class="panel"><a href="../lessons/014.html">◀ 第14回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
