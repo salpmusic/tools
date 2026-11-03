@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第16回 可変長引数 *args ～いくつでも受け取れる引数～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第16回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第16回：可変長引数 *args ～いくつでも受け取れる引数～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li><code>*args</code> を使って、個数が決まっていない引数を受け取れるようになる。</li><li><code>*args</code> がタプルとして扱われることを知り、<code>sum()</code> や <code>len()</code> で合計・平均を計算する。</li><li>普通の引数と <code>*args</code> を組み合わせて、便利な関数を作る。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>前回は、関数の引数に初期値を設定する「デフォルト引数」と、名前を指定して値を渡す「キーワード引数」を学びました。</p>
+<p>今回は、引数の個数が決まっていない場合を考えてみましょう。</p>
+<p>例えば、3人の点数を合計する関数を作ったあと、5人や10人の点数も合計したくなったらどうでしょう？</p>
+<p>BASICでは、配列に値を入れてから、FOR文などで順番に計算する方法が考えられます。</p>
+<p>BASIC風の疑似コード：</p>
+<pre><code class="lang-text">10 DIM A(3)
+20 A(1)=80
+30 A(2)=90
+40 A(3)=70
+50 S=0
+60 FOR I=1 TO 3
+70 S=S+A(I)
+80 NEXT I
+90 PRINT S</code></pre>
+<p>Pythonでは、<code>*args</code> を使うと、関数に渡す値の個数を自由に変えられます。</p>
+<table><tr><th>比較</th><th>BASIC</th><th>Python</th></tr><tr><td>複数の値を扱う</td><td>配列などを使う</td><td><code>*args</code> でまとめて受け取れる</td></tr><tr><td>個数の管理</td><td>配列のサイズや個数を管理</td><td>渡された個数に応じて受け取る</td></tr><tr><td>合計</td><td>FOR文で加算</td><td><code>sum(args)</code></td></tr><tr><td>個数</td><td>自分で管理することが多い</td><td><code>len(args)</code></td></tr><tr><td>呼び出し</td><td>配列を用意して渡すなど</td><td><code>total(10, 20, 30)</code></td></tr></table>
+<p><code>*args</code> の <code>*</code> は、複数の位置引数をまとめて受け取るための記号です。</p>
+<p><code>args</code> は慣習的な名前で、別の名前でも動きます。</p>
+<p>例えば <code>*numbers</code> や <code>*scores</code> と書くこともできます。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第16回：可変長引数 *args
+# Python 3.7.3 対応
+
+# 1. いくつでも数を受け取る
+def total(*args):
+    return sum(args)
+
+print("1. 合計")
+print(total(10, 20))
+print(total(10, 20, 30))
+print(total(5, 10, 15, 20))
+
+
+# 2. args の中身を確認する
+def show_numbers(*args):
+    print("受け取った値:", args)
+    print("個数:", len(args))
+
+print("\n2. args の中身")
+show_numbers(10, 20, 30)
+
+
+# 3. 平均を計算する
+def average(*args):
+    if len(args) == 0:
+        return 0
+    return sum(args) / len(args)
+
+print("\n3. 平均")
+print(average(80, 90, 70))
+print(average(60, 80))
+print(average())
+
+
+# 4. 普通の引数と *args を組み合わせる
+def show_scores(label, *scores):
+    print(label)
+    print("点数:", scores)
+
+    if len(scores) == 0:
+        print("平均: データなし")
+    else:
+        avg = sum(scores) / len(scores)
+        print(f"平均: {avg:.1f}点")
+
+print("\n4. 点数の表示")
+show_scores("国語", 80, 90, 70)
+show_scores("数学", 95, 85)
+show_scores("英語")
+
+
+# 5. print も複数の値を受け取れる
+print("\n5. print の例")
+print("りんご", "みかん")
+print("赤", "青", "緑", "黄色")
+
+
+# 6. *args を for 文で取り出す
+def show_items(*args):
+    for item in args:
+        print("商品:", item)
+
+print("\n6. 商品一覧")
+show_items("パン", "牛乳", "卵")</code></pre>
+<a class="run" href="../run.html?py=lessons/016.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/016.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/016.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. 合計
+30
+60
+50
+
+2. args の中身
+受け取った値: (10, 20, 30)
+個数: 3
+
+3. 平均
+80.0
+70.0
+0
+
+4. 点数の表示
+国語
+点数: (80, 90, 70)
+平均: 80.0点
+数学
+点数: (95, 85)
+平均: 90.0点
+英語
+点数: ()
+平均: データなし
+
+5. print の例
+りんご みかん
+赤 青 緑 黄色
+
+6. 商品一覧
+商品: パン
+商品: 牛乳
+商品: 卵</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li><code>*args</code> は、0個以上の位置引数をまとめて受け取る書き方です。</li><li>受け取った値は、<code>(10, 20, 30)</code> のような「タプル」になります。タプルはリストに似ていますが、作成後に中身を変更できないデータのまとまりです。</li><li><code>sum(args)</code> で数値の合計、<code>len(args)</code> で個数を求められます。</li><li><code>*args</code> に値が1つも渡されなかった場合は、空のタプル <code>()</code> になります。</li><li>平均を計算するときは、個数が0の場合に注意しましょう。0で割るとエラーになるため、先に <code>len(args) == 0</code> を確認します。</li><li><code>def show_scores(label, *scores):</code> のように、普通の引数と組み合わせることもできます。</li><li><code>*args</code> の名前は自由です。<code>*scores</code> や <code>*items</code> など、意味の分かりやすい名前でも構いません。</li><li><code>print()</code> も複数の値を渡せる関数です。<code>*args</code> を理解するための身近な例になります。ただし、<code>print()</code> 自体は表示のための追加機能も持っています。</li><li><code>*args</code> は位置引数をまとめて受け取ります。名前付きの引数をまとめて受け取る <code>**kwargs</code> という書き方もありますが、こちらは次回学びます。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<p>課題1：最大値を求めよう</p>
+<p><code>*args</code> を使って、渡された数の中から一番大きな値を返す <code>maximum()</code> 関数を作ってみましょう。</p>
+<p>例えば、<code>maximum(10, 50, 30)</code> の結果は <code>50</code> です。</p>
+<p>ヒント：Pythonには、最大値を求める <code>max()</code> 関数があります。引数が0個の場合は、先に確認しましょう。</p>
+<p>課題2：好きな食べ物を表示しよう</p>
+<p><code>*foods</code> を使って、渡された食べ物を1つずつ表示する <code>show_foods()</code> 関数を作ってみましょう。</p>
+<p>例えば、<code>show_foods("カレー", "ラーメン", "寿司")</code> と呼び出します。</p>
+<p>ヒント：<code>for food in foods:</code> を使います。</p>
+<p>課題3：教科ごとの合計点を表示しよう</p>
+<p>普通の引数 <code>subject</code> と可変長引数 <code>*scores</code> を使って、教科名と合計点を表示する <code>subject_total()</code> 関数を作ってみましょう。</p>
+<p>例えば、<code>subject_total("算数", 80, 90, 100)</code> と呼び出します。</p>
+<p>ヒント：<code>sum(scores)</code> を使えば、点数をまとめて合計できます。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 課題1：最大値
+def maximum(*args):
+    if len(args) == 0:
+        return None
+    return max(args)
+
+print("課題1")
+print(maximum(10, 50, 30))
+print(maximum(8, 3))
+print(maximum())
+
+
+# 課題2：食べ物の一覧
+def show_foods(*foods):
+    for food in foods:
+        print("好きな食べ物:", food)
+
+print("\n課題2")
+show_foods("カレー", "ラーメン", "寿司")
+
+
+# 課題3：教科ごとの合計点
+def subject_total(subject, *scores):
+    total = sum(scores)
+    print(f"{subject}の合計: {total}点")
+
+print("\n課題3")
+subject_total("算数", 80, 90, 100)
+subject_total("国語", 70, 85)</code></pre>
+<a class="run" href="../run.html#py=IyDoqrLpoYwx77ya5pyA5aSn5YCkCmRlZiBtYXhpbXVtKCphcmdzKToKICAgIGlmIGxlbihhcmdzKSA9PSAwOgogICAgICAgIHJldHVybiBOb25lCiAgICByZXR1cm4gbWF4KGFyZ3MpCgpwcmludCgi6Kqy6aGMMSIpCnByaW50KG1heGltdW0oMTAsIDUwLCAzMCkpCnByaW50KG1heGltdW0oOCwgMykpCnByaW50KG1heGltdW0oKSkKCgojIOiqsumhjDLvvJrpo5_jgbnnianjga7kuIDopqcKZGVmIHNob3dfZm9vZHMoKmZvb2RzKToKICAgIGZvciBmb29kIGluIGZvb2RzOgogICAgICAgIHByaW50KCLlpb3jgY3jgarpo5_jgbnniak6IiwgZm9vZCkKCnByaW50KCJcbuiqsumhjDIiKQpzaG93X2Zvb2RzKCLjgqvjg6zjg7wiLCAi44Op44O844Oh44OzIiwgIuWvv-WPuCIpCgoKIyDoqrLpoYwz77ya5pWZ56eR44GU44Go44Gu5ZCI6KiI54K5CmRlZiBzdWJqZWN0X3RvdGFsKHN1YmplY3QsICpzY29yZXMpOgogICAgdG90YWwgPSBzdW0oc2NvcmVzKQogICAgcHJpbnQoZiJ7c3ViamVjdH3jga7lkIjoqIg6IHt0b3RhbH3ngrkiKQoKcHJpbnQoIlxu6Kqy6aGMMyIpCnN1YmplY3RfdG90YWwoIueul-aVsCIsIDgwLCA5MCwgMTAwKQpzdWJqZWN0X3RvdGFsKCLlm73oqp4iLCA3MCwgODUpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDoqrLpoYwx77ya5pyA5aSn5YCkCmRlZiBtYXhpbXVtKCphcmdzKToKICAgIGlmIGxlbihhcmdzKSA9PSAwOgogICAgICAgIHJldHVybiBOb25lCiAgICByZXR1cm4gbWF4KGFyZ3MpCgpwcmludCgi6Kqy6aGMMSIpCnByaW50KG1heGltdW0oMTAsIDUwLCAzMCkpCnByaW50KG1heGltdW0oOCwgMykpCnByaW50KG1heGltdW0oKSkKCgojIOiqsumhjDLvvJrpo5_jgbnnianjga7kuIDopqcKZGVmIHNob3dfZm9vZHMoKmZvb2RzKToKICAgIGZvciBmb29kIGluIGZvb2RzOgogICAgICAgIHByaW50KCLlpb3jgY3jgarpo5_jgbnniak6IiwgZm9vZCkKCnByaW50KCJcbuiqsumhjDIiKQpzaG93X2Zvb2RzKCLjgqvjg6zjg7wiLCAi44Op44O844Oh44OzIiwgIuWvv-WPuCIpCgoKIyDoqrLpoYwz77ya5pWZ56eR44GU44Go44Gu5ZCI6KiI54K5CmRlZiBzdWJqZWN0X3RvdGFsKHN1YmplY3QsICpzY29yZXMpOgogICAgdG90YWwgPSBzdW0oc2NvcmVzKQogICAgcHJpbnQoZiJ7c3ViamVjdH3jga7lkIjoqIg6IHt0b3RhbH3ngrkiKQoKcHJpbnQoIlxu6Kqy6aGMMyIpCnN1YmplY3RfdG90YWwoIueul-aVsCIsIDgwLCA5MCwgMTAwKQpzdWJqZWN0X3RvdGFsKCLlm73oqp4iLCA3MCwgODUpCg">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">課題1
+50
+8
+None
+
+課題2
+好きな食べ物: カレー
+好きな食べ物: ラーメン
+好きな食べ物: 寿司
+
+課題3
+算数の合計: 270点
+国語の合計: 155点</code></pre>
+<p><code>None</code> は「値がない」ことを表すPythonの特別な値です。課題1では、数が1つも渡されなかったときに返しています。</p>
+<p>今回は、<code>*args</code> を使って、引数をいくつでも受け取れる関数を作りました。</p>
+<p>これで、人数やデータの個数が変わっても、同じ関数を使えるようになりました。</p>
+<p>次回は、名前付きの引数をまとめて受け取る <code>**kwargs</code> を学びましょう。</p>
+<p class="panel"><a href="../lessons/015.html">◀ 第15回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
