@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第17回 キーワード可変長引数 **kwargs ～名前付きの引数をまとめて受け取る～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第17回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第17回：キーワード可変長引数 **kwargs ～名前付きの引数をまとめて受け取る～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>**kwargs を使って、名前付きの引数をいくつでも受け取れるようになる。</li><li>**kwargs が辞書（dict）として扱われることを知り、キーと値を取り出せるようになる。</li><li>普通の引数や前回の *args と組み合わせて、便利な関数を作る。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>前回は、*args を使って、個数が決まっていない引数をまとめて受け取る方法を学びました。</p>
+<p>例えば、次のように数をいくつでも渡せました。</p>
+<pre><code class="lang-text">total(10, 20, 30)</code></pre>
+<p>今回は、数や文字列を渡すときに、名前も一緒に指定する方法を考えてみましょう。</p>
+<p>例えば、人物の情報として「名前」「年齢」「住んでいる町」を関数に渡したいとします。</p>
+<p>BASICでは、それぞれの変数を用意したり、配列などに値を入れて管理する方法が考えられます。</p>
+<p>BASIC風の疑似コード：</p>
+<pre><code class="lang-text">10 NAME$="TARO"
+20 AGE=25
+30 CITY$="TOKYO"
+40 PRINT "NAME:";NAME$
+50 PRINT "AGE:";AGE
+60 PRINT "CITY:";CITY$</code></pre>
+<p>この方法では、情報の項目が増えるたびに、変数や表示処理を追加する必要があります。</p>
+<p>Pythonでは、**kwargs を使うと、名前付きの引数をまとめて受け取れます。</p>
+<table><tr><th>比較</th><th>BASIC</th><th>Python</th></tr><tr><td>情報の管理</td><td>個別の変数や配列など</td><td>辞書（dict）</td></tr><tr><td>名前付きの値</td><td>変数名などで管理</td><td>name="Taro"</td></tr><tr><td>複数の情報</td><td>項目ごとに用意</td><td>**kwargs でまとめる</td></tr><tr><td>名前と値の取得</td><td>個別に参照するなど</td><td>items() で取り出す</td></tr><tr><td>項目数の確認</td><td>自分で管理することが多い</td><td>len(kwargs)</td></tr></table>
+<p>例えば、Pythonでは次のように呼び出せます。</p>
+<pre><code class="lang-text">show_info(name="Taro", age=25, city="Tokyo")</code></pre>
+<p>このとき、**kwargs は次のような辞書として受け取ります。</p>
+<pre><code class="lang-text">{"name": "Taro", "age": 25, "city": "Tokyo"}</code></pre>
+<p>辞書は、キー（名前）と値を組み合わせて保存するデータです。</p>
+<p><strong>kwargs の </strong> は、複数のキーワード引数をまとめて受け取るための記号です。</p>
+<p>kwargs は慣習的な名前で、**info のように別の名前を使うこともできます。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第17回：キーワード可変長引数 **kwargs
+# Python 3.7.3 対応
+
+# 1. 名前付きの引数をまとめて受け取る
+def show_info(**kwargs):
+    print(kwargs)
+
+print("1. kwargs の基本")
+show_info(name="Taro", age=25)
+show_info(name="Hanako", city="Tokyo", hobby="Music")
+
+
+# 2. キーと値を取り出す
+def show_profile(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+
+print("\n2. キーと値")
+show_profile(name="Mika", age=20, city="Osaka")
+
+
+# 3. 個数を調べる
+def count_info(**kwargs):
+    print("情報の個数:", len(kwargs))
+
+print("\n3. 情報の個数")
+count_info(name="Taro", age=25, city="Tokyo")
+count_info(name="Hanako")
+count_info()
+
+
+# 4. 普通の引数と **kwargs を組み合わせる
+def show_card(title, **info):
+    print("タイトル:", title)
+
+    for key, value in info.items():
+        print(f"{key}: {value}")
+
+print("\n4. 情報カード")
+show_card("自己紹介", name="Taro", age=25, city="Tokyo")
+show_card("商品情報", name="Apple", price=150)
+
+
+# 5. 特定のキーの値を取り出す
+def show_student(**kwargs):
+    name = kwargs.get("name", "名前なし")
+    score = kwargs.get("score", 0)
+
+    print(f"{name}さんの点数: {score}点")
+
+print("\n5. 辞書から値を取り出す")
+show_student(name="Yuki", score=90)
+show_student(name="Ken")
+show_student()
+
+
+# 6. *args と **kwargs を組み合わせる
+def show_data(*args, **kwargs):
+    print("位置引数:", args)
+    print("名前付き引数:", kwargs)
+
+print("\n6. args と kwargs")
+show_data(10, 20, name="Taro", city="Tokyo")
+
+
+# 7. for で情報を一覧表示する
+def show_items(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key} = {value}")
+
+print("\n7. 商品一覧")
+show_items(apple=150, banana=100, orange=120)</code></pre>
+<a class="run" href="../run.html?py=lessons/017.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/017.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/017.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. kwargs の基本
+{'name': 'Taro', 'age': 25}
+{'name': 'Hanako', 'city': 'Tokyo', 'hobby': 'Music'}
+
+2. キーと値
+name: Mika
+age: 20
+city: Osaka
+
+3. 情報の個数
+情報の個数: 3
+情報の個数: 1
+情報の個数: 0
+
+4. 情報カード
+タイトル: 自己紹介
+name: Taro
+age: 25
+city: Tokyo
+タイトル: 商品情報
+name: Apple
+price: 150
+
+5. 辞書から値を取り出す
+Yukiさんの点数: 90点
+Kenさんの点数: 0点
+名前なしさんの点数: 0点
+
+6. args と kwargs
+位置引数: (10, 20)
+名前付き引数: {'name': 'Taro', 'city': 'Tokyo'}
+
+7. 商品一覧
+apple = 150
+banana = 100
+orange = 120</code></pre>
+<p><strong>ポイント</strong></p>
+<ul><li>**kwargs は、0個以上のキーワード引数をまとめて受け取る書き方です。</li><li>*args は位置引数をタプルとして受け取り、**kwargs はキーワード引数を辞書として受け取ります。</li><li>辞書は、{"name": "Taro", "age": 25} のように、キーと値を組み合わせたデータです。</li><li>kwargs.items() を使うと、キーと値をまとめて取り出せます。</li><li>for key, value in kwargs.items(): と書けば、受け取った情報を順番に処理できます。</li><li>len(kwargs) で、受け取った情報の個数を調べられます。</li><li>kwargs.get("name", "名前なし") のように書くと、指定したキーがない場合にも、代わりの値を使えます。</li><li>def show_card(title, **info): のように、普通の引数と組み合わせられます。</li><li>def show_data(*args, <strong>kwargs): のように、*args と </strong>kwargs を両方使うこともできます。この場合は、*args を先に書きます。</li><li>kwargs という名前は自由に変更できますが、一般的には **kwargs と書くことが多いです。</li><li>キーワード引数の名前には、Pythonの識別子として使える名前を指定します。同じ名前を重複して渡すことはできません。</li><li>Python 3.7.3では、辞書のキーは追加された順番を保持します。そのため、通常は渡した順番で表示されます。</li></ul>
+<p><strong>ミニ課題</strong></p>
+<h3>課題1：ペットの情報を表示しよう</h3>
+<p>**kwargs を使って、ペットの情報を表示する show_pet() 関数を作ってみましょう。</p>
+<p>例えば、次のように呼び出します。</p>
+<pre><code class="lang-text">show_pet(name="Mike", animal="Cat", age=3)</code></pre>
+<p>出力例：</p>
+<pre><code class="lang-text">name: Mike
+animal: Cat
+age: 3</code></pre>
+<p>ヒント：for key, value in kwargs.items(): を使います。</p>
+<h3>課題2：商品の価格を合計しよう</h3>
+<p>**prices を使って、名前付きで渡された商品の価格を合計する total_price() 関数を作ってみましょう。</p>
+<p>例えば、次のように呼び出します。</p>
+<pre><code class="lang-text">total_price(apple=150, banana=100, orange=120)</code></pre>
+<p>結果は 370円 になります。</p>
+<p>ヒント：辞書の値だけを取り出す prices.values() と、合計を求める sum() を組み合わせます。</p>
+<h3>課題3：タイトル付きの情報カードを作ろう</h3>
+<p>普通の引数 title と、**kwargs を組み合わせて、情報を表示する make_card() 関数を作ってみましょう。</p>
+<p>例えば、次のように呼び出します。</p>
+<pre><code class="lang-text">make_card("旅行メモ", place="Kyoto", days=2, hotel="Sakura")</code></pre>
+<p>ヒント：最初に title を表示し、そのあと for 文でキーと値を表示します。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 課題1：ペットの情報
+def show_pet(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+
+
+print("課題1")
+show_pet(name="Mike", animal="Cat", age=3)
+
+
+# 課題2：商品の価格の合計
+def total_price(**prices):
+    total = sum(prices.values())
+    print(f"合計: {total}円")
+
+
+print("\n課題2")
+total_price(apple=150, banana=100, orange=120)
+
+
+# 課題3：タイトル付きの情報カード
+def make_card(title, **kwargs):
+    print("タイトル:", title)
+
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+
+
+print("\n課題3")
+make_card("旅行メモ", place="Kyoto", days=2, hotel="Sakura")</code></pre>
+<a class="run" href="../run.html#py=IyDoqrLpoYwx77ya44Oa44OD44OI44Gu5oOF5aCxCmRlZiBzaG93X3BldCgqKmt3YXJncyk6CiAgICBmb3Iga2V5LCB2YWx1ZSBpbiBrd2FyZ3MuaXRlbXMoKToKICAgICAgICBwcmludChmIntrZXl9OiB7dmFsdWV9IikKCgpwcmludCgi6Kqy6aGMMSIpCnNob3dfcGV0KG5hbWU9Ik1pa2UiLCBhbmltYWw9IkNhdCIsIGFnZT0zKQoKCiMg6Kqy6aGMMu-8muWVhuWTgeOBruS-oeagvOOBruWQiOioiApkZWYgdG90YWxfcHJpY2UoKipwcmljZXMpOgogICAgdG90YWwgPSBzdW0ocHJpY2VzLnZhbHVlcygpKQogICAgcHJpbnQoZiLlkIjoqIg6IHt0b3RhbH3lhoYiKQoKCnByaW50KCJcbuiqsumhjDIiKQp0b3RhbF9wcmljZShhcHBsZT0xNTAsIGJhbmFuYT0xMDAsIG9yYW5nZT0xMjApCgoKIyDoqrLpoYwz77ya44K_44Kk44OI44Or5LuY44GN44Gu5oOF5aCx44Kr44O844OJCmRlZiBtYWtlX2NhcmQodGl0bGUsICoqa3dhcmdzKToKICAgIHByaW50KCLjgr_jgqTjg4jjg6s6IiwgdGl0bGUpCgogICAgZm9yIGtleSwgdmFsdWUgaW4ga3dhcmdzLml0ZW1zKCk6CiAgICAgICAgcHJpbnQoZiJ7a2V5fToge3ZhbHVlfSIpCgoKcHJpbnQoIlxu6Kqy6aGMMyIpCm1ha2VfY2FyZCgi5peF6KGM44Oh44OiIiwgcGxhY2U9Ikt5b3RvIiwgZGF5cz0yLCBob3RlbD0iU2FrdXJhIikK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDoqrLpoYwx77ya44Oa44OD44OI44Gu5oOF5aCxCmRlZiBzaG93X3BldCgqKmt3YXJncyk6CiAgICBmb3Iga2V5LCB2YWx1ZSBpbiBrd2FyZ3MuaXRlbXMoKToKICAgICAgICBwcmludChmIntrZXl9OiB7dmFsdWV9IikKCgpwcmludCgi6Kqy6aGMMSIpCnNob3dfcGV0KG5hbWU9Ik1pa2UiLCBhbmltYWw9IkNhdCIsIGFnZT0zKQoKCiMg6Kqy6aGMMu-8muWVhuWTgeOBruS-oeagvOOBruWQiOioiApkZWYgdG90YWxfcHJpY2UoKipwcmljZXMpOgogICAgdG90YWwgPSBzdW0ocHJpY2VzLnZhbHVlcygpKQogICAgcHJpbnQoZiLlkIjoqIg6IHt0b3RhbH3lhoYiKQoKCnByaW50KCJcbuiqsumhjDIiKQp0b3RhbF9wcmljZShhcHBsZT0xNTAsIGJhbmFuYT0xMDAsIG9yYW5nZT0xMjApCgoKIyDoqrLpoYwz77ya44K_44Kk44OI44Or5LuY44GN44Gu5oOF5aCx44Kr44O844OJCmRlZiBtYWtlX2NhcmQodGl0bGUsICoqa3dhcmdzKToKICAgIHByaW50KCLjgr_jgqTjg4jjg6s6IiwgdGl0bGUpCgogICAgZm9yIGtleSwgdmFsdWUgaW4ga3dhcmdzLml0ZW1zKCk6CiAgICAgICAgcHJpbnQoZiJ7a2V5fToge3ZhbHVlfSIpCgoKcHJpbnQoIlxu6Kqy6aGMMyIpCm1ha2VfY2FyZCgi5peF6KGM44Oh44OiIiwgcGxhY2U9Ikt5b3RvIiwgZGF5cz0yLCBob3RlbD0iU2FrdXJhIikK">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">課題1
+name: Mike
+animal: Cat
+age: 3
+
+課題2
+合計: 370円
+
+課題3
+タイトル: 旅行メモ
+place: Kyoto
+days: 2
+hotel: Sakura</code></pre>
+<p>今回は、**kwargs を使って、名前付きの引数をいくつでも受け取る方法を学びました。</p>
+<p>前回の *args は、値をタプルとしてまとめる方法でした。</p>
+<p>今回の **kwargs は、名前と値を辞書としてまとめる方法です。</p>
+<p>この2つを覚えると、引数の個数や情報の項目が変わっても、同じ関数で柔軟に対応できるようになります。</p>
+<p>次回は、今回登場した「辞書（dict）」について、作り方や値の取り出し方を基本から詳しく学びましょう。</p>
+<p class="panel"><a href="../lessons/016.html">◀ 第16回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
