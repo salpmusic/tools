@@ -16,7 +16,22 @@ const CORE_FILES = [
   './fonts/Padauk-Bold.woff2',
   './assets/home-img/room-851e03c672d4f9a5.jpg',
   './assets/home-img/room-cb3afaec197d3b38.jpg',
-  './assets/home-img/room-14be144d4f3365ed.jpg'
+  './assets/home-img/room-14be144d4f3365ed.jpg',
+  './assets/home-img/room-056c1d589ebc2a56.jpg',
+  './assets/home-img/room-800d8086d011d130.jpg',
+  './assets/home-img/room-3091a6ca2167c037.jpg',
+  './assets/home-img/room-7816fc396f66f61e.jpg',
+  './assets/home-img/room-18c9e15455db9e93.jpg',
+  './assets/home-img/room-83b3928f65a37435.jpg',
+  './assets/home-img/room-4e3924a72c163104.jpg',
+  './assets/home-img/room-63c5b2f6af326799.jpg',
+  './assets/home-img/room-04e0b6210322fed2.jpg',
+  './assets/home-img/room-940b3e08235f8edf.jpg',
+  './assets/home-img/room-99d301c227761709.jpg',
+  './assets/home-img/room-58e4ef17f687bcef.jpg',
+  './assets/home-img/room-85f76a7abfb2876e.jpg',
+  './assets/home-img/room-e5e3e89a019901f7.jpg',
+  './assets/home-img/room-f7b6121d67216d49.jpg'
 ];
 
 self.addEventListener('install', event => {
