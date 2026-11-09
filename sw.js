@@ -13,7 +13,10 @@ const CORE_FILES = [
   './s26basic-core.html',
   './fonts/NotoSansMeeteiMayek-VF.woff2',
   './fonts/Padauk-Regular.woff2',
-  './fonts/Padauk-Bold.woff2'
+  './fonts/Padauk-Bold.woff2',
+  './assets/home-img/room-851e03c672d4f9a5.jpg',
+  './assets/home-img/room-cb3afaec197d3b38.jpg',
+  './assets/home-img/room-14be144d4f3365ed.jpg'
 ];
 
 self.addEventListener('install', event => {
