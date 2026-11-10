@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第18回 辞書をもう一歩 ～items・get・更新と削除、関数と組み合わせる～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第18回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第18回：辞書をもう一歩 ～items・get・更新と削除、関数と組み合わせる～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<h2>目標</h2>
+<ul><li><code>keys()</code>・<code>values()</code>・<code>items()</code> を使って、辞書の中身を順番に取り出せる。</li><li><code>get()</code> で安全に値を取り出し、<code>update()</code> や <code>pop()</code> で辞書を変更できる。</li><li>辞書を関数に渡したり、関数から辞書を返したりできる。</li></ul>
+<h2>BASICとの比較</h2>
+<p>第12回では、辞書の作り方やキーを使った取り出し方を学びました。</p>
+<p>前回の第17回では、<code>**kwargs</code> を使って、名前付きの引数を辞書として受け取る方法を学びました。</p>
+<p>今回は、普通の辞書をもう一歩便利に使ってみましょう。</p>
+<p>BASICでは、名前と点数を別々の配列に入れて管理する方法があります。</p>
+<p>例えば、次のようなイメージです。</p>
+<pre><code class="lang-text">10 DIM N$(2), S(2)
+20 N$(1)="太郎": S(1)=80
+30 N$(2)="花子": S(2)=90
+40 FOR I=1 TO 2
+50 PRINT N$(I), S(I)
+60 NEXT I</code></pre>
+<p>Pythonの辞書なら、名前と点数をキーと値の組み合わせで管理できます。</p>
+<table><tr><th>やりたいこと</th><th>BASICの考え方</th><th>Pythonの辞書</th></tr><tr><td>名前と点数を管理</td><td>配列を組み合わせる</td><td><code>{"太郎": 80}</code></td></tr><tr><td>名前を一覧表示</td><td>名前の配列をループ</td><td><code>keys()</code></td></tr><tr><td>点数を一覧表示</td><td>点数の配列をループ</td><td><code>values()</code></td></tr><tr><td>名前と点数を表示</td><td>同じ番号で取り出す</td><td><code>items()</code></td></tr><tr><td>見つからない名前に対応</td><td>条件分岐などで確認</td><td><code>get()</code></td></tr></table>
+<p>Pythonでは、辞書に用意された便利な機能を使うことで、短くわかりやすく書けます。</p>
+<h2>コード</h2>
+<pre><code class="lang-python"># 第18回：辞書をもう一歩
+# items・get・更新と削除、関数と組み合わせる
+
+# 1. 辞書の復習
+print("1. 辞書の復習")
+
+scores = {"太郎": 80, "花子": 90, "三郎": 75}
+
+print(scores)
+print("太郎の点数:", scores["太郎"])
+
+# 2. keys()・values()・items()
+print("\n2. 辞書の一覧表示")
+
+print("名前の一覧")
+for name in scores.keys():
+    print(name)
+
+print("点数の一覧")
+for score in scores.values():
+    print(score)
+
+print("名前と点数の一覧")
+for name, score in scores.items():
+    print(name, ":", score, "点")
+
+# 3. get() で安全に取り出す
+print("\n3. get() で取り出す")
+
+print("花子:", scores.get("花子", 0))
+print("四郎:", scores.get("四郎", 0))
+
+# 4. 辞書を更新する
+print("\n4. 辞書の更新")
+
+scores["太郎"] = 85
+scores.update({"花子": 95, "四郎": 70})
+
+print(scores)
+
+# 5. 辞書から削除する
+print("\n5. 辞書の削除")
+
+removed = scores.pop("三郎", None)
+print("削除した点数:", removed)
+print(scores)
+
+# 6. 辞書を関数に渡す
+print("\n6. 辞書を関数に渡す")
+
+def show_scores(data):
+    for name, score in data.items():
+        print(f"{name}さんは{score}点です")
+
+show_scores(scores)
+
+# 7. 関数から辞書を返す
+print("\n7. 関数から辞書を返す")
+
+def make_student(name, score):
+    return {"名前": name, "点数": score}
+
+student = make_student("五郎", 88)
+print(student)
+print(student.get("名前", "不明"))</code></pre>
+<a class="run" href="../run.html?py=lessons/018.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/018.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/018.py">🐧 PC向け Linux Lite</a>
+<h2>実行結果の例</h2>
+<pre><code class="lang-text">1. 辞書の復習
+{'太郎': 80, '花子': 90, '三郎': 75}
+太郎の点数: 80
+
+2. 辞書の一覧表示
+名前の一覧
+太郎
+花子
+三郎
+点数の一覧
+80
+90
+75
+名前と点数の一覧
+太郎 : 80 点
+花子 : 90 点
+三郎 : 75 点
+
+3. get() で取り出す
+花子: 90
+四郎: 0
+
+4. 辞書の更新
+{'太郎': 85, '花子': 95, '三郎': 75, '四郎': 70}
+
+5. 辞書の削除
+削除した点数: 75
+{'太郎': 85, '花子': 95, '四郎': 70}
+
+6. 辞書を関数に渡す
+太郎さんは85点です
+花子さんは95点です
+四郎さんは70点です
+
+7. 関数から辞書を返す
+{'名前': '五郎', '点数': 88}
+五郎</code></pre>
+<h2>ポイント</h2>
+<h3>1. keys()・values()・items() の違い</h3>
+<p>辞書には、中身を順番に取り出すための便利な機能があります。</p>
+<ul><li><code>keys()</code>：キーだけを取り出す。</li><li><code>values()</code>：値だけを取り出す。</li><li><code>items()</code>：キーと値をセットで取り出す。</li></ul>
+<p>特に <code>items()</code> はよく使います。</p>
+<pre><code class="lang-python">for name, score in scores.items():
+    print(name, score)</code></pre>
+<a class="run" href="../run.html#py=Zm9yIG5hbWUsIHNjb3JlIGluIHNjb3Jlcy5pdGVtcygpOgogICAgcHJpbnQobmFtZSwgc2NvcmUpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=Zm9yIG5hbWUsIHNjb3JlIGluIHNjb3Jlcy5pdGVtcygpOgogICAgcHJpbnQobmFtZSwgc2NvcmUpCg">🐧 PC向け Linux Lite</a>
+<p><code>name</code> にキー、<code>score</code> に値が入ります。</p>
+<p>Python 3.7.3では、辞書の要素は追加した順番で取り出されます。</p>
+<h3>2. get() は見つからないキーにも対応できる</h3>
+<p>普通の <code>scores["四郎"]</code> は、キーが存在しないと <code>KeyError</code> になります。</p>
+<p>一方、次のように書けば安全です。</p>
+<pre><code class="lang-python">scores.get("四郎", 0)</code></pre>
+<a class="run" href="../run.html#py=c2NvcmVzLmdldCgi5Zub6YOOIiwgMCkK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=c2NvcmVzLmdldCgi5Zub6YOOIiwgMCkK">🐧 PC向け Linux Lite</a>
+<p>「四郎」がなければ、代わりに <code>0</code> を返します。</p>
+<p>第17回の <code>kwargs.get()</code> も、同じ辞書の機能でした。</p>
+<p>なお、<code>get()</code> は辞書の中身を変更しません。</p>
+<h3>3. update() でまとめて更新できる</h3>
+<pre><code class="lang-python">scores.update({"太郎": 85, "花子": 95})</code></pre>
+<a class="run" href="../run.html#py=c2NvcmVzLnVwZGF0ZSh7IuWkqumDjiI6IDg1LCAi6Iqx5a2QIjogOTV9KQo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=c2NvcmVzLnVwZGF0ZSh7IuWkqumDjiI6IDg1LCAi6Iqx5a2QIjogOTV9KQo">🐧 PC向け Linux Lite</a>
+<p>複数のキーと値をまとめて設定できます。</p>
+<p>すでにあるキーなら値を更新し、ないキーなら新しく追加します。</p>
+<p>第12回で学んだ <code>scores["太郎"] = 85</code> と同じ更新を、まとめて行えるわけです。</p>
+<h3>4. pop() で削除しながら値を取り出せる</h3>
+<pre><code class="lang-python">removed = scores.pop("三郎", None)</code></pre>
+<a class="run" href="../run.html#py=cmVtb3ZlZCA9IHNjb3Jlcy5wb3AoIuS4iemDjiIsIE5vbmUpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=cmVtb3ZlZCA9IHNjb3Jlcy5wb3AoIuS4iemDjiIsIE5vbmUpCg">🐧 PC向け Linux Lite</a>
+<p>「三郎」があれば、その項目を削除して点数を返します。</p>
+<p>なければ <code>None</code> を返すので、エラーになりません。</p>
+<p><code>None</code> は「値がない」ことを表す特別な値です。</p>
+<p>削除だけなら、次の書き方もあります。</p>
+<pre><code class="lang-text">del scores["三郎"]</code></pre>
+<p>ただし、<code>del</code> はキーが存在しないとエラーになるため注意しましょう。</p>
+<h3>5. 辞書は関数と組み合わせられる</h3>
+<p>辞書を関数の引数として渡せます。</p>
+<pre><code class="lang-python">def show_scores(data):
+    for name, score in data.items():
+        print(name, score)</code></pre>
+<a class="run" href="../run.html#py=ZGVmIHNob3dfc2NvcmVzKGRhdGEpOgogICAgZm9yIG5hbWUsIHNjb3JlIGluIGRhdGEuaXRlbXMoKToKICAgICAgICBwcmludChuYW1lLCBzY29yZSkK">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=ZGVmIHNob3dfc2NvcmVzKGRhdGEpOgogICAgZm9yIG5hbWUsIHNjb3JlIGluIGRhdGEuaXRlbXMoKToKICAgICAgICBwcmludChuYW1lLCBzY29yZSkK">🐧 PC向け Linux Lite</a>
+<p>また、関数の中で辞書を作り、<code>return</code> で返すこともできます。</p>
+<pre><code class="lang-python">def make_student(name, score):
+    return {"名前": name, "点数": score}</code></pre>
+<a class="run" href="../run.html#py=ZGVmIG1ha2Vfc3R1ZGVudChuYW1lLCBzY29yZSk6CiAgICByZXR1cm4geyLlkI3liY0iOiBuYW1lLCAi54K55pWwIjogc2NvcmV9Cg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=ZGVmIG1ha2Vfc3R1ZGVudChuYW1lLCBzY29yZSk6CiAgICByZXR1cm4geyLlkI3liY0iOiBuYW1lLCAi54K55pWwIjogc2NvcmV9Cg">🐧 PC向け Linux Lite</a>
+<p>複数の情報をひとまとめにして返したいときに便利です。</p>
+<h2>ミニ課題</h2>
+<h3>問題1：辞書の中身を一覧表示</h3>
+<p>次の辞書があります。</p>
+<pre><code class="lang-text">prices = {"りんご": 120, "みかん": 80, "バナナ": 150}</code></pre>
+<p><code>items()</code> を使って、商品名と値段を順番に表示してください。</p>
+<p>ヒント：<code>for name, price in prices.items():</code> を使います。</p>
+<h3>問題2：安全に取り出して更新</h3>
+<p>問題1の辞書を使います。</p>
+<ol><li><code>get()</code> で「ぶどう」の値段を調べ、なければ <code>0</code> を表示する。</li><li><code>update()</code> で「りんご」を130円に変更し、「ぶどう」を200円で追加する。</li><li><code>pop()</code> で「みかん」を削除する。</li></ol>
+<p>ヒント：<code>update()</code> には、変更したいキーと値をまとめた辞書を渡します。</p>
+<h3>問題3：辞書を返す関数</h3>
+<p>名前と年齢を受け取り、次のような辞書を返す <code>make_person()</code> 関数を作ってください。</p>
+<pre><code class="lang-text">{"名前": "太郎", "年齢": 20}</code></pre>
+<p>ヒント：第14回で学んだ <code>return</code> を使います。</p>
+<h2>答え例</h2>
+<pre><code class="lang-python"># 問題1
+prices = {"りんご": 120, "みかん": 80, "バナナ": 150}
+
+for name, price in prices.items():
+    print(name, price, "円")
+
+# 問題2
+print("ぶどう:", prices.get("ぶどう", 0))
+
+prices.update({"りんご": 130, "ぶどう": 200})
+prices.pop("みかん", None)
+
+print(prices)
+
+# 問題3
+def make_person(name, age):
+    return {"名前": name, "年齢": age}
+
+person = make_person("太郎", 20)
+print(person)</code></pre>
+<a class="run" href="../run.html#py=IyDllY_poYwxCnByaWNlcyA9IHsi44KK44KT44GUIjogMTIwLCAi44G_44GL44KTIjogODAsICLjg5Djg4rjg4oiOiAxNTB9Cgpmb3IgbmFtZSwgcHJpY2UgaW4gcHJpY2VzLml0ZW1zKCk6CiAgICBwcmludChuYW1lLCBwcmljZSwgIuWGhiIpCgojIOWVj-mhjDIKcHJpbnQoIuOBtuOBqeOBhjoiLCBwcmljZXMuZ2V0KCLjgbbjganjgYYiLCAwKSkKCnByaWNlcy51cGRhdGUoeyLjgorjgpPjgZQiOiAxMzAsICLjgbbjganjgYYiOiAyMDB9KQpwcmljZXMucG9wKCLjgb_jgYvjgpMiLCBOb25lKQoKcHJpbnQocHJpY2VzKQoKIyDllY_poYwzCmRlZiBtYWtlX3BlcnNvbihuYW1lLCBhZ2UpOgogICAgcmV0dXJuIHsi5ZCN5YmNIjogbmFtZSwgIuW5tOm9oiI6IGFnZX0KCnBlcnNvbiA9IG1ha2VfcGVyc29uKCLlpKrpg44iLCAyMCkKcHJpbnQocGVyc29uKQo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDllY_poYwxCnByaWNlcyA9IHsi44KK44KT44GUIjogMTIwLCAi44G_44GL44KTIjogODAsICLjg5Djg4rjg4oiOiAxNTB9Cgpmb3IgbmFtZSwgcHJpY2UgaW4gcHJpY2VzLml0ZW1zKCk6CiAgICBwcmludChuYW1lLCBwcmljZSwgIuWGhiIpCgojIOWVj-mhjDIKcHJpbnQoIuOBtuOBqeOBhjoiLCBwcmljZXMuZ2V0KCLjgbbjganjgYYiLCAwKSkKCnByaWNlcy51cGRhdGUoeyLjgorjgpPjgZQiOiAxMzAsICLjgbbjganjgYYiOiAyMDB9KQpwcmljZXMucG9wKCLjgb_jgYvjgpMiLCBOb25lKQoKcHJpbnQocHJpY2VzKQoKIyDllY_poYwzCmRlZiBtYWtlX3BlcnNvbihuYW1lLCBhZ2UpOgogICAgcmV0dXJuIHsi5ZCN5YmNIjogbmFtZSwgIuW5tOm9oiI6IGFnZX0KCnBlcnNvbiA9IG1ha2VfcGVyc29uKCLlpKrpg44iLCAyMCkKcHJpbnQocGVyc29uKQo">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">りんご 120 円
+みかん 80 円
+バナナ 150 円
+ぶどう: 0
+{'りんご': 130, 'バナナ': 150, 'ぶどう': 200}
+{'名前': '太郎', '年齢': 20}</code></pre>
+<h2>まとめ</h2>
+<p>今回は、第12回で学んだ辞書をさらに便利に使う方法を学びました。</p>
+<p><code>items()</code> で一覧を取り出し、<code>get()</code> で安全に調べ、<code>update()</code> や <code>pop()</code> で中身を変更できました。</p>
+<p>辞書を関数と組み合わせれば、名前や点数などの情報も整理しやすくなります。</p>
+<p>次回は、これまで学んだリストや辞書を使って、データをもう少し便利に扱ってみましょう。</p>
+<p class="panel"><a href="../lessons/017.html">◀ 第17回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
