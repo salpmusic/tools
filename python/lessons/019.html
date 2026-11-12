@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第19回 リストと辞書の入れ子 ～複数のデータをひとまとめにする～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第19回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第19回：リストと辞書の入れ子 ～複数のデータをひとまとめにする～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li>リストの中に辞書を入れて、複数の情報をまとめて管理できる。</li><li>入れ子になったデータから、必要な情報を取り出せる。</li><li>ループや関数を使って、複数のデータをまとめて処理できる。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>第18回では、辞書の <code>items()</code> や <code>get()</code>、更新や削除の方法を学びました。</p>
+<p>今回は、これまで学んだリストと辞書を組み合わせて、もう少し複雑なデータを扱ってみましょう。</p>
+<p>例えば、3人の生徒について「名前」「年齢」「点数」を管理したいとします。</p>
+<p>BASICでは、次のように複数の配列を使う方法があります。</p>
+<pre><code class="lang-text">10 DIM N$(3), A(3), S(3)
+20 N$(1)="太郎": A(1)=20: S(1)=80
+30 N$(2)="花子": A(2)=19: S(2)=90
+40 N$(3)="三郎": A(3)=21: S(3)=75
+50 FOR I=1 TO 3
+60 PRINT N$(I), A(I), S(I)
+70 NEXT I</code></pre>
+<p>Pythonでは、1人分の情報を辞書にまとめ、その辞書をリストに入れることができます。</p>
+<table><tr><th>やりたいこと</th><th>BASICの考え方</th><th>Python</th></tr><tr><td>1人分の情報を管理</td><td>複数の配列の同じ番号</td><td>1つの辞書</td></tr><tr><td>複数人を管理</td><td>配列を人数分用意</td><td>辞書をリストに入れる</td></tr><tr><td>1人を取り出す</td><td>配列の番号を指定</td><td>リストの番号を指定</td></tr><tr><td>名前や点数を取り出す</td><td>対応する配列を選ぶ</td><td>辞書のキーを指定</td></tr><tr><td>全員を処理する</td><td>FOR文</td><td>for文</td></tr></table>
+<p>このように、データの中に別のデータを入れることを「入れ子（ネスト）」と呼びます。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第19回：リストと辞書の入れ子
+# 複数のデータをひとまとめにする
+
+# 1. リストの中に辞書を入れる
+print("1. リストの中に辞書")
+
+students = [
+    {"名前": "太郎", "年齢": 20, "点数": 80},
+    {"名前": "花子", "年齢": 19, "点数": 90},
+    {"名前": "三郎", "年齢": 21, "点数": 75}
+]
+
+print("人数:", len(students))
+print("最初の生徒:", students[0])
+
+# 2. 入れ子のデータを取り出す
+print("\n2. データを取り出す")
+
+print("最初の名前:", students[0]["名前"])
+print("2番目の点数:", students[1]["点数"])
+
+# 3. ループで全員を表示する
+print("\n3. 全員の情報")
+
+for student in students:
+    print(f"{student['名前']}さん "
+          f"{student['年齢']}歳 "
+          f"{student['点数']}点")
+
+# 4. 入れ子のデータを変更する
+print("\n4. 点数を変更する")
+
+students[0]["点数"] = 85
+
+print("太郎の新しい点数:", students[0]["点数"])
+
+# 5. 条件に合うデータを取り出す
+print("\n5. 80点以上の生徒")
+
+for student in students:
+    if student["点数"] &gt;= 80:
+        print(student["名前"], student["点数"], "点")
+
+# 6. 関数で合計と平均を計算する
+print("\n6. 合計と平均")
+
+def average_score(data):
+    total = 0
+    for student in data:
+        total += student["点数"]
+    if len(data) == 0:
+        return 0
+    return total / len(data)
+
+total = sum(student["点数"] for student in students)
+
+print("合計:", total)
+print("平均:", average_score(students))
+
+# 7. 辞書の中にリストを入れる
+print("\n7. 辞書の中にリスト")
+
+school = {
+    "学校名": "さくら学校",
+    "教科": ["国語", "数学", "英語"]
+}
+
+print("学校名:", school["学校名"])
+print("教科:", school["教科"])
+print("最初の教科:", school["教科"][0])</code></pre>
+<a class="run" href="../run.html?py=lessons/019.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/019.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/019.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. リストの中に辞書
+人数: 3
+最初の生徒: {'名前': '太郎', '年齢': 20, '点数': 80}
+
+2. データを取り出す
+最初の名前: 太郎
+2番目の点数: 90
+
+3. 全員の情報
+太郎さん 20歳 80点
+花子さん 19歳 90点
+三郎さん 21歳 75点
+
+4. 点数を変更する
+太郎の新しい点数: 85
+
+5. 80点以上の生徒
+太郎 85 点
+花子 90 点
+
+6. 合計と平均
+合計: 250
+平均: 83.33333333333333
+
+7. 辞書の中にリスト
+学校名: さくら学校
+教科: ['国語', '数学', '英語']
+最初の教科: 国語</code></pre>
+<p><strong>ポイント</strong></p>
+<h3>1. リストの中に辞書を入れられる</h3>
+<p>例えば、次のように書けます。</p>
+<pre><code class="lang-text">students = [
+    {"名前": "太郎", "点数": 80},
+    {"名前": "花子", "点数": 90}
+]</code></pre>
+<p>リストの1つの要素が、1人分の辞書になっています。</p>
+<p>これなら、人数が増えても同じ形で情報を管理できます。</p>
+<h3>2. 番号とキーを組み合わせて取り出す</h3>
+<pre><code class="lang-text">students[0]["名前"]</code></pre>
+<p>この書き方は、左から順番に考えるとわかりやすいです。</p>
+<ul><li><code>students[0]</code> で最初の生徒の辞書を取り出す。</li><li><code>["名前"]</code> で、その辞書の名前を取り出す。</li></ul>
+<p>リストの番号は、第8回で学んだように0から始まります。</p>
+<h3>3. for文で1人ずつ処理できる</h3>
+<pre><code class="lang-text">for student in students:
+    print(student["名前"])</code></pre>
+<p><code>student</code> には、リストの中の辞書が1つずつ入ります。</p>
+<p>そのため、名前や年齢、点数をキーで取り出せます。</p>
+<h3>4. 入れ子の中身も変更できる</h3>
+<pre><code class="lang-text">students[0]["点数"] = 85</code></pre>
+<p>この書き方で、最初の生徒の点数を変更できます。</p>
+<p>第12回で学んだ辞書の更新と、考え方は同じです。</p>
+<h3>5. 関数にまとめて渡せる</h3>
+<pre><code class="lang-text">def average_score(data):
+    total = 0
+    for student in data:
+        total += student["点数"]
+    if len(data) == 0:
+        return 0
+    return total / len(data)</code></pre>
+<p>辞書が入ったリストも、普通のリストと同じように関数へ渡せます。</p>
+<p>関数の中で1人ずつ点数を取り出せば、平均点などを計算できます。</p>
+<p>なお、本編の <code>sum()</code> は、数値を合計するための組み込み関数です。</p>
+<pre><code class="lang-text">sum(student["点数"] for student in students)</code></pre>
+<p>これは、各生徒の点数を順番に取り出して合計しています。</p>
+<p>少し短い書き方ですが、最初は <code>for</code> を使って合計しても大丈夫です。</p>
+<p>また、平均を求める前に <code>len(data) == 0</code> を確認しているのは、データが空のときに0で割るエラーを防ぐためです。</p>
+<h3>6. 辞書の中にリストを入れることもできる</h3>
+<pre><code class="lang-text">school = {
+    "学校名": "さくら学校",
+    "教科": ["国語", "数学", "英語"]
+}</code></pre>
+<p>この場合、「教科」というキーの値がリストになっています。</p>
+<pre><code class="lang-text">school["教科"][0]</code></pre>
+<p>と書けば、最初の教科である「国語」を取り出せます。</p>
+<p>リストの中に辞書、辞書の中にリスト。</p>
+<p>どちらも、これまで学んだ基本操作を組み合わせているだけです。</p>
+<p><strong>ミニ課題</strong></p>
+<h3>問題1：商品の一覧を表示する</h3>
+<p>次のデータがあります。</p>
+<pre><code class="lang-text">items = [
+    {"商品": "りんご", "価格": 120},
+    {"商品": "みかん", "価格": 80},
+    {"商品": "バナナ", "価格": 150}
+]</code></pre>
+<p><code>for</code> 文を使って、商品名と価格をすべて表示してください。</p>
+<p>ヒント：リストから辞書を1つずつ取り出し、<code>["商品"]</code> と <code>["価格"]</code> を使います。</p>
+<h3>問題2：条件に合う商品を表示する</h3>
+<p>問題1のデータから、100円以上の商品だけを表示してください。</p>
+<p>ヒント：<code>if item["価格"] &gt;= 100:</code> を使います。</p>
+<h3>問題3：商品の合計金額を求める</h3>
+<p>問題1のデータを関数に渡して、すべての商品の価格を合計する <code>total_price()</code> 関数を作ってください。</p>
+<p>ヒント：<code>total = 0</code> から始めて、<code>for</code> 文で価格を足し、最後に <code>return total</code> を使います。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python">items = [
+    {"商品": "りんご", "価格": 120},
+    {"商品": "みかん", "価格": 80},
+    {"商品": "バナナ", "価格": 150}
+]
+
+# 問題1
+print("問題1")
+
+for item in items:
+    print(item["商品"], item["価格"], "円")
+
+# 問題2
+print("\n問題2")
+
+for item in items:
+    if item["価格"] &gt;= 100:
+        print(item["商品"], item["価格"], "円")
+
+# 問題3
+print("\n問題3")
+
+def total_price(data):
+    total = 0
+    for item in data:
+        total += item["価格"]
+    return total
+
+print("合計:", total_price(items), "円")</code></pre>
+<a class="run" href="../run.html#py=aXRlbXMgPSBbCiAgICB7IuWVhuWTgSI6ICLjgorjgpPjgZQiLCAi5L6h5qC8IjogMTIwfSwKICAgIHsi5ZWG5ZOBIjogIuOBv-OBi-OCkyIsICLkvqHmoLwiOiA4MH0sCiAgICB7IuWVhuWTgSI6ICLjg5Djg4rjg4oiLCAi5L6h5qC8IjogMTUwfQpdCgojIOWVj-mhjDEKcHJpbnQoIuWVj-mhjDEiKQoKZm9yIGl0ZW0gaW4gaXRlbXM6CiAgICBwcmludChpdGVtWyLllYblk4EiXSwgaXRlbVsi5L6h5qC8Il0sICLlhoYiKQoKIyDllY_poYwyCnByaW50KCJcbuWVj-mhjDIiKQoKZm9yIGl0ZW0gaW4gaXRlbXM6CiAgICBpZiBpdGVtWyLkvqHmoLwiXSA-PSAxMDA6CiAgICAgICAgcHJpbnQoaXRlbVsi5ZWG5ZOBIl0sIGl0ZW1bIuS-oeagvCJdLCAi5YaGIikKCiMg5ZWP6aGMMwpwcmludCgiXG7llY_poYwzIikKCmRlZiB0b3RhbF9wcmljZShkYXRhKToKICAgIHRvdGFsID0gMAogICAgZm9yIGl0ZW0gaW4gZGF0YToKICAgICAgICB0b3RhbCArPSBpdGVtWyLkvqHmoLwiXQogICAgcmV0dXJuIHRvdGFsCgpwcmludCgi5ZCI6KiIOiIsIHRvdGFsX3ByaWNlKGl0ZW1zKSwgIuWGhiIpCg">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=aXRlbXMgPSBbCiAgICB7IuWVhuWTgSI6ICLjgorjgpPjgZQiLCAi5L6h5qC8IjogMTIwfSwKICAgIHsi5ZWG5ZOBIjogIuOBv-OBi-OCkyIsICLkvqHmoLwiOiA4MH0sCiAgICB7IuWVhuWTgSI6ICLjg5Djg4rjg4oiLCAi5L6h5qC8IjogMTUwfQpdCgojIOWVj-mhjDEKcHJpbnQoIuWVj-mhjDEiKQoKZm9yIGl0ZW0gaW4gaXRlbXM6CiAgICBwcmludChpdGVtWyLllYblk4EiXSwgaXRlbVsi5L6h5qC8Il0sICLlhoYiKQoKIyDllY_poYwyCnByaW50KCJcbuWVj-mhjDIiKQoKZm9yIGl0ZW0gaW4gaXRlbXM6CiAgICBpZiBpdGVtWyLkvqHmoLwiXSA-PSAxMDA6CiAgICAgICAgcHJpbnQoaXRlbVsi5ZWG5ZOBIl0sIGl0ZW1bIuS-oeagvCJdLCAi5YaGIikKCiMg5ZWP6aGMMwpwcmludCgiXG7llY_poYwzIikKCmRlZiB0b3RhbF9wcmljZShkYXRhKToKICAgIHRvdGFsID0gMAogICAgZm9yIGl0ZW0gaW4gZGF0YToKICAgICAgICB0b3RhbCArPSBpdGVtWyLkvqHmoLwiXQogICAgcmV0dXJuIHRvdGFsCgpwcmludCgi5ZCI6KiIOiIsIHRvdGFsX3ByaWNlKGl0ZW1zKSwgIuWGhiIpCg">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">問題1
+りんご 120 円
+みかん 80 円
+バナナ 150 円
+
+問題2
+りんご 120 円
+バナナ 150 円
+
+問題3
+合計: 350 円</code></pre>
+<p><strong>まとめ</strong></p>
+<p>今回は、リストと辞書を組み合わせて、複数の情報をひとまとめにする方法を学びました。</p>
+<p>入れ子のデータも、リストの番号と辞書のキーを順番に指定すれば取り出せます。</p>
+<p>さらに、ループや関数を使うことで、一覧表示や条件による抽出、合計や平均の計算もできました。</p>
+<p>次回は、こうしてまとめたデータを、順番に並べ替える方法を学んでみましょう。</p>
+<p class="panel"><a href="../lessons/018.html">◀ 第18回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
