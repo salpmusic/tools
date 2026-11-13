@@ -14,7 +14,9 @@
 
 ## 現在の公開状態
 
-`config.js` の `tokenEndpoint` は空で配布しています。Worker の実URL・LiveKit の設定がない間は「主催者の接続設定待ち」と表示し、入室できません。**画面の公開と、実際の通話ができる状態は別です。** 以下の設定を完了すると、同じページで通話できます。
+`config.js` の `tokenEndpoint` は公開された Cloudflare Worker に設定しています。LiveKit の公開 Project URL も `wrangler.toml` に反映しています。API Key・API Secret・会議設定は Cloudflare の Secret に別途登録します。**画面の公開と、実際の通話ができる状態は別です。** 以下の設定を完了すると、同じページで通話できます。
+
+iPhone だけで初回の会議設定を行う場合は、[参加コードの準備ページ](https://salpmusic.github.io/tools/mini-meeting-v0.3/setup.html)でコードと `MEETINGS_JSON` を作成できます。会議番号は `family-01`、期限は作成から30日間です。「Cloudflare 用の設定をコピー」でコピーした JSON を、Worker の Runtime variables and secrets に `MEETINGS_JSON`（Secret）として登録します。生成ページは外部送信・保存をしないため、参加コードを安全な場所に控えてから閉じてください。既存の複数会議設定を残す運用では、置き換えずに JSON を統合してください。
 
 ## 安全なトークン発行
 

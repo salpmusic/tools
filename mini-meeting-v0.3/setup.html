@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>参加コードの準備 · salp Mini Meeting</title>
+<link rel="stylesheet" href="meeting.css"><script defer src="setup.js"></script>
+</head><body><main>
+<h1>会議の参加コードを作る</h1>
+<p>主催者が最初に一度だけ使う設定ページです。</p>
+<p id="setup-status" class="notice" role="status" aria-live="polite">下のボタンを押してください。</p>
+<section class="panel">
+<p>会議番号：<strong>family-01</strong></p>
+<p>参加コードの有効期限：作成から30日間</p>
+<button id="generate" type="button" class="primary full">参加コードを作る</button>
+<div id="result" hidden>
+<h2>① Cloudflare に登録するもの</h2>
+<p>「＋ Add variable」で次の名前を使います。</p>
+<label for="variable-name">Key に入れる名前</label>
+<input id="variable-name" value="MEETINGS_JSON" readonly>
+<button id="copy-name" type="button" class="light full">名前をコピー</button>
+<p>Value に下の設定を貼り付け、「Secret」にチェックして保存します。</p>
+<label for="meeting-json">Value に入れる設定</label>
+<input id="meeting-json" readonly autocomplete="off" spellcheck="false">
+<button id="copy-json" type="button" class="primary full">Cloudflare 用の設定をコピー</button>
+<p class="help">既存の MEETINGS_JSON を置き換えると、ほかの会議設定は消えます。初回設定用です。</p>
+<h2>② 参加者に知らせるもの</h2>
+<p>会議番号：<strong>family-01</strong></p>
+<label for="meeting-code">参加コード</label>
+<input id="meeting-code" readonly autocomplete="off" spellcheck="false">
+<button id="copy-code" type="button" class="secondary full">参加コードをコピー</button>
+<p id="expiry"></p>
+<p class="notice">参加コードはパスワード管理アプリなどに控えてください。このページを再読み込みすると表示は消え、復元できません。コードは招待する人にだけ知らせてください。</p>
+<p class="help">コードの期限は新しい入室を受け付ける期限です。通話中の人を自動で退室させるものではありません。</p>
+</div></section>
+<footer>API Key・API Secret はこのページに入力しません。生成したコードと設定は外部送信もブラウザへの保存も行いません。</footer>
+</main></body></html>

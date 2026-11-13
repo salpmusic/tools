@@ -7,7 +7,7 @@ workers_dev = true
 [vars]
 ALLOWED_ORIGIN = "https://salpmusic.github.io"
 # LiveKit Cloud の Project URL を指定（公開情報）
-LIVEKIT_URL = "wss://YOUR-PROJECT.livekit.cloud"
+LIVEKIT_URL = "wss://salp-mini-meeting-qv4pbpth.livekit.cloud"
 
 # IP ごとの試行制限。Cloudflare の同一ロケーション単位で適用されます。
 [[ratelimits]]
