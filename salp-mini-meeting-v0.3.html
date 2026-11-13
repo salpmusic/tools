@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>salp Mini Meeting v0.3</title>
+  <link rel="stylesheet" href="mini-meeting-v0.3/meeting.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/livekit-client@2.24.0/dist/livekit-client.umd.js" integrity="sha384-rxWE4aRZIkCR8gzlK35atQNn6j3M/pt2WbIUHpgwHn59UrgfymTcGyakWeI6X699" crossorigin="anonymous"></script>
+  <script defer src="mini-meeting-v0.3/config.js"></script>
+  <script defer src="mini-meeting-v0.3/meeting.js"></script>
+</head>
+<body><main>
+  <header><p class="eyebrow">salp Mini Meeting · v0.3</p><h1>いつもの仲間と、お話し。</h1><p>名前を入れて、会議に入りましょう。</p></header>
+  <p id="status" class="notice" role="status" aria-live="polite">準備しています…</p>
+  <form id="join-form" class="panel">
+    <h2>会議に入る</h2>
+    <label for="name">あなたのお名前</label><input id="name" name="name" maxlength="40" autocomplete="nickname" required placeholder="例：さくら">
+    <label for="meeting">会議番号</label><input id="meeting" name="meeting" maxlength="48" autocapitalize="none" spellcheck="false" required pattern="[a-zA-Z0-9_-]{1,48}" placeholder="主催者から届いた番号">
+    <label for="code">参加コード</label><input id="code" name="code" type="password" maxlength="128" autocomplete="off" required placeholder="主催者から届いたコード">
+    <label for="mode">映像の使い方</label><select id="mode"><option value="low" selected>低解像度（おすすめ・古い iPad 向け）</option><option value="normal">通常の映像</option><option value="audio">音声優先（映像なし）</option></select>
+    <p class="help">入室すると、マイクの使用許可が表示されます。カメラは入室後に入れられます。</p>
+    <button id="join" type="submit" class="primary full" disabled>会議に入る</button>
+    <p class="help">会議番号・参加コードは主催者に確認してください。</p>
+  </form>
+  <section id="room-panel" class="panel" hidden aria-label="通話画面">
+    <div class="room-heading"><h2 id="room-title">会議</h2><span id="count">1人</span></div>
+    <div id="stage" class="stage"><p>相手を待っています</p></div>
+    <p id="stage-name" class="stage-name"></p>
+    <p class="help">話している人を大きく表示します。下の名前を押すと、その人を固定できます。</p>
+    <button id="auto" class="light" type="button" hidden>話している人に自動で切り替える</button>
+    <div id="people" class="people" aria-label="参加者"></div>
+    <div class="controls">
+      <button id="mic" class="secondary" type="button" aria-pressed="false">マイク：切</button>
+      <button id="camera" class="secondary" type="button" aria-pressed="false">カメラ：切</button>
+      <button id="audio" class="light" type="button" aria-pressed="false">音声優先にする</button>
+      <button id="leave" class="danger" type="button">会議を出る</button>
+    </div>
+    <button id="play-audio" type="button" class="primary full" hidden>相手の声を聞く（ここを押す）</button>
+    <p class="help">音が出ない場合は、端末の音量も確認してください。</p>
+  </section>
+  <div id="remote-audio"></div>
+  <details class="panel"><summary>使い方・困ったとき</summary>
+    <p>iPhone / iPad は Safari、Windows は最新の Edge または Chrome で開いてください。マイクの許可を求められたら「許可」を押してください。</p>
+    <p>カメラを使うには、入室後に「カメラ：切」を押します。映像が重い場合は「音声優先にする」を押してください。</p>
+    <p>古い iPad で入れない場合は、OS を更新するか新しい端末をお使いください。音声優先でもブラウザの WebRTC 対応は必要です。</p>
+    <p>通話には LiveKit Cloud を使います。参加者に名前・音声・有効にした映像が共有されます。このアプリは録音・録画を行いません。参加コードを知らない人に渡さないでください。</p>
+    <p id="compat"></p>
+  </details>
+  <footer>salp Mini Meeting v0.3 · まずは2人で通話確認 · 最大10人を想定（実機検証予定）</footer>
+</main></body></html>
