@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python入門 第20回 データの並べ替え ～sortedとsortで順番を整理する～ | salp Tools</title><link rel="stylesheet" href="../style.css"></head>
+<body><div class="wrap"><div class="crumb"><a href="../../">salp Tools</a> › <a href="../">Python入門</a> › 第20回</div>
+<div class="hero"><p class="catch">今1番人気のプログラミング言語 Python入門</p><h1>第20回：データの並べ替え ～sortedとsortで順番を整理する～</h1><p class="note">※<a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE Index 2026年10月</a></p></div>
+<p><strong>目標</strong></p>
+<ul><li><code>sorted()</code> を使って、元のリストを変えずに並べ替えられる。</li><li><code>sort()</code> を使って、元のリストを直接並べ替えられる。</li><li>辞書のリストを、点数や価格などの値を基準に並べ替えられる。</li></ul>
+<p><strong>BASICとの比較</strong></p>
+<p>第19回では、リストの中に辞書を入れて、複数の情報をまとめて管理する方法を学びました。</p>
+<p>今回は、そのデータを小さい順や大きい順に並べ替えてみましょう。</p>
+<p>例えば、生徒の点数を低い順に並べたいとします。</p>
+<p>BASICでは、隣り合う数値を比較して、順番が違っていたら入れ替える方法があります。</p>
+<p>次の例は、その考え方を示したBASIC風のコードです。</p>
+<pre><code class="lang-text">10 DIM A(3)
+20 A(1)=80: A(2)=95: A(3)=70
+30 FOR I=1 TO 2
+40 FOR J=1 TO 3-I
+50 IF A(J)&gt;A(J+1) THEN SWAP A(J),A(J+1)
+60 NEXT J
+70 NEXT I
+80 FOR I=1 TO 3
+90 PRINT A(I)
+100 NEXT I</code></pre>
+<p>Pythonでは、こうした並べ替えの処理を自分で書かなくても、<code>sorted()</code> や <code>sort()</code> が使えます。</p>
+<table><tr><th>やりたいこと</th><th>BASICの考え方</th><th>Python</th></tr><tr><td>小さい順に並べる</td><td>比較して入れ替える</td><td><code>sorted()</code></td></tr><tr><td>大きい順に並べる</td><td>比較の向きを変える</td><td><code>reverse=True</code></td></tr><tr><td>元の配列を並べ替える</td><td>配列の中身を入れ替える</td><td><code>sort()</code></td></tr><tr><td>元の順番を残す</td><td>別の配列にコピーする</td><td><code>sorted()</code></td></tr><tr><td>点数を基準に並べる</td><td>点数を比較する</td><td><code>key=</code> で指定する</td></tr></table>
+<p>Pythonなら、数値だけでなく、辞書に入っている点数や価格を基準にして並べ替えることもできます。</p>
+<p><strong>コード</strong></p>
+<pre><code class="lang-python"># 第20回：データの並べ替え
+# sortedとsortで順番を整理する
+
+# 1. sorted() で小さい順に並べる
+print("1. sorted() で並べ替え")
+
+scores = [80, 95, 70, 85]
+
+new_scores = sorted(scores)
+
+print("元のリスト:", scores)
+print("並べ替え後:", new_scores)
+
+# 2. 大きい順に並べる
+print("\n2. 大きい順に並べる")
+
+high_scores = sorted(scores, reverse=True)
+
+print("大きい順:", high_scores)
+print("元のリスト:", scores)
+
+# 3. sort() で元のリストを並べ替える
+print("\n3. sort() で並べ替え")
+
+numbers = [5, 2, 8, 1, 4]
+
+print("並べ替え前:", numbers)
+
+numbers.sort()
+
+print("並べ替え後:", numbers)
+
+numbers.sort(reverse=True)
+
+print("大きい順:", numbers)
+
+# 4. 文字列を並べ替える
+print("\n4. 文字列の並べ替え")
+
+fruits = ["orange", "apple", "banana"]
+
+print("元のリスト:", fruits)
+print("アルファベット順:", sorted(fruits))
+
+# 5. 辞書のリストを点数順に並べる
+print("\n5. 辞書のリストを並べる")
+
+students = [
+    {"名前": "太郎", "点数": 80},
+    {"名前": "花子", "点数": 95},
+    {"名前": "三郎", "点数": 70}
+]
+
+def get_score(student):
+    return student["点数"]
+
+sorted_students = sorted(students, key=get_score)
+
+print("点数の低い順")
+for student in sorted_students:
+    print(student["名前"], student["点数"], "点")
+
+# 6. 点数の高い順に並べる
+print("\n6. 点数の高い順")
+
+ranking = sorted(students, key=get_score, reverse=True)
+
+for student in ranking:
+    print(student["名前"], student["点数"], "点")
+
+# 7. 元の順番を確認する
+print("\n7. 元の順番を確認")
+
+for student in students:
+    print(student["名前"], student["点数"], "点")</code></pre>
+<a class="run" href="../run.html?py=lessons/020.py">🐍 ブラウザで実行（軽量版）</a>
+<a class="run colab" href="https://colab.research.google.com/github/salpmusic/tools/blob/main/python/lessons/020.ipynb" target="_blank" rel="noopener">📒 Colabで開く</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html?py=../python/lessons/020.py">🐧 PC向け Linux Lite</a>
+<p><strong>実行結果の例</strong></p>
+<pre><code class="lang-text">1. sorted() で並べ替え
+元のリスト: [80, 95, 70, 85]
+並べ替え後: [70, 80, 85, 95]
+
+2. 大きい順に並べる
+大きい順: [95, 85, 80, 70]
+元のリスト: [80, 95, 70, 85]
+
+3. sort() で並べ替え
+並べ替え前: [5, 2, 8, 1, 4]
+並べ替え後: [1, 2, 4, 5, 8]
+大きい順: [8, 5, 4, 2, 1]
+
+4. 文字列の並べ替え
+元のリスト: ['orange', 'apple', 'banana']
+アルファベット順: ['apple', 'banana', 'orange']
+
+5. 辞書のリストを並べる
+点数の低い順
+三郎 70 点
+太郎 80 点
+花子 95 点
+
+6. 点数の高い順
+花子 95 点
+太郎 80 点
+三郎 70 点
+
+7. 元の順番を確認
+太郎 80 点
+花子 95 点
+三郎 70 点</code></pre>
+<p><strong>ポイント</strong></p>
+<h3>1. sorted() は新しいリストを作る</h3>
+<p><code>sorted()</code> は、並べ替えた結果を新しいリストとして返します。</p>
+<pre><code class="lang-text">new_scores = sorted(scores)</code></pre>
+<p>元の <code>scores</code> は変更されません。</p>
+<p>元の順番を残しておきたいときに便利です。</p>
+<h3>2. sort() は元のリストを変更する</h3>
+<p><code>sort()</code> は、リストそのものを並べ替えます。</p>
+<pre><code class="lang-text">numbers.sort()</code></pre>
+<p>並べ替えた結果は、そのまま <code>numbers</code> に入っています。</p>
+<p><code>sort()</code> の戻り値は <code>None</code> です。</p>
+<p>そのため、次のようには書きません。</p>
+<pre><code class="lang-text">new_numbers = numbers.sort()</code></pre>
+<p>これでは <code>new_numbers</code> に並べ替えたリストではなく、<code>None</code> が入ってしまいます。</p>
+<table><tr><th>比較</th><th>sorted()</th><th>sort()</th></tr><tr><td>元のリスト</td><td>変わらない</td><td>変わる</td></tr><tr><td>結果</td><td>新しいリストを返す</td><td>戻り値はNone</td></tr><tr><td>使い方</td><td><code>sorted(data)</code></td><td><code>data.sort()</code></td></tr><tr><td>向いている場面</td><td>元の順番を残す</td><td>元の順番を変更する</td></tr></table>
+<h3>3. reverse=True で大きい順にできる</h3>
+<p>普通は小さい順に並びます。</p>
+<p>大きい順にしたいときは、<code>reverse=True</code> を指定します。</p>
+<pre><code class="lang-text">sorted(scores, reverse=True)</code></pre>
+<p><code>sort()</code> でも同じように使えます。</p>
+<pre><code class="lang-text">scores.sort(reverse=True)</code></pre>
+<h3>4. key= で並べ替えの基準を指定する</h3>
+<p>第19回で学んだ、辞書を入れたリストを考えてみましょう。</p>
+<pre><code class="lang-text">students = [
+    {"名前": "太郎", "点数": 80},
+    {"名前": "花子", "点数": 95}
+]</code></pre>
+<p>このデータは、辞書そのものを直接比較して並べることはできません。</p>
+<p>そこで、どの値を使って並べるかを <code>key=</code> で指定します。</p>
+<pre><code class="lang-text">def get_score(student):
+    return student["点数"]</code></pre>
+<p>この関数は、生徒の辞書から点数だけを返します。</p>
+<pre><code class="lang-text">sorted(students, key=get_score)</code></pre>
+<p>Pythonは、各生徒の点数を取り出して、その値を基準に並べ替えます。</p>
+<p>ここで <code>get_score()</code> と括弧を付けず、<code>get_score</code> と書くことがポイントです。</p>
+<p>関数をその場で実行するのではなく、並べ替えのためにPythonへ渡しています。</p>
+<h3>5. 点数の高い順なら reverse=True を追加する</h3>
+<pre><code class="lang-text">sorted(students, key=get_score, reverse=True)</code></pre>
+<p><code>key=</code> と <code>reverse=True</code> は一緒に使えます。</p>
+<p>これで、点数の高い生徒から順番に並びます。</p>
+<p>同じ点数の生徒が複数いる場合は、元のリストで先にいた生徒が先に並びます。</p>
+<h3>6. 文字列も並べ替えられる</h3>
+<pre><code class="lang-text">sorted(["orange", "apple", "banana"])</code></pre>
+<p>結果は次のようになります。</p>
+<pre><code class="lang-text">['apple', 'banana', 'orange']</code></pre>
+<p>英語の小文字だけなら、基本的にアルファベット順になります。</p>
+<p>ただし、Pythonの通常の文字列比較では、文字のコード順が使われます。</p>
+<p>大文字や日本語が混ざる場合は、辞書で調べるような自然な順番になるとは限りません。</p>
+<p><strong>ミニ課題</strong></p>
+<h3>問題1：数値を並べ替える</h3>
+<p>次のリストがあります。</p>
+<pre><code class="lang-text">prices = [300, 120, 500, 200]</code></pre>
+<p><code>sorted()</code> を使って、小さい順と大きい順の両方を表示してください。</p>
+<p>元のリストは変更しないでください。</p>
+<p>ヒント：大きい順には <code>reverse=True</code> を使います。</p>
+<h3>問題2：sort() で並べ替える</h3>
+<p>次のリストがあります。</p>
+<pre><code class="lang-text">numbers = [9, 3, 7, 1]</code></pre>
+<p><code>sort()</code> を使って、小さい順に並べ替えて表示してください。</p>
+<p>ヒント：<code>numbers.sort()</code> のあとに <code>print(numbers)</code> を使います。</p>
+<h3>問題3：商品の価格順に並べる</h3>
+<p>次の辞書のリストがあります。</p>
+<pre><code class="lang-text">items = [
+    {"商品": "りんご", "価格": 120},
+    {"商品": "みかん", "価格": 80},
+    {"商品": "バナナ", "価格": 150}
+]</code></pre>
+<p>価格を取り出す関数 <code>get_price()</code> を作り、価格の高い順に並べて表示してください。</p>
+<p>ヒント：<code>key=get_price</code> と <code>reverse=True</code> を組み合わせます。</p>
+<p><strong>答え例</strong></p>
+<pre><code class="lang-python"># 問題1
+print("問題1")
+
+prices = [300, 120, 500, 200]
+
+print("小さい順:", sorted(prices))
+print("大きい順:", sorted(prices, reverse=True))
+print("元のリスト:", prices)
+
+# 問題2
+print("\n問題2")
+
+numbers = [9, 3, 7, 1]
+
+numbers.sort()
+print(numbers)
+
+# 問題3
+print("\n問題3")
+
+items = [
+    {"商品": "りんご", "価格": 120},
+    {"商品": "みかん", "価格": 80},
+    {"商品": "バナナ", "価格": 150}
+]
+
+def get_price(item):
+    return item["価格"]
+
+sorted_items = sorted(items, key=get_price, reverse=True)
+
+for item in sorted_items:
+    print(item["商品"], item["価格"], "円")</code></pre>
+<a class="run" href="../run.html#py=IyDllY_poYwxCnByaW50KCLllY_poYwxIikKCnByaWNlcyA9IFszMDAsIDEyMCwgNTAwLCAyMDBdCgpwcmludCgi5bCP44GV44GE6aCGOiIsIHNvcnRlZChwcmljZXMpKQpwcmludCgi5aSn44GN44GE6aCGOiIsIHNvcnRlZChwcmljZXMsIHJldmVyc2U9VHJ1ZSkpCnByaW50KCLlhYPjga7jg6rjgrnjg4g6IiwgcHJpY2VzKQoKIyDllY_poYwyCnByaW50KCJcbuWVj-mhjDIiKQoKbnVtYmVycyA9IFs5LCAzLCA3LCAxXQoKbnVtYmVycy5zb3J0KCkKcHJpbnQobnVtYmVycykKCiMg5ZWP6aGMMwpwcmludCgiXG7llY_poYwzIikKCml0ZW1zID0gWwogICAgeyLllYblk4EiOiAi44KK44KT44GUIiwgIuS-oeagvCI6IDEyMH0sCiAgICB7IuWVhuWTgSI6ICLjgb_jgYvjgpMiLCAi5L6h5qC8IjogODB9LAogICAgeyLllYblk4EiOiAi44OQ44OK44OKIiwgIuS-oeagvCI6IDE1MH0KXQoKZGVmIGdldF9wcmljZShpdGVtKToKICAgIHJldHVybiBpdGVtWyLkvqHmoLwiXQoKc29ydGVkX2l0ZW1zID0gc29ydGVkKGl0ZW1zLCBrZXk9Z2V0X3ByaWNlLCByZXZlcnNlPVRydWUpCgpmb3IgaXRlbSBpbiBzb3J0ZWRfaXRlbXM6CiAgICBwcmludChpdGVtWyLllYblk4EiXSwgaXRlbVsi5L6h5qC8Il0sICLlhoYiKQo">▶ このコードを実行（軽量版）</a>
+<a class="run small" href="../../salp-linux/salp-linux-lite.html#py=IyDllY_poYwxCnByaW50KCLllY_poYwxIikKCnByaWNlcyA9IFszMDAsIDEyMCwgNTAwLCAyMDBdCgpwcmludCgi5bCP44GV44GE6aCGOiIsIHNvcnRlZChwcmljZXMpKQpwcmludCgi5aSn44GN44GE6aCGOiIsIHNvcnRlZChwcmljZXMsIHJldmVyc2U9VHJ1ZSkpCnByaW50KCLlhYPjga7jg6rjgrnjg4g6IiwgcHJpY2VzKQoKIyDllY_poYwyCnByaW50KCJcbuWVj-mhjDIiKQoKbnVtYmVycyA9IFs5LCAzLCA3LCAxXQoKbnVtYmVycy5zb3J0KCkKcHJpbnQobnVtYmVycykKCiMg5ZWP6aGMMwpwcmludCgiXG7llY_poYwzIikKCml0ZW1zID0gWwogICAgeyLllYblk4EiOiAi44KK44KT44GUIiwgIuS-oeagvCI6IDEyMH0sCiAgICB7IuWVhuWTgSI6ICLjgb_jgYvjgpMiLCAi5L6h5qC8IjogODB9LAogICAgeyLllYblk4EiOiAi44OQ44OK44OKIiwgIuS-oeagvCI6IDE1MH0KXQoKZGVmIGdldF9wcmljZShpdGVtKToKICAgIHJldHVybiBpdGVtWyLkvqHmoLwiXQoKc29ydGVkX2l0ZW1zID0gc29ydGVkKGl0ZW1zLCBrZXk9Z2V0X3ByaWNlLCByZXZlcnNlPVRydWUpCgpmb3IgaXRlbSBpbiBzb3J0ZWRfaXRlbXM6CiAgICBwcmludChpdGVtWyLllYblk4EiXSwgaXRlbVsi5L6h5qC8Il0sICLlhoYiKQo">🐧 PC向け Linux Lite</a>
+<p>実行結果：</p>
+<pre><code class="lang-text">問題1
+小さい順: [120, 200, 300, 500]
+大きい順: [500, 300, 200, 120]
+元のリスト: [300, 120, 500, 200]
+
+問題2
+[1, 3, 7, 9]
+
+問題3
+バナナ 150 円
+りんご 120 円
+みかん 80 円</code></pre>
+<p><strong>まとめ</strong></p>
+<p>今回は、<code>sorted()</code> と <code>sort()</code> を使って、データを並べ替える方法を学びました。</p>
+<p><code>sorted()</code> は元のリストを残し、<code>sort()</code> は元のリストを直接変更します。</p>
+<p>さらに、<code>key=</code> を使えば、第19回で学んだ辞書のリストも、点数や価格などを基準に並べ替えられます。</p>
+<p>次回は、これまで学んだデータの扱い方を、もう少し便利にする方法を学んでみましょう。</p>
+<p class="panel"><a href="../lessons/019.html">◀ 第19回</a> · <a href="../">レッスン一覧</a> · <a href="../manual.html">入門編マニュアル</a></p>
+<footer>salp Tools · Python入門コーナー · コードは <a href="../run.html">軽量版 Python実行</a>(スマホOK)で実行できます。PCでは <a href="../../salp-linux/salp-linux-lite.html">salp Linux Lite</a>(ブラウザ上のDebian 10 / Python 3.7・重い)でも動作確認しています。</footer>
+</div></body></html>
