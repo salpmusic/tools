@@ -22,7 +22,56 @@ let previousBody='';
 const markInfo=()=>{const e=episode(),m=e&&Number.isInteger(e.mark)?Math.min(e.mark,$('body').value.length):null;$('markInfo').textContent=m===null?'目印なし': '完了：'+[...$('body').value.slice(0,m).replace(/[\\r\\n]/g,'')].length.toLocaleString('ja-JP')+'文字目';$('jumpMark').disabled=m===null;$('clearMark').disabled=m===null};
 const trackMark=()=>{const e=episode(),next=$('body').value,old=previousBody;if(e&&Number.isInteger(e.mark)&&next!==old){let start=0;while(start<old.length&&start<next.length&&old[start]===next[start])start++;let end=0;while(end<old.length-start&&end<next.length-start&&old[old.length-1-end]===next[next.length-1-end])end++;const removed=old.length-start-end,added=next.length-start-end;if(start<e.mark)e.mark=Math.max(start,Math.min(next.length,e.mark+(added-removed)));}previousBody=next;markInfo()};
 $('setMark').onclick=()=>{const e=episode();if(!e)return;e.mark=$('body').selectionStart||0;markInfo();save();status('📍 書き直し済みの位置を保存しました')};
-$('jumpMark').onclick=()=>{const e=episode();if(!e||!Number.isInteger(e.mark))return;const el=$('body'),p=Math.min(e.mark,el.value.length);el.focus();el.setSelectionRange(p,p);cursorCount();const before=el.value.slice(0,p).split('\\n').length-1;el.scrollTop=Math.max(0,before*parseFloat(getComputedStyle(el).lineHeight)-el.clientHeight/3)};
+function markLineTop(el, position) {
+  const style = getComputedStyle(el);
+  const mirror = document.createElement('div');
+  for (const property of ['font', 'letterSpacing', 'wordSpacing', 'padding', 'textIndent', 'tabSize', 'direction', 'textAlign', 'wordBreak', 'lineBreak']) {
+    mirror.style[property] = style[property];
+  }
+  Object.assign(mirror.style, {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    visibility: 'hidden',
+    boxSizing: 'border-box',
+    width: el.clientWidth + 'px',
+    lineHeight: style.lineHeight,
+    whiteSpace: 'pre-wrap',
+    overflowWrap: 'break-word'
+  });
+  const value = el.value;
+  const needsLastLine = !value || value.endsWith('\n');
+  mirror.textContent = value + (needsLastLine ? '\u200b' : '');
+  document.body.append(mirror);
+  const range = document.createRange();
+  const offset = Math.min(position, mirror.textContent.length - 1);
+  range.setStart(mirror.firstChild, offset);
+  range.setEnd(mirror.firstChild, offset + 1);
+  const top = range.getBoundingClientRect().top - mirror.getBoundingClientRect().top;
+  mirror.remove();
+  return top;
+}
+
+$('jumpMark').onclick = () => {
+  const e = episode();
+  if (!e || !Number.isInteger(e.mark)) return;
+  const el = $('body');
+  const position = Math.max(0, Math.min(e.mark, el.value.length));
+  el.focus({ preventScroll: true });
+  el.setSelectionRange(position, position);
+  cursorCount();
+
+  const top = markLineTop(el, position);
+  el.scrollTop = Math.max(0, top - el.clientHeight / 3);
+  const lineY = el.getBoundingClientRect().top + el.clientTop + top - el.scrollTop;
+  const visibleTop = document.querySelector('header').getBoundingClientRect().bottom;
+  const viewport = window.visualViewport;
+  const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+  if (lineY < visibleTop + 8 || lineY + lineHeight > visibleBottom - 8) {
+    window.scrollBy(0, lineY - visibleTop - 12);
+  }
+};
 $('clearMark').onclick=()=>{const e=episode();if(!e||!confirm('この話の目印を解除しますか？'))return;delete e.mark;markInfo();save()};
 const changed=()=>{trackMark();count();cursorCount();save();clearTimeout(timer);timer=setTimeout(archive,5000)};
 const render=()=>{const c=$('chapter'),e=$('episode');c.replaceChildren();e.replaceChildren();project.chapters.sort((a,b)=>a.id-b.id);for(const ch of project.chapters)c.add(new Option('第'+ch.id+'章',ch.id));const ch=chapter()||project.chapters[0];project.selected.chapter=ch.id;ch.episodes.sort((a,b)=>a.id-b.id);for(const ep of ch.episodes)e.add(new Option('第'+String(ep.id).padStart(3,'0')+'話',ep.id));if(!episode())project.selected.episode=ch.episodes[0].id;c.value=String(project.selected.chapter);e.value=String(project.selected.episode);$('title').value=episode().title||'';$('body').value=episode().body||'';previousBody=$('body').value;count();cursorCount();markInfo();safe()};
