@@ -15,6 +15,13 @@
   h1 { font-size: clamp(1.55rem, 5vw, 2.25rem); line-height: 1.45; margin: .45rem 0; }
   h2 { font-size: clamp(1.15rem, 4vw, 1.4rem); line-height: 1.6; margin: .75rem 0 0; }
   article p { margin: 0 0 .95em; }
+  .narration { margin: 0 0 2rem; padding: 0 .9rem; border: 1px solid #aa9175; border-radius: .65rem; font: 1rem/1.5 system-ui, sans-serif; }
+  .narration summary { padding: .7rem 0; cursor: pointer; }
+  .narration summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  .narration summary:first-child { font-weight: 700; }
+  .narration details + details { border-top: 1px solid #aa9175; }
+  .narration video { display: block; width: min(100%, 16rem); margin: 0 auto .35rem; aspect-ratio: 9 / 16; background: #17252d; }
+  .narration a { margin-bottom: .6rem; }
   footer { margin-top: 2rem; border-top: 1px solid #aa9175; padding-top: 1rem; }
   @media (prefers-color-scheme: dark) {
     body { background: #201c19; color: #f1e7d7; }
@@ -31,6 +38,23 @@
 <h1>世界最強のラッキーガールが魔法使いになる時</h1>
 <h2>第４話　パンは二つ、受け取りに来た竜は一匹</h2>
 </header>
+<details class="narration">
+  <summary>🎧 第４話の朗読を聴く</summary>
+  <details>
+    <summary>日本語朗読</summary>
+    <video controls playsinline preload="none" aria-label="第４話の日本語朗読と日本語字幕">
+      <source src="./audio/04-ja.mp4" type="video/mp4">
+    </video>
+    <a href="./audio/04-ja.mp4">日本語版の動画を開く</a>
+  </details>
+  <details>
+    <summary>英語朗読（日本語字幕）</summary>
+    <video controls playsinline preload="none" aria-label="第４話の英語朗読と日本語字幕">
+      <source src="./audio/04-en.mp4" type="video/mp4">
+    </video>
+    <a href="./audio/04-en.mp4">英語版の動画を開く</a>
+  </details>
+</details>
 <p>「昨日の騎士さんは一緒じゃないのかい？」</p>
 <p>「外にいます。今日は前掛けを見たとたん、店に入るのをやめました」</p>
 <p>「じゃあ私が外へ行くよ」</p>
