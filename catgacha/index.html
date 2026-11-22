@@ -72,5 +72,6 @@ function reset(){stop();round=1;correct=total=streak=0;phase='welcome';stats();r
 $('restart').onclick=reset;$('level').onchange=()=>{prefs.level=Number($('level').value);save();reset()};$('mode').onchange=()=>{prefs.mode=$('mode').value;save();reset()};document.addEventListener('visibilitychange',()=>{if(document.hidden){if(ctx&&ctx.state==='running')ctx.suspend().catch(()=>{})}else if(ctx&&prefs.sound)ctx.resume().catch(()=>{})});window.addEventListener('pagehide',stop);window.addEventListener('pageshow',e=>{if(e.persisted)reset()});options();stats();render();
 })();
 </script>
+<script data-goatcounter="https://salpmusic.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

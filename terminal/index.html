@@ -138,4 +138,5 @@ $("searchBtn").onclick=()=>togglePalette();$("paletteInput").oninput=e=>renderPa
 function updateClock(){const d=new Date();$("clock").innerHTML=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+"<br>"+d.toLocaleDateString()}setInterval(updateClock,1000);updateClock();applyTheme(localStorage.getItem(THEME_KEY)||"dark");renderDesktop();renderQuick();renderStart();renderRecent();openApp("terminal");
 })();
 </script>
+<script data-goatcounter="https://salpmusic.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body></html>

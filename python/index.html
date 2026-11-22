@@ -38,4 +38,5 @@ fetch("lessons.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{
   const last=d.lessons[d.lessons.length-1];if(last){document.getElementById("latest").href=last.html;document.getElementById("latestTitle").textContent="第"+last.no+"回："+last.title}
 }).catch(()=>{});
 </script>
+<script data-goatcounter="https://salpmusic.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body></html>
